@@ -24,7 +24,7 @@ export const FREE_TRIAL = false;
 //  true  → muestra el diseño especial de La Komu en la sección de planes
 //  false → muestra el diseño normal de precios
 // ============================================================
-export const KOMU_PROMO = true;
+export const KOMU_PROMO = false;
 
 // Configuración de cada modo
 export const CTA_CONFIG = {
