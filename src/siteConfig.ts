@@ -17,7 +17,7 @@ export const OFFER_AVAILABLE = true;
 //  true  → usa el link con 7 días gratis y muestra ese beneficio
 //  false → usa el link sin prueba y oculta el ítem "7 días gratis"
 // ============================================================
-export const FREE_TRIAL = false;
+export const FREE_TRIAL = true;
 
 // ============================================================
 //  KOMU PROMO MODE — activa el modo evento "Los 4 Pecados de Pablo"
