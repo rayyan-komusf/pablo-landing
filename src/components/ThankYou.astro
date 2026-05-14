@@ -3,18 +3,14 @@ import { Image } from 'astro:assets';
 import logoModal from '../assets/logodelmodal.png';
 // src/components/ThankYou.astro
 
-interface Props {
-  plan: 'mensual' | 'anual';
-}
-
-const { plan } = Astro.props;
+const plan = Astro.url.searchParams.get('plan');
 
 const subtitleText = plan === 'anual'
   ? 'Tu suscripción anual está activa. Ahora tienes 7 días de prueba gratis y acceso ilimitado a todas las herramientas para llevar tus finanzas al siguiente nivel.'
-  : 'Tu suscripción mensual está activa. Ahora tienes acceso ilimitado a todas las herramientas para llevar tus finanzas al siguiente nivel.';
+  : 'Tu suscripción a Pablo Premium está activa. Ahora tienes acceso ilimitado a todas las herramientas para llevar tus finanzas al siguiente nivel.';
 
-const pixelPlanName = plan === 'anual' ? 'Plan Anual' : 'Plan Mensual';
-const pixelValue = plan === 'anual' ? 200 : 20;
+const pixelPlanName = plan === 'anual' ? 'Plan Anual' : (plan === 'mensual' ? 'Plan Mensual' : 'Suscripción Premium');
+const pixelValue = plan === 'anual' ? 200 : (plan === 'mensual' ? 20 : 0);
 ---
 
 <section class="gracias">
