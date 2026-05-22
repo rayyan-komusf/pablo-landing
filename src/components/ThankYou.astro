@@ -68,6 +68,7 @@ const pixelValue = plan === 'anual' ? 200 : (plan === 'mensual' ? 20 : 0);
         rel="noopener noreferrer"
         class="btn-primary gracias__cta-app"
         id="gracias-app-btn"
+        onclick="if(typeof fbq!=='undefined')fbq('trackCustom','Activacion_App');if(typeof ttq!=='undefined')ttq.track('ClickButton',{content_name:'Activacion_App'});"
       >
         <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
           <path d="M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4"/>
