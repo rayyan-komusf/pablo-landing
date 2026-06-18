@@ -16,6 +16,12 @@ function extractText(richText: any[]): string {
   return richText?.map((t: any) => t.plain_text).join("") || "";
 }
 
+function toDirectImageUrl(url: string): string {
+  const match = url.match(/\/d\/([a-zA-Z0-9_-]+)/);
+  if (match) return `https://drive.google.com/uc?export=view&id=${match[1]}`;
+  return url;
+}
+
 function extractFileUrl(files: any[]): string | null {
   if (!files?.length) return null;
   const file = files[0];
@@ -66,7 +72,10 @@ export async function getPosts(): Promise<PostMeta[]> {
         slug,
         descripcion: extractText(props["Descripcion"]?.rich_text),
         fecha: props["Fecha"]?.date?.start || null,
-        portada: extractFileUrl(props["Portada"]?.files),
+        portada: (() => {
+          const raw = props["Portada"]?.url || extractFileUrl(props["Portada"]?.files);
+          return raw ? toDirectImageUrl(raw) : null;
+        })(),
         autor: extractText(props["Autor"]?.rich_text),
       };
     });
