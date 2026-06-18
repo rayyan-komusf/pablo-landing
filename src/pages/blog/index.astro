@@ -1,0 +1,198 @@
+---
+import Layout from "../../layouts/Layout.astro";
+import Navbar from "../../components/Navbar.astro";
+import Footer from "../../components/Footer.astro";
+import { getPosts } from "../../lib/notion";
+
+const posts = await getPosts();
+---
+
+<Layout
+  title="Blog — Pablo"
+  description="Consejos, estrategias y recursos para manejar mejor tu dinero."
+>
+  <Navbar />
+  <main class="blog-page">
+    <div class="container">
+      <div class="blog-header">
+        <h1>Pablo’s Blog</h1>
+        <p>
+          Los mejores consejos, estrategias y recursos para una mejor educación
+          financiera.
+        </p>
+      </div>
+
+      {
+        posts.length === 0 ? (
+          <div class="empty">
+            <p>Pronto habrá artículos aquí. ¡Vuelve pronto!</p>
+          </div>
+        ) : (
+          <div class="posts-grid">
+            {posts.map((post) => (
+              <a href={`/blog/${post.slug}`} class="post-card">
+                {post.portada && (
+                  <div class="post-card__cover">
+                    <img
+                      src={post.portada}
+                      alt={post.title}
+                      width="640"
+                      height="360"
+                      loading="lazy"
+                      decoding="async"
+                    />
+                  </div>
+                )}
+                <div class="post-card__body">
+                  <div class="post-card__meta">
+                    {post.fecha && (
+                      <time class="post-card__date">
+                        {new Date(post.fecha)
+                          .toLocaleDateString("es-PE", {
+                            day: "numeric",
+                            month: "short",
+                          })
+                          .toUpperCase()}
+                      </time>
+                    )}
+                    {post.autor && (
+                      <>
+                        <span class="post-card__sep">|</span>
+                        <span class="post-card__autor">{post.autor}</span>
+                      </>
+                    )}
+                  </div>
+                  <h2 class="post-card__title">{post.title}</h2>
+                </div>
+              </a>
+            ))}
+          </div>
+        )
+      }
+    </div>
+  </main>
+  <Footer />
+</Layout>
+
+<style>
+  .blog-page {
+    min-height: 100vh;
+    padding: 80px 0 120px;
+    background: var(--bg-page);
+  }
+
+  .container {
+    max-width: var(--max-width);
+    margin: 0 auto;
+    padding: 0 var(--gutter);
+  }
+
+  .blog-header {
+    text-align: center;
+    margin-bottom: 64px;
+  }
+
+  .blog-header h1 {
+    font-family: var(--font-heading);
+    font-size: clamp(2rem, 5vw, 3rem);
+    color: var(--color-heading);
+    margin-bottom: 12px;
+  }
+
+  .blog-header p {
+    font-size: 1.1rem;
+    color: var(--color-body);
+    max-width: 500px;
+    margin: 0 auto;
+  }
+
+  .posts-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    gap: 40px 32px;
+  }
+
+  .post-card {
+    display: flex;
+    flex-direction: column;
+    text-decoration: none;
+    color: inherit;
+    gap: 16px;
+  }
+
+  .post-card__cover {
+    width: 100%;
+    aspect-ratio: 16/9;
+    overflow: hidden;
+    border-radius: var(--radius-md);
+  }
+
+  .post-card__cover img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transition: transform 0.3s ease;
+  }
+
+  .post-card:hover .post-card__cover img {
+    transform: scale(1.04);
+  }
+
+  .post-card__body {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+  }
+
+  .post-card__meta {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .post-card__date {
+    font-size: 0.78rem;
+    color: var(--color-secondary);
+    font-weight: 500;
+    letter-spacing: 0.05em;
+  }
+
+  .post-card__sep {
+    font-size: 0.78rem;
+    color: var(--color-secondary);
+    opacity: 0.4;
+  }
+
+  .post-card__autor {
+    font-size: 0.78rem;
+    color: var(--color-secondary);
+    font-weight: 600;
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
+  }
+
+  .post-card__title {
+    font-family: var(--font-heading);
+    font-size: 1.15rem;
+    color: var(--color-heading);
+    line-height: 1.3;
+    transition: color 0.15s;
+  }
+
+  .post-card:hover .post-card__title {
+    color: var(--color-purple);
+  }
+
+  .empty {
+    text-align: center;
+    padding: 80px 0;
+    color: var(--color-body);
+    font-size: 1.1rem;
+  }
+
+  @media (max-width: 640px) {
+    .posts-grid {
+      grid-template-columns: 1fr;
+    }
+  }
+</style>
