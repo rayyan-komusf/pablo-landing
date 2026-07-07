@@ -1,0 +1,770 @@
+---
+import Layout from "../layouts/Layout.astro";
+import Navbar from "../components/Navbar.astro";
+import Footer from "../components/Footer.astro";
+
+const endpoint = import.meta.env.PUBLIC_FORM_ENDPOINT ?? "";
+---
+
+<Layout
+  title="Trabaja con nosotros — Pablo"
+  description="Únete al equipo de creadores de Pablo y ayuda a más personas a mejorar su educación financiera."
+>
+  <Navbar />
+  <main class="trabaja-page">
+    <div class="container">
+      <div class="page-header">
+        <h1>Trabaja con nosotros</h1>
+        <p>
+          Somos un equipo que cree en la educación financiera. Si eres creador
+          de contenido y quieres ser parte de algo grande, cuéntanos sobre ti.
+        </p>
+      </div>
+
+      <div id="form-wrap">
+        <form id="trabaja-form" novalidate>
+          <!-- Nombre completo -->
+          <div class="field-group">
+            <label for="nombre">Nombre completo <span class="required">*</span></label>
+            <input type="text" id="nombre" name="nombre" required placeholder="Tu nombre completo" />
+            <span class="field-error" data-for="nombre"></span>
+          </div>
+
+          <!-- Correo electrónico -->
+          <div class="field-group">
+            <label for="email">Correo electrónico <span class="required">*</span></label>
+            <input type="email" id="email" name="email" required placeholder="tucorreo@ejemplo.com" />
+            <span class="field-error" data-for="email"></span>
+          </div>
+
+          <!-- WhatsApp -->
+          <div class="field-group">
+            <label for="whatsapp">Número de WhatsApp <span class="required">*</span></label>
+            <input type="tel" id="whatsapp" name="whatsapp" required placeholder="+51 999 999 999" />
+            <span class="field-error" data-for="whatsapp"></span>
+          </div>
+
+          <!-- Ciudad y país -->
+          <div class="field-group">
+            <label for="ciudad">Ciudad y país <span class="required">*</span></label>
+            <input type="text" id="ciudad" name="ciudad" required placeholder="Lima, Perú" />
+            <span class="field-error" data-for="ciudad"></span>
+          </div>
+
+          <!-- Instagram -->
+          <div class="field-group">
+            <label for="instagram">Link de Instagram <span class="required">*</span></label>
+            <input type="url" id="instagram" name="instagram" required placeholder="https://instagram.com/tuperfil" />
+            <span class="field-error" data-for="instagram"></span>
+          </div>
+
+          <!-- TikTok -->
+          <div class="field-group">
+            <label for="tiktok">Link de TikTok <span class="required">*</span></label>
+            <input type="url" id="tiktok" name="tiktok" required placeholder="https://tiktok.com/@tuperfil" />
+            <span class="field-error" data-for="tiktok"></span>
+          </div>
+
+          <!-- Red principal -->
+          <div class="field-group">
+            <label>¿En qué red tienes más actividad? <span class="required">*</span></label>
+            <div class="radio-group">
+              <label class="radio-option">
+                <input type="radio" name="red_principal" value="Instagram" required />
+                <span class="radio-label">Instagram</span>
+              </label>
+              <label class="radio-option">
+                <input type="radio" name="red_principal" value="TikTok" />
+                <span class="radio-label">TikTok</span>
+              </label>
+              <label class="radio-option">
+                <input type="radio" name="red_principal" value="Ambas" />
+                <span class="radio-label">Ambas</span>
+              </label>
+            </div>
+            <span class="field-error" data-for="red_principal"></span>
+          </div>
+
+          <!-- Adjuntar imagen de métricas -->
+          <div class="field-group">
+            <label for="metricas">
+              Adjunta una imagen de tus métricas de IG y TikTok <span class="required">*</span>
+            </label>
+            <div class="file-drop" id="file-drop">
+              <input type="file" id="metricas" name="metricas" accept="image/*" required />
+              <div class="file-drop__content">
+                <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+                  <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
+                  <polyline points="17 8 12 3 7 8"/>
+                  <line x1="12" y1="3" x2="12" y2="15"/>
+                </svg>
+                <p id="file-label">Haz clic o arrastra tu imagen aquí</p>
+                <span>JPG, PNG o WEBP · Máx. 5 MB</span>
+              </div>
+            </div>
+            <span class="field-error" data-for="metricas"></span>
+          </div>
+
+          <!-- Tipo de contenido -->
+          <div class="field-group">
+            <label>¿Qué tipo de contenido haces principalmente? <span class="required">*</span></label>
+            <div class="radio-group radio-group--grid">
+              {["Finanzas", "Gastronomía", "Lifestyle", "Tecnología", "Emprendimiento"].map((op) => (
+                <label class="radio-option">
+                  <input type="radio" name="tipo_contenido" value={op} required />
+                  <span class="radio-label">{op}</span>
+                </label>
+              ))}
+              <label class="radio-option">
+                <input type="radio" name="tipo_contenido" value="Otros" id="otros-radio" />
+                <span class="radio-label">Otros</span>
+              </label>
+            </div>
+            <input
+              type="text"
+              id="otros-texto"
+              name="tipo_contenido_otro"
+              placeholder="¿Cuál?"
+              class="otros-input"
+              aria-hidden="true"
+            />
+            <span class="field-error" data-for="tipo_contenido"></span>
+          </div>
+
+          <!-- Separador sección 2 -->
+          <div class="section-divider">
+            <span>Detalles de participación</span>
+          </div>
+
+          <!-- ¿Cuándo podrías grabar? -->
+          <div class="field-group">
+            <label>¿Cuándo podrías grabar el contenido? <span class="required">*</span></label>
+            <div class="radio-group">
+              {["Esta semana", "Próxima semana", "En 15 días", "No estoy seguro."].map((op) => (
+                <label class="radio-option">
+                  <input type="radio" name="cuando_grabar" value={op} required />
+                  <span class="radio-label">{op}</span>
+                </label>
+              ))}
+            </div>
+            <span class="field-error" data-for="cuando_grabar"></span>
+          </div>
+
+          <!-- Formato preferido -->
+          <div class="field-group">
+            <label>¿Qué formato prefieres crear? <span class="required">*</span></label>
+            <div class="radio-group radio-group--grid">
+              {["Reel", "TikTok", "Carrusel", "Historias"].map((op) => (
+                <label class="radio-option">
+                  <input type="radio" name="formato" value={op} required />
+                  <span class="radio-label">{op}</span>
+                </label>
+              ))}
+            </div>
+            <span class="field-error" data-for="formato"></span>
+          </div>
+
+          <!-- Pablo Premium -->
+          <div class="field-group">
+            <label>¿Te interesa recibir Pablo Premium por 1 año y participar en un programa de referidos? <span class="required">*</span></label>
+            <div class="radio-group">
+              {["Sí", "No", "Necesito más detalles"].map((op) => (
+                <label class="radio-option">
+                  <input type="radio" name="pablo_premium" value={op} required />
+                  <span class="radio-label">{op}</span>
+                </label>
+              ))}
+            </div>
+            <span class="field-error" data-for="pablo_premium"></span>
+          </div>
+
+          <!-- Por qué participar -->
+          <div class="field-group">
+            <label for="por_que">¿Por qué te gustaría participar en esta campaña? <span class="required">*</span></label>
+            <textarea id="por_que" name="por_que" required placeholder="Cuéntanos tu motivación..." rows="4"></textarea>
+            <span class="field-error" data-for="por_que"></span>
+          </div>
+
+          <div class="form-footer">
+            <p class="form-note">
+              Al enviar este formulario aceptas que usemos tu información para
+              evaluarte como posible colaborador de Pablo.
+            </p>
+            <button type="submit" class="btn-submit" id="submit-btn">
+              Enviar solicitud <span class="btn-arrow">→</span>
+            </button>
+          </div>
+
+          <div id="form-error-msg" class="form-error-msg" hidden>
+            Ocurrió un error al enviar. Por favor inténtalo de nuevo.
+          </div>
+        </form>
+      </div>
+
+      <!-- Estado de éxito -->
+      <div id="form-success" class="success-state" hidden>
+        <div class="success-icon">✓</div>
+        <h2>¡Solicitud enviada!</h2>
+        <p>Recibimos tu información. Si tu perfil encaja con lo que buscamos, nos pondremos en contacto contigo pronto.</p>
+        <a href="/" class="btn-back">Volver al inicio</a>
+      </div>
+    </div>
+  </main>
+  <Footer />
+</Layout>
+
+<script is:inline define:vars={{ endpoint }}>
+  const form = document.getElementById("trabaja-form");
+  const successEl = document.getElementById("form-success");
+  const formWrap = document.getElementById("form-wrap");
+  const submitBtn = document.getElementById("submit-btn");
+  const formErrorMsg = document.getElementById("form-error-msg");
+
+  // File drop UI
+  const fileDrop = document.getElementById("file-drop");
+  const fileInput = document.getElementById("metricas");
+  const fileLabel = document.getElementById("file-label");
+
+  fileInput?.addEventListener("change", () => {
+    const f = fileInput.files?.[0];
+    if (f) fileLabel.textContent = f.name;
+  });
+
+  fileDrop?.addEventListener("dragover", (e) => {
+    e.preventDefault();
+    fileDrop.classList.add("is-over");
+  });
+  fileDrop?.addEventListener("dragleave", () => fileDrop.classList.remove("is-over"));
+  fileDrop?.addEventListener("drop", (e) => {
+    e.preventDefault();
+    fileDrop.classList.remove("is-over");
+    const f = e.dataTransfer?.files?.[0];
+    if (f && fileInput) {
+      const dt = new DataTransfer();
+      dt.items.add(f);
+      fileInput.files = dt.files;
+      fileLabel.textContent = f.name;
+    }
+  });
+
+  // "Otros" text field toggle
+  const otrosRadio = document.getElementById("otros-radio");
+  const otrosTexto = document.getElementById("otros-texto");
+  document.querySelectorAll('input[name="tipo_contenido"]').forEach((r) => {
+    r.addEventListener("change", () => {
+      const isOtros = otrosRadio?.checked;
+      otrosTexto.style.display = isOtros ? "block" : "none";
+      otrosTexto.setAttribute("aria-hidden", String(!isOtros));
+    });
+  });
+
+  // File to base64
+  function toBase64(file) {
+    return new Promise((resolve, reject) => {
+      const reader = new FileReader();
+      reader.onload = () => {
+        const result = reader.result;
+        const base64 = result.split(",")[1];
+        resolve(base64);
+      };
+      reader.onerror = reject;
+      reader.readAsDataURL(file);
+    });
+  }
+
+  // Show field errors
+  function showError(name, msg) {
+    const el = document.querySelector(`[data-for="${name}"]`);
+    if (el) el.textContent = msg;
+  }
+  function clearErrors() {
+    document.querySelectorAll(".field-error").forEach((el) => (el.textContent = ""));
+  }
+
+  // Validate
+  function validate(data, file) {
+    let ok = true;
+    const required = ["nombre","email","whatsapp","ciudad","instagram","tiktok"];
+    required.forEach((k) => {
+      if (!data[k]?.trim()) {
+        showError(k, "Este campo es obligatorio.");
+        ok = false;
+      }
+    });
+    if (data.email && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(data.email)) {
+      showError("email", "Ingresa un correo válido.");
+      ok = false;
+    }
+    if (!data.red_principal) {
+      showError("red_principal", "Selecciona una opción.");
+      ok = false;
+    }
+    if (!file) {
+      showError("metricas", "Adjunta una imagen de tus métricas.");
+      ok = false;
+    } else if (file.size > 5 * 1024 * 1024) {
+      showError("metricas", "La imagen debe pesar menos de 5 MB.");
+      ok = false;
+    }
+    if (!data.tipo_contenido) {
+      showError("tipo_contenido", "Selecciona una opción.");
+      ok = false;
+    }
+    if (!data.cuando_grabar) {
+      showError("cuando_grabar", "Selecciona una opción.");
+      ok = false;
+    }
+    if (!data.formato) {
+      showError("formato", "Selecciona una opción.");
+      ok = false;
+    }
+    if (!data.pablo_premium) {
+      showError("pablo_premium", "Selecciona una opción.");
+      ok = false;
+    }
+    if (!data.por_que?.trim()) {
+      showError("por_que", "Este campo es obligatorio.");
+      ok = false;
+    }
+    return ok;
+  }
+
+  form?.addEventListener("submit", async (e) => {
+    e.preventDefault();
+    clearErrors();
+    formErrorMsg.hidden = true;
+
+    const fd = new FormData(form);
+    const file = fileInput?.files?.[0] ?? null;
+
+    const data = {
+      nombre: fd.get("nombre"),
+      email: fd.get("email"),
+      whatsapp: fd.get("whatsapp"),
+      ciudad: fd.get("ciudad"),
+      instagram: fd.get("instagram"),
+      tiktok: fd.get("tiktok"),
+      red_principal: fd.get("red_principal"),
+      tipo_contenido: fd.get("tipo_contenido"),
+      tipo_contenido_otro: fd.get("tipo_contenido_otro") ?? "",
+      cuando_grabar: fd.get("cuando_grabar"),
+      formato: fd.get("formato"),
+      pablo_premium: fd.get("pablo_premium"),
+      por_que: fd.get("por_que"),
+    };
+
+    if (!validate(data, file)) return;
+
+    if (!endpoint) {
+      formErrorMsg.hidden = false;
+      formErrorMsg.textContent = "El formulario no está configurado aún. Contacta al administrador.";
+      return;
+    }
+
+    submitBtn.disabled = true;
+    submitBtn.textContent = "Enviando…";
+
+    try {
+      const file_base64 = await toBase64(file);
+      const payload = {
+        ...data,
+        file_name: file.name,
+        file_type: file.type,
+        file_base64,
+      };
+
+      await fetch(endpoint, {
+        method: "POST",
+        headers: { "Content-Type": "text/plain" },
+        body: JSON.stringify(payload),
+      });
+
+      formWrap.hidden = true;
+      successEl.hidden = false;
+    } catch {
+      formErrorMsg.hidden = false;
+      submitBtn.disabled = false;
+      submitBtn.innerHTML = 'Enviar solicitud <span class="btn-arrow">→</span>';
+    }
+  });
+</script>
+
+<style>
+  .trabaja-page {
+    min-height: 100vh;
+    padding: 80px 0 120px;
+    background: var(--bg-page);
+  }
+
+  .container {
+    max-width: 680px;
+    margin: 0 auto;
+    padding: 0 var(--gutter);
+  }
+
+  .page-header {
+    text-align: center;
+    margin-bottom: 56px;
+  }
+
+  .page-header h1 {
+    font-family: var(--font-heading);
+    font-size: clamp(2rem, 5vw, 2.8rem);
+    color: var(--color-heading);
+    margin-bottom: 16px;
+  }
+
+  .page-header p {
+    font-size: 1.05rem;
+    color: var(--color-body);
+    line-height: 1.7;
+    max-width: 520px;
+    margin: 0 auto;
+  }
+
+  /* Form */
+  #trabaja-form {
+    display: flex;
+    flex-direction: column;
+    gap: 28px;
+  }
+
+  .field-group {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+  }
+
+  .field-group > label {
+    font-weight: 600;
+    font-size: 0.92rem;
+    color: var(--color-heading);
+  }
+
+  .required {
+    color: #e53e3e;
+    margin-left: 2px;
+  }
+
+  input[type="text"],
+  input[type="email"],
+  input[type="tel"],
+  input[type="url"] {
+    width: 100%;
+    padding: 12px 16px;
+    border: 1.5px solid rgba(43, 44, 100, 0.2);
+    border-radius: var(--radius-md);
+    font-size: 1rem;
+    font-family: var(--font-body);
+    color: var(--color-heading);
+    background: white;
+    transition: border-color 0.15s;
+    outline: none;
+    box-sizing: border-box;
+  }
+
+  input[type="text"]:focus,
+  input[type="email"]:focus,
+  input[type="tel"]:focus,
+  input[type="url"]:focus {
+    border-color: var(--color-purple);
+  }
+
+  input::placeholder {
+    color: rgba(43, 44, 100, 0.35);
+  }
+
+  /* Radio */
+  .radio-group {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+  }
+
+  .radio-group--grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 10px 16px;
+  }
+
+  .radio-option {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    cursor: pointer;
+  }
+
+  .radio-option input[type="radio"] {
+    appearance: none;
+    -webkit-appearance: none;
+    width: 18px;
+    height: 18px;
+    border: 2px solid rgba(43, 44, 100, 0.3);
+    border-radius: 50%;
+    flex-shrink: 0;
+    transition: border-color 0.15s;
+    position: relative;
+  }
+
+  .radio-option input[type="radio"]:checked {
+    border-color: var(--color-purple);
+    background: var(--color-purple);
+    box-shadow: inset 0 0 0 3px white;
+  }
+
+  .radio-label {
+    font-size: 0.95rem;
+    color: var(--color-body);
+  }
+
+  /* Otros input */
+  .otros-input {
+    display: none;
+    margin-top: 8px;
+    width: 100%;
+    padding: 10px 14px;
+    border: 1.5px solid rgba(43, 44, 100, 0.2);
+    border-radius: var(--radius-md);
+    font-size: 0.95rem;
+    font-family: var(--font-body);
+    color: var(--color-heading);
+    background: white;
+    outline: none;
+    box-sizing: border-box;
+  }
+
+  .otros-input:focus {
+    border-color: var(--color-purple);
+  }
+
+  /* Section divider */
+  .section-divider {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    margin: 8px 0 4px;
+  }
+
+  .section-divider::before,
+  .section-divider::after {
+    content: "";
+    flex: 1;
+    height: 1px;
+    background: rgba(43, 44, 100, 0.12);
+  }
+
+  .section-divider span {
+    font-family: var(--font-heading);
+    font-size: 0.8rem;
+    font-weight: 700;
+    color: var(--color-secondary);
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    white-space: nowrap;
+  }
+
+  /* Textarea */
+  textarea {
+    width: 100%;
+    padding: 16px 18px;
+    border: 1.5px solid rgba(43, 44, 100, 0.15);
+    border-radius: 16px;
+    font-size: 0.97rem;
+    font-family: var(--font-body);
+    color: var(--color-heading);
+    background: rgba(43, 44, 100, 0.02);
+    transition: border-color 0.2s, background 0.2s, box-shadow 0.2s;
+    outline: none;
+    resize: none;
+    box-sizing: border-box;
+    line-height: 1.7;
+    min-height: 140px;
+  }
+
+  textarea:focus {
+    border-color: var(--color-purple);
+    background: white;
+    box-shadow: 0 0 0 3px rgba(43, 44, 100, 0.07);
+  }
+
+  textarea::placeholder {
+    color: rgba(43, 44, 100, 0.3);
+    font-style: italic;
+  }
+
+  /* File drop */
+  .file-drop {
+    position: relative;
+    border: 2px dashed rgba(43, 44, 100, 0.25);
+    border-radius: var(--radius-md);
+    background: rgba(43, 44, 100, 0.02);
+    padding: 32px 20px;
+    text-align: center;
+    cursor: pointer;
+    transition: border-color 0.15s, background 0.15s;
+  }
+
+  .file-drop:hover,
+  .file-drop.is-over {
+    border-color: var(--color-purple);
+    background: rgba(43, 44, 100, 0.04);
+  }
+
+  .file-drop input[type="file"] {
+    position: absolute;
+    inset: 0;
+    opacity: 0;
+    cursor: pointer;
+    width: 100%;
+    height: 100%;
+  }
+
+  .file-drop__content {
+    pointer-events: none;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 8px;
+    color: var(--color-secondary);
+  }
+
+  .file-drop__content p {
+    font-size: 0.95rem;
+    font-weight: 500;
+    color: var(--color-heading);
+    margin: 0;
+  }
+
+  .file-drop__content span {
+    font-size: 0.78rem;
+    opacity: 0.6;
+  }
+
+  /* Field errors */
+  .field-error {
+    font-size: 0.8rem;
+    color: #e53e3e;
+    min-height: 16px;
+  }
+
+  /* Form footer */
+  .form-footer {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 20px;
+    padding-top: 8px;
+  }
+
+  .form-note {
+    font-size: 0.8rem;
+    color: var(--color-secondary);
+    text-align: center;
+    line-height: 1.5;
+    max-width: 440px;
+    margin: 0;
+  }
+
+  .btn-submit {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    background: var(--color-amber);
+    color: var(--color-heading);
+    font-family: var(--font-heading);
+    font-weight: 700;
+    font-size: 1rem;
+    padding: 14px 32px;
+    border-radius: var(--radius-pill);
+    border: none;
+    cursor: pointer;
+    transition: transform 0.2s ease;
+  }
+
+  .btn-submit:hover:not(:disabled) {
+    transform: scale(1.05);
+  }
+
+  .btn-submit:hover:not(:disabled) .btn-arrow {
+    transform: translateX(4px);
+  }
+
+  .btn-submit .btn-arrow {
+    display: inline-block;
+    transition: transform 0.2s ease;
+  }
+
+  .btn-submit:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+  }
+
+  .form-error-msg {
+    text-align: center;
+    font-size: 0.9rem;
+    color: #e53e3e;
+    background: rgba(229, 62, 62, 0.06);
+    border-radius: var(--radius-md);
+    padding: 12px 20px;
+  }
+
+  /* Success */
+  .success-state {
+    text-align: center;
+    padding: 80px 0;
+  }
+
+  .success-icon {
+    width: 64px;
+    height: 64px;
+    border-radius: 50%;
+    background: var(--color-amber);
+    color: var(--color-heading);
+    font-size: 1.8rem;
+    font-weight: 700;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 0 auto 24px;
+  }
+
+  .success-state h2 {
+    font-family: var(--font-heading);
+    font-size: 1.8rem;
+    color: var(--color-heading);
+    margin-bottom: 16px;
+  }
+
+  .success-state p {
+    font-size: 1rem;
+    color: var(--color-body);
+    line-height: 1.7;
+    max-width: 440px;
+    margin: 0 auto 32px;
+  }
+
+  .btn-back {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    background: var(--color-heading);
+    color: white;
+    font-family: var(--font-heading);
+    font-weight: 700;
+    font-size: 1rem;
+    padding: 12px 28px;
+    border-radius: var(--radius-pill);
+    text-decoration: none;
+    transition: opacity 0.2s;
+  }
+
+  .btn-back:hover {
+    opacity: 0.85;
+  }
+
+  @media (max-width: 640px) {
+    .radio-group--grid {
+      grid-template-columns: 1fr;
+    }
+  }
+</style>
