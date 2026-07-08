@@ -2,24 +2,125 @@
 import { Image } from 'astro:assets';
 import logoImg from '../assets/Logo.png';
 import { CTA, IS_LIVE, APP_URL } from '../siteConfig';
-// src/components/Navbar.astro
+import { getPosts } from '../lib/notion';
+
+const posts = await getPosts();
+const recentPosts = posts.slice(0, 4);
 ---
 
 <header class="navbar">
   <div class="container navbar__inner">
+
+    <!-- Logo -->
     <a href="/" class="navbar__logo">
       <Image src={logoImg} alt="Pablo logo" class="logo-img" width={36} height={36} />
       <span class="logo-text">Pablo</span>
     </a>
 
+    <!-- Desktop Nav -->
     <nav class="navbar__nav">
-      <a href="#como-funciona" class="nav-link">Cómo funciona</a>
-      <a href="#planes" class="nav-link">Planes</a>
-      <a href="/blog" class="nav-link">Blog</a>
-      <a href="/promos" class="nav-link">Promos</a>
+
+      <!-- Conoce a Pablo -->
+      <div class="nav-item">
+        <button class="nav-trigger" aria-expanded="false">
+          Conoce a Pablo <span class="nav-arrow">▾</span>
+        </button>
+        <div class="dropdown">
+          <a href="/#hero" class="dropdown-item">
+            <span class="di-label">¿Qué es Pablo?</span>
+            <span class="di-desc">Tu asistente financiero en WhatsApp</span>
+          </a>
+          <a href="/#como-funciona" class="dropdown-item">
+            <span class="di-label">Cómo funciona</span>
+            <span class="di-desc">Registra gastos, crea metas y más</span>
+          </a>
+          <a href="/#faq" class="dropdown-item">
+            <span class="di-label">Preguntas frecuentes</span>
+            <span class="di-desc">Resolvemos tus dudas</span>
+          </a>
+        </div>
+      </div>
+
+      <!-- Planes -->
+      <div class="nav-item">
+        <button class="nav-trigger" aria-expanded="false">
+          Planes <span class="nav-arrow">▾</span>
+        </button>
+        <div class="dropdown">
+          <a href="/#planes" class="dropdown-item">
+            <span class="di-label">Plan Semanal <span class="di-badge">S/.5/sem</span></span>
+            <span class="di-desc">Prueba Pablo esta semana</span>
+          </a>
+          <a href="/#planes" class="dropdown-item">
+            <span class="di-label">Plan Mensual <span class="di-badge">S/.20/mes</span></span>
+            <span class="di-desc">3 días gratis de prueba</span>
+          </a>
+          <a href="/#planes" class="dropdown-item">
+            <span class="di-label">Plan Anual <span class="di-badge di-badge--featured">S/.200/año</span></span>
+            <span class="di-desc">Ahorra 2 meses · 16% OFF</span>
+          </a>
+        </div>
+      </div>
+
+      <!-- Promos -->
+      <div class="nav-item">
+        <button class="nav-trigger" aria-expanded="false">
+          Promos <span class="nav-arrow">▾</span>
+        </button>
+        <div class="dropdown">
+          <a href="/trabaja-con-nosotros" class="dropdown-item">
+            <span class="di-label">Crea con Pablo y gana</span>
+            <span class="di-desc">Monetiza tu audiencia con nosotros</span>
+          </a>
+          <div class="dropdown-item dropdown-item--disabled">
+            <span class="di-label">Pablo Points <span class="di-badge di-badge--soon">Próximamente</span></span>
+            <span class="di-desc">Acumula puntos y gana recompensas</span>
+          </div>
+          <div class="dropdown-item dropdown-item--disabled">
+            <span class="di-label">Pablo pone para la chancha <span class="di-badge di-badge--soon">Próximamente</span></span>
+            <span class="di-desc">Ahorra con un objetivo en mente</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Recursos -->
+      <div class="nav-item">
+        <button class="nav-trigger" aria-expanded="false">
+          Recursos <span class="nav-arrow">▾</span>
+        </button>
+        <div class="dropdown dropdown--wide">
+          <div class="dropdown-col">
+            <span class="dropdown-col-label">Blog</span>
+            {recentPosts.length > 0 ? (
+              recentPosts.map((post) => (
+                <a href={`/blog/${post.slug}`} class="dropdown-item dropdown-item--compact">
+                  <span class="di-label">{post.title}</span>
+                </a>
+              ))
+            ) : (
+              <span class="dropdown-item dropdown-item--disabled dropdown-item--compact">
+                <span class="di-label">Pronto habrá artículos</span>
+              </span>
+            )}
+            <a href="/blog" class="dropdown-viewall">Ver todos →</a>
+          </div>
+          <div class="dropdown-col dropdown-col--border">
+            <span class="dropdown-col-label">Cursos</span>
+            <div class="dropdown-item dropdown-item--disabled dropdown-item--compact">
+              <span class="di-label">Próximamente <span class="di-badge di-badge--soon">Próximamente</span></span>
+            </div>
+            <span class="dropdown-col-label dropdown-col-label--mt">Tutoriales</span>
+            <div class="dropdown-item dropdown-item--disabled dropdown-item--compact">
+              <span class="di-label">Próximamente <span class="di-badge di-badge--soon">Próximamente</span></span>
+            </div>
+          </div>
+        </div>
+      </div>
+
       <a href={APP_URL} class="nav-link">Inicia sesión</a>
     </nav>
 
+    <!-- CTA -->
     <div class="navbar__actions">
       {IS_LIVE
         ? <a href={CTA.href!} class="btn-primary btn-sm" id="navbar-cta-btn" onclick="if(typeof fbq!=='undefined')fbq('trackCustom','Ver_Planes');if(typeof ttq!=='undefined')ttq.track('ClickButton',{content_name:'Ver_Planes'});">{CTA.label} <span class="btn-arrow">→</span></a>
@@ -28,18 +129,61 @@ import { CTA, IS_LIVE, APP_URL } from '../siteConfig';
     </div>
 
     <button class="hamburger" id="hamburger-btn" aria-label="Abrir menú" aria-expanded="false">
-      <span></span>
-      <span></span>
-      <span></span>
+      <span></span><span></span><span></span>
     </button>
   </div>
 
+  <!-- Mobile menu -->
   <div class="navbar__mobile-menu" id="mobile-menu" aria-hidden="true">
-    <a href="#como-funciona" class="nav-link">Cómo funciona</a>
-    <a href="#planes" class="nav-link">Planes</a>
-    <a href="/blog" class="nav-link">Blog</a>
-    <a href="/trabaja-con-nosotros" class="nav-link">Trabaja con nosotros</a>
-    <a href={APP_URL} class="nav-link">Inicia sesión</a>
+
+    <!-- Conoce a Pablo accordion -->
+    <div class="mob-section">
+      <button class="mob-section__trigger">Conoce a Pablo <span class="mob-arrow">▾</span></button>
+      <div class="mob-section__body">
+        <a href="/#hero" class="mob-link">¿Qué es Pablo?</a>
+        <a href="/#como-funciona" class="mob-link">Cómo funciona</a>
+        <a href="/#faq" class="mob-link">Preguntas frecuentes</a>
+      </div>
+    </div>
+
+    <!-- Planes accordion -->
+    <div class="mob-section">
+      <button class="mob-section__trigger">Planes <span class="mob-arrow">▾</span></button>
+      <div class="mob-section__body">
+        <a href="/#planes" class="mob-link">Plan Semanal <span class="mob-badge">S/.5</span></a>
+        <a href="/#planes" class="mob-link">Plan Mensual <span class="mob-badge">S/.20</span></a>
+        <a href="/#planes" class="mob-link">Plan Anual <span class="mob-badge mob-badge--featured">S/.200</span></a>
+      </div>
+    </div>
+
+    <!-- Promos accordion -->
+    <div class="mob-section">
+      <button class="mob-section__trigger">Promos <span class="mob-arrow">▾</span></button>
+      <div class="mob-section__body">
+        <a href="/trabaja-con-nosotros" class="mob-link">Crea con Pablo y gana</a>
+        <span class="mob-link mob-link--disabled">Pablo Points <span class="mob-badge mob-badge--soon">Próximamente</span></span>
+        <span class="mob-link mob-link--disabled">Pablo pone para la chancha <span class="mob-badge mob-badge--soon">Próximamente</span></span>
+      </div>
+    </div>
+
+    <!-- Recursos accordion -->
+    <div class="mob-section">
+      <button class="mob-section__trigger">Recursos <span class="mob-arrow">▾</span></button>
+      <div class="mob-section__body">
+        <span class="mob-section-label">Blog</span>
+        {recentPosts.map((post) => (
+          <a href={`/blog/${post.slug}`} class="mob-link mob-link--sub">{post.title}</a>
+        ))}
+        <a href="/blog" class="mob-link mob-link--viewall">Ver todos →</a>
+        <span class="mob-section-label">Cursos</span>
+        <span class="mob-link mob-link--disabled">Próximamente</span>
+        <span class="mob-section-label">Tutoriales</span>
+        <span class="mob-link mob-link--disabled">Próximamente</span>
+      </div>
+    </div>
+
+    <a href={APP_URL} class="mob-link mob-link--standalone">Inicia sesión</a>
+
     <div class="mobile-actions">
       {IS_LIVE
         ? <a href={CTA.href!} class="btn-primary" id="navbar-mobile-cta-btn">{CTA.label} <span class="btn-arrow">→</span></a>
@@ -98,11 +242,11 @@ import { CTA, IS_LIVE, APP_URL } from '../siteConfig';
     color: var(--color-heading);
   }
 
-  /* Nav */
+  /* Desktop Nav */
   .navbar__nav {
     display: flex;
     align-items: center;
-    gap: 32px;
+    gap: 4px;
     margin-left: auto;
   }
 
@@ -112,34 +256,199 @@ import { CTA, IS_LIVE, APP_URL } from '../siteConfig';
     color: var(--color-heading);
     transition: color 0.15s;
     white-space: nowrap;
+    padding: 8px 12px;
   }
 
   .nav-link:hover {
     color: var(--color-amber);
   }
 
-  /* Actions */
+  /* Nav item with dropdown */
+  .nav-item {
+    position: relative;
+  }
+
+  .nav-trigger {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    padding: 8px 12px;
+    font-size: 14px;
+    font-weight: 500;
+    font-family: var(--font-body);
+    color: var(--color-heading);
+    background: none;
+    border: none;
+    cursor: pointer;
+    white-space: nowrap;
+    border-radius: 8px;
+    transition: color 0.15s, background 0.15s;
+  }
+
+  .nav-trigger:hover {
+    color: var(--color-amber);
+    background: rgba(43, 44, 100, 0.04);
+  }
+
+  .nav-arrow {
+    font-size: 10px;
+    transition: transform 0.2s ease;
+    display: inline-block;
+    opacity: 0.6;
+  }
+
+  .nav-item:hover .nav-arrow,
+  .nav-item:focus-within .nav-arrow {
+    transform: rotate(-180deg);
+  }
+
+  /* Dropdown panel */
+  .dropdown {
+    position: absolute;
+    top: calc(100% + 6px);
+    left: 50%;
+    transform: translateX(-50%) translateY(-6px);
+    min-width: 240px;
+    background: white;
+    border: 1px solid rgba(43, 44, 100, 0.1);
+    border-radius: 14px;
+    box-shadow: 0 8px 32px rgba(43, 44, 100, 0.12);
+    padding: 8px;
+    opacity: 0;
+    visibility: hidden;
+    transition: opacity 0.18s ease, transform 0.18s ease, visibility 0.18s;
+    z-index: 200;
+  }
+
+  .nav-item:hover .dropdown,
+  .nav-item:focus-within .dropdown {
+    opacity: 1;
+    visibility: visible;
+    transform: translateX(-50%) translateY(0);
+  }
+
+  /* Wide dropdown for Recursos */
+  .dropdown--wide {
+    min-width: 480px;
+    display: flex;
+    gap: 0;
+    left: auto;
+    right: 0;
+    transform: translateY(-6px);
+  }
+
+  .nav-item:hover .dropdown--wide,
+  .nav-item:focus-within .dropdown--wide {
+    transform: translateY(0);
+  }
+
+  .dropdown-col {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    padding: 4px;
+  }
+
+  .dropdown-col--border {
+    border-left: 1px solid rgba(43, 44, 100, 0.08);
+  }
+
+  .dropdown-col-label {
+    font-size: 11px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.07em;
+    color: var(--color-secondary);
+    padding: 6px 10px 4px;
+  }
+
+  .dropdown-col-label--mt {
+    margin-top: 8px;
+  }
+
+  /* Dropdown items */
+  .dropdown-item {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    padding: 8px 10px;
+    border-radius: 8px;
+    text-decoration: none;
+    color: inherit;
+    transition: background 0.12s;
+    cursor: pointer;
+  }
+
+  a.dropdown-item:hover {
+    background: rgba(43, 44, 100, 0.05);
+  }
+
+  .dropdown-item--disabled {
+    opacity: 0.5;
+    cursor: default;
+  }
+
+  .dropdown-item--compact {
+    padding: 6px 10px;
+  }
+
+  .di-label {
+    font-size: 13.5px;
+    font-weight: 600;
+    color: var(--color-heading);
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    flex-wrap: wrap;
+  }
+
+  .di-desc {
+    font-size: 12px;
+    color: var(--color-secondary);
+    line-height: 1.4;
+  }
+
+  .di-badge {
+    font-size: 11px;
+    font-weight: 600;
+    padding: 2px 7px;
+    border-radius: 20px;
+    background: rgba(43, 44, 100, 0.07);
+    color: var(--color-heading);
+  }
+
+  .di-badge--featured {
+    background: #FEF3DA;
+    color: #875A00;
+    border: 1px solid #F5C970;
+  }
+
+  .di-badge--soon {
+    background: rgba(43, 44, 100, 0.06);
+    color: var(--color-secondary);
+  }
+
+  .dropdown-viewall {
+    display: inline-block;
+    font-size: 12px;
+    font-weight: 600;
+    color: var(--color-amber);
+    padding: 6px 10px;
+    text-decoration: none;
+    transition: opacity 0.15s;
+  }
+
+  .dropdown-viewall:hover {
+    opacity: 0.75;
+  }
+
+  /* CTA */
   .navbar__actions {
     display: flex;
     align-items: center;
     gap: 10px;
     flex-shrink: 0;
-  }
-
-  .btn-outline-nav {
-    padding: 8px 18px;
-    border-radius: var(--radius-pill);
-    border: 1.5px solid var(--color-heading);
-    font-weight: 500;
-    font-size: 14px;
-    color: var(--color-heading);
-    transition: all 0.2s;
-    white-space: nowrap;
-  }
-
-  .btn-outline-nav:hover {
-    background: var(--color-heading);
-    color: white;
   }
 
   .btn-sm {
@@ -169,33 +478,132 @@ import { CTA, IS_LIVE, APP_URL } from '../siteConfig';
     transition: all 0.3s ease;
   }
 
-  .hamburger.is-open span:nth-child(1) {
-    transform: translateY(7px) rotate(45deg);
-  }
-
-  .hamburger.is-open span:nth-child(2) {
-    opacity: 0;
-    transform: scaleX(0);
-  }
-
-  .hamburger.is-open span:nth-child(3) {
-    transform: translateY(-7px) rotate(-45deg);
-  }
+  .hamburger.is-open span:nth-child(1) { transform: translateY(7px) rotate(45deg); }
+  .hamburger.is-open span:nth-child(2) { opacity: 0; transform: scaleX(0); }
+  .hamburger.is-open span:nth-child(3) { transform: translateY(-7px) rotate(-45deg); }
 
   /* Mobile menu */
   .navbar__mobile-menu {
     display: none;
     flex-direction: column;
-    gap: 4px;
-    padding: 16px 20px 20px;
+    padding: 8px 16px 20px;
     background: var(--bg-header);
     border-top: 1px solid rgba(43, 44, 100, 0.06);
+    gap: 2px;
   }
 
-  .navbar__mobile-menu .nav-link {
-    padding: 10px 4px;
-    font-size: 15px;
+  .navbar__mobile-menu.is-open {
+    display: flex;
+  }
+
+  /* Mobile accordion section */
+  .mob-section {
     border-bottom: 1px solid rgba(43, 44, 100, 0.06);
+  }
+
+  .mob-section__trigger {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    width: 100%;
+    padding: 12px 4px;
+    font-size: 15px;
+    font-weight: 600;
+    font-family: var(--font-body);
+    color: var(--color-heading);
+    background: none;
+    border: none;
+    cursor: pointer;
+    text-align: left;
+  }
+
+  .mob-arrow {
+    font-size: 11px;
+    transition: transform 0.2s;
+    opacity: 0.5;
+  }
+
+  .mob-section.is-open .mob-arrow {
+    transform: rotate(-180deg);
+  }
+
+  .mob-section__body {
+    display: none;
+    flex-direction: column;
+    padding: 0 4px 10px 12px;
+    gap: 2px;
+  }
+
+  .mob-section.is-open .mob-section__body {
+    display: flex;
+  }
+
+  .mob-link {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 8px 4px;
+    font-size: 14px;
+    color: var(--color-body);
+    text-decoration: none;
+    transition: color 0.15s;
+  }
+
+  a.mob-link:hover {
+    color: var(--color-heading);
+  }
+
+  .mob-link--disabled {
+    opacity: 0.5;
+    cursor: default;
+  }
+
+  .mob-link--sub {
+    font-size: 13px;
+    padding-left: 0;
+  }
+
+  .mob-link--viewall {
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--color-amber);
+  }
+
+  .mob-link--standalone {
+    padding: 12px 4px;
+    font-size: 15px;
+    font-weight: 500;
+    color: var(--color-heading);
+    border-top: 1px solid rgba(43, 44, 100, 0.06);
+    margin-top: 4px;
+  }
+
+  .mob-section-label {
+    font-size: 11px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.07em;
+    color: var(--color-secondary);
+    padding: 8px 4px 2px;
+  }
+
+  .mob-badge {
+    font-size: 11px;
+    font-weight: 600;
+    padding: 2px 7px;
+    border-radius: 20px;
+    background: rgba(43, 44, 100, 0.07);
+    color: var(--color-heading);
+  }
+
+  .mob-badge--featured {
+    background: #FEF3DA;
+    color: #875A00;
+  }
+
+  .mob-badge--soon {
+    background: rgba(43, 44, 100, 0.06);
+    color: var(--color-secondary);
   }
 
   .mobile-actions {
@@ -205,7 +613,6 @@ import { CTA, IS_LIVE, APP_URL } from '../siteConfig';
     padding-top: 12px;
   }
 
-  .mobile-actions .btn-outline-nav,
   .mobile-actions .btn-primary {
     text-align: center;
     justify-content: center;
@@ -214,26 +621,14 @@ import { CTA, IS_LIVE, APP_URL } from '../siteConfig';
     font-size: 15px;
   }
 
-  .navbar__mobile-menu.is-open {
-    display: flex;
-  }
-
   /* Responsive */
   @media (max-width: 1024px) {
-    .navbar__nav,
-    .navbar__actions {
-      display: flex;
-    }
-
-    .btn-sm {
-      padding: 12px 16px !important;
-      font-size: 14px !important;
-      border-radius: 12px !important;
-      gap: 8px;
-    }
+    .navbar__nav { gap: 2px; }
+    .nav-trigger, .nav-link { font-size: 13px; padding: 8px 8px; }
+    .btn-sm { padding: 9px 14px !important; font-size: 13px !important; }
   }
 
-  @media (max-width: 768px) {
+  @media (max-width: 860px) {
     .navbar__nav,
     .navbar__actions {
       display: none;
@@ -246,20 +641,17 @@ import { CTA, IS_LIVE, APP_URL } from '../siteConfig';
 </style>
 
 <script>
-  const hamburger = document.getElementById('hamburger-btn');
-  const mobileMenu = document.getElementById('mobile-menu');
-  const navbar     = document.querySelector('.navbar');
-
-  // Add background only once the user scrolls past the banner
+  // Scroll behavior
+  const navbar = document.querySelector('.navbar');
   function updateNavbar() {
-    if (window.scrollY > 10) {
-      navbar?.classList.add('scrolled');
-    } else {
-      navbar?.classList.remove('scrolled');
-    }
+    navbar?.classList.toggle('scrolled', window.scrollY > 10);
   }
   window.addEventListener('scroll', updateNavbar, { passive: true });
   updateNavbar();
+
+  // Hamburger
+  const hamburger = document.getElementById('hamburger-btn');
+  const mobileMenu = document.getElementById('mobile-menu');
 
   hamburger?.addEventListener('click', () => {
     const isOpen = mobileMenu?.classList.toggle('is-open');
@@ -268,7 +660,16 @@ import { CTA, IS_LIVE, APP_URL } from '../siteConfig';
     mobileMenu?.setAttribute('aria-hidden', String(!isOpen));
   });
 
-  mobileMenu?.querySelectorAll('a').forEach(link => {
+  // Mobile accordion
+  document.querySelectorAll('.mob-section__trigger').forEach((trigger) => {
+    trigger.addEventListener('click', () => {
+      const section = trigger.closest('.mob-section');
+      section?.classList.toggle('is-open');
+    });
+  });
+
+  // Close mobile menu when a link is clicked
+  mobileMenu?.querySelectorAll('a').forEach((link) => {
     link.addEventListener('click', () => {
       mobileMenu.classList.remove('is-open');
       hamburger?.classList.remove('is-open');

@@ -259,14 +259,13 @@ const annualStripeUrl = FREE_TRIAL ? STRIPE_URLS.annual_trial : STRIPE_URLS.annu
                 </li>
               </ul>
               {OFFER_AVAILABLE ? (
-                <a
-                  href={STRIPE_URLS.weekly}
-                  onclick={`if(typeof fbq!=='undefined')fbq('trackCustom','Click_Plan',{plan:'semanal'});if(typeof ttq!=='undefined')ttq.track('ViewContent',{content_name:'Plan Semanal',value:5,currency:'PEN'})`}
+                <button
+                  onclick={`window.planSeleccionado={name:'Plan Semanal',value:5};if(typeof fbq!=='undefined')fbq('trackCustom','Abrir_Modal',{plan:'semanal'});if(typeof ttq!=='undefined')ttq.track('ViewContent',{content_name:'Plan Semanal',value:5,currency:'PEN'});window.openSubscribeModal('${STRIPE_URLS.weekly}')`}
                   class="plan-cta plan-cta--monthly"
                   id="pricing-weekly-cta"
                 >
                   Empieza esta semana
-                </a>
+                </button>
               ) : (
                 <button class="plan-cta plan-cta--unavailable" disabled id="pricing-weekly-cta">
                   Oferta no disponible
@@ -351,7 +350,7 @@ const annualStripeUrl = FREE_TRIAL ? STRIPE_URLS.annual_trial : STRIPE_URLS.annu
               </div>
               <div class="plan-original-price">
                 <span class="plan-crossed">S/.240</span>
-                <span class="plan-discount-badge">✨ 16% OFF · Oferta por temporada</span>
+                <span class="plan-discount-badge">✨ 16% OFF · Oferta</span>
               </div>
               <ul class="plan-features">
                 <li>
