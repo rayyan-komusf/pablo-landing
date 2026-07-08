@@ -22,9 +22,9 @@ const recentPosts = posts.slice(0, 4);
 
       <!-- Conoce a Pablo -->
       <div class="nav-item">
-        <button class="nav-trigger" aria-expanded="false">
+        <a href="/#como-funciona" class="nav-trigger">
           Conoce a Pablo <span class="nav-arrow">▾</span>
-        </button>
+        </a>
         <div class="dropdown">
           <a href="/#hero" class="dropdown-item">
             <span class="di-label">¿Qué es Pablo?</span>
@@ -43,9 +43,9 @@ const recentPosts = posts.slice(0, 4);
 
       <!-- Planes -->
       <div class="nav-item">
-        <button class="nav-trigger" aria-expanded="false">
+        <a href="/#planes" class="nav-trigger">
           Planes <span class="nav-arrow">▾</span>
-        </button>
+        </a>
         <div class="dropdown">
           <a href="/#planes" class="dropdown-item">
             <span class="di-label">Plan Semanal <span class="di-badge">S/.5/sem</span></span>
@@ -64,9 +64,9 @@ const recentPosts = posts.slice(0, 4);
 
       <!-- Promos -->
       <div class="nav-item">
-        <button class="nav-trigger" aria-expanded="false">
+        <a href="/promos" class="nav-trigger">
           Promos <span class="nav-arrow">▾</span>
-        </button>
+        </a>
         <div class="dropdown">
           <a href="/trabaja-con-nosotros" class="dropdown-item">
             <span class="di-label">Crea con Pablo y gana</span>
@@ -85,9 +85,9 @@ const recentPosts = posts.slice(0, 4);
 
       <!-- Recursos -->
       <div class="nav-item">
-        <button class="nav-trigger" aria-expanded="false">
+        <a href="/blog" class="nav-trigger">
           Recursos <span class="nav-arrow">▾</span>
-        </button>
+        </a>
         <div class="dropdown dropdown--wide">
           <div class="dropdown-col">
             <span class="dropdown-col-label">Blog</span>
@@ -297,8 +297,7 @@ const recentPosts = posts.slice(0, 4);
     opacity: 0.6;
   }
 
-  .nav-item:hover .nav-arrow,
-  .nav-item:focus-within .nav-arrow {
+  .nav-item:hover .nav-arrow {
     transform: rotate(-180deg);
   }
 
@@ -320,8 +319,7 @@ const recentPosts = posts.slice(0, 4);
     z-index: 200;
   }
 
-  .nav-item:hover .dropdown,
-  .nav-item:focus-within .dropdown {
+  .nav-item:hover .dropdown {
     opacity: 1;
     visibility: visible;
     transform: translateX(-50%) translateY(0);
@@ -337,8 +335,7 @@ const recentPosts = posts.slice(0, 4);
     transform: translateY(-6px);
   }
 
-  .nav-item:hover .dropdown--wide,
-  .nav-item:focus-within .dropdown--wide {
+  .nav-item:hover .dropdown--wide {
     transform: translateY(0);
   }
 
