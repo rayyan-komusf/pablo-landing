@@ -217,10 +217,63 @@ const annualStripeUrl = FREE_TRIAL ? STRIPE_URLS.annual_trial : STRIPE_URLS.annu
         </div>
 
         <!-- Cards -->
-        <div class="pricing__cards">
+        <div class="pricing__cards pricing__cards--three">
 
         {IS_LIVE ? (
           <>
+            <!-- LIVE: Weekly Plan -->
+            <div class="plan-card plan-monthly">
+              <div class="plan-header">
+                <div class="plan-icon plan-icon--navy">
+                  <span class="icon-premium" set:html={iconPremiumRaw}></span>
+                </div>
+                <h3 class="plan-name">Pablo Premium</h3>
+              </div>
+              <p class="plan-tagline">
+                Prueba Pablo una semana completa y empieza a controlar tus finanzas desde hoy.
+              </p>
+              <div class="plan-price">
+                <span class="plan-amount">S/.5</span>
+                <span class="plan-period">/semanal</span>
+              </div>
+              <ul class="plan-features">
+                <li>
+                  <svg class="check" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#2B2C64" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>
+                  Registro ilimitado con texto, audio o foto desde Whatsapp
+                </li>
+                <li>
+                  <svg class="check" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#2B2C64" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>
+                  Presupuestos y categorías personalizadas
+                </li>
+                <li>
+                  <svg class="check" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#2B2C64" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>
+                  Metas de ahorro para mantener tu motivación
+                </li>
+                <li>
+                  <svg class="check" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#2B2C64" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>
+                  Análisis y consejos sin tecnicismos
+                </li>
+                <li>
+                  <svg class="check" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#2B2C64" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>
+                  Control automático de tus pagos recurrentes
+                </li>
+              </ul>
+              {OFFER_AVAILABLE ? (
+                <a
+                  href={STRIPE_URLS.weekly}
+                  onclick={`if(typeof fbq!=='undefined')fbq('trackCustom','Click_Plan',{plan:'semanal'});if(typeof ttq!=='undefined')ttq.track('ViewContent',{content_name:'Plan Semanal',value:5,currency:'PEN'})`}
+                  class="plan-cta plan-cta--monthly"
+                  id="pricing-weekly-cta"
+                >
+                  Empieza esta semana
+                </a>
+              ) : (
+                <button class="plan-cta plan-cta--unavailable" disabled id="pricing-weekly-cta">
+                  Oferta no disponible
+                </button>
+              )}
+            </div>
+
             <!-- LIVE: Monthly Plan -->
             <div class="plan-card plan-monthly">
               <div class="plan-header">
@@ -239,11 +292,15 @@ const annualStripeUrl = FREE_TRIAL ? STRIPE_URLS.annual_trial : STRIPE_URLS.annu
               <ul class="plan-features">
                 <li>
                   <svg class="check" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#2B2C64" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>
+                  3 días gratis de prueba
+                </li>
+                <li>
+                  <svg class="check" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#2B2C64" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>
                   Registro ilimitado con texto, audio o foto desde Whatsapp
                 </li>
                 <li>
                   <svg class="check" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#2B2C64" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>
-                  Presupuestos y categorías personalizada
+                  Presupuestos y categorías personalizadas
                 </li>
                 <li>
                   <svg class="check" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#2B2C64" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>
@@ -251,7 +308,7 @@ const annualStripeUrl = FREE_TRIAL ? STRIPE_URLS.annual_trial : STRIPE_URLS.annu
                 </li>
                 <li>
                   <svg class="check" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#2B2C64" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>
-                  Análisis y consejos por sin tecnicismos
+                  Análisis y consejos sin tecnicismos
                 </li>
                 <li>
                   <svg class="check" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#2B2C64" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>
@@ -475,6 +532,11 @@ const annualStripeUrl = FREE_TRIAL ? STRIPE_URLS.annual_trial : STRIPE_URLS.annu
     width: 100%;
     max-width: 900px;
     align-items: stretch;
+  }
+
+  .pricing__cards--three {
+    grid-template-columns: 1fr 1fr 1fr;
+    max-width: 1100px;
   }
 
   /* Base card */
@@ -780,7 +842,8 @@ const annualStripeUrl = FREE_TRIAL ? STRIPE_URLS.annual_trial : STRIPE_URLS.annu
 
   /* Responsive */
   @media (max-width: 768px) {
-    .pricing__cards {
+    .pricing__cards,
+    .pricing__cards--three {
       grid-template-columns: 1fr;
       max-width: 480px;
     }
