@@ -1,0 +1,217 @@
+---
+import Layout from "../layouts/Layout.astro";
+import Navbar from "../components/Navbar.astro";
+import Footer from "../components/Footer.astro";
+
+const promos = [
+  {
+    title: "Crea con Pablo y gana",
+    description: "Monetiza tu audiencia creando contenido de educación financiera con nosotros.",
+    href: "/trabaja-con-nosotros",
+    available: true,
+  },
+  {
+    title: "Pablo Points",
+    description: "Acumula puntos con cada acción y canjéalos por recompensas exclusivas.",
+    href: null,
+    available: false,
+  },
+  {
+    title: "Pablo pone para la chancha",
+    description: "Ahorra con un objetivo en mente y Pablo te ayuda a llegar más rápido.",
+    href: null,
+    available: false,
+  },
+];
+---
+
+<Layout
+  title="Promos — Pablo"
+  description="Descubre las promociones, programas y beneficios exclusivos de Pablo."
+>
+  <Navbar />
+  <main class="promos-page">
+    <div class="container">
+      <div class="page-header">
+        <h1>Promos</h1>
+        <p>Programas y beneficios exclusivos para nuestra comunidad.</p>
+      </div>
+
+      <div class="promos-grid">
+        {promos.map((promo) => (
+          promo.available ? (
+            <a href={promo.href} class="promo-card promo-card--active">
+              <div class="promo-card__image">
+                <div class="promo-card__image-placeholder" />
+              </div>
+              <div class="promo-card__body">
+                <h2 class="promo-card__title">{promo.title}</h2>
+                <p class="promo-card__desc">{promo.description}</p>
+                <span class="promo-card__cta">Ver más <span class="arrow">→</span></span>
+              </div>
+            </a>
+          ) : (
+            <div class="promo-card promo-card--soon">
+              <div class="promo-card__image">
+                <div class="promo-card__image-placeholder" />
+                <span class="badge-soon">Próximamente</span>
+              </div>
+              <div class="promo-card__body">
+                <h2 class="promo-card__title">{promo.title}</h2>
+                <p class="promo-card__desc">{promo.description}</p>
+              </div>
+            </div>
+          )
+        ))}
+      </div>
+    </div>
+  </main>
+  <Footer />
+</Layout>
+
+<style>
+  .promos-page {
+    min-height: 100vh;
+    padding: 80px 0 120px;
+    background: var(--bg-page);
+  }
+
+  .container {
+    max-width: var(--max-width);
+    margin: 0 auto;
+    padding: 0 var(--gutter);
+  }
+
+  .page-header {
+    text-align: center;
+    margin-bottom: 64px;
+  }
+
+  .page-header h1 {
+    font-family: var(--font-heading);
+    font-size: clamp(2rem, 5vw, 3rem);
+    color: var(--color-heading);
+    margin-bottom: 12px;
+  }
+
+  .page-header p {
+    font-size: 1.05rem;
+    color: var(--color-body);
+    max-width: 440px;
+    margin: 0 auto;
+  }
+
+  /* Grid */
+  .promos-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 32px;
+  }
+
+  /* Card base */
+  .promo-card {
+    display: flex;
+    flex-direction: column;
+    border-radius: var(--radius-lg);
+    overflow: hidden;
+    background: white;
+    box-shadow: 0 2px 12px rgba(43, 44, 100, 0.07);
+    text-decoration: none;
+    color: inherit;
+    transition: transform 0.25s ease, box-shadow 0.25s ease;
+  }
+
+  .promo-card--active:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 8px 28px rgba(43, 44, 100, 0.12);
+  }
+
+  .promo-card--soon {
+    opacity: 0.65;
+    cursor: default;
+  }
+
+  /* Image area */
+  .promo-card__image {
+    position: relative;
+    width: 100%;
+    aspect-ratio: 4/3;
+    background: rgba(43, 44, 100, 0.04);
+    overflow: hidden;
+  }
+
+  .promo-card__image-placeholder {
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(135deg, rgba(43,44,100,0.06) 0%, rgba(43,44,100,0.03) 100%);
+  }
+
+  .badge-soon {
+    position: absolute;
+    top: 12px;
+    right: 12px;
+    background: rgba(43, 44, 100, 0.12);
+    color: var(--color-heading);
+    font-size: 0.72rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    padding: 4px 10px;
+    border-radius: var(--radius-pill);
+  }
+
+  /* Body */
+  .promo-card__body {
+    padding: 20px 24px 24px;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    flex: 1;
+  }
+
+  .promo-card__title {
+    font-family: var(--font-heading);
+    font-size: 1.15rem;
+    color: var(--color-heading);
+    line-height: 1.3;
+  }
+
+  .promo-card__desc {
+    font-size: 0.9rem;
+    color: var(--color-body);
+    line-height: 1.6;
+    margin: 0;
+  }
+
+  .promo-card__cta {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    margin-top: 8px;
+    font-size: 0.88rem;
+    font-weight: 600;
+    color: var(--color-amber);
+  }
+
+  .promo-card--active:hover .arrow {
+    transform: translateX(4px);
+  }
+
+  .arrow {
+    display: inline-block;
+    transition: transform 0.2s ease;
+  }
+
+  /* Responsive */
+  @media (max-width: 900px) {
+    .promos-grid {
+      grid-template-columns: 1fr 1fr;
+    }
+  }
+
+  @media (max-width: 580px) {
+    .promos-grid {
+      grid-template-columns: 1fr;
+    }
+  }
+</style>
