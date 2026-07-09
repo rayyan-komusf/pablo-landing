@@ -1,0 +1,160 @@
+---
+import Layout from "../layouts/Layout.astro";
+import Navbar from "../components/Navbar.astro";
+import Footer from "../components/Footer.astro";
+
+const pasos = [
+  "La próxima vez que salgas a comer, registra tu gasto con Pablo.",
+  "Tómate una foto con Pablo y tu plato.",
+  "Súbela junto a tu reseña de Google al restaurante.",
+  "Mándanos la captura de tu reseña al soporte de Pablo.",
+];
+---
+
+<Layout
+  title="Pablo pone para la chancha — Pablo"
+  description="Participa, sigue los pasos y Pablo pone para la chancha. Así de fácil."
+>
+  <Navbar />
+  <main class="chancha-page">
+    <div class="container">
+      <div class="page-header">
+        <h1>Pablo pone para la chancha</h1>
+        <p>
+          Participa, sigue los pasos y nosotros ponemos. Así de fácil se puede ganar con Pablo.
+        </p>
+      </div>
+
+      <div class="steps-card">
+        <p class="steps-label">Así de fácil se puede participar:</p>
+        <ol class="steps-list">
+          {pasos.map((paso, i) => (
+            <li class="step">
+              <span class="step-number">{i + 1}</span>
+              <span class="step-text" set:html={paso.replace(/(Pablo)/g, '<strong>$1</strong>')} />
+            </li>
+          ))}
+        </ol>
+      </div>
+
+      <div class="page-back">
+        <a href="/promos">← Volver a Promos</a>
+      </div>
+    </div>
+  </main>
+  <Footer />
+</Layout>
+
+<style>
+  .chancha-page {
+    min-height: 100vh;
+    padding: 80px 0 120px;
+    background: var(--bg-page);
+  }
+
+  .container {
+    max-width: 620px;
+    margin: 0 auto;
+    padding: 0 var(--gutter);
+  }
+
+  .page-header {
+    text-align: center;
+    margin-bottom: 56px;
+  }
+
+  .page-header h1 {
+    font-family: var(--font-heading);
+    font-size: clamp(1.8rem, 5vw, 2.8rem);
+    color: var(--color-heading);
+    margin-bottom: 16px;
+  }
+
+  .page-header p {
+    font-size: 1.05rem;
+    color: var(--color-body);
+    line-height: 1.7;
+    max-width: 480px;
+    margin: 0 auto;
+  }
+
+  /* Steps card */
+  .steps-card {
+    background: var(--color-heading);
+    border-radius: var(--radius-lg);
+    padding: 36px 40px;
+  }
+
+  .steps-label {
+    font-family: var(--font-heading);
+    font-size: 1rem;
+    font-weight: 700;
+    color: white;
+    margin-bottom: 28px;
+  }
+
+  .steps-list {
+    list-style: none;
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+  }
+
+  .step {
+    display: flex;
+    align-items: flex-start;
+    gap: 16px;
+    background: white;
+    border-radius: 12px;
+    padding: 16px 20px;
+  }
+
+  .step-number {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    background: var(--color-amber);
+    color: var(--color-heading);
+    font-family: var(--font-heading);
+    font-weight: 700;
+    font-size: 1rem;
+    flex-shrink: 0;
+  }
+
+  .step-text {
+    font-size: 0.97rem;
+    color: var(--color-heading);
+    line-height: 1.6;
+    padding-top: 6px;
+  }
+
+  .step-text :global(strong) {
+    color: var(--color-purple, #2B2C64);
+  }
+
+  /* Back link */
+  .page-back {
+    margin-top: 48px;
+    text-align: center;
+  }
+
+  .page-back a {
+    font-size: 0.9rem;
+    color: var(--color-body);
+    font-weight: 500;
+    transition: color 0.15s;
+  }
+
+  .page-back a:hover {
+    color: var(--color-heading);
+  }
+
+  @media (max-width: 640px) {
+    .steps-card {
+      padding: 28px 24px;
+    }
+  }
+</style>
