@@ -6,7 +6,7 @@ import Footer from "../components/Footer.astro";
 const promos = [
   {
     title: "Crea con Pablo y gana",
-    description: "Monetiza tu audiencia creando contenido de educación financiera con nosotros.",
+    description: "Forma parte del club de creadores de Pablo, crea contenido a tu estilo, comparte tu código y gana mientras ayudas a más personas a llevar el control de su dinero con menos estrés.",
     href: "/trabaja-con-nosotros",
     available: true,
   },
@@ -42,7 +42,7 @@ const promos = [
           promo.available ? (
             <a href={promo.href} class="promo-card promo-card--active">
               <div class="promo-card__image">
-                <div class="promo-card__image-placeholder" />
+                <img src="/crea%20con%20pablo%20y%20gana.jpeg" alt={promo.title} loading="lazy" decoding="async" />
               </div>
               <div class="promo-card__body">
                 <h2 class="promo-card__title">{promo.title}</h2>
@@ -53,7 +53,7 @@ const promos = [
           ) : (
             <div class="promo-card promo-card--soon">
               <div class="promo-card__image">
-                <div class="promo-card__image-placeholder" />
+                <img src="/crea%20con%20pablo%20y%20gana.jpeg" alt={promo.title} loading="lazy" decoding="async" />
                 <span class="badge-soon">Próximamente</span>
               </div>
               <div class="promo-card__body">
@@ -140,10 +140,11 @@ const promos = [
     overflow: hidden;
   }
 
-  .promo-card__image-placeholder {
+  .promo-card__image img {
     width: 100%;
     height: 100%;
-    background: linear-gradient(135deg, rgba(43,44,100,0.06) 0%, rgba(43,44,100,0.03) 100%);
+    object-fit: cover;
+    display: block;
   }
 
   .badge-soon {
