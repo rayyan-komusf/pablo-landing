@@ -25,6 +25,15 @@ const pasos = [
         </p>
       </div>
 
+      <div class="chancha-banner">
+        <div class="chancha-amount">S/.1,000</div>
+        <div class="chancha-divider"></div>
+        <div class="chancha-info">
+          <p>Por cada reseña, <strong>Pablo</strong> pone <strong>S/20 para la chancha.</strong></p>
+          <span>Hasta que se acabe la chancha.</span>
+        </div>
+      </div>
+
       <div class="steps-card">
         <p class="steps-label">Así de fácil se puede participar:</p>
         <ol class="steps-list">
@@ -76,6 +85,56 @@ const pasos = [
     line-height: 1.7;
     max-width: 480px;
     margin: 0 auto;
+  }
+
+  /* Chancha banner */
+  .chancha-banner {
+    display: flex;
+    align-items: center;
+    gap: 20px;
+    background: var(--color-heading);
+    border-radius: var(--radius-lg);
+    padding: 24px 32px;
+    margin-bottom: 16px;
+  }
+
+  .chancha-amount {
+    font-family: var(--font-heading);
+    font-size: 2.4rem;
+    font-weight: 700;
+    color: white;
+    white-space: nowrap;
+    flex-shrink: 0;
+  }
+
+  .chancha-divider {
+    width: 2px;
+    height: 48px;
+    background: rgba(255, 255, 255, 0.2);
+    border-radius: 2px;
+    flex-shrink: 0;
+  }
+
+  .chancha-info {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+  }
+
+  .chancha-info p {
+    font-size: 0.97rem;
+    color: white;
+    line-height: 1.5;
+    margin: 0;
+  }
+
+  .chancha-info strong {
+    color: var(--color-amber);
+  }
+
+  .chancha-info span {
+    font-size: 0.8rem;
+    color: rgba(255, 255, 255, 0.55);
   }
 
   /* Steps card */
