@@ -25,6 +25,14 @@ const pasos = [
         </p>
       </div>
 
+      <div class="chancha-hero">
+        <div class="chancha-hero__images">
+          <img src="/Pablo%20con%20billtes.png" alt="Pablo con billetes" class="hero-img hero-img--pablo" />
+          <img src="/WhatsApp%20Image%202026-07-09%20at%203.20.13%20PM.jpeg" alt="Reseña de Google" class="hero-img hero-img--review" />
+        </div>
+        <button class="btn-canjea" id="btn-canjea">Canjea tu chancha</button>
+      </div>
+
       <div class="chancha-banner">
         <div class="chancha-amount">S/.1,000</div>
         <div class="chancha-divider"></div>
@@ -85,6 +93,220 @@ const pasos = [
     line-height: 1.7;
     max-width: 480px;
     margin: 0 auto;
+  }
+
+  /* Hero images */
+  .chancha-hero {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 28px;
+    margin-bottom: 40px;
+  }
+
+  .chancha-hero__images {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 16px;
+    width: 100%;
+  }
+
+  .hero-img {
+    width: 100%;
+    height: 260px;
+    object-fit: cover;
+    border-radius: var(--radius-lg);
+    display: block;
+  }
+
+  .hero-img--pablo {
+    object-position: center top;
+  }
+
+  .btn-canjea {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding: 14px 36px;
+    background: var(--color-heading);
+    color: white;
+    font-family: var(--font-heading);
+    font-size: 1rem;
+    font-weight: 700;
+    border: none;
+    border-radius: var(--radius-pill);
+    cursor: pointer;
+    transition: background 0.2s ease, transform 0.15s ease;
+  }
+
+  .btn-canjea:hover {
+    background: var(--color-amber);
+    color: var(--color-heading);
+    transform: translateY(-2px);
+  }
+
+  /* Modal */
+  .modal-overlay {
+    display: none;
+    position: fixed;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.55);
+    z-index: 1000;
+    align-items: center;
+    justify-content: center;
+    padding: 20px;
+  }
+
+  .modal-overlay.active {
+    display: flex;
+  }
+
+  .modal {
+    background: white;
+    border-radius: var(--radius-lg);
+    padding: 36px 32px;
+    width: 100%;
+    max-width: 460px;
+    max-height: 90vh;
+    overflow-y: auto;
+    position: relative;
+  }
+
+  .modal__close {
+    position: absolute;
+    top: 16px;
+    right: 16px;
+    background: none;
+    border: none;
+    cursor: pointer;
+    color: var(--color-body);
+    font-size: 1.3rem;
+    line-height: 1;
+    padding: 4px;
+  }
+
+  .modal__close:hover {
+    color: var(--color-heading);
+  }
+
+  .modal__title {
+    font-family: var(--font-heading);
+    font-size: 1.35rem;
+    color: var(--color-heading);
+    margin-bottom: 24px;
+  }
+
+  .modal-form {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+  }
+
+  .form-field {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+  }
+
+  .form-field label {
+    font-size: 0.85rem;
+    font-weight: 600;
+    color: var(--color-heading);
+  }
+
+  .form-field input[type="text"],
+  .form-field input[type="tel"],
+  .form-field input[type="email"],
+  .form-field input[type="file"] {
+    width: 100%;
+    padding: 10px 14px;
+    border: 1.5px solid rgba(43, 44, 100, 0.18);
+    border-radius: 10px;
+    font-size: 0.95rem;
+    color: var(--color-heading);
+    outline: none;
+    transition: border-color 0.2s;
+    box-sizing: border-box;
+  }
+
+  .form-field input:focus {
+    border-color: var(--color-amber);
+  }
+
+  .form-field input[type="file"] {
+    padding: 8px 14px;
+    cursor: pointer;
+  }
+
+  .checkbox-row {
+    display: flex;
+    align-items: flex-start;
+    gap: 10px;
+  }
+
+  .checkbox-row input[type="checkbox"] {
+    margin-top: 3px;
+    width: 16px;
+    height: 16px;
+    accent-color: var(--color-amber);
+    flex-shrink: 0;
+    cursor: pointer;
+  }
+
+  .checkbox-row label {
+    font-size: 0.82rem;
+    color: var(--color-body);
+    line-height: 1.5;
+    cursor: pointer;
+  }
+
+  .checkbox-row a {
+    color: var(--color-amber);
+    font-weight: 600;
+    text-decoration: none;
+  }
+
+  .btn-submit-canjea {
+    width: 100%;
+    padding: 13px;
+    background: var(--color-heading);
+    color: white;
+    font-family: var(--font-heading);
+    font-size: 0.97rem;
+    font-weight: 700;
+    border: none;
+    border-radius: var(--radius-pill);
+    cursor: pointer;
+    transition: background 0.2s;
+    margin-top: 4px;
+  }
+
+  .btn-submit-canjea:hover {
+    background: var(--color-amber);
+    color: var(--color-heading);
+  }
+
+  .btn-submit-canjea:disabled {
+    opacity: 0.6;
+    cursor: default;
+  }
+
+  .modal-success {
+    text-align: center;
+    padding: 20px 0;
+  }
+
+  .modal-success h3 {
+    font-family: var(--font-heading);
+    font-size: 1.2rem;
+    color: var(--color-heading);
+    margin-bottom: 10px;
+  }
+
+  .modal-success p {
+    font-size: 0.92rem;
+    color: var(--color-body);
+    line-height: 1.6;
   }
 
   /* Chancha banner */
@@ -215,5 +437,143 @@ const pasos = [
     .steps-card {
       padding: 28px 24px;
     }
+
+    .chancha-hero__images {
+      grid-template-columns: 1fr;
+    }
+
+    .hero-img {
+      height: 200px;
+    }
   }
 </style>
+
+<!-- Modal canjea tu chancha -->
+<div class="modal-overlay" id="canjea-modal">
+  <div class="modal" role="dialog" aria-modal="true" aria-labelledby="modal-title">
+    <button class="modal__close" id="modal-close" aria-label="Cerrar">&times;</button>
+
+    <div id="modal-form-content">
+      <h2 class="modal__title" id="modal-title">Canjea tu chancha</h2>
+      <form class="modal-form" id="canjea-form" novalidate>
+        <div class="form-field">
+          <label for="canjea-nombre">Nombre completo</label>
+          <input type="text" id="canjea-nombre" name="nombre" placeholder="Tu nombre" required />
+        </div>
+        <div class="form-field">
+          <label for="canjea-numero">Número de WhatsApp</label>
+          <input type="tel" id="canjea-numero" name="numero" placeholder="+51 999 999 999" required />
+        </div>
+        <div class="form-field">
+          <label for="canjea-correo">Correo de tu cuenta Pablo</label>
+          <input type="email" id="canjea-correo" name="correo" placeholder="correo@ejemplo.com" required />
+        </div>
+        <div class="form-field">
+          <label for="canjea-captura">Captura de tu reseña</label>
+          <input type="file" id="canjea-captura" name="captura" accept="image/*" required />
+        </div>
+        <div class="checkbox-row">
+          <input type="checkbox" id="canjea-terms" name="terms" required />
+          <label for="canjea-terms">
+            Acepto los <a href="/terminos-condiciones-chancha" target="_blank">Términos y Condiciones</a> de la campaña.
+          </label>
+        </div>
+        <button type="submit" class="btn-submit-canjea" id="btn-submit-canjea" disabled>Enviar</button>
+      </form>
+    </div>
+
+    <div id="modal-success" class="modal-success" style="display:none">
+      <h3>¡Ya recibimos tu canje!</h3>
+      <p>Revisaremos tu reseña y nos contactaremos contigo para coordinar tu recompensa. ¡Gracias por participar!</p>
+    </div>
+  </div>
+</div>
+
+<script>
+  const overlay = document.getElementById('canjea-modal');
+  const btnOpen = document.getElementById('btn-canjea');
+  const btnClose = document.getElementById('modal-close');
+  const form = document.getElementById('canjea-form') as HTMLFormElement;
+  const successMsg = document.getElementById('modal-success');
+  const submitBtn = document.getElementById('btn-submit-canjea') as HTMLButtonElement;
+
+  function openModal() {
+    overlay?.classList.add('active');
+    document.body.style.overflow = 'hidden';
+  }
+
+  function closeModal() {
+    overlay?.classList.remove('active');
+    document.body.style.overflow = '';
+  }
+
+  btnOpen?.addEventListener('click', openModal);
+  btnClose?.addEventListener('click', closeModal);
+  overlay?.addEventListener('click', (e) => {
+    if (e.target === overlay) closeModal();
+  });
+
+  document.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape') closeModal();
+  });
+
+  const termsCheckbox = document.getElementById('canjea-terms') as HTMLInputElement;
+  termsCheckbox?.addEventListener('change', () => {
+    submitBtn.disabled = !termsCheckbox.checked;
+  });
+
+  form?.addEventListener('submit', async (e) => {
+    e.preventDefault();
+
+    const fileInput = document.getElementById('canjea-captura') as HTMLInputElement;
+    const file = fileInput?.files?.[0];
+
+    let fileBase64 = '';
+    let fileName = '';
+    if (file) {
+      fileBase64 = await new Promise<string>((resolve) => {
+        const reader = new FileReader();
+        reader.onload = () => {
+          const result = reader.result as string;
+          resolve(result.split(',')[1]);
+        };
+        reader.readAsDataURL(file);
+      });
+      fileName = file.name;
+    }
+
+    const payload = {
+      tipo: 'canjea_chancha',
+      nombre: (document.getElementById('canjea-nombre') as HTMLInputElement)?.value,
+      numero: (document.getElementById('canjea-numero') as HTMLInputElement)?.value,
+      correo: (document.getElementById('canjea-correo') as HTMLInputElement)?.value,
+      capturaBase64: fileBase64,
+      capturaFileName: fileName,
+    };
+
+    submitBtn.disabled = true;
+    submitBtn.textContent = 'Enviando...';
+
+    const endpoint = import.meta.env.PUBLIC_FORM_ENDPOINT;
+    if (!endpoint) {
+      alert('Error de configuración. Intenta más tarde.');
+      submitBtn.disabled = false;
+      submitBtn.textContent = 'Enviar';
+      return;
+    }
+
+    try {
+      await fetch(endpoint, {
+        method: 'POST',
+        body: JSON.stringify(payload),
+        headers: { 'Content-Type': 'text/plain' },
+      });
+      document.getElementById('modal-form-content')!.style.display = 'none';
+      successMsg!.style.display = 'block';
+    } catch {
+      alert('Hubo un error al enviar. Intenta de nuevo.');
+      submitBtn.disabled = false;
+      submitBtn.textContent = 'Enviar';
+    }
+  });
+</script>
