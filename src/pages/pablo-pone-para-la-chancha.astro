@@ -150,11 +150,12 @@ const pasos = [
     display: none;
     position: fixed;
     inset: 0;
-    background: rgba(0, 0, 0, 0.55);
+    background: rgba(20, 20, 60, 0.6);
     z-index: 1000;
     align-items: center;
     justify-content: center;
     padding: 20px;
+    backdrop-filter: blur(4px);
   }
 
   .modal-overlay.active {
@@ -163,150 +164,277 @@ const pasos = [
 
   .modal {
     background: white;
-    border-radius: var(--radius-lg);
-    padding: 36px 32px;
+    border-radius: 24px;
     width: 100%;
     max-width: 460px;
     max-height: 90vh;
     overflow-y: auto;
     position: relative;
+    box-shadow: 0 32px 80px rgba(20, 20, 60, 0.22);
+  }
+
+  /* Modal header */
+  .modal__header {
+    background: var(--color-heading);
+    border-radius: 24px 24px 0 0;
+    padding: 28px 32px 24px;
+    position: relative;
   }
 
   .modal__close {
     position: absolute;
-    top: 16px;
-    right: 16px;
-    background: none;
+    top: 18px;
+    right: 18px;
+    background: rgba(255, 255, 255, 0.12);
     border: none;
+    border-radius: 50%;
+    width: 34px;
+    height: 34px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
     cursor: pointer;
-    color: var(--color-body);
-    font-size: 1.3rem;
+    color: white;
+    font-size: 1.1rem;
     line-height: 1;
-    padding: 4px;
+    transition: background 0.2s;
   }
 
   .modal__close:hover {
-    color: var(--color-heading);
+    background: rgba(255, 255, 255, 0.22);
+  }
+
+  .modal__tag {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    background: rgba(255, 255, 255, 0.12);
+    color: rgba(255, 255, 255, 0.8);
+    font-size: 0.72rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.07em;
+    padding: 4px 10px;
+    border-radius: 100px;
+    margin-bottom: 12px;
   }
 
   .modal__title {
     font-family: var(--font-heading);
-    font-size: 1.35rem;
-    color: var(--color-heading);
-    margin-bottom: 24px;
+    font-size: 1.5rem;
+    color: white;
+    margin: 0 0 4px;
+    line-height: 1.2;
+  }
+
+  .modal__subtitle {
+    font-size: 0.83rem;
+    color: rgba(255, 255, 255, 0.55);
+    margin: 0;
+  }
+
+  /* Modal body */
+  .modal__body {
+    padding: 28px 32px 32px;
   }
 
   .modal-form {
     display: flex;
     flex-direction: column;
-    gap: 16px;
+    gap: 18px;
   }
 
   .form-field {
     display: flex;
     flex-direction: column;
-    gap: 6px;
+    gap: 7px;
   }
 
   .form-field label {
-    font-size: 0.85rem;
-    font-weight: 600;
+    font-size: 0.78rem;
+    font-weight: 700;
     color: var(--color-heading);
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
   }
 
   .form-field input[type="text"],
   .form-field input[type="tel"],
-  .form-field input[type="email"],
-  .form-field input[type="file"] {
+  .form-field input[type="email"] {
     width: 100%;
-    padding: 10px 14px;
-    border: 1.5px solid rgba(43, 44, 100, 0.18);
-    border-radius: 10px;
+    padding: 12px 16px;
+    border: 2px solid rgba(43, 44, 100, 0.1);
+    border-radius: 12px;
     font-size: 0.95rem;
     color: var(--color-heading);
+    background: #F8F8FC;
     outline: none;
-    transition: border-color 0.2s;
+    transition: border-color 0.2s, background 0.2s;
     box-sizing: border-box;
+    font-family: inherit;
+  }
+
+  .form-field input[type="text"]::placeholder,
+  .form-field input[type="tel"]::placeholder,
+  .form-field input[type="email"]::placeholder {
+    color: rgba(43, 44, 100, 0.35);
   }
 
   .form-field input:focus {
     border-color: var(--color-amber);
+    background: white;
   }
 
-  .form-field input[type="file"] {
-    padding: 8px 14px;
+  /* Custom file upload zone */
+  .file-upload-zone {
+    position: relative;
+    border: 2px dashed rgba(43, 44, 100, 0.18);
+    border-radius: 12px;
+    padding: 20px 16px;
+    text-align: center;
+    cursor: pointer;
+    transition: border-color 0.2s, background 0.2s;
+    background: #F8F8FC;
+  }
+
+  .file-upload-zone:hover {
+    border-color: var(--color-amber);
+    background: #FFFCF0;
+  }
+
+  .file-upload-zone.has-file {
+    border-color: var(--color-amber);
+    border-style: solid;
+    background: #FFFCF0;
+  }
+
+  .file-upload-zone input[type="file"] {
+    position: absolute;
+    inset: 0;
+    opacity: 0;
+    width: 100%;
+    height: 100%;
     cursor: pointer;
   }
 
+  .file-upload-icon {
+    font-size: 1.6rem;
+    display: block;
+    margin-bottom: 6px;
+  }
+
+  .file-upload-hint {
+    font-size: 0.85rem;
+    color: var(--color-body);
+    line-height: 1.4;
+  }
+
+  .file-upload-hint strong {
+    color: var(--color-heading);
+  }
+
+  .file-name-display {
+    display: none;
+    font-size: 0.82rem;
+    color: var(--color-amber);
+    font-weight: 600;
+    margin-top: 6px;
+  }
+
+  .file-upload-zone.has-file .file-name-display {
+    display: block;
+  }
+
+  .file-upload-zone.has-file .file-upload-hint {
+    display: none;
+  }
+
+  /* Checkbox */
   .checkbox-row {
     display: flex;
     align-items: flex-start;
-    gap: 10px;
+    gap: 12px;
+    background: rgba(43, 44, 100, 0.04);
+    border-radius: 12px;
+    padding: 14px 16px;
   }
 
   .checkbox-row input[type="checkbox"] {
-    margin-top: 3px;
-    width: 16px;
-    height: 16px;
+    margin-top: 2px;
+    width: 17px;
+    height: 17px;
     accent-color: var(--color-amber);
     flex-shrink: 0;
     cursor: pointer;
   }
 
   .checkbox-row label {
-    font-size: 0.82rem;
+    font-size: 0.83rem;
     color: var(--color-body);
-    line-height: 1.5;
+    line-height: 1.55;
     cursor: pointer;
   }
 
   .checkbox-row a {
     color: var(--color-amber);
-    font-weight: 600;
+    font-weight: 700;
     text-decoration: none;
   }
 
+  .checkbox-row a:hover {
+    text-decoration: underline;
+  }
+
+  /* Submit button */
   .btn-submit-canjea {
     width: 100%;
-    padding: 13px;
-    background: var(--color-heading);
-    color: white;
+    padding: 15px;
+    background: var(--color-amber);
+    color: var(--color-heading);
     font-family: var(--font-heading);
-    font-size: 0.97rem;
+    font-size: 1rem;
     font-weight: 700;
     border: none;
     border-radius: var(--radius-pill);
     cursor: pointer;
-    transition: background 0.2s;
+    transition: background 0.2s, transform 0.15s, opacity 0.2s;
     margin-top: 4px;
   }
 
-  .btn-submit-canjea:hover {
-    background: var(--color-amber);
-    color: var(--color-heading);
+  .btn-submit-canjea:not(:disabled):hover {
+    background: #e09800;
+    transform: translateY(-1px);
   }
 
   .btn-submit-canjea:disabled {
-    opacity: 0.6;
+    background: rgba(43, 44, 100, 0.1);
+    color: rgba(43, 44, 100, 0.35);
     cursor: default;
   }
 
+  /* Success state */
   .modal-success {
     text-align: center;
-    padding: 20px 0;
+    padding: 16px 0 8px;
+  }
+
+  .modal-success__icon {
+    font-size: 2.8rem;
+    margin-bottom: 16px;
+    display: block;
   }
 
   .modal-success h3 {
     font-family: var(--font-heading);
-    font-size: 1.2rem;
+    font-size: 1.25rem;
     color: var(--color-heading);
     margin-bottom: 10px;
   }
 
   .modal-success p {
-    font-size: 0.92rem;
+    font-size: 0.9rem;
     color: var(--color-body);
-    line-height: 1.6;
+    line-height: 1.65;
   }
 
   /* Chancha banner */
@@ -451,41 +579,55 @@ const pasos = [
 <!-- Modal canjea tu chancha -->
 <div class="modal-overlay" id="canjea-modal">
   <div class="modal" role="dialog" aria-modal="true" aria-labelledby="modal-title">
-    <button class="modal__close" id="modal-close" aria-label="Cerrar">&times;</button>
 
-    <div id="modal-form-content">
+    <div class="modal__header">
+      <button class="modal__close" id="modal-close" aria-label="Cerrar">&times;</button>
+      <div class="modal__tag">🐷 Campaña activa</div>
       <h2 class="modal__title" id="modal-title">Canjea tu chancha</h2>
-      <form class="modal-form" id="canjea-form" novalidate>
-        <div class="form-field">
-          <label for="canjea-nombre">Nombre completo</label>
-          <input type="text" id="canjea-nombre" name="nombre" placeholder="Tu nombre" required />
-        </div>
-        <div class="form-field">
-          <label for="canjea-numero">Número de WhatsApp</label>
-          <input type="tel" id="canjea-numero" name="numero" placeholder="+51 999 999 999" required />
-        </div>
-        <div class="form-field">
-          <label for="canjea-correo">Correo de tu cuenta Pablo</label>
-          <input type="email" id="canjea-correo" name="correo" placeholder="correo@ejemplo.com" required />
-        </div>
-        <div class="form-field">
-          <label for="canjea-captura">Captura de tu reseña</label>
-          <input type="file" id="canjea-captura" name="captura" accept="image/*" required />
-        </div>
-        <div class="checkbox-row">
-          <input type="checkbox" id="canjea-terms" name="terms" required />
-          <label for="canjea-terms">
-            Acepto los <a href="/terminos-condiciones-chancha" target="_blank">Términos y Condiciones</a> de la campaña.
-          </label>
-        </div>
-        <button type="submit" class="btn-submit-canjea" id="btn-submit-canjea" disabled>Enviar</button>
-      </form>
+      <p class="modal__subtitle">Completa los datos y revisamos tu reseña en 24–48 h.</p>
     </div>
 
-    <div id="modal-success" class="modal-success" style="display:none">
-      <h3>¡Ya recibimos tu canje!</h3>
-      <p>Revisaremos tu reseña y nos contactaremos contigo para coordinar tu recompensa. ¡Gracias por participar!</p>
+    <div class="modal__body">
+      <div id="modal-form-content">
+        <form class="modal-form" id="canjea-form" novalidate>
+          <div class="form-field">
+            <label for="canjea-nombre">Nombre completo</label>
+            <input type="text" id="canjea-nombre" name="nombre" placeholder="Tu nombre" required />
+          </div>
+          <div class="form-field">
+            <label for="canjea-numero">Número de WhatsApp</label>
+            <input type="tel" id="canjea-numero" name="numero" placeholder="+51 999 999 999" required />
+          </div>
+          <div class="form-field">
+            <label for="canjea-correo">Correo de tu cuenta Pablo</label>
+            <input type="email" id="canjea-correo" name="correo" placeholder="correo@ejemplo.com" required />
+          </div>
+          <div class="form-field">
+            <label>Captura de tu reseña</label>
+            <div class="file-upload-zone" id="file-upload-zone">
+              <input type="file" id="canjea-captura" name="captura" accept="image/*" required />
+              <span class="file-upload-icon">📎</span>
+              <p class="file-upload-hint"><strong>Sube tu captura</strong><br/>PNG, JPG o WEBP</p>
+              <p class="file-name-display" id="file-name-display"></p>
+            </div>
+          </div>
+          <div class="checkbox-row">
+            <input type="checkbox" id="canjea-terms" name="terms" required />
+            <label for="canjea-terms">
+              Acepto los <a href="/terminos-condiciones-chancha" target="_blank">Términos y Condiciones</a> de la campaña.
+            </label>
+          </div>
+          <button type="submit" class="btn-submit-canjea" id="btn-submit-canjea" disabled>Enviar solicitud</button>
+        </form>
+      </div>
+
+      <div id="modal-success" class="modal-success" style="display:none">
+        <span class="modal-success__icon">🎉</span>
+        <h3>¡Ya recibimos tu canje!</h3>
+        <p>Revisaremos tu reseña y nos contactaremos contigo para coordinar tu recompensa. ¡Gracias por participar!</p>
+      </div>
     </div>
+
   </div>
 </div>
 
@@ -522,10 +664,20 @@ const pasos = [
     submitBtn.disabled = !termsCheckbox.checked;
   });
 
+  const fileInput = document.getElementById('canjea-captura') as HTMLInputElement;
+  const fileZone = document.getElementById('file-upload-zone');
+  const fileNameDisplay = document.getElementById('file-name-display');
+  fileInput?.addEventListener('change', () => {
+    const file = fileInput.files?.[0];
+    if (file && fileNameDisplay && fileZone) {
+      fileNameDisplay.textContent = file.name;
+      fileZone.classList.add('has-file');
+    }
+  });
+
   form?.addEventListener('submit', async (e) => {
     e.preventDefault();
 
-    const fileInput = document.getElementById('canjea-captura') as HTMLInputElement;
     const file = fileInput?.files?.[0];
 
     let fileBase64 = '';
@@ -554,7 +706,7 @@ const pasos = [
     submitBtn.disabled = true;
     submitBtn.textContent = 'Enviando...';
 
-    const endpoint = import.meta.env.PUBLIC_FORM_ENDPOINT;
+    const endpoint = import.meta.env.PUBLIC_CHANCHA_ENDPOINT;
     if (!endpoint) {
       alert('Error de configuración. Intenta más tarde.');
       submitBtn.disabled = false;
