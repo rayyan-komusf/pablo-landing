@@ -128,20 +128,20 @@ const pasos = [
     align-items: center;
     justify-content: center;
     padding: 14px 36px;
-    background: var(--color-heading);
-    color: white;
+    background: var(--color-amber);
+    color: var(--color-heading);
     font-family: var(--font-heading);
     font-size: 1rem;
     font-weight: 700;
     border: none;
     border-radius: var(--radius-pill);
     cursor: pointer;
-    transition: background 0.2s ease, transform 0.15s ease;
+    transition: background 0.2s ease, color 0.2s ease, transform 0.15s ease;
   }
 
   .btn-canjea:hover {
-    background: var(--color-amber);
-    color: var(--color-heading);
+    background: var(--color-heading);
+    color: white;
     transform: translateY(-2px);
   }
 
