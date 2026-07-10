@@ -26,10 +26,7 @@ const pasos = [
       </div>
 
       <div class="chancha-hero">
-        <div class="chancha-hero__images">
-          <img src="/Pablo%20con%20billtes.png" alt="Pablo con billetes" class="hero-img hero-img--pablo" />
-          <img src="/WhatsApp%20Image%202026-07-09%20at%203.20.13%20PM.jpeg" alt="Reseña de Google" class="hero-img hero-img--review" />
-        </div>
+        <img src="/chanchapablo.png" alt="Pablo pone para la chancha" class="hero-img-single" />
         <button class="btn-canjea" id="btn-canjea">Canjea tu chancha</button>
       </div>
 
@@ -104,23 +101,12 @@ const pasos = [
     margin-bottom: 40px;
   }
 
-  .chancha-hero__images {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 16px;
+  .hero-img-single {
     width: 100%;
-  }
-
-  .hero-img {
-    width: 100%;
-    height: 260px;
-    object-fit: cover;
-    border-radius: var(--radius-lg);
+    max-height: 380px;
+    object-fit: contain;
     display: block;
-  }
-
-  .hero-img--pablo {
-    object-position: center top;
+    mix-blend-mode: multiply;
   }
 
   .btn-canjea {
@@ -566,12 +552,8 @@ const pasos = [
       padding: 28px 24px;
     }
 
-    .chancha-hero__images {
-      grid-template-columns: 1fr;
-    }
-
-    .hero-img {
-      height: 200px;
+    .hero-img-single {
+      max-height: 260px;
     }
   }
 </style>
