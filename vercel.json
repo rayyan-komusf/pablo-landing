@@ -1,0 +1,7 @@
+{
+  "rewrites": [
+    { "source": "/onboarding", "destination": "https://pablo-onboarding.vercel.app/onboarding" },
+    { "source": "/onboarding/", "destination": "https://pablo-onboarding.vercel.app/onboarding" },
+    { "source": "/onboarding/:path*", "destination": "https://pablo-onboarding.vercel.app/onboarding/:path*" }
+  ]
+}
