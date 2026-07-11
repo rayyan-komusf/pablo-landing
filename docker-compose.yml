@@ -1,0 +1,12 @@
+services:
+  landing:
+    build:
+      context: .
+      args:
+        NOTION_API_KEY: ${NOTION_API_KEY}
+        NOTION_DATABASE_ID: ${NOTION_DATABASE_ID}
+        PUBLIC_CHANCHA_ENDPOINT: ${PUBLIC_CHANCHA_ENDPOINT}
+        PUBLIC_FORM_ENDPOINT: ${PUBLIC_FORM_ENDPOINT}
+    ports:
+      - "8080:80"
+    restart: unless-stopped
