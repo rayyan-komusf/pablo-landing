@@ -19,7 +19,7 @@ const pasos = [
   <main class="chancha-page">
     <div class="container">
       <div class="page-header">
-        <h1>Pablo pone para la chancha</h1>
+        <h1>Pablo pone <span class="amount-highlight">S/.1,000</span> para la chancha</h1>
         <p>
           Participa, sigue los pasos y nosotros ponemos. Así de fácil se puede ganar con Pablo.
         </p>
@@ -82,6 +82,12 @@ const pasos = [
     font-size: clamp(1.8rem, 5vw, 2.8rem);
     color: var(--color-heading);
     margin-bottom: 16px;
+    text-wrap: balance;
+  }
+
+  .page-header h1 .amount-highlight {
+    color: var(--color-amber);
+    white-space: nowrap;
   }
 
   .page-header p {
