@@ -1,0 +1,84 @@
+<!-- Animación meta de ahorro: card "Fondo de Emergencia" -->
+<section class="step" data-step="step-nuevo-4" aria-label="Meta de ahorro" aria-hidden="true">
+  <div class="flex-1 flex flex-col items-center justify-center pt-10 px-6 pb-8 max-md:pb-[120px] max-md:pt-12 max-md:px-3 max-[360px]:pt-7 max-[360px]:px-5 gap-0">
+    <!-- Pablo + burbuja -->
+    <div class="flex-none max-md:flex-none flex items-center justify-center relative w-full max-w-[480px] pt-6 pb-2">
+      <div
+        class="absolute top-[30%] right-0 md:-right-[40px] bg-white px-[18px] py-[10px] max-[360px]:px-[14px] max-[360px]:py-2 rounded-[var(--radius-md)] rounded-bl-[4px] shadow-clay-card font-display font-bold text-[13px] md:text-[15px] text-navy z-5 -translate-y-[65%] max-md:-translate-y-[90%] animate-[bubbleSlide_500ms_var(--ease-clay)_500ms_backwards] max-w-[200px] max-[360px]:max-w-[160px]"
+        aria-live="polite"
+      >
+        Visualizar el progreso hacia tus metas aumenta tu probabilidad hasta un 52%. ¡Me tomaré la
+        confianza de agregar la primera por ti!
+      </div>
+      <div class="w-[240px] h-[240px] md:w-[220px] md:h-[220px] max-[360px]:w-[200px] max-[360px]:h-[200px] mt-16 pablo-hero">
+        <img src="/onboarding/images/pablo/pablo-wave.png" alt="Pablo" width="240" height="240" loading="lazy" />
+      </div>
+    </div>
+    <!-- Card de meta -->
+    <div class="bg-white rounded-[20px] shadow-clay-card p-5 w-full max-w-[340px] flex flex-col gap-4">
+      <!-- Header -->
+      <div class="flex items-center gap-2">
+        <div class="w-8 h-8 rounded-full bg-[#FFF3D6] flex items-center justify-center shrink-0 text-[16px]">🎯</div>
+        <span class="bg-[#E6F9ED] text-[#2E7D52] text-[11px] font-body font-medium px-2 py-[2px] rounded-full flex items-center gap-1">
+          <span class="w-1.5 h-1.5 rounded-full bg-[#2E7D52] inline-block"></span>
+          Activa
+        </span>
+        <span class="text-[12px] font-body text-navy-soft">F0N2125</span>
+      </div>
+      <!-- Título meta -->
+      <p class="font-display font-bold text-[15px] text-navy m-0">Fondo de Emergencia</p>
+      <!-- Contenido: círculo + lista -->
+      <div class="flex items-stretch gap-4">
+        <!-- Círculo de progreso (verde, 90%) -->
+        <div class="shrink-0 w-[90px] h-[90px] relative flex flex-col items-center justify-center">
+          <svg class="absolute inset-0 w-full h-full -rotate-90" viewBox="0 0 100 100">
+            <circle cx="50" cy="50" r="45" fill="none" stroke="#E6F9ED" stroke-width="6"></circle>
+            <circle cx="50" cy="50" r="45" fill="none" stroke="#2E7D52" stroke-width="6" stroke-linecap="round" stroke-dasharray="282.74" stroke-dashoffset="28.27"></circle>
+          </svg>
+          <span class="font-display font-bold text-[20px] text-navy leading-none relative z-10">90%</span>
+          <span class="font-body text-[11px] text-[#2E7D52] font-medium relative z-10">Ahorrado</span>
+        </div>
+        <!-- Lista -->
+        <div class="flex flex-col justify-between flex-1 py-1">
+          <div class="flex justify-between items-center">
+            <span class="font-body text-[12px] text-navy-soft">Ahorrado</span>
+            <span class="font-display font-bold text-[13px] text-[#2E7D52]">S/. 900.00</span>
+          </div>
+          <div class="h-[0.5px] bg-black/10"></div>
+          <div class="flex justify-between items-center">
+            <span class="font-body text-[12px] text-navy-soft">Objetivo</span>
+            <span class="font-display font-bold text-[13px] text-navy">S/. 1,000.00</span>
+          </div>
+          <div class="h-[0.5px] bg-black/10"></div>
+          <div class="flex justify-between items-center">
+            <span class="font-body text-[12px] text-navy-soft">Restante</span>
+            <span class="font-display font-bold text-[13px] text-navy">S/. 100.00</span>
+          </div>
+        </div>
+      </div>
+      <!-- Footer -->
+      <div class="flex justify-between items-center pt-1 border-t border-black/5">
+        <span class="text-[11px] font-body text-navy-soft flex items-center gap-1">
+          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+            <circle cx="12" cy="12" r="10"></circle>
+            <path d="M12 6v6l4 2"></path>
+          </svg>
+          217 días
+        </span>
+        <span class="text-[11px] font-body text-navy-soft flex items-center gap-1">
+          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+            <rect x="3" y="4" width="18" height="18" rx="2"></rect>
+            <path d="M16 2v4M8 2v4M3 10h18"></path>
+          </svg>
+          30 dic. 2026
+        </span>
+      </div>
+    </div>
+    <!-- CTA -->
+    <div class="flex flex-col items-center gap-[14px] w-full mt-6 max-md:mt-4">
+      <button class="btn-primary btn-primary--compact" onclick="pabloNext()">
+        Siguiente <span class="arrow" aria-hidden="true">→</span>
+      </button>
+    </div>
+  </div>
+</section>

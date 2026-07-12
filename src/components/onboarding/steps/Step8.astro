@@ -1,0 +1,93 @@
+<!-- Pregunta 3: nivel de estrés (slider). Con nivel <= 2 se salta la animación "No estás solo". -->
+<section class="step !pb-0" data-step="step-8" aria-label="Pregunta 3 - Nivel de estrés" aria-hidden="true">
+  <div class="flex-1 flex flex-col gap-5 w-full max-w-[560px] mx-auto px-5 pt-5 pb-4 max-md:px-4 max-md:gap-4 max-[360px]:px-3 max-[360px]:gap-3 overflow-y-auto vcenter">
+    <!-- Header -->
+    <div class="flex flex-col gap-2.5">
+      <span class="font-display font-bold text-[12px] rounded-2xl text-amber tracking-[0.08em] uppercase bg-white px-3 py-1 inline-flex items-center gap-1 w-fit shadow-soft">
+        Pregunta <span class="text-navy-soft font-medium">3</span>
+      </span>
+      <h2 class="font-display font-bold text-[22px] max-[360px]:text-[18px] md:text-[24px] text-navy tracking-[-0.01em] leading-[1.25]">
+        ¿Qué tan estresado te sientes sobre el dinero?
+      </h2>
+    </div>
+    <!-- Slider UI -->
+    <div class="flex flex-col items-center gap-4 py-2 w-full">
+      <!-- Imagen reactiva -->
+      <div
+        class="w-[120px] h-[120px] max-md:w-[100px] max-md:h-[100px] transition-transform duration-200 ease-clay select-none slider-emoji"
+        id="sliderEmoji"
+        aria-hidden="true"
+        data-img-1="/onboarding/images/pablo/emotions/pablo-emocionado.png"
+        data-img-2="/onboarding/images/pablo/emotions/pablo-tierno.png"
+        data-img-3="/onboarding/images/pablo/emotions/pablo-neutral.png"
+        data-img-4="/onboarding/images/pablo/emotions/pablo-triste.png"
+        data-img-5="/onboarding/images/pablo/emotions/pablo-preocupado.png"
+      >
+        <img
+          src="/onboarding/images/pablo/emotions/pablo-tierno.png"
+          alt=""
+          style="width: 100%; height: 100%; object-fit: contain"
+        />
+      </div>
+      <!-- Texto descriptivo -->
+      <div class="bg-white rounded-[var(--radius-md)] px-6 py-[18px] max-md:px-[18px] max-md:py-[14px] shadow-clay-card w-full text-[15px] max-md:text-[14px] font-body text-navy font-medium leading-[1.5] text-left min-h-[64px] flex items-center">
+        <p id="sliderLabel">Solo un poco, estoy buscando cómo mejorar.</p>
+      </div>
+      <!-- Slider input -->
+      <input
+        type="range"
+        class="stress-slider w-full h-[12px] appearance-none rounded-2xl outline-none cursor-pointer"
+        id="stressSlider"
+        min="1"
+        max="5"
+        value="2"
+        step="1"
+        aria-label="Nivel de estrés financiero"
+        oninput="updateSlider(this.value)"
+      />
+      <!-- Etiquetas extremos -->
+      <div class="flex justify-between w-full text-[12px] text-navy-soft font-body -mt-2">
+        <span>Tranquilo</span> <span>Muy estresado</span>
+      </div>
+    </div>
+  </div>
+  <!-- CTA Footer -->
+  <div class="w-full flex justify-center px-5 py-4 max-[360px]:py-3 max-md:mt-[33px]">
+    <button class="btn-primary btn-primary--compact" onclick="pabloNext()">
+      Siguiente
+      <span class="arrow" aria-hidden="true">→</span>
+    </button>
+  </div>
+</section>
+
+<script is:inline type="module">
+  const etiquetas = [
+    "Estoy tranquilo, solo quiero organizarme mejor.",
+    "Solo un poco, estoy buscando cómo mejorar.",
+    "A veces me preocupa no llegar a fin de mes.",
+    "Bastante estresado, siento que no controlo mis gastos.",
+    "¡Mucho! El dinero es una fuente constante de ansiedad.",
+  ];
+
+  function actualizarSlider(valor) {
+    const nivel = parseInt(valor);
+    const emoji = document.getElementById("sliderEmoji");
+    const label = document.getElementById("sliderLabel");
+    const slider = document.getElementById("stressSlider");
+    if (emoji) {
+      const img = emoji.getAttribute(`data-img-${nivel}`);
+      emoji.innerHTML = `<img src="${img}" alt="" style="width:100%; height:100%; object-fit:contain;" />`;
+      emoji.classList.remove("slider-emoji--bounce");
+      emoji.offsetWidth; // reinicia la animación
+      emoji.classList.add("slider-emoji--bounce");
+    }
+    if (label) label.textContent = etiquetas[nivel - 1];
+    if (slider) {
+      const fill = ((nivel - 1) / 4) * 100;
+      slider.style.setProperty("--fill", `${fill}%`);
+    }
+    window.onboarding?.setAnswer("stressLevel", nivel);
+  }
+  window.updateSlider = actualizarSlider;
+  document.addEventListener("DOMContentLoaded", () => actualizarSlider("2"));
+</script>

@@ -1,0 +1,138 @@
+/*
+ * Overrides y adiciones sobre base.css (CSS compilado original del onboarding).
+ * base.css NO se toca: todo cambio de estilo va aquí para poder auditarlo.
+ */
+
+/* ============================================================
+ * 1. Animaciones del onboarding
+ * base.css referencia stepIn / topbarFloat / msgSlide / phoneSlide
+ * pero nunca las definió, así que las transiciones no animaban.
+ * ============================================================ */
+
+/* Entrada de cada pantalla: fade + subida suave */
+@keyframes stepIn {
+  0% {
+    opacity: 0;
+    transform: translateY(16px) scale(0.99);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+.step.active {
+  animation: stepIn 0.4s var(--ease-clay) backwards;
+}
+
+/* Flotación sutil del avatar de Pablo en la topbar */
+@keyframes topbarFloat {
+  0%,
+  to {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-2px);
+  }
+}
+
+/* Mensajes del chat de WhatsApp (demo "primer gasto") */
+@keyframes msgSlide {
+  0% {
+    opacity: 0;
+    transform: translateY(10px) scale(0.96);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+/* Entrada del mockup de teléfono */
+@keyframes phoneSlide {
+  0% {
+    opacity: 0;
+    transform: translateY(28px) scale(0.97);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+/* ============================================================
+ * 2. Centrado vertical del contenido
+ * En pantallas de pregunta el contenedor scrollea (overflow-y-auto);
+ * margin-block:auto en los extremos centra cuando sobra espacio y
+ * mantiene el scroll natural cuando falta.
+ * ============================================================ */
+
+/* El CSS original nunca definió .app-shell, así que la página medía solo
+ * la altura de su contenido y todo quedaba pegado arriba. Con el shell a
+ * altura completa, los .step (flex: 1) llenan el viewport y el centrado
+ * de abajo funciona. */
+.app-shell {
+  min-height: 100dvh;
+  display: flex;
+  flex-direction: column;
+}
+
+.vcenter > :first-child {
+  margin-top: auto;
+}
+
+.vcenter > :last-child {
+  margin-bottom: auto;
+}
+
+/* Pantallas tipo héroe (Pablo + burbuja): centrar la columna completa */
+.vcenter-flex {
+  justify-content: center;
+}
+
+/* ============================================================
+ * 3. X de salida directa en la primera pantalla (sin modal)
+ * ============================================================ */
+
+.btn-exit-floating {
+  position: absolute;
+  top: 18px;
+  left: 18px;
+  z-index: 20;
+  width: 40px;
+  height: 40px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: var(--radius-full);
+  background: var(--color-white);
+  color: var(--color-navy);
+  font-size: 16px;
+  box-shadow: var(--shadow-soft);
+  cursor: pointer;
+  transition: background var(--duration-fast);
+}
+
+.btn-exit-floating:hover {
+  background: var(--color-lila-deep);
+}
+
+/* X de la topbar (heredada de base.css vía clases utilitarias) */
+.btn-exit {
+  width: 36px;
+  height: 36px;
+  min-height: 44px;
+  color: var(--color-navy);
+  border-radius: var(--radius-full);
+  transition: background var(--duration-fast);
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 16px;
+  cursor: pointer;
+}
+
+.btn-exit:hover {
+  background: var(--color-lila-deep);
+}

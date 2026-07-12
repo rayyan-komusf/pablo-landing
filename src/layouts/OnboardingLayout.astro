@@ -1,0 +1,198 @@
+---
+// Layout del onboarding interactivo (página /onboarding).
+// Independiente de Layout.astro: el onboarding trae su propio CSS
+// (public/onboarding/styles) y no comparte estilos con la landing.
+const POSTHOG_KEY = import.meta.env.PUBLIC_POSTHOG_KEY ?? "";
+const POSTHOG_HOST = import.meta.env.PUBLIC_POSTHOG_HOST ?? "https://us.i.posthog.com";
+const base = "/onboarding";
+---
+
+<!doctype html>
+<html lang="es">
+  <head>
+    <meta charset="UTF-8" />
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no"
+    />
+    <!-- SEO -->
+    <title>Pablo · Tu asistente financiero</title>
+    <meta
+      name="description"
+      content="Libérate del estrés financiero con Pablo, tu asistente de finanzas personales por WhatsApp."
+    />
+    <meta name="robots" content="index, follow" />
+    <link rel="canonical" href="https://usapablo.com/onboarding" />
+    <!-- Open Graph -->
+    <meta property="og:title" content="Pablo · Tu asistente financiero" />
+    <meta
+      property="og:description"
+      content="Libérate del estrés financiero con Pablo, tu asistente de finanzas personales por WhatsApp."
+    />
+    <meta property="og:type" content="website" />
+    <meta property="og:image" content={`${base}/images/pablo/pablo-wave.png`} />
+    <!-- Favicon -->
+    <link rel="icon" type="image/png" href={`${base}/images/pablo/pablo-logo.png`} />
+    <!-- Preconnect Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <!-- Estilos: base (reconstruido del deploy original) + overrides -->
+    <link rel="stylesheet" href={`${base}/styles/base.css`} />
+    <link rel="stylesheet" href={`${base}/styles/custom.css`} />
+    <!-- PostHog -->
+    {
+      POSTHOG_KEY && (
+        <script
+          is:inline
+          define:vars={{ POSTHOG_KEY, POSTHOG_HOST }}
+        >
+          !(function (t, e) {
+            var o, n, p, r;
+            e.__SV ||
+              ((window.posthog = e),
+              (e._i = []),
+              (e.init = function (i, s, a) {
+                function g(t, e) {
+                  var o = e.split(".");
+                  2 == o.length && ((t = t[o[0]]), (e = o[1])),
+                    (t[e] = function () {
+                      t.push([e].concat(Array.prototype.slice.call(arguments, 0)));
+                    });
+                }
+                ((p = t.createElement("script")).type = "text/javascript"),
+                  (p.crossOrigin = "anonymous"),
+                  (p.async = !0),
+                  (p.src = s.api_host + "/static/array.js"),
+                  (r = t.getElementsByTagName("script")[0]).parentNode.insertBefore(p, r);
+                var u = e;
+                for (
+                  void 0 !== a ? (u = e[a] = []) : (a = "posthog"),
+                    u.people = u.people || [],
+                    u.toString = function (t) {
+                      var e = "posthog";
+                      return "posthog" !== a && (e += "." + a), t || (e += " (stub)"), e;
+                    },
+                    u.people.toString = function () {
+                      return u.toString(1) + ".people (stub)";
+                    },
+                    o =
+                      "init capture register register_once register_for_session unregister unregister_for_session getFeatureFlag getFeatureFlagPayload isFeatureEnabled reloadFeatureFlags updateEarlyAccessFeatureEnrollment getEarlyAccessFeatures on onFeatureFlags onSessionId getSurveys getActiveMatchingSurveys renderSurvey canRenderSurvey identify setPersonProperties group resetGroups setPersonPropertiesForFlags resetPersonPropertiesForFlags setGroupPropertiesForFlags resetGroupPropertiesForFlags reset get_distinct_id getGroups get_session_id get_session_replay_url alias set_config startSessionRecording stopSessionRecording sessionRecordingStarted captureException loadToolbar get_property getSessionProperty createPersonProfile opt_in_capturing opt_out_capturing has_opted_in_capturing has_opted_out_capturing clear_opt_in_out_capturing debug getPageViewId captureTraceFeedback captureTraceMetric".split(
+                        " "
+                      ),
+                    n = 0;
+                  n < o.length;
+                  n++
+                )
+                  g(u, o[n]);
+                e._i.push([i, s, a]);
+              }),
+              (e.__SV = 1));
+          })(document, window.posthog || []);
+          posthog.init(POSTHOG_KEY, {
+            api_host: POSTHOG_HOST,
+            person_profiles: "identified_only",
+            capture_pageview: false, // cada pantalla se trackea manualmente
+          });
+        </script>
+      )
+    }
+  </head>
+  <body>
+    <div class="app-shell" id="appShell">
+      <header class="topbar hidden" id="topbar" role="banner">
+        <!-- Fila superior: X + Saltar -->
+        <div class="w-full max-w-[560px] mx-auto flex items-center justify-between mt-6 px-2">
+          <button
+            class="btn-exit"
+            onclick="pabloConfirmExit()"
+            aria-label="Salir del onboarding"
+            title="Salir"
+          >
+            ✕
+          </button>
+          <button
+            class="btn-topbar-skip"
+            id="topbarSkip"
+            onclick="pabloSkip()"
+            aria-label="Saltar este paso"
+          >
+            Saltar
+          </button>
+        </div>
+        <!-- Fila inferior: ← + Pablo avatar + barra progreso -->
+        <div class="w-full max-w-[560px] mx-auto flex items-center gap-2 px-1">
+          <button
+            class="btn-back"
+            onclick="pabloPrev()"
+            aria-label="Volver al paso anterior"
+            title="Atrás"
+          >
+            ←
+          </button>
+          <div class="topbar__pablo" aria-hidden="true">
+            <img
+              src={`${base}/images/pablo/pablo-logo.png`}
+              alt="Pablo"
+              width="34"
+              height="34"
+              loading="eager"
+            />
+          </div>
+          <div
+            class="progress-track"
+            role="progressbar"
+            aria-valuemin="0"
+            aria-valuemax="100"
+            aria-valuenow="0"
+            id="progressTrack"
+          >
+            <div class="progress-fill" id="progressFill"></div>
+          </div>
+        </div>
+      </header>
+
+      <slot />
+    </div>
+
+    <!-- Modal de confirmación de salida (pasos avanzados) -->
+    <div
+      id="exitModal"
+      class="fixed inset-0 z-[110] hidden items-center justify-center"
+      role="dialog"
+      aria-modal="true"
+      aria-label="Confirmar salida del onboarding"
+    >
+      <div
+        class="exit-backdrop absolute inset-0 bg-[rgba(43,44,100,0.55)]"
+        onclick="pabloCancelExit()"
+      >
+      </div>
+      <div
+        class="relative w-full max-w-[340px] bg-lila rounded-[28px] mx-4 px-6 pt-7 pb-6 flex flex-col gap-2 text-center"
+      >
+        <h3 class="font-display font-bold text-[20px] text-navy">¿Seguro que quieres salir?</h3>
+        <p class="text-[14px] font-body text-navy-soft">
+          Vas a perder tu progreso en el onboarding.
+        </p>
+        <div class="flex flex-col gap-3 mt-4">
+          <button
+            class="w-full py-[14px] rounded-[var(--radius-pill)] bg-white font-display font-bold text-[16px] text-navy shadow-soft transition-transform duration-200 [transition-timing-function:var(--ease-clay)] hover:-translate-y-0.5 active:translate-y-px"
+            onclick="pabloCancelExit()"
+          >
+            Seguir aquí
+          </button>
+          <button
+            class="btn-primary w-full text-[16px] py-[14px]"
+            style="box-shadow: none"
+            onclick="pabloDoExit()"
+          >
+            Salir
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Motor de navegación -->
+    <script src="../scripts/onboarding.js"></script>
+  </body>
+</html>

@@ -1,0 +1,235 @@
+<!-- Animación "claridad total": donut interactivo de gastos -->
+<section class="step !pb-0" data-step="step-10" aria-label="Claridad total de gastos" aria-hidden="true">
+  <div class="flex-1 flex flex-col gap-4 w-full max-w-[560px] mx-auto px-5 pt-5 max-md:pt-16 max-[360px]:!pt-12 pb-4 max-md:px-4 max-md:gap-3 max-[360px]:px-3 overflow-y-auto [scrollbar-width:none] [&::-webkit-scrollbar]:hidden vcenter">
+    <!-- Header -->
+    <div class="text-center">
+      <h2 class="font-display font-bold text-[24px] max-[360px]:text-[16px] md:text-[36px] text-navy tracking-[-0.01em] leading-[1.25] mb-1.5">
+        De ahora en adelante, tendrás
+        <span class="text-amber">claridad total</span>
+      </h2>
+      <p class="text-[13px] text-navy-soft leading-[1.5]">
+        Te ayudo a analizar tus gastos y actualizo tu presupuesto en tiempo real.
+      </p>
+    </div>
+    <!-- 2 columnas -->
+    <div class="flex flex-col gap-3 flex-1 max-[479px]:flex-col max-[479px]:gap-5 min-[480px]:flex-row min-[480px]:items-center min-[480px]:gap-6">
+      <!-- Columna izquierda: Donut -->
+      <div class="flex justify-center min-[480px]:flex-1">
+        <div class="w-[200px] h-[200px] max-[479px]:w-[170px] max-[479px]:h-[170px]">
+          <svg class="w-full h-full overflow-visible" viewBox="-10 -10 220 220" aria-label="Gráfico de gastos" id="donutSvg">
+            <g id="donutSegments"></g>
+            <circle cx="100" cy="100" r="54" fill="var(--lila)"></circle>
+            <text x="100" y="93" text-anchor="middle" class="font-display font-bold text-[16px] fill-navy">
+              S/.1,820
+            </text>
+            <text x="100" y="112" text-anchor="middle" class="font-body font-semibold text-[8px] fill-navy-soft tracking-[0.06em]">
+              TOTAL
+            </text>
+          </svg>
+        </div>
+      </div>
+      <!-- Columna derecha: Cards -->
+      <div class="flex flex-col gap-2 w-full min-[480px]:flex-1">
+        <button
+          class="cat-card flex items-center gap-2.5 p-2.5 px-3.5 bg-white border-[1.5px] border-transparent rounded-[var(--radius-md)] shadow-soft cursor-pointer w-full box-border text-left transition-all duration-[400ms] ease-clay hover:-translate-y-[3px] hover:shadow-card"
+          data-index="0"
+          onclick="selectCategory(0)"
+        >
+          <div class="w-9 h-9 rounded-full flex items-center justify-center text-[18px] shrink-0" style="background: #fdf0d5">🏠</div>
+          <div class="flex-1 flex flex-col gap-[1px]">
+            <span class="text-[13px] text-navy font-body font-medium">Alquiler</span>
+            <span class="font-display font-bold text-[14px] text-navy">S/.1,100</span>
+          </div>
+          <div class="w-2.5 h-2.5 rounded-full shrink-0" style="background: #d4a853"></div>
+        </button>
+        <button
+          class="cat-card flex items-center gap-2.5 p-2.5 px-3.5 bg-white border-[1.5px] border-transparent rounded-[var(--radius-md)] shadow-soft cursor-pointer w-full box-border text-left transition-all duration-[400ms] ease-clay hover:-translate-y-[3px] hover:shadow-card"
+          data-index="1"
+          onclick="selectCategory(1)"
+        >
+          <div class="w-9 h-9 rounded-full flex items-center justify-center text-[18px] shrink-0" style="background: #ede8f5">🛒</div>
+          <div class="flex-1 flex flex-col gap-[1px]">
+            <span class="text-[13px] text-navy font-body font-medium">Alimento</span>
+            <span class="font-display font-bold text-[14px] text-navy">S/.300</span>
+          </div>
+          <div class="w-2.5 h-2.5 rounded-full shrink-0" style="background: #9b8ec4"></div>
+        </button>
+        <button
+          class="cat-card flex items-center gap-2.5 p-2.5 px-3.5 bg-white border-[1.5px] border-transparent rounded-[var(--radius-md)] shadow-soft cursor-pointer w-full box-border text-left transition-all duration-[400ms] ease-clay hover:-translate-y-[3px] hover:shadow-card"
+          data-index="2"
+          onclick="selectCategory(2)"
+        >
+          <div class="w-9 h-9 rounded-full flex items-center justify-center text-[18px] shrink-0" style="background: #d6efe1">🚌</div>
+          <div class="flex-1 flex flex-col gap-[1px]">
+            <span class="text-[13px] text-navy font-body font-medium">Transporte</span>
+            <span class="font-display font-bold text-[14px] text-navy">S/.120</span>
+          </div>
+          <div class="w-2.5 h-2.5 rounded-full shrink-0" style="background: #5bad7f"></div>
+        </button>
+        <button
+          class="cat-card flex items-center gap-2.5 p-2.5 px-3.5 bg-white border-[1.5px] border-transparent rounded-[var(--radius-md)] shadow-soft cursor-pointer w-full box-border text-left transition-all duration-[400ms] ease-clay hover:-translate-y-[3px] hover:shadow-card"
+          data-index="3"
+          onclick="selectCategory(3)"
+        >
+          <div class="w-9 h-9 rounded-full flex items-center justify-center text-[18px] shrink-0" style="background: #fde8d8">🐷</div>
+          <div class="flex-1 flex flex-col gap-[1px]">
+            <span class="text-[13px] text-navy font-body font-medium">Ahorro</span>
+            <span class="font-display font-bold text-[14px] text-navy">S/.300</span>
+          </div>
+          <div class="w-2.5 h-2.5 rounded-full shrink-0" style="background: #e8a87c"></div>
+        </button>
+      </div>
+    </div>
+  </div>
+  <!-- CTA Footer -->
+  <div class="w-full flex justify-center px-5 py-4 max-[360px]:py-3 max-md:mt-1 md:mt-[40px]">
+    <button class="btn-primary btn-primary--compact" onclick="pabloNext()">
+      Siguiente
+      <span class="arrow" aria-hidden="true">→</span>
+    </button>
+  </div>
+</section>
+
+<script is:inline type="module">
+  const categorias = [
+    { icon: "🏠", label: "ALQUILER", amount: "S/.1,100", value: 1100, color: "#D4A853" },
+    { icon: "🛒", label: "ALIMENTO", amount: "S/.300", value: 300, color: "#9B8EC4" },
+    { icon: "🚌", label: "TRANSPORTE", amount: "S/.120", value: 120, color: "#5BAD7F" },
+    { icon: "🐷", label: "AHORRO", amount: "S/.300", value: 300, color: "#E8A87C" },
+  ];
+  let activa = 0;
+  let intervalo = null;
+  let pausado = false;
+  const segmentos = [];
+
+  function punto(cx, cy, r, ang) {
+    const rad = ((ang - 90) * Math.PI) / 180;
+    return { x: cx + r * Math.cos(rad), y: cy + r * Math.sin(rad) };
+  }
+
+  function trazarSegmento(radio, inicio, tamano) {
+    const fin = inicio + tamano - 1.5;
+    const arcoLargo = tamano > 180 ? 1 : 0;
+    const p1 = punto(100, 100, radio, inicio);
+    const p2 = punto(100, 100, radio, fin);
+    const p3 = punto(100, 100, 56, fin);
+    const p4 = punto(100, 100, 56, inicio);
+    return [
+      `M ${p1.x} ${p1.y}`,
+      `A ${radio} ${radio} 0 ${arcoLargo} 1 ${p2.x} ${p2.y}`,
+      `L ${p3.x} ${p3.y}`,
+      `A 56 56 0 ${arcoLargo} 0 ${p4.x} ${p4.y}`,
+      "Z",
+    ].join(" ");
+  }
+
+  function dibujarDonut() {
+    const g = document.getElementById("donutSegments");
+    if (!g) return;
+    const total = categorias.reduce((sum, c) => sum + c.value, 0);
+    let angulo = 0;
+    const radioNormal = 80;
+    const radioActivo = 82;
+    g.innerHTML = "";
+    segmentos.length = 0;
+    categorias.forEach((cat, i) => {
+      const tamano = (cat.value / total) * 360;
+      const esActiva = i === activa;
+      const radio = esActiva ? radioActivo : radioNormal;
+      const angMedio = angulo + tamano / 2;
+      const desplazamiento = esActiva ? 8 : 0;
+      const rad = ((angMedio - 90) * Math.PI) / 180;
+      const dx = desplazamiento * Math.cos(rad);
+      const dy = desplazamiento * Math.sin(rad);
+      const path = document.createElementNS("http://www.w3.org/2000/svg", "path");
+      path.setAttribute("d", trazarSegmento(radio, angulo, tamano));
+      path.setAttribute("fill", cat.color);
+      path.setAttribute("data-index", String(i));
+      path.setAttribute("data-start", String(angulo));
+      path.setAttribute("data-slice", String(tamano));
+      path.style.cursor = "pointer";
+      path.style.transition =
+        "transform 600ms cubic-bezier(0.34, 1.56, 0.64, 1), filter 600ms ease";
+      path.style.transform = `translate(${dx}px, ${dy}px)`;
+      path.style.filter = esActiva ? "drop-shadow(0 2px 6px rgba(0,0,0,0.12))" : "none";
+      path.addEventListener("mouseenter", () => { pausado = true; detenerRotacion(); seleccionar(i); });
+      path.addEventListener("mouseleave", () => { pausado = false; iniciarRotacion(); });
+      path.addEventListener("touchstart", (e) => { e.preventDefault(); pausado = true; detenerRotacion(); seleccionar(i); }, { passive: false });
+      path.addEventListener("touchend", () => { setTimeout(() => { pausado = false; iniciarRotacion(); }, 1500); });
+      path.addEventListener("click", () => seleccionar(i));
+      g.appendChild(path);
+      segmentos.push(path);
+      angulo += tamano;
+    });
+  }
+
+  function actualizarSegmentos() {
+    segmentos.forEach((path, i) => {
+      const esActiva = i === activa;
+      const radio = esActiva ? 82 : 80;
+      const inicio = parseFloat(path.getAttribute("data-start") || "0");
+      const tamano = parseFloat(path.getAttribute("data-slice") || "0");
+      const angMedio = inicio + tamano / 2;
+      const desplazamiento = esActiva ? 8 : 0;
+      const rad = ((angMedio - 90) * Math.PI) / 180;
+      const dx = desplazamiento * Math.cos(rad);
+      const dy = desplazamiento * Math.sin(rad);
+      path.setAttribute("d", trazarSegmento(radio, inicio, tamano));
+      path.style.transform = `translate(${dx}px, ${dy}px)`;
+      path.style.filter = esActiva ? "drop-shadow(0 2px 6px rgba(0,0,0,0.12))" : "none";
+    });
+  }
+
+  function seleccionar(i) {
+    activa = i;
+    document.querySelectorAll(".cat-card").forEach((card, idx) => {
+      if (idx === i) {
+        card.classList.add("border-amber", "shadow-clay-card");
+        card.classList.remove("border-transparent");
+      } else {
+        card.classList.remove("border-amber", "shadow-clay-card");
+        card.classList.add("border-transparent");
+      }
+    });
+    actualizarSegmentos();
+  }
+
+  function iniciarRotacion() {
+    if (!intervalo) {
+      intervalo = setInterval(() => {
+        if (!pausado) {
+          activa = (activa + 1) % categorias.length;
+          seleccionar(activa);
+        }
+      }, 1000);
+    }
+  }
+
+  function detenerRotacion() {
+    if (intervalo) {
+      clearInterval(intervalo);
+      intervalo = null;
+    }
+  }
+
+  document.querySelectorAll(".cat-card").forEach((card, i) => {
+    card.addEventListener("mouseenter", () => { pausado = true; detenerRotacion(); seleccionar(i); });
+    card.addEventListener("mouseleave", () => { pausado = false; iniciarRotacion(); });
+    card.addEventListener("touchstart", (e) => { e.preventDefault(); pausado = true; detenerRotacion(); seleccionar(i); }, { passive: false });
+    card.addEventListener("touchend", () => { setTimeout(() => { pausado = false; iniciarRotacion(); }, 1500); });
+    card.addEventListener("click", () => seleccionar(i));
+  });
+  window.selectCategory = seleccionar;
+
+  const stepEl = document.querySelector('[data-step="step-10"]');
+  const observer = new MutationObserver(() => {
+    if (stepEl?.classList.contains("active")) {
+      dibujarDonut();
+      seleccionar(0);
+      iniciarRotacion();
+    } else {
+      detenerRotacion();
+    }
+  });
+  if (stepEl) observer.observe(stepEl, { attributes: true, attributeFilter: ["class"] });
+</script>

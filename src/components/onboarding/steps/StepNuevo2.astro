@@ -1,0 +1,70 @@
+<!-- Rama con deuda: Pablo explica cómo ayuda con las deudas (card tarjeta de crédito) -->
+<section class="step" data-step="step-nuevo-2" aria-label="Deudas" aria-hidden="true">
+  <div class="flex-1 flex flex-col items-center justify-center pt-10 px-6 pb-8 max-md:pb-[120px] max-md:pt-12 max-md:px-3 max-[360px]:pt-7 max-[360px]:px-5 gap-0">
+    <!-- Pablo + burbuja -->
+    <div class="flex-none max-md:flex-none flex items-center justify-center relative w-full max-w-[480px] pt-6 pb-2">
+      <div
+        class="absolute top-[30%] right-0 md:-right-[40px] bg-white px-[18px] py-[10px] max-[360px]:px-[14px] max-[360px]:py-2 rounded-[var(--radius-md)] rounded-bl-[4px] shadow-clay-card font-display font-bold text-[13px] md:text-[15px] text-navy z-5 -translate-y-[65%] max-md:-translate-y-[90%] animate-[bubbleSlide_500ms_var(--ease-clay)_500ms_backwards] max-w-[200px]"
+        aria-live="polite"
+      >
+        ¡No hay problema! Te puedo ayudar a terminar de pagar todas esas deudas mientras sigues
+        creciendo tus ahorros. Amortizar tus deudas normalmente es mejor que solo ahorrar tu dinero.
+      </div>
+      <div class="w-[240px] h-[240px] md:w-[220px] md:h-[220px] max-[360px]:w-[200px] max-[360px]:h-[200px] mt-16 pablo-hero">
+        <img src="/onboarding/images/pablo/pablo-wave.png" alt="Pablo" width="240" height="240" loading="lazy" />
+      </div>
+    </div>
+    <!-- Card de deudas -->
+    <div class="bg-white rounded-[20px] shadow-clay-card p-5 w-full max-w-[340px] flex flex-col gap-4">
+      <div class="flex items-center gap-3">
+        <div class="w-10 h-10 rounded-full bg-[#EEF0FA] flex items-center justify-center shrink-0">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#1B2A6B" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+            <rect x="2" y="5" width="20" height="14" rx="2"></rect>
+            <path d="M2 10h20"></path>
+          </svg>
+        </div>
+        <span class="font-display font-bold text-[16px] text-navy">Tarjeta de crédito</span>
+        <div class="ml-auto w-6 h-6 rounded-full border-[2px] border-[#E85454] flex items-center justify-center shrink-0">
+          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#E85454" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M12 9v4M12 17h.01"></path>
+            <circle cx="12" cy="12" r="10"></circle>
+          </svg>
+        </div>
+      </div>
+      <div class="flex items-stretch gap-4">
+        <div class="shrink-0 w-[90px] h-[90px] relative flex flex-col items-center justify-center">
+          <svg class="absolute inset-0 w-full h-full -rotate-90" viewBox="0 0 100 100">
+            <!-- Círculo de fondo (rosado claro) -->
+            <circle cx="50" cy="50" r="45" fill="none" stroke="#FAD4D4" stroke-width="6"></circle>
+            <!-- Círculo de progreso (rojo, 87%) -->
+            <circle cx="50" cy="50" r="45" fill="none" stroke="#E85454" stroke-width="6" stroke-linecap="round" stroke-dasharray="282.74" stroke-dashoffset="36.76"></circle>
+          </svg>
+          <span class="font-display font-bold text-[20px] text-navy leading-none relative z-10">87%</span>
+          <span class="font-body text-[11px] text-[#E85454] font-medium relative z-10">Usado</span>
+        </div>
+        <div class="flex flex-col justify-between flex-1 py-1">
+          <div class="flex justify-between items-center">
+            <span class="font-body text-[12px] text-navy-soft">Gastado</span>
+            <span class="font-display font-bold text-[13px] text-navy">S/. 2600.00</span>
+          </div>
+          <div class="h-[0.5px] bg-black/10"></div>
+          <div class="flex justify-between items-center">
+            <span class="font-body text-[12px] text-navy-soft">Límite</span>
+            <span class="font-display font-bold text-[13px] text-navy">S/. 3000.00</span>
+          </div>
+          <div class="h-[0.5px] bg-black/10"></div>
+          <div class="flex justify-between items-center">
+            <span class="font-body text-[12px] text-navy-soft">Disponible</span>
+            <span class="font-display font-bold text-[13px] text-[#E85454]">S/. 400.00</span>
+          </div>
+        </div>
+      </div>
+    </div>
+    <!-- CTA -->
+    <div class="flex flex-col items-center gap-[14px] w-full mt-6 max-md:mt-4">
+      <button class="btn-primary btn-primary--compact" onclick="pabloNext()">
+        Siguiente <span class="arrow" aria-hidden="true">→</span>
+      </button>
+    </div>
+  </div>
+</section>

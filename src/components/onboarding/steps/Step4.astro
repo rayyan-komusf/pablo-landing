@@ -1,0 +1,141 @@
+<!-- Demo WhatsApp: el usuario registra su "primer gasto" -->
+<section class="step !pb-0" data-step="step-4" aria-label="Demo WhatsApp" aria-hidden="true">
+  <div class="flex-1 flex flex-col items-center pt-6 px-6 pb-8 max-md:pb-[120px] max-md:pt-4 max-md:px-5 gap-5 max-md:gap-4 vcenter-flex">
+    <!-- Título -->
+    <h2 class="font-display font-bold text-[24px] md:text-[32px] max-[360px]:text-[19px] text-navy text-center tracking-[-0.02em] leading-[1.2]">
+      ¿Cuál ha sido tu <span class="text-ambar-deep">última compra</span>?
+    </h2>
+    <!-- iPhone mockup -->
+    <div class="w-full max-w-[310px] max-md:max-w-[300px] max-[360px]:max-w-[270px] rounded-[32px] max-[360px]:rounded-[24px] bg-navy p-3 max-[360px]:p-2 shadow-hero animate-[phoneSlide_500ms_var(--ease-clay)_500ms_backwards]">
+      <div class="bg-[#E5DDD5] rounded-[22px] max-[360px]:rounded-[18px] overflow-hidden flex flex-col mt-2">
+        <!-- WhatsApp header -->
+        <div class="bg-[#3FA643] px-4 py-3 flex items-center gap-3">
+          <div class="w-9 h-9 rounded-full overflow-hidden shrink-0 bg-white">
+            <img
+              src="/onboarding/images/pablo/pablo-logo.png"
+              alt="Pablo"
+              width="36"
+              height="36"
+              class="w-full h-full object-cover"
+            />
+          </div>
+          <div class="flex flex-col">
+            <span class="font-display font-bold text-[15px] text-white">Pablo</span>
+            <span class="text-[12px] text-white/70">en línea</span>
+          </div>
+        </div>
+        <!-- Chat body -->
+        <div class="wsp-body px-3 py-4 min-h-[310px] flex flex-col gap-2 overflow-y-scroll [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
+          <!-- Mensaje de Pablo -->
+          <div class="max-w-[85%] px-[14px] pt-[10px] pb-[6px] rounded-[18px] text-[15px] leading-[1.5] relative bg-white text-[#303030] self-start rounded-tl-[4px] animate-[msgSlide_300ms_var(--ease-clay)_500ms_backwards]">
+            <p class="m-0">¡Hola! Cuéntame tu última compra y verás cómo lo categorizo 🔥</p>
+            <span class="block text-[11px] text-left mt-1 opacity-60">10:42 AM</span>
+          </div>
+        </div>
+        <!-- Quick replies -->
+        <div class="chips-bar p-3 flex flex-wrap gap-2 bg-[#F0ECE5] border-t border-black/10">
+          <button
+            class="wsp-chip px-4 py-2 border-[1.5px] border-black/15 bg-white text-[13px] font-body text-[#303030] cursor-pointer transition-all duration-fast min-h-[40px] inline-flex items-center hover:bg-ambar-deep hover:text-white hover:border-ambar-deep hover:-translate-y-[1px] rounded-2xl"
+            data-reply="almuerzo"
+            onclick="wspSelectChipStep4(this)"
+          >
+            Almuerzo S/.15
+          </button>
+          <button
+            class="wsp-chip px-4 py-2 border-[1.5px] border-black/15 bg-white text-[13px] font-body text-[#303030] cursor-pointer transition-all duration-fast min-h-[40px] inline-flex items-center hover:bg-ambar-deep hover:text-white hover:border-ambar-deep hover:-translate-y-[1px] rounded-2xl"
+            data-reply="pasaje"
+            onclick="wspSelectChipStep4(this)"
+          >
+            Pasaje de S/.2
+          </button>
+          <button
+            class="wsp-chip px-4 py-2 border-[1.5px] border-black/15 bg-white text-[13px] font-body text-[#303030] cursor-pointer transition-all duration-fast min-h-[40px] inline-flex items-center hover:bg-ambar-deep hover:text-white hover:border-ambar-deep hover:-translate-y-[1px] rounded-2xl"
+            data-reply="uber"
+            onclick="wspSelectChipStep4(this)"
+          >
+            Uber S/.12
+          </button>
+          <button
+            class="wsp-chip px-4 py-2 border-[1.5px] border-black/15 bg-white text-[13px] font-body text-[#303030] cursor-pointer transition-all duration-fast min-h-[40px] inline-flex items-center hover:bg-ambar-deep hover:text-white hover:border-ambar-deep hover:-translate-y-[1px] rounded-2xl"
+            data-reply="delivery"
+            onclick="wspSelectChipStep4(this)"
+          >
+            Delivery S/.28
+          </button>
+        </div>
+      </div>
+    </div>
+    <!-- CTA -->
+    <div class="flex flex-col items-center gap-[14px] w-full max-md:-mt-[2px]">
+      <button class="btn-primary btn-primary--compact" onclick="pabloNext()">
+        Siguiente
+        <span class="arrow" aria-hidden="true">→</span>
+      </button>
+    </div>
+  </div>
+</section>
+
+<script is:inline type="module">
+  const respuestas = {
+    almuerzo: `Listo, lo anoté en Comida ✓\nLlevas S/.40 en Comida esta semana`,
+    pasaje: `Listo, lo anoté en Movilidad ✓\nLlevas S/.14 en Pasaje esta semana`,
+    uber: `Listo, lo anoté en Movilidad ✓\nLlevas S/.42 en Uber esta semana`,
+    delivery: `Listo, lo anoté en Comida ✓\nLlevas S/.34 en Delivery esta semana`,
+  };
+
+  function seleccionarChip(chip) {
+    const step = document.querySelector('[data-step="step-4"]');
+    step.querySelectorAll(".wsp-chip").forEach((c) => {
+      c.disabled = true;
+      if (c !== chip) c.style.opacity = "0.4";
+    });
+    chip.style.backgroundColor = "#F59E0B";
+    chip.style.color = "#ffffff";
+    chip.style.borderColor = "#F5A623";
+
+    window.pabloTrack?.("onboarding_demo_gasto_selected", { gasto: chip.dataset.reply });
+
+    const body = step.querySelector(".wsp-body");
+    if (!body) return;
+    step.querySelector(".wsp-msg--user")?.remove();
+    step.querySelector(".wsp-msg--bot-reply")?.remove();
+    step.querySelector(".wsp-typing")?.remove();
+
+    const userMsg = document.createElement("div");
+    userMsg.className =
+      "wsp-msg--user max-w-[85%] px-[14px] pt-[10px] pb-[6px] rounded-[18px] text-[15px] leading-[1.5] relative bg-[#DCF8C6] text-[#303030] self-end rounded-tr-[4px] animate-[msgSlide_300ms_var(--ease-clay)]";
+    userMsg.innerHTML = `
+    <p class="m-0">${chip.textContent?.trim()}</p>
+    <span class="block text-[11px] text-right mt-1 opacity-60">10:43 AM</span>
+  `;
+    body.appendChild(userMsg);
+    body.scrollTop = body.scrollHeight;
+
+    setTimeout(() => {
+      const typing = document.createElement("div");
+      typing.className =
+        "wsp-typing max-w-[85%] px-[14px] py-[10px] rounded-xl bg-white self-start rounded-bl-[4px] flex gap-[4px] items-center animate-[msgSlide_300ms_var(--ease-clay)]";
+      typing.innerHTML = `
+      <span class="w-2 h-2 rounded-full bg-gray-400 animate-bounce [animation-delay:0ms]"></span>
+      <span class="w-2 h-2 rounded-full bg-gray-400 animate-bounce [animation-delay:150ms]"></span>
+      <span class="w-2 h-2 rounded-full bg-gray-400 animate-bounce [animation-delay:300ms]"></span>
+    `;
+      body.appendChild(typing);
+      body.scrollTop = body.scrollHeight;
+
+      setTimeout(() => {
+        typing.remove();
+        const botMsg = document.createElement("div");
+        botMsg.className =
+          "wsp-msg--bot-reply max-w-[95%] px-[14px] pt-[10px] pb-[6px] rounded-[18px] text-[15px] leading-[1.5] relative bg-white text-[#303030] self-start rounded-tl-[4px] animate-[msgSlide_300ms_var(--ease-clay)]";
+        botMsg.innerHTML = `
+        <p class="m-0 whitespace-pre-line">${respuestas[chip.dataset.reply] ?? ""}</p>
+        <span class="block text-[11px] text-left mt-1 opacity-60">10:43 AM</span>
+      `;
+        body.appendChild(botMsg);
+        body.scrollTop = body.scrollHeight;
+      }, 1600);
+    }, 400);
+  }
+  window.wspSelectChipStep4 = seleccionarChip;
+</script>

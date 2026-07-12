@@ -1,0 +1,203 @@
+<!-- Paywall: prueba gratuita + modal de planes (Stripe) -->
+<section class="step !pb-0" data-step="step-18" aria-label="Empieza tu prueba gratuita" aria-hidden="true">
+  <div class="flex flex-col flex-1 w-full max-w-[340px] mx-auto px-5 pt-6 pb-8 max-md:pb-[40px] overflow-y-auto [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
+    <!-- Top Block -->
+    <div class="flex flex-col gap-3">
+      <!-- Pablo logo -->
+      <div class="flex justify-center">
+        <img
+          src="/onboarding/images/pablo/pablo-logo.png"
+          alt="Pablo"
+          class="w-[72px] h-[72px] object-cover drop-shadow-md rounded-2xl"
+        />
+      </div>
+      <!-- Título -->
+      <div class="flex flex-col gap-1">
+        <h2 class="font-display font-bold text-[28px] max-[360px]:text-[24px] leading-[1.15] tracking-tight text-navy text-justify">
+          Empieza tu prueba gratuita de 7 días.
+        </h2>
+        <p class="text-[15px] font-body text-amber text-justify">Cancela en cualquier momento.</p>
+      </div>
+      <!-- Promesa -->
+      <div class="flex flex-col gap-3">
+        <p class="text-[14px] leading-relaxed font-body text-navy text-justify">
+          Solo nos importa que sigas usando a Pablo si en verdad cambia tu vida financiera.
+        </p>
+        <p class="text-[14px] leading-relaxed font-body text-navy text-justify">
+          Si sientes que Pablo no es para ti, te devolveremos el
+          <strong class="font-bold">100% de tu dinero</strong>. Sin preguntas.
+        </p>
+        <p class="text-[14px] italic font-body text-navy-soft text-justify">— El equipo de Pablo 💛</p>
+      </div>
+      <!-- Links legales -->
+      <div class="flex gap-2 text-[12px] font-body text-center justify-center text-navy-soft">
+        <a href="#" class="hover:text-navy transition-colors">Contáctanos</a>
+        <span>·</span>
+        <a href="#" class="hover:text-navy transition-colors">Términos</a>
+        <span>·</span>
+        <a href="#" class="hover:text-navy transition-colors">Privacidad</a>
+      </div>
+    </div>
+    <!-- Bottom Stack -->
+    <div class="flex flex-col gap-4 mt-auto pt-6 w-full">
+      <!-- Pricing card -->
+      <div class="bg-white rounded-[24px] p-6 flex flex-col items-center gap-1">
+        <p class="font-display font-bold text-[32px] text-navy">S/. 200 /año</p>
+        <p class="text-[12px] text-center font-body text-navy-soft leading-tight">
+          Eso es aprox. S/. 3.84 a la semana, facturados anualmente
+        </p>
+      </div>
+      <!-- CTA principal: siempre inicia el plan anual -->
+      <button class="btn-primary w-full text-[16px] py-[14px]" style="box-shadow: none" onclick="pabloStartTrial('anual')">
+        Empieza tu prueba gratuita de 7 días
+        <span class="arrow" aria-hidden="true">→</span>
+      </button>
+      <!-- Ver planes -->
+      <button class="text-[13px] underline text-center font-body text-navy mt-1" onclick="pabloOpenPlans()">
+        Ver todos los planes ↓
+      </button>
+    </div>
+  </div>
+
+  <!-- Modal: todos los planes -->
+  <div
+    id="plansModal"
+    class="fixed inset-0 z-[100] hidden items-end justify-center min-[480px]:items-center"
+    role="dialog"
+    aria-modal="true"
+    aria-label="Todos los planes"
+  >
+    <!-- Backdrop -->
+    <div class="plans-backdrop absolute inset-0 bg-[rgba(43,44,100,0.55)]" onclick="pabloClosePlans()"></div>
+    <!-- Sheet -->
+    <div class="plans-sheet relative w-full max-w-[420px] bg-lila rounded-t-[28px] min-[480px]:rounded-[28px] min-[480px]:mx-4 px-5 pt-5 pb-7 flex flex-col gap-4">
+      <!-- Header -->
+      <div class="flex items-center justify-between">
+        <h3 class="font-display font-bold text-[20px] text-navy">Elige tu plan</h3>
+        <button
+          class="w-9 h-9 rounded-full bg-white flex items-center justify-center text-navy text-[16px] leading-none shadow-soft"
+          onclick="pabloClosePlans()"
+          aria-label="Cerrar"
+        >
+          ✕
+        </button>
+      </div>
+      <!-- Cards de planes -->
+      <div class="grid grid-cols-3 gap-2 pt-3">
+        <!-- 1 semana -->
+        <button
+          type="button"
+          class="plan-card relative flex flex-col items-center rounded-[18px] px-2 pt-5 pb-4 bg-white"
+          data-plan="semanal"
+          onclick="pabloSelectPlan(this, 'semanal')"
+          aria-pressed="false"
+        >
+          <span class="font-display font-bold text-[26px] text-navy leading-none">1</span>
+          <span class="text-[10px] font-body uppercase tracking-widest text-navy-soft mt-1">semana</span>
+          <span class="font-display font-bold text-[18px] text-navy mt-2">S/. 7</span>
+          <span class="text-[10px] font-body text-navy-soft leading-tight">S/. 1 /día</span>
+        </button>
+        <!-- 1 mes -->
+        <button
+          type="button"
+          class="plan-card relative flex flex-col items-center rounded-[18px] px-2 pt-5 pb-4 bg-white"
+          data-plan="mensual"
+          onclick="pabloSelectPlan(this, 'mensual')"
+          aria-pressed="false"
+        >
+          <span class="font-display font-bold text-[26px] text-navy leading-none">1</span>
+          <span class="text-[10px] font-body uppercase tracking-widest text-navy-soft mt-1">mes</span>
+          <span class="font-display font-bold text-[18px] text-navy mt-2">S/. 20</span>
+          <span class="text-[10px] font-body text-navy-soft leading-tight">S/. 5 /semana</span>
+          <span class="text-[10px] font-body font-bold text-amber mt-1">3 días gratis</span>
+        </button>
+        <!-- 12 meses -->
+        <button
+          type="button"
+          class="plan-card selected relative flex flex-col items-center rounded-[18px] px-2 pt-5 pb-4 bg-white"
+          data-plan="anual"
+          onclick="pabloSelectPlan(this, 'anual')"
+          aria-pressed="true"
+        >
+          <span class="plan-badge absolute -top-[10px] left-1/2 -translate-x-1/2 whitespace-nowrap text-[9px] font-display font-bold tracking-wide text-navy px-2 py-[3px]">AHORRA 45%</span>
+          <span class="font-display font-bold text-[26px] text-navy leading-none">12</span>
+          <span class="text-[10px] font-body uppercase tracking-widest text-navy-soft mt-1">meses</span>
+          <span class="font-display font-bold text-[18px] text-navy mt-2">S/. 200</span>
+          <span class="text-[10px] font-body text-navy-soft leading-tight">S/. 3.84 /sem</span>
+          <span class="text-[10px] font-body font-bold text-amber mt-1">7 días gratis</span>
+        </button>
+      </div>
+      <!-- CTA del modal -->
+      <button class="btn-primary w-full text-[16px] py-[14px] mt-1" style="box-shadow: none" onclick="pabloStartTrial()">
+        <span id="plansCtaLabel">Empieza tu prueba gratuita de 7 días</span>
+        <span class="arrow" aria-hidden="true">→</span>
+      </button>
+      <p class="text-[12px] text-center font-body text-navy-soft -mt-2">Cancela en cualquier momento</p>
+    </div>
+  </div>
+</section>
+
+<script is:inline type="module">
+  const planes = {
+    semanal: {
+      stripeUrl: "https://buy.stripe.com/14A14ocXHejuaY6cGJ1sQ0v",
+      trialDays: 0,
+      ctaLabel: "Continuar con el plan semanal",
+    },
+    mensual: {
+      stripeUrl: "https://buy.stripe.com/6oU6oIe1L4IU8PY6il1sQ0u",
+      trialDays: 3,
+      ctaLabel: "Empieza tu prueba gratuita de 3 días",
+    },
+    anual: {
+      stripeUrl: "https://buy.stripe.com/3cIaEYcXHcbmd6egWZ1sQ0r",
+      trialDays: 7,
+      ctaLabel: "Empieza tu prueba gratuita de 7 días",
+    },
+  };
+  let planSeleccionado = "anual";
+
+  function abrirPlanes() {
+    const modal = document.getElementById("plansModal");
+    modal?.classList.remove("hidden");
+    modal?.classList.add("flex");
+    window.pabloTrack?.("onboarding_plans_opened", {});
+  }
+
+  function cerrarPlanes() {
+    const modal = document.getElementById("plansModal");
+    modal?.classList.add("hidden");
+    modal?.classList.remove("flex");
+  }
+
+  function seleccionarPlan(el, plan) {
+    planSeleccionado = plan;
+    document.querySelectorAll("#plansModal .plan-card").forEach((card) => {
+      card.classList.remove("selected");
+      card.setAttribute("aria-pressed", "false");
+    });
+    el.classList.add("selected");
+    el.setAttribute("aria-pressed", "true");
+    const label = document.getElementById("plansCtaLabel");
+    if (label) label.textContent = planes[plan].ctaLabel;
+    window.pabloTrack?.("onboarding_plan_selected", { plan });
+  }
+
+  function iniciarPrueba(plan = planSeleccionado) {
+    const { stripeUrl } = planes[plan];
+    if (!stripeUrl) {
+      console.warn(`Checkout del plan "${plan}" — falta configurar el link de Stripe.`);
+      return;
+    }
+    window.pabloTrack?.("onboarding_trial_started", { plan });
+    window.location.href = stripeUrl;
+  }
+
+  document.addEventListener("keydown", (e) => {
+    if (e.key === "Escape") cerrarPlanes();
+  });
+  window.pabloOpenPlans = abrirPlanes;
+  window.pabloClosePlans = cerrarPlanes;
+  window.pabloSelectPlan = seleccionarPlan;
+  window.pabloStartTrial = iniciarPrueba;
+</script>
