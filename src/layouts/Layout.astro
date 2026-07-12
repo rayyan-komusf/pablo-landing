@@ -23,32 +23,27 @@ const ogImage = `${siteUrl}/Logo.png`;
   <head>
     <meta charset="UTF-8" />
 
-    <!-- Split 50/50 landing / onboarding — debe ir lo antes posible -->
-    <style is:inline>
-      html:not([data-split-ready]) body { visibility: hidden; }
-    </style>
+    <!-- Nuevo visitante → los CTAs llevan al primer onboarding.
+         El onboarding marca localStorage.pablo_intro_vista cuando el usuario
+         ya vio el intro (pregunta inicial + saludo + primer gasto); comparte
+         dominio con la landing, así que el flag es visible desde aquí. -->
     <script is:inline>
       (function () {
         try {
-          var path = window.location.pathname;
-          if (path === "/" || path === "") {
-            var toOnboarding = Math.random() < 0.5;
-            if (toOnboarding) {
-              window.location.replace("/onboarding");
-              return; // no marcar ready, nos vamos de la página
-            }
-          }
+          var esNuevo = localStorage.getItem("pablo_intro_vista") !== "1";
+          if (!esNuevo) return;
+          document.addEventListener("DOMContentLoaded", function () {
+            ["hero-cta-btn", "finalcta-btn", "navbar-cta-btn", "navbar-mobile-cta-btn"].forEach(
+              function (id) {
+                var el = document.getElementById(id);
+                if (el && el.tagName === "A") el.setAttribute("href", "/onboarding");
+              }
+            );
+          });
         } catch (e) {
-          // si algo falla, mostramos la landing normalmente
+          // si localStorage falla, los CTAs mantienen su destino normal
         }
-        document.documentElement.setAttribute("data-split-ready", "true");
       })();
-    </script>
-    <!-- Fallback de seguridad: si algo bloquea el script, mostrar igual -->
-    <script is:inline>
-      setTimeout(function () {
-        document.documentElement.setAttribute("data-split-ready", "true");
-      }, 1500);
     </script>
 
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
