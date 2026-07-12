@@ -27,7 +27,7 @@ const pasos = [
 
       <div class="chancha-hero">
         <img src="/chanchapablo.png" alt="Pablo pone para la chancha" class="hero-img-single" />
-        <button class="btn-canjea" id="btn-canjea">Canjea tu chancha</button>
+        <a href="https://usapablo.app/dashboard" class="btn-canjea" id="btn-canjea">Canjea tu chancha</a>
       </div>
 
       <div class="chancha-banner">
@@ -128,6 +128,7 @@ const pasos = [
     border: none;
     border-radius: var(--radius-pill);
     cursor: pointer;
+    text-decoration: none;
     transition: background 0.2s ease, color 0.2s ease, transform 0.15s ease;
   }
 
@@ -621,23 +622,16 @@ const pasos = [
 
 <script>
   const overlay = document.getElementById('canjea-modal');
-  const btnOpen = document.getElementById('btn-canjea');
   const btnClose = document.getElementById('modal-close');
   const form = document.getElementById('canjea-form') as HTMLFormElement;
   const successMsg = document.getElementById('modal-success');
   const submitBtn = document.getElementById('btn-submit-canjea') as HTMLButtonElement;
-
-  function openModal() {
-    overlay?.classList.add('active');
-    document.body.style.overflow = 'hidden';
-  }
 
   function closeModal() {
     overlay?.classList.remove('active');
     document.body.style.overflow = '';
   }
 
-  btnOpen?.addEventListener('click', openModal);
   btnClose?.addEventListener('click', closeModal);
   overlay?.addEventListener('click', (e) => {
     if (e.target === overlay) closeModal();
