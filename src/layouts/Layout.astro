@@ -2,6 +2,7 @@
 import "../styles/global.css";
 import SubscribeModal from "../components/SubscribeModal.astro";
 import CountdownBanner from "../components/CountdownBanner.astro";
+import PostHogSnippet from "../components/PostHogSnippet.astro";
 import { IS_LIVE } from "../siteConfig";
 
 interface Props {
@@ -203,6 +204,9 @@ const ogImage = `${siteUrl}/Logo.png`;
       })(window, document, "ttq");
     </script>
     <!-- TikTok Pixel Code End -->
+
+    <!-- PostHog -->
+    <PostHogSnippet />
   </head>
   <body>
     <CountdownBanner />

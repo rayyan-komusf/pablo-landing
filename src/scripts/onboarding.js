@@ -332,10 +332,26 @@ class OnboardingEngine {
     window.pabloDoExit = () => this.doExit();
     window.pabloExitDirect = () => this.exitDirect();
     window.pabloTrack = track;
+    window.pabloGoApp = (stepId) => this.goToApp(stepId);
     window.onboarding = this;
     document.addEventListener("keydown", (e) => {
       if (e.key === "Escape") this.cancelExit();
     });
+  }
+
+  /**
+   * "¿Ya eres miembro?" → app (usapablo.app). El distinct_id viaja por URL
+   * (?ph_did=...) porque los dominios no comparten cookies; la app lo usa
+   * como bootstrap de PostHog para unir el recorrido anónimo con el usuario.
+   */
+  goToApp(stepId) {
+    track("already_member_clicked", { step_id: stepId });
+    let url = "https://usapablo.app/";
+    try {
+      const did = window.posthog?.get_distinct_id?.();
+      if (did) url += `?ph_did=${encodeURIComponent(did)}`;
+    } catch {}
+    window.location.href = url;
   }
 
   /* Salida con confirmación (X de la topbar en pasos avanzados) */
