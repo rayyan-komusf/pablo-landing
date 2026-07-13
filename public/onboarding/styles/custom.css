@@ -956,17 +956,21 @@ body .topbar > div {
   letter-spacing: -0.01em;
 }
 
-/* ── Marco del iPhone (titanio + isla dinámica + barra home) ── */
+/* ── Marco del iPhone (titanio + isla dinámica + barra home) ─────────
+ * Todo con font-size + em para escalar uniformemente al reducir --w
+ * (mismo patrón que HeroPhone.astro del hero de la landing) */
 .iphone {
+  --w: 340px;
+  font-size: 14px; /* base: cambia en mobile para escalar todo el interior */
   position: relative;
-  width: 340px;
+  width: var(--w);
   max-width: 92vw;
-  border-radius: 54px;
-  padding: 10px;
+  border-radius: 3.857em;
+  padding: 0.714em;
   background: linear-gradient(145deg, #3a3a3c, #1c1c1e 40%, #48484a);
   box-shadow:
-    0 24px 48px -16px rgba(43, 44, 100, 0.35),
-    inset 0 0 2px 2px rgba(255, 255, 255, 0.08);
+    0 1.71em 3.43em -1.14em rgba(43, 44, 100, 0.35),
+    inset 0 0 0.143em 0.143em rgba(255, 255, 255, 0.08);
   flex-shrink: 0;
 }
 
@@ -976,37 +980,37 @@ body .topbar > div {
   content: "";
   position: absolute;
   background: #2c2c2e;
-  border-radius: 3px;
+  border-radius: 0.214em;
 }
 .iphone::before {
-  left: -2.5px;
-  top: 130px;
-  width: 3px;
-  height: 58px;
+  left: -0.178em;
+  top: 9.28em;
+  width: 0.214em;
+  height: 4.14em;
 }
 .iphone::after {
-  right: -2.5px;
-  top: 150px;
-  width: 3px;
-  height: 84px;
+  right: -0.178em;
+  top: 10.71em;
+  width: 0.214em;
+  height: 6em;
 }
 
 .iphone__isla {
   position: absolute;
-  top: 20px;
+  top: 1.43em;
   left: 50%;
   transform: translateX(-50%);
-  width: 96px;
-  height: 26px;
+  width: 6.857em;
+  height: 1.857em;
   background: #000;
-  border-radius: 20px;
+  border-radius: 1.428em;
   z-index: 12;
 }
 
 .iphone__pantalla {
   position: relative;
-  height: 588px;
-  border-radius: 44px;
+  height: 42em; /* 588px / 14 */
+  border-radius: 3.14em;
   overflow: hidden;
   background: #efe7dd;
   display: flex;
@@ -1015,12 +1019,12 @@ body .topbar > div {
 
 .iphone__homebar {
   position: absolute;
-  bottom: 6px;
+  bottom: 0.428em;
   left: 50%;
   transform: translateX(-50%);
-  width: 110px;
-  height: 4px;
-  border-radius: 4px;
+  width: 7.857em;
+  height: 0.286em;
+  border-radius: 0.286em;
   background: rgba(0, 0, 0, 0.35);
   z-index: 12;
   pointer-events: none;
@@ -1031,38 +1035,41 @@ body .topbar > div {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding: 14px 26px 4px 30px;
+  padding: 1em 1.857em 0.286em 2.143em;
   background: #f6f6f6;
   color: #000;
   font-family: -apple-system, "SF Pro Text", var(--font-display), sans-serif;
-  font-size: 14px;
+  font-size: 1em;
   font-weight: 700;
 }
+.ios-status svg { width: auto; height: 0.786em; }
 
 .ios-status__iconos {
   display: inline-flex;
   align-items: center;
-  gap: 5px;
+  gap: 0.357em;
 }
 
 /* ── Header WhatsApp iOS ── */
 .wa-header {
   display: flex;
   align-items: center;
-  gap: 8px;
-  padding: 6px 12px 8px;
+  gap: 0.571em;
+  padding: 0.428em 0.857em 0.571em;
   background: #f6f6f6;
   border-bottom: 1px solid rgba(0, 0, 0, 0.12);
   color: #007aff;
 }
+.wa-header svg { height: 1em; width: auto; }
+.wa-header svg:first-child { height: 1.286em; }
 
 .wa-header__back {
   flex-shrink: 0;
 }
 
 .wa-header__avatar {
-  width: 36px;
-  height: 36px;
+  width: 2.571em;
+  height: 2.571em;
   border-radius: 50%;
   object-fit: cover;
   background: var(--color-white);
@@ -1079,18 +1086,18 @@ body .topbar > div {
 .wa-header__nombre {
   font-family: var(--font-display);
   font-weight: 700;
-  font-size: 15px;
+  font-size: 1.07em;
   color: #000;
 }
 
 .wa-header__estado {
-  font-size: 11.5px;
+  font-size: 0.821em;
   color: #8e8e93;
 }
 
 .wa-header__icono {
   flex-shrink: 0;
-  margin-left: 10px;
+  margin-left: 0.714em;
 }
 
 /* ── Zona de chat ── */
@@ -1098,15 +1105,15 @@ body .topbar > div {
   flex: 1;
   overflow-y: auto;
   scrollbar-width: none;
-  padding: 10px 12px 6px;
+  padding: 0.714em 0.857em 0.428em;
   display: flex;
   flex-direction: column;
-  gap: 6px;
+  gap: 0.428em;
   background:
     radial-gradient(circle at 20% 30%, rgba(255, 255, 255, 0.25) 0.8px, transparent 1px),
     radial-gradient(circle at 70% 60%, rgba(255, 255, 255, 0.25) 0.8px, transparent 1px),
     #efe7dd;
-  background-size: 46px 46px, 38px 38px, auto;
+  background-size: 3.286em 3.286em, 2.714em 2.714em, auto;
 }
 
 .wa-chat::-webkit-scrollbar {
@@ -1115,25 +1122,25 @@ body .topbar > div {
 
 .wa-dia {
   align-self: center;
-  margin-block: 4px;
+  margin-block: 0.286em;
 }
 
 .wa-dia span {
   background: #dcd3c8;
   color: #5b5b5b;
-  font-size: 11px;
+  font-size: 0.786em;
   font-weight: 600;
-  padding: 4px 10px;
-  border-radius: 8px;
+  padding: 0.286em 0.714em;
+  border-radius: 0.571em;
 }
 
 /* Burbujas */
 .wa-msg {
   position: relative;
   max-width: 82%;
-  padding: 7px 10px 5px;
-  border-radius: 10px;
-  font-size: 14px;
+  padding: 0.5em 0.714em 0.357em;
+  border-radius: 0.714em;
+  font-size: 1em;
   line-height: 1.4;
   color: #111;
   box-shadow: 0 1px 0.5px rgba(0, 0, 0, 0.12);
@@ -1144,43 +1151,44 @@ body .topbar > div {
 .wa-msg--in {
   align-self: flex-start;
   background: #fff;
-  border-top-left-radius: 2px;
+  border-top-left-radius: 0.143em;
 }
 
 .wa-msg--out {
   align-self: flex-end;
   background: #d9fdd3;
-  border-top-right-radius: 2px;
+  border-top-right-radius: 0.143em;
 }
 
 .wa-msg__meta {
   display: inline-flex;
   align-items: center;
-  gap: 2px;
-  font-size: 10px;
+  gap: 0.143em;
+  font-size: 0.714em;
   color: #8a8a8a;
   float: right;
-  margin: 8px 0 0 8px;
+  margin: 0.571em 0 0 0.571em;
 }
+.wa-msg__meta svg { width: 1.07em; height: 0.643em; }
 
 .wa-msg__foto {
   display: block;
-  width: 180px;
+  width: 12.857em;
   max-width: 100%;
-  border-radius: 8px;
-  margin-bottom: 2px;
+  border-radius: 0.571em;
+  margin-bottom: 0.143em;
 }
 
 /* Indicador escribiendo… */
 .wa-typing {
   display: inline-flex;
-  gap: 4px;
-  padding: 12px 14px;
+  gap: 0.286em;
+  padding: 0.857em 1em;
 }
 
 .wa-typing span {
-  width: 7px;
-  height: 7px;
+  width: 0.5em;
+  height: 0.5em;
   border-radius: 50%;
   background: #b5b5b5;
   animation: typingDot 1.2s ease-in-out infinite;
@@ -1210,19 +1218,19 @@ body .topbar > div {
 .wa-audio {
   display: inline-flex;
   align-items: center;
-  gap: 8px;
-  min-width: 170px;
-  padding: 2px 0;
+  gap: 0.571em;
+  min-width: 12.14em;
+  padding: 0.143em 0;
 }
 
 .wa-audio__play {
-  width: 30px;
-  height: 30px;
+  width: 2.143em;
+  height: 2.143em;
   border: none;
   border-radius: 50%;
   background: #34b7f1;
   color: #fff;
-  font-size: 12px;
+  font-size: 0.857em;
   cursor: pointer;
   flex-shrink: 0;
   display: inline-flex;
@@ -1233,75 +1241,44 @@ body .topbar > div {
 .wa-audio__onda {
   display: inline-flex;
   align-items: center;
-  gap: 2px;
+  gap: 0.143em;
   flex: 1;
 }
 
 .wa-audio__onda i {
-  width: 3px;
-  border-radius: 2px;
+  width: 0.214em;
+  border-radius: 0.143em;
   background: #8fbc8f;
 }
 
 .wa-audio__onda i:nth-child(odd) {
-  height: 14px;
+  height: 1em;
 }
 .wa-audio__onda i:nth-child(even) {
-  height: 8px;
+  height: 0.571em;
 }
 .wa-audio__onda i:nth-child(3n) {
-  height: 18px;
+  height: 1.286em;
 }
 
 .wa-audio__dur {
-  font-size: 11px;
+  font-size: 0.786em;
   color: #8a8a8a;
-}
-
-/* Chips de sugerencia */
-.wa-chips {
-  display: flex;
-  gap: 6px;
-  padding: 6px 10px;
-  background: #f6f6f6;
-  overflow-x: auto;
-  scrollbar-width: none;
-}
-
-.wa-chips::-webkit-scrollbar {
-  display: none;
-}
-
-.wa-chip {
-  flex-shrink: 0;
-  border: 1.5px solid rgba(0, 0, 0, 0.14);
-  background: #fff;
-  color: #111;
-  font-family: var(--font-body, inherit);
-  font-size: 12.5px;
-  padding: 7px 12px;
-  border-radius: 999px;
-  cursor: pointer;
-  transition: all var(--duration-fast);
-}
-
-.wa-chip:hover {
-  background: var(--color-ambar);
-  border-color: var(--color-ambar);
 }
 
 /* Barra de input */
 .wa-input {
   display: flex;
   align-items: center;
-  gap: 6px;
-  padding: 8px 10px 22px;
+  gap: 0.428em;
+  padding: 0.571em 0.714em 1.571em;
   background: #f6f6f6;
 }
+.wa-input svg { width: 1.571em; height: 1.571em; }
 
 .wa-input__btn {
-  width: 36px;
-  height: 36px;
+  width: 2.571em;
+  height: 2.571em;
   border: none;
   background: none;
   color: #007aff;
@@ -1323,7 +1300,7 @@ body .topbar > div {
   background: #fff;
   border: 1px solid rgba(0, 0, 0, 0.12);
   border-radius: 999px;
-  padding: 7px 14px;
+  padding: 0.5em 1em;
 }
 
 .wa-input__campo input {
@@ -1331,7 +1308,7 @@ body .topbar > div {
   border: none;
   outline: none;
   background: none;
-  font-size: 14px;
+  font-size: 1em;
   font-family: inherit;
   color: #111;
 }
@@ -1354,16 +1331,16 @@ body .topbar > div {
   bottom: 0;
   display: flex;
   align-items: center;
-  gap: 10px;
-  padding: 12px 14px 24px;
+  gap: 0.714em;
+  padding: 0.857em 1em 1.714em;
   background: #f6f6f6;
   border-top: 1px solid rgba(0, 0, 0, 0.1);
   z-index: 11;
 }
 
 .wa-grabando__punto {
-  width: 12px;
-  height: 12px;
+  width: 0.857em;
+  height: 0.857em;
   border-radius: 50%;
   background: #ff3b30;
   animation: grabPulso 1s ease-in-out infinite;
@@ -1380,10 +1357,10 @@ body .topbar > div {
 }
 
 .wa-grabando__tiempo {
-  font-size: 14px;
+  font-size: 1em;
   font-weight: 700;
   color: #111;
-  min-width: 40px;
+  min-width: 2.857em;
 }
 
 .wa-grabando__cancelar {
@@ -1391,15 +1368,15 @@ body .topbar > div {
   border: none;
   background: none;
   color: #8e8e93;
-  font-size: 14px;
+  font-size: 1em;
   font-weight: 600;
   cursor: pointer;
-  padding: 6px 10px;
+  padding: 0.428em 0.714em;
 }
 
 .wa-grabando__enviar {
-  width: 40px;
-  height: 40px;
+  width: 2.857em;
+  height: 2.857em;
   border: none;
   border-radius: 50%;
   background: #25d366;
@@ -1409,17 +1386,17 @@ body .topbar > div {
   align-items: center;
   justify-content: center;
 }
+.wa-grabando__enviar svg { width: 1.286em; height: 1.286em; }
 
-/* Mobile: el teléfono ocupa el ancho disponible */
+/* Mobile: reducir font-size del iPhone escala todo el interior a la vez.
+ * A 320px de ancho, font-size = 320 * 0.0412 = 13.2 (base es 14 a 340). */
 @media (max-width: 560px) {
   .demo-title {
     font-size: 20px;
   }
   .iphone {
-    width: 320px;
-  }
-  .iphone__pantalla {
-    height: 540px;
+    --w: min(90vw, 320px);
+    font-size: calc(var(--w) * 0.0412);
   }
 }
 
