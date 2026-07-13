@@ -70,7 +70,7 @@
 
   .hphone__isla {
     position: absolute;
-    top: 20px;
+    top: 11px; /* centro en y=24, igual que la fila de estado (10..38) */
     left: 50%;
     transform: translateX(-50%);
     width: 96px;
@@ -107,12 +107,14 @@
     display: flex;
     justify-content: space-between;
     align-items: center;
-    padding: 14px 26px 4px 30px;
+    height: 38px; /* fila fija: hora e iconos centrados a la altura de la isla */
+    padding: 10px 26px 0 30px;
     background: #f6f6f6;
     color: #000;
     font-family: -apple-system, "SF Pro Text", sans-serif;
     font-size: 14px;
     font-weight: 700;
+    flex-shrink: 0;
   }
 
   .hphone__iconos { display: inline-flex; align-items: center; gap: 5px; }
@@ -295,6 +297,23 @@
     .hphone { --w: 290px; border-radius: 46px; }
     .hphone__pantalla { height: 480px; border-radius: 38px; }
     .hphone::before, .hphone::after { display: none; }
+
+    /* Interior a escala: isla más chica y barra de estado compacta para
+     * que el 9:41 y los iconos no choquen con la isla */
+    .hphone__isla { width: 72px; height: 20px; top: 9px; }
+    .hphone__status {
+      height: 32px;
+      padding: 8px 16px 0 20px;
+      font-size: 11px;
+    }
+    .hphone__status svg { transform: scale(0.85); }
+    .hphone__waheader { padding: 4px 10px 6px; }
+    .hphone__waheader img { width: 28px; height: 28px; }
+    .hphone__wanombre { font-size: 13px; }
+    .hphone__waestado { font-size: 10.5px; white-space: nowrap; }
+    .hphone__campo { font-size: 12px; padding: 6px 12px; }
+    .hphone__input { padding: 6px 8px 16px; }
+    .hphone .hmsg { font-size: 12.5px; max-width: 88%; }
   }
 </style>
 

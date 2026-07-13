@@ -15,11 +15,6 @@ import { CTA, IS_LIVE, APP_URL } from "../../siteConfig";
 
     <!-- ── Derecha: titular + CTAs apilados ── -->
     <div class="hero__content">
-      <div class="hero__badge">
-        <span>✨</span>
-        <span>Tu asistente financiero en WhatsApp</span>
-      </div>
-
       <h1 class="hero__title">
         Manejar tu dinero nunca fue <span class="highlight">tan fácil</span>
       </h1>
@@ -86,19 +81,6 @@ import { CTA, IS_LIVE, APP_URL } from "../../siteConfig";
     max-width: 480px;
   }
 
-  .hero__badge {
-    display: inline-flex;
-    align-items: center;
-    gap: 8px;
-    padding: 7px 16px;
-    border-radius: var(--radius-pill);
-    background: #f7f5fb;
-    border: 2px solid #e5e5e5;
-    font-weight: 600;
-    font-size: 14px;
-    color: var(--color-heading);
-  }
-
   .hero__title {
     font-family: var(--font-heading);
     font-weight: 700;
@@ -116,9 +98,53 @@ import { CTA, IS_LIVE, APP_URL } from "../../siteConfig";
     max-width: 340px;
   }
 
+  /* Botones estilo Duolingo: reborde inferior 3D, uppercase, radio 16 */
   .hero__cta {
     width: 100%;
+    justify-content: center;
     text-align: center;
+    border-radius: 16px;
+    padding: 16px 22px;
+    font-weight: 800;
+    font-size: 15px;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    transition: transform 0.12s ease, box-shadow 0.12s ease;
+  }
+
+  .hero__cta.btn-primary {
+    background: var(--color-ambar, #fba920);
+    color: #2b2c64;
+    box-shadow: 0 4px 0 0 #c9820a;
+  }
+
+  .hero__cta.btn-primary:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 5px 0 0 #c9820a;
+  }
+
+  .hero__cta.btn-primary:active {
+    transform: translateY(3px);
+    box-shadow: 0 1px 0 0 #c9820a;
+  }
+
+  .hero__cta.btn-secondary {
+    background: #ffffff;
+    color: #f59e0b;
+    border: 2px solid #e5e5e5;
+    border-bottom-width: 2px;
+    box-shadow: 0 4px 0 0 #e5e5e5;
+  }
+
+  .hero__cta.btn-secondary:hover {
+    background: #f7f7f7;
+    color: #f59e0b;
+    transform: translateY(-1px);
+  }
+
+  .hero__cta.btn-secondary:active {
+    transform: translateY(3px);
+    box-shadow: 0 1px 0 0 #e5e5e5;
   }
 
   /* ── Responsive: mobile apilado, todo dentro del viewport ── */
@@ -149,40 +175,30 @@ import { CTA, IS_LIVE, APP_URL } from "../../siteConfig";
       width: 100%;
     }
 
-    .hero__badge {
-      font-size: 12px;
-      padding: 6px 12px;
-    }
-
     .hero__title {
-      font-size: 28px;
+      font-size: clamp(20px, 6.4vw, 28px);
       max-width: 340px;
     }
 
     .hero__ctas {
       max-width: 340px;
     }
-  }
 
-  /* Pantallas bajitas en mobile: se reduce el teléfono vía variable */
-  @media (max-width: 768px) and (max-height: 760px) {
-    .hero :global(.hphone) {
-      --w: 240px;
-    }
-    .hero :global(.hphone__pantalla) {
-      height: 360px;
-    }
-    .hero__title {
-      font-size: 22px;
-    }
-    .hero__inner {
-      gap: 14px;
-    }
-    .hero__content {
-      gap: 12px;
-    }
     .hero__cta {
       padding-block: 14px;
+    }
+
+    /* El teléfono se dimensiona por viewport: NUNCA desborda el hero.
+     * Pantalla ≈ 44% del alto visible; el ancho acompaña en proporción. */
+    .hero :global(.hphone) {
+      --w: clamp(225px, 27dvh, 300px);
+    }
+    .hero :global(.hphone__pantalla) {
+      height: clamp(345px, 44dvh, 520px);
+      border-radius: 36px;
+    }
+    .hero :global(.hphone) {
+      border-radius: 44px;
     }
   }
 </style>
