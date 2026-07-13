@@ -200,15 +200,17 @@ import { CTA, IS_LIVE, APP_URL } from "../../siteConfig";
 
     /* El teléfono se dimensiona por viewport: NUNCA desborda el hero.
      * Pantalla ≈ 44% del alto visible; el ancho acompaña en proporción. */
+    /* Ancho basado en vw para que crezca en pantallas grandes (iPhone
+     * Plus/Max), capado por dvh para no comerse los botones ni el título
+     * en pantallas cortas. */
     .hero :global(.hphone) {
-      --w: clamp(235px, 31dvh, 330px);
+      --w: clamp(240px, min(82vw, 42dvh), 360px);
+      border-radius: 46px;
     }
     .hero :global(.hphone__pantalla) {
-      height: clamp(355px, 54dvh, 580px);
-      border-radius: 36px;
-    }
-    .hero :global(.hphone) {
-      border-radius: 44px;
+      /* Altura proporcional al ancho, capada para no invadir el content */
+      height: clamp(360px, min(calc(var(--w) * 1.6), 56dvh), 600px);
+      border-radius: 38px;
     }
   }
 </style>
