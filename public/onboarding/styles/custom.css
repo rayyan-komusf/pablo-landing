@@ -750,11 +750,19 @@ body.fondo-blanco .topbar > div {
   max-width: 1024px;
 }
 
+/* Header sticky (patrón Duolingo): la mascota + burbuja quedan fijas
+ * arriba mientras las opciones scrollean por debajo. Fondo sólido para
+ * que las tarjetas desaparezcan al pasar detrás. */
 .fuente-header {
   display: flex;
   align-items: center;
   gap: 14px;
-  margin-top: 16px;
+  position: sticky;
+  top: 0;
+  z-index: 5;
+  background: var(--color-white);
+  padding-top: 16px;
+  padding-bottom: 12px;
 }
 
 .fuente-pablo img {
