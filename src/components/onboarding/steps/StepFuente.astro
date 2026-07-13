@@ -2,9 +2,10 @@
      La imagen es placeholder PNG; se reemplaza por el GIF pablo-anotando
      cuando esté generado. El CTA se habilita al elegir (initFuente). -->
 <section class="step !pb-0" data-step="step-fuente" aria-label="¿Cómo supiste de Pablo?" aria-hidden="true">
-  <div class="fuente-body flex-1 flex flex-col w-full mx-auto px-5 max-md:px-4 overflow-y-auto [scrollbar-width:none] [&::-webkit-scrollbar]:hidden vcenter">
-    <!-- Mascota + burbuja de pregunta -->
-    <div class="fuente-header">
+  <!-- Mascota + burbuja: fuera de la zona de scroll, con línea límite
+       de borde a borde (las opciones scrollean por debajo) -->
+  <div class="fuente-header">
+    <div class="fuente-header__inner">
       <div class="fuente-pablo">
         <picture>
           <source srcset="/onboarding/images/pablo/pablo-anotando.webp" type="image/webp" />
@@ -19,7 +20,9 @@
       </div>
       <div class="speech-bubble speech-bubble--side">¿Cómo supiste de Pablo?</div>
     </div>
+  </div>
 
+  <div class="fuente-body flex-1 flex flex-col w-full mx-auto px-5 max-md:px-4 overflow-y-auto [scrollbar-width:none] [&::-webkit-scrollbar]:hidden vcenter">
     <!-- Opciones (sin auto-avance: se confirma con Continuar) -->
     <div class="fuente-grid" role="radiogroup" aria-label="Selecciona cómo conociste a Pablo">
       <button class="option-card option-card--pill" role="radio" aria-checked="false"

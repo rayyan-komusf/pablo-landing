@@ -3,9 +3,10 @@
      (initPorque) según answers.mainGoal, y cambia con la reacción de cada
      opción (data-bubble). Opciones provisionales hasta tener la lista final. -->
 <section class="step !pb-0" data-step="step-porque" aria-label="¿Por qué quieres lograrlo?" aria-hidden="true">
-  <div class="fuente-body flex-1 flex flex-col w-full mx-auto px-5 max-md:px-4 overflow-y-auto [scrollbar-width:none] [&::-webkit-scrollbar]:hidden vcenter">
-    <!-- Mascota + burbuja: pregunta personalizada → reacción al elegir -->
-    <div class="fuente-header">
+  <!-- Mascota + burbuja (pregunta personalizada → reacción al elegir):
+       fuera de la zona de scroll, con línea límite de borde a borde -->
+  <div class="fuente-header">
+    <div class="fuente-header__inner">
       <div class="fuente-pablo">
         <picture>
           <source srcset="/onboarding/images/pablo/pablo-anotando.webp" type="image/webp" />
@@ -22,7 +23,9 @@
         ¿Por qué quieres mejorar tus finanzas?
       </div>
     </div>
+  </div>
 
+  <div class="fuente-body flex-1 flex flex-col w-full mx-auto px-5 max-md:px-4 overflow-y-auto [scrollbar-width:none] [&::-webkit-scrollbar]:hidden vcenter">
     <!-- Motivos (sin auto-avance: se confirma con Continuar) -->
     <div class="fuente-grid" role="radiogroup" aria-label="Selecciona tu motivo principal">
       <button class="option-card option-card--pill" role="radio" aria-checked="false"

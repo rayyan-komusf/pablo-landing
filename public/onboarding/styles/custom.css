@@ -750,32 +750,24 @@ body.fondo-blanco .topbar > div {
   max-width: 1024px;
 }
 
-/* Header sticky (patrón Duolingo): la mascota + burbuja quedan fijas
- * arriba mientras las opciones scrollean por debajo. Fondo sólido y
- * línea inferior que marca el límite, como Duolingo. */
+/* Header fijo (patrón Duolingo): vive FUERA de la zona de scroll — la
+ * mascota + burbuja quedan arriba y solo las opciones scrollean debajo.
+ * Márgenes negativos: la línea límite cruza de borde a borde de la
+ * pantalla, igual que la del footer. */
 .fuente-header {
+  margin-inline: -24px;
+  background: var(--color-white);
+  border-bottom: 2px solid #e5e5e5;
+  flex-shrink: 0;
+}
+
+.fuente-header__inner {
+  max-width: 1024px;
+  margin-inline: auto;
   display: flex;
   align-items: center;
   gap: 14px;
-  position: sticky;
-  top: 0;
-  z-index: 5;
-  background: var(--color-white);
-  padding-top: 16px;
-  padding-bottom: 14px;
-  border-bottom: 2px solid #e5e5e5;
-}
-
-/* Tapa superior: cubre la rendija de redondeo entre el header sticky y el
- * borde del scrollport para que nada se asome por encima */
-.fuente-header::before {
-  content: "";
-  position: absolute;
-  top: -8px;
-  left: 0;
-  right: 0;
-  height: 8px;
-  background: var(--color-white);
+  padding: 12px 20px 14px;
 }
 
 .fuente-pablo img {
@@ -890,7 +882,7 @@ body.fondo-blanco .topbar > div {
 
 @media (max-width: 560px) {
   .fuente-body {
-    padding-top: 4px;
+    padding-top: 16px;
   }
   .fuente-grid {
     grid-template-columns: 1fr;
