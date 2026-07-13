@@ -1,62 +1,68 @@
 <!-- Pregunta inicial: se muestra antes del saludo "¡Hola, soy Pablo!" -->
 <section class="step !pb-0 relative" data-step="step-primer" aria-label="Pregunta inicial - Objetivo principal" aria-hidden="true">
-  <!-- X de salida directa: desde la primera pantalla se sale sin confirmación -->
-  <button
-    class="btn-exit-floating"
-    onclick="pabloExitDirect()"
-    aria-label="Salir del onboarding"
-    title="Salir"
-  >
-    ✕
-  </button>
+  <!-- Header tipo Duolingo: barra blanca con logo y acceso a la app -->
+  <header class="duo-header">
+    <div class="duo-header__inner">
+      <button
+        class="btn-exit duo-header__exit"
+        onclick="pabloExitDirect()"
+        aria-label="Salir del onboarding"
+        title="Salir"
+      >
+        ✕
+      </button>
+      <a class="duo-header__brand" href="/" aria-label="Ir al inicio de Pablo">
+        <img src="/onboarding/images/pablo/pablo-logo.png" alt="" width="34" height="34" loading="eager" />
+        <span>pablo</span>
+      </a>
+      <button
+        class="duo-header__link"
+        onclick="pabloGoApp('step-primer')"
+        aria-label="Iniciar sesión si ya eres miembro"
+      >
+        ¿Ya eres miembro?
+      </button>
+    </div>
+  </header>
 
-  <div class="flex-1 flex flex-col gap-5 w-full max-w-[560px] mx-auto px-5 pt-16 pb-4 max-md:px-4 max-md:gap-4 max-[360px]:px-3 max-[360px]:gap-3 overflow-y-auto [scrollbar-width:none] [&::-webkit-scrollbar]:hidden vcenter">
-    <!-- Header -->
-    <div class="flex flex-col gap-2.5">
-      <span class="font-display font-bold text-[12px] rounded-2xl text-amber tracking-[0.08em] uppercase bg-white px-3 py-1 inline-flex items-center gap-1 w-fit shadow-soft">
-        Antes de empezar
-      </span>
-      <h2 class="font-display font-bold text-[22px] max-[360px]:text-[18px] md:text-[24px] text-navy tracking-[-0.01em] leading-[1.25]">
+  <div class="primer-body flex-1 flex flex-col w-full mx-auto px-5 max-md:px-4 overflow-y-auto [scrollbar-width:none] [&::-webkit-scrollbar]:hidden vcenter">
+    <!-- Título centrado, estilo selector de Duolingo -->
+    <div class="flex flex-col items-center text-center">
+      <h2 class="font-display font-bold text-[24px] max-[360px]:text-[20px] md:text-[30px] text-navy tracking-[-0.01em] leading-[1.25]">
         Quiero que Pablo me ayude a…
       </h2>
     </div>
-    <!-- Opciones -->
-    <div class="flex flex-col gap-2.5" role="radiogroup" aria-label="Selecciona tu objetivo principal">
-      <button class="option-card" role="radio" aria-checked="false"
-        onclick="pabloSelect(this, 'mainGoal', 'gastos-hormiga'); setTimeout(() => pabloNext(), 1);">
-        <span class="option-radio"></span>
+    <!-- Opciones: cuadrícula de tarjetas cuadradas (auto-avance al elegir) -->
+    <div class="options-grid" role="radiogroup" aria-label="Selecciona tu objetivo principal">
+      <button class="option-card option-card--tile" role="radio" aria-checked="false"
+        onclick="pabloSelect(this, 'mainGoal', 'gastos-hormiga'); setTimeout(() => pabloNext(), 250);">
         <span class="option-icon">🐜</span>
-        <span class="option-label text-left">Controlar mis gastos hormiga</span>
+        <span class="option-label">Controlar mis gastos hormiga</span>
       </button>
-      <button class="option-card" role="radio" aria-checked="false"
-        onclick="pabloSelect(this, 'mainGoal', 'ahorrar'); setTimeout(() => pabloNext(), 1);">
-        <span class="option-radio"></span>
+      <button class="option-card option-card--tile" role="radio" aria-checked="false"
+        onclick="pabloSelect(this, 'mainGoal', 'ahorrar'); setTimeout(() => pabloNext(), 250);">
         <span class="option-icon">🐷</span>
-        <span class="option-label text-left">Ahorrar más para el futuro</span>
+        <span class="option-label">Ahorrar más para el futuro</span>
       </button>
-      <button class="option-card" role="radio" aria-checked="false"
-        onclick="pabloSelect(this, 'mainGoal', 'metas'); setTimeout(() => pabloNext(), 1);">
-        <span class="option-radio"></span>
+      <button class="option-card option-card--tile" role="radio" aria-checked="false"
+        onclick="pabloSelect(this, 'mainGoal', 'metas'); setTimeout(() => pabloNext(), 250);">
         <span class="option-icon">🎯</span>
-        <span class="option-label text-left">Avanzar hacia mis metas</span>
+        <span class="option-label">Avanzar hacia mis metas</span>
       </button>
-      <button class="option-card" role="radio" aria-checked="false"
-        onclick="pabloSelect(this, 'mainGoal', 'automatizar'); setTimeout(() => pabloNext(), 1);">
-        <span class="option-radio"></span>
+      <button class="option-card option-card--tile" role="radio" aria-checked="false"
+        onclick="pabloSelect(this, 'mainGoal', 'automatizar'); setTimeout(() => pabloNext(), 250);">
         <span class="option-icon">⚡</span>
-        <span class="option-label text-left">Automatizar mis finanzas</span>
+        <span class="option-label">Automatizar mis finanzas</span>
       </button>
-      <button class="option-card" role="radio" aria-checked="false"
-        onclick="pabloSelect(this, 'mainGoal', 'deudas'); setTimeout(() => pabloNext(), 1);">
-        <span class="option-radio"></span>
+      <button class="option-card option-card--tile" role="radio" aria-checked="false"
+        onclick="pabloSelect(this, 'mainGoal', 'deudas'); setTimeout(() => pabloNext(), 250);">
         <span class="option-icon">💳</span>
-        <span class="option-label text-left">Gestionar mis deudas</span>
+        <span class="option-label">Gestionar mis deudas</span>
       </button>
-      <button class="option-card" role="radio" aria-checked="false"
-        onclick="pabloSelect(this, 'mainGoal', 'educacion'); setTimeout(() => pabloNext(), 1);">
-        <span class="option-radio"></span>
+      <button class="option-card option-card--tile" role="radio" aria-checked="false"
+        onclick="pabloSelect(this, 'mainGoal', 'educacion'); setTimeout(() => pabloNext(), 250);">
         <span class="option-icon">📚</span>
-        <span class="option-label text-left">Educarme financieramente</span>
+        <span class="option-label">Educarme financieramente</span>
       </button>
     </div>
   </div>

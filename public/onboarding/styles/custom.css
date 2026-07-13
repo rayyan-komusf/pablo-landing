@@ -72,7 +72,10 @@
  * altura completa, los .step (flex: 1) llenan el viewport y el centrado
  * de abajo funciona. */
 .app-shell {
-  min-height: 100dvh;
+  /* Altura FIJA al viewport (no min-): así el scroll vive dentro de cada
+   * .step (overflow-y auto en base.css) y los footers sticky quedan
+   * clavados abajo mientras el contenido pasa por detrás. */
+  height: 100dvh;
   display: flex;
   flex-direction: column;
 }
@@ -135,4 +138,1239 @@
 
 .btn-exit:hover {
   background: var(--color-lila-deep);
+}
+
+/* ============================================================
+ * 4. Remates "estilo Duolingo" (Fase 1 — solo CSS)
+ * Todo aquí es override; base.css no se toca.
+ * Objetivo: botones 3D presionables, cards con rebote, progreso
+ * con vida, mascota con idle bounce y entrada escalonada.
+ * ============================================================ */
+
+/* --- 4.1 Botón primario "3D": reborde inferior que se hunde al tocar --- */
+/* El sello Duolingo: el botón tiene un borde sólido debajo (ledge) y al
+ * presionar baja y el ledge se comprime, dando feedback físico. */
+.btn-primary {
+  box-shadow:
+    0 5px 0 0 #c9820a,
+    0 10px 18px -4px rgba(43, 44, 100, 0.28);
+  transition:
+    transform 0.12s var(--ease-soft),
+    box-shadow 0.12s var(--ease-soft);
+}
+
+.btn-primary:hover {
+  transform: translateY(-1px);
+  box-shadow:
+    0 6px 0 0 #c9820a,
+    0 13px 22px -4px rgba(43, 44, 100, 0.3);
+}
+
+.btn-primary:active {
+  transform: translateY(4px);
+  box-shadow:
+    0 1px 0 0 #c9820a,
+    0 3px 8px -2px rgba(43, 44, 100, 0.25);
+}
+
+/* --- 4.2 Option cards: reborde 3D + rebote elástico al seleccionar --- */
+.option-card {
+  box-shadow:
+    0 3px 0 0 #cfc7e2,
+    0 4px 10px -3px rgba(43, 44, 100, 0.1);
+  transition:
+    border-color 0.13s var(--ease-soft),
+    transform 0.13s var(--ease-soft),
+    box-shadow 0.13s var(--ease-soft);
+}
+
+.option-card:hover {
+  transform: translateY(-2px);
+  box-shadow:
+    0 5px 0 0 #cfc7e2,
+    0 9px 16px -4px rgba(43, 44, 100, 0.14);
+}
+
+.option-card:active {
+  transform: translateY(1px);
+  box-shadow: 0 2px 0 0 #cfc7e2;
+}
+
+.option-card.selected {
+  box-shadow:
+    0 3px 0 0 var(--color-ambar-deep),
+    0 6px 14px -4px rgba(245, 158, 11, 0.32);
+  animation: optionPop 0.34s var(--ease-clay);
+}
+
+@keyframes optionPop {
+  0% {
+    transform: scale(1);
+  }
+  45% {
+    transform: scale(1.035);
+  }
+  to {
+    transform: scale(1);
+  }
+}
+
+/* --- 4.3 Entrada escalonada de las opciones (cascada Duolingo) --- */
+.step.active [role="radiogroup"] > .option-card,
+.step.active [role="group"] > .option-card {
+  animation: optionIn 0.45s var(--ease-clay) backwards;
+}
+.step.active .option-card:nth-child(1) {
+  animation-delay: 0.06s;
+}
+.step.active .option-card:nth-child(2) {
+  animation-delay: 0.12s;
+}
+.step.active .option-card:nth-child(3) {
+  animation-delay: 0.18s;
+}
+.step.active .option-card:nth-child(4) {
+  animation-delay: 0.24s;
+}
+.step.active .option-card:nth-child(5) {
+  animation-delay: 0.3s;
+}
+.step.active .option-card:nth-child(6) {
+  animation-delay: 0.36s;
+}
+
+@keyframes optionIn {
+  0% {
+    opacity: 0;
+    transform: translateY(14px) scale(0.98);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+/* --- 4.4 Barra de progreso con vida: más gruesa + brillo que recorre --- */
+.progress-track {
+  height: 10px;
+}
+
+.progress-fill {
+  position: relative;
+  overflow: hidden;
+}
+
+.progress-fill::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+    90deg,
+    transparent,
+    rgba(255, 255, 255, 0.55),
+    transparent
+  );
+  transform: translateX(-100%);
+  animation: progressShine 2.4s ease-in-out infinite;
+}
+
+@keyframes progressShine {
+  0% {
+    transform: translateX(-100%);
+  }
+  60%,
+  to {
+    transform: translateX(100%);
+  }
+}
+
+/* --- 4.5 Pablo con vida: idle bounce suave (no toca los transforms
+ * utilitarios del contenedor porque animamos la <img> interna) --- */
+.pablo-hero img {
+  animation: pabloBob 3.4s var(--ease-soft) infinite;
+  transform-origin: center bottom;
+  will-change: transform;
+}
+
+@keyframes pabloBob {
+  0%,
+  to {
+    transform: translateY(0) rotate(0deg);
+  }
+  50% {
+    transform: translateY(-7px) rotate(-0.6deg);
+  }
+}
+
+/* El avatar de Pablo en la topbar flota sutilmente (base.css citaba
+ * topbarFloat pero nunca lo aplicaba). */
+.topbar__pablo img {
+  animation: topbarFloat 3s var(--ease-soft) infinite;
+}
+
+/* --- 4.7 Cuadrícula de tarjetas cuadradas (StepPrimer, estilo Duolingo) ---
+ * Réplica del selector de idiomas de Duolingo: tarjetas blancas grandes,
+ * borde gris fino, sombra mínima, icono grande y plano, label centrado.
+ * Reutiliza .option-card (misma lógica de selección) con --tile. */
+/* Contenedor del step-primer: base.css es Tailwind precompilado, así que
+ * los paddings/anchos van aquí con CSS real (clases nuevas no existen ahí). */
+.primer-body {
+  max-width: 720px;
+  gap: 24px;
+  padding-top: 96px; /* despeja el header fijo (~66px) */
+  padding-bottom: 32px;
+}
+
+/* Fondo blanco en esta pantalla, como Duolingo (el body global es lila) */
+.step[data-step="step-primer"] {
+  background: var(--color-white);
+}
+
+.options-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 16px;
+  width: 100%;
+  padding-block: 8px;
+}
+
+.option-card--tile {
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  gap: 6px;
+  aspect-ratio: 1 / 1;
+  min-height: 0;
+  padding: 22px 12px;
+  border-radius: 16px;
+  background: var(--color-white);
+  border: 2px solid #e5e5e5;
+  border-bottom-width: 4px; /* el "ledge" sutil que usa Duolingo */
+  box-shadow: none;
+}
+
+.option-card--tile:hover {
+  transform: none;
+  background: #f7f7f7;
+  border-color: #e5e5e5;
+  box-shadow: none;
+}
+
+.option-card--tile:active {
+  transform: translateY(2px);
+  border-bottom-width: 2px;
+  box-shadow: none;
+}
+
+.option-card--tile.selected {
+  background: var(--color-lila-light);
+  border: 2px solid var(--color-ambar);
+  border-bottom-width: 4px;
+  border-bottom-color: var(--color-ambar-deep);
+  padding: 22px 12px;
+  box-shadow: none;
+}
+
+/* La tile no usa el radio circular; la selección se ve por el borde */
+.option-card--tile .option-radio {
+  display: none;
+}
+
+/* Icono grande y plano, sin caja de color (como las banderas de Duolingo) */
+.option-card--tile .option-icon {
+  font-size: 44px;
+  line-height: 1;
+  margin-bottom: 8px;
+}
+
+.option-card--tile .option-label {
+  flex: none;
+  font-family: var(--font-display);
+  font-weight: 700;
+  font-size: 15px;
+  line-height: 1.3;
+  color: #4b4b4b;
+}
+
+.option-card--tile.selected .option-label {
+  color: var(--color-navy);
+}
+
+/* Desktop: 3 columnas dimensionadas para que las 2 filas + título entren
+ * completas en el viewport sin scroll (tarjetas ~200px). */
+@media (min-width: 480px) {
+  .options-grid {
+    grid-template-columns: repeat(3, 1fr);
+    gap: 16px;
+    max-width: 640px;
+    margin-inline: auto;
+  }
+  .option-card--tile .option-icon {
+    font-size: 46px;
+  }
+  .option-card--tile .option-label {
+    font-size: 15px;
+  }
+}
+
+/* Mobile: 2 columnas altas y espaciosas que scrollean como Duolingo.
+ * Sin aspect-ratio (forzaría anchos que desbordan): altura fija generosa. */
+@media (max-width: 479.9px) {
+  .primer-body {
+    padding-top: 90px;
+    padding-inline: 22px;
+  }
+  .options-grid {
+    gap: 20px;
+    padding-bottom: 32px;
+  }
+  .option-card--tile {
+    aspect-ratio: auto;
+    min-height: 210px;
+    padding: 28px 14px;
+    gap: 10px;
+  }
+  .option-card--tile .option-icon {
+    font-size: 56px;
+    margin-bottom: 8px;
+  }
+  .option-card--tile .option-label {
+    font-size: 15px;
+  }
+  /* Flujo natural de documento: nada de centrado vertical — el contenido
+   * arranca bajo el header y scrollea, sin huecos muertos al final */
+  .step[data-step="step-primer"] .vcenter > :first-child {
+    margin-top: 0;
+  }
+  .step[data-step="step-primer"] .vcenter > :last-child {
+    margin-bottom: 0;
+  }
+}
+
+/* --- 4.8 Header tipo Duolingo (barra blanca + línea divisoria fina) ---
+ * fixed: queda pegado arriba mientras el contenido scrollea por debajo. */
+.duo-header {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  z-index: 20;
+  background: var(--color-white);
+  border-bottom: 2px solid #e5e5e5;
+}
+
+.duo-header__inner {
+  max-width: 1024px;
+  margin-inline: auto;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 10px 20px;
+  min-height: 64px;
+}
+
+.duo-header__brand {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  text-decoration: none;
+  margin-right: auto;
+}
+
+.duo-header__brand img {
+  width: 34px;
+  height: 34px;
+  object-fit: contain;
+}
+
+.duo-header__brand span {
+  font-family: var(--font-display);
+  font-weight: 800;
+  font-size: 24px;
+  letter-spacing: -0.02em;
+  color: var(--color-ambar-deep);
+}
+
+.duo-header__link {
+  font-family: var(--font-display);
+  font-weight: 700;
+  font-size: 13px;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: #9b9b9b;
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 8px 4px;
+  min-height: 44px;
+  transition: color var(--duration-fast);
+}
+
+.duo-header__link:hover {
+  color: var(--color-navy-soft);
+}
+
+/* La X vive dentro del header, alineada a la izquierda del logo */
+.duo-header__exit {
+  margin-left: -8px;
+}
+
+/* --- 4.9 Pantallas fiesta + fuente (estilo Duolingo) ------------------- */
+
+.step[data-step="step-fiesta"],
+.step[data-step="step-fuente"] {
+  background: var(--color-white);
+}
+
+/* El body acompaña en blanco (la topbar es transparente y hereda su fondo) */
+body.fondo-blanco {
+  background: var(--color-white);
+}
+
+/* Footer tipo Duolingo: línea divisoria + CONTINUAR a la derecha.
+ * sticky (no absolute como .cta-footer de base.css): el scroll vive en
+ * .step, y sticky mantiene el footer clavado abajo mientras el contenido
+ * pasa por detrás — absolute se iría con el scroll. Los márgenes negativos
+ * atraviesan el padding lateral del .step para llegar de borde a borde. */
+.duo-footer {
+  position: sticky;
+  bottom: 0;
+  margin-inline: -24px;
+  border-top: 2px solid #e5e5e5;
+  background: var(--color-white);
+  padding: 18px 24px;
+  flex-direction: row;
+  justify-content: flex-end;
+  align-items: center;
+  z-index: 10;
+}
+
+.duo-footer .btn-continue {
+  width: auto;
+  min-width: 220px;
+  max-width: 300px;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  font-size: 15px;
+}
+
+@media (max-width: 640px) {
+  .duo-footer {
+    padding: 14px 16px;
+  }
+  .duo-footer .btn-continue {
+    width: 100%;
+    max-width: none;
+  }
+}
+
+/* Burbuja de diálogo con cola (centrada, apunta hacia abajo) */
+.speech-bubble {
+  position: relative;
+  background: var(--color-white);
+  border: 2px solid #e5e5e5;
+  border-radius: 16px;
+  padding: 12px 20px;
+  font-family: var(--font-display);
+  font-weight: 700;
+  font-size: 17px;
+  color: var(--color-navy);
+  max-width: 480px;
+  text-align: center;
+  line-height: 1.45;
+  animation: bubblePop 0.5s var(--ease-clay) 0.15s backwards;
+}
+
+/* Link secundario dentro del footer ("¿Ya eres miembro?") */
+.duo-footer__link {
+  margin-right: auto;
+  font-family: var(--font-display);
+  font-weight: 700;
+  font-size: 13px;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: #9b9b9b;
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 8px 4px;
+  min-height: 44px;
+  transition: color var(--duration-fast);
+}
+
+.duo-footer__link:hover {
+  color: var(--color-navy-soft);
+}
+
+.speech-bubble::after {
+  content: "";
+  position: absolute;
+  bottom: -9px;
+  left: 50%;
+  width: 14px;
+  height: 14px;
+  background: var(--color-white);
+  border-right: 2px solid #e5e5e5;
+  border-bottom: 2px solid #e5e5e5;
+  transform: translateX(-50%) rotate(45deg);
+}
+
+/* Variante lateral: la cola apunta a la izquierda (hacia la mascota) */
+.speech-bubble--side::after {
+  bottom: auto;
+  left: -9px;
+  top: 50%;
+  border-right: none;
+  border-top: none;
+  border-left: 2px solid #e5e5e5;
+  border-bottom: 2px solid #e5e5e5;
+  transform: translateY(-50%) rotate(45deg);
+}
+
+@keyframes bubblePop {
+  0% {
+    opacity: 0;
+    transform: translateY(8px) scale(0.9);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+/* Escenario compartido entry/fiesta: mascota SIEMPRE en el mismo sitio
+ * para que el paso de una pantalla a otra no se sienta como cambio de
+ * página (patrón Duolingo): solo cambian burbuja, expresión y confetti. */
+.duo-stage {
+  gap: 18px;
+}
+
+.step[data-step="entry"],
+.step[data-step="step-2"],
+.step[data-step="step-3"] {
+  background: var(--color-white);
+}
+
+.duo-stage__pablo {
+  width: 240px;
+  height: 240px;
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+}
+
+.duo-stage__pablo img {
+  max-width: 100%;
+  max-height: 100%;
+  object-fit: contain;
+  animation: pabloBob 3.4s var(--ease-soft) infinite;
+  transform-origin: center bottom;
+}
+
+@media (max-width: 640px) {
+  .duo-stage__pablo {
+    width: 200px;
+    height: 200px;
+  }
+}
+
+/* Transición seamless: estas pantallas comparten escenario, así que se
+ * desactiva la animación de entrada del step (el fade+subida vendía el
+ * "cambio de página"); la vida la ponen burbuja, confetti y mascota. */
+.step.active[data-step="entry"],
+.step.active[data-step="step-fiesta"],
+.step.active[data-step="step-fuente"],
+.step.active[data-step="step-porque"],
+.step.active[data-step="step-2"],
+.step.active[data-step="step-3"],
+.step.active[data-step="step-4"] {
+  animation: none;
+}
+
+/* Burbuja reactiva: pop al cambiar el texto (se re-dispara por JS) */
+.speech-bubble.bubble-react {
+  animation: bubblePop 0.4s var(--ease-clay);
+}
+
+/* Confetti: cada pieza explota desde el centro y cae con giro */
+.fiesta-confetti {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+  pointer-events: none;
+}
+
+.confetti-piece {
+  position: absolute;
+  top: 46%;
+  left: 50%;
+  width: 10px;
+  height: 12px;
+  opacity: 0;
+  animation: confettiBurst var(--dur, 2s) cubic-bezier(0.22, 0.9, 0.35, 1)
+    var(--delay, 0s) forwards;
+}
+
+@keyframes confettiBurst {
+  0% {
+    opacity: 1;
+    transform: translate(0, 0) rotate(0deg);
+  }
+  45% {
+    opacity: 1;
+    transform: translate(var(--dx), var(--dy)) rotate(var(--rot));
+  }
+  to {
+    opacity: 0;
+    transform: translate(var(--dx), calc(var(--dy) + var(--fall)))
+      rotate(calc(var(--rot) * 1.6));
+  }
+}
+
+/* Pregunta "¿Cómo supiste de Pablo?" — proporciones Duolingo:
+ * columna ancha (1024px), mascota+burbuja arriba a la izquierda, gap
+ * grande antes del grid de opciones centrado (760px). */
+.fuente-body {
+  max-width: 1024px;
+  gap: 0; /* espaciado manual: header → gap grande → grid */
+  padding-top: 8px;
+  padding-bottom: 24px; /* el footer sticky va en flujo, tras el contenido */
+  min-height: 0;
+}
+
+/* El contenido arranca arriba (no centrado verticalmente), como Duolingo */
+.step[data-step="step-fuente"] .vcenter > :first-child,
+.step[data-step="step-porque"] .vcenter > :first-child {
+  margin-top: 0;
+}
+
+/* La topbar acompaña el ancho Duolingo en las pantallas blancas */
+body.fondo-blanco .topbar > div {
+  max-width: 1024px;
+}
+
+.fuente-header {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  margin-top: 16px;
+}
+
+.fuente-pablo img {
+  width: 140px;
+  height: 140px;
+  object-fit: contain;
+  animation: pabloBob 3.4s var(--ease-soft) infinite;
+}
+
+/* La mascota "viaja": aparece grande al centro del escenario y se desliza
+ * hasta su sitio junto a la pregunta (patrón Duolingo del lápiz). Después
+ * retoma su flotación normal. */
+.step.active[data-step="step-fuente"] .fuente-pablo img {
+  animation:
+    fuentePabloIn 0.9s var(--ease-clay) backwards,
+    pabloBob 3.4s var(--ease-soft) 1.1s infinite;
+}
+
+@keyframes fuentePabloIn {
+  0% {
+    transform: translate(min(240px, 30vw), 28vh) scale(2);
+  }
+  to {
+    transform: translate(0, 0) scale(1);
+  }
+}
+
+/* Las opciones entran DESPUÉS de que la mascota aterriza */
+.step.active[data-step="step-fuente"] .fuente-grid > .option-card:nth-child(1) {
+  animation-delay: 0.6s;
+}
+.step.active[data-step="step-fuente"] .fuente-grid > .option-card:nth-child(2) {
+  animation-delay: 0.67s;
+}
+.step.active[data-step="step-fuente"] .fuente-grid > .option-card:nth-child(3) {
+  animation-delay: 0.74s;
+}
+.step.active[data-step="step-fuente"] .fuente-grid > .option-card:nth-child(4) {
+  animation-delay: 0.81s;
+}
+.step.active[data-step="step-fuente"] .fuente-grid > .option-card:nth-child(5) {
+  animation-delay: 0.88s;
+}
+.step.active[data-step="step-fuente"] .fuente-grid > .option-card:nth-child(6) {
+  animation-delay: 0.95s;
+}
+.step.active[data-step="step-fuente"] .fuente-grid > .option-card:nth-child(7) {
+  animation-delay: 1.02s;
+}
+.step.active[data-step="step-fuente"] .fuente-grid > .option-card:nth-child(8) {
+  animation-delay: 1.09s;
+}
+
+/* Pills en 2 columnas, dimensiones Duolingo (~360×75, gap 18) */
+.fuente-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 18px;
+  width: 100%;
+  max-width: 760px;
+  margin-inline: auto;
+  margin-top: 90px; /* el gap grande entre burbuja y opciones */
+}
+
+.option-card--pill {
+  background: var(--color-white);
+  border: 2px solid #e5e5e5;
+  border-bottom-width: 4px;
+  border-radius: 16px;
+  box-shadow: none;
+  min-height: 76px;
+  padding: 16px 20px;
+  gap: 14px;
+}
+
+.option-card--pill .option-icon {
+  font-size: 26px;
+}
+
+.option-card--pill:hover {
+  transform: none;
+  background: #f7f7f7;
+  border-color: #e5e5e5;
+  box-shadow: none;
+}
+
+.option-card--pill:active {
+  transform: translateY(2px);
+  border-bottom-width: 2px;
+  box-shadow: none;
+}
+
+.option-card--pill.selected {
+  background: var(--color-lila-light);
+  border: 2px solid var(--color-ambar);
+  border-bottom-width: 4px;
+  border-bottom-color: var(--color-ambar-deep);
+  padding: 14px 16px;
+  box-shadow: none;
+}
+
+.option-card--pill .option-label {
+  font-family: var(--font-display);
+  font-weight: 700;
+  font-size: 16px;
+  color: #4b4b4b;
+}
+
+.option-card--pill.selected .option-label {
+  color: var(--color-navy);
+}
+
+@media (max-width: 560px) {
+  .fuente-body {
+    padding-top: 4px;
+  }
+  .fuente-grid {
+    grid-template-columns: 1fr;
+    gap: 12px;
+    margin-top: 32px;
+  }
+  .fuente-pablo img {
+    width: 96px;
+    height: 96px;
+  }
+  .speech-bubble {
+    font-size: 15px;
+  }
+}
+
+/* --- 4.10 Demo interactivo (step-4): iPhone + WhatsApp ----------------- */
+
+.step[data-step="step-4"] {
+  background: var(--color-white);
+}
+
+.demo-body {
+  max-width: 1024px;
+  gap: 14px;
+  padding-top: 12px;
+  padding-bottom: 16px;
+  min-height: 0;
+}
+
+.demo-title {
+  font-size: 24px;
+  letter-spacing: -0.01em;
+}
+
+/* ── Marco del iPhone (titanio + isla dinámica + barra home) ── */
+.iphone {
+  position: relative;
+  width: 340px;
+  max-width: 92vw;
+  border-radius: 54px;
+  padding: 10px;
+  background: linear-gradient(145deg, #3a3a3c, #1c1c1e 40%, #48484a);
+  box-shadow:
+    0 24px 48px -16px rgba(43, 44, 100, 0.35),
+    inset 0 0 2px 2px rgba(255, 255, 255, 0.08);
+  flex-shrink: 0;
+}
+
+/* Botones laterales del marco */
+.iphone::before,
+.iphone::after {
+  content: "";
+  position: absolute;
+  background: #2c2c2e;
+  border-radius: 3px;
+}
+.iphone::before {
+  left: -2.5px;
+  top: 130px;
+  width: 3px;
+  height: 58px;
+}
+.iphone::after {
+  right: -2.5px;
+  top: 150px;
+  width: 3px;
+  height: 84px;
+}
+
+.iphone__isla {
+  position: absolute;
+  top: 20px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 96px;
+  height: 26px;
+  background: #000;
+  border-radius: 20px;
+  z-index: 12;
+}
+
+.iphone__pantalla {
+  position: relative;
+  height: 588px;
+  border-radius: 44px;
+  overflow: hidden;
+  background: #efe7dd;
+  display: flex;
+  flex-direction: column;
+}
+
+.iphone__homebar {
+  position: absolute;
+  bottom: 6px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 110px;
+  height: 4px;
+  border-radius: 4px;
+  background: rgba(0, 0, 0, 0.35);
+  z-index: 12;
+  pointer-events: none;
+}
+
+/* ── Barra de estado iOS ── */
+.ios-status {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 14px 26px 4px 30px;
+  background: #f6f6f6;
+  color: #000;
+  font-family: -apple-system, "SF Pro Text", var(--font-display), sans-serif;
+  font-size: 14px;
+  font-weight: 700;
+}
+
+.ios-status__iconos {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+}
+
+/* ── Header WhatsApp iOS ── */
+.wa-header {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 12px 8px;
+  background: #f6f6f6;
+  border-bottom: 1px solid rgba(0, 0, 0, 0.12);
+  color: #007aff;
+}
+
+.wa-header__back {
+  flex-shrink: 0;
+}
+
+.wa-header__avatar {
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  object-fit: cover;
+  background: var(--color-white);
+}
+
+.wa-header__info {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  line-height: 1.15;
+  min-width: 0;
+}
+
+.wa-header__nombre {
+  font-family: var(--font-display);
+  font-weight: 700;
+  font-size: 15px;
+  color: #000;
+}
+
+.wa-header__estado {
+  font-size: 11.5px;
+  color: #8e8e93;
+}
+
+.wa-header__icono {
+  flex-shrink: 0;
+  margin-left: 10px;
+}
+
+/* ── Zona de chat ── */
+.wa-chat {
+  flex: 1;
+  overflow-y: auto;
+  scrollbar-width: none;
+  padding: 10px 12px 6px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  background:
+    radial-gradient(circle at 20% 30%, rgba(255, 255, 255, 0.25) 0.8px, transparent 1px),
+    radial-gradient(circle at 70% 60%, rgba(255, 255, 255, 0.25) 0.8px, transparent 1px),
+    #efe7dd;
+  background-size: 46px 46px, 38px 38px, auto;
+}
+
+.wa-chat::-webkit-scrollbar {
+  display: none;
+}
+
+.wa-dia {
+  align-self: center;
+  margin-block: 4px;
+}
+
+.wa-dia span {
+  background: #dcd3c8;
+  color: #5b5b5b;
+  font-size: 11px;
+  font-weight: 600;
+  padding: 4px 10px;
+  border-radius: 8px;
+}
+
+/* Burbujas */
+.wa-msg {
+  position: relative;
+  max-width: 82%;
+  padding: 7px 10px 5px;
+  border-radius: 10px;
+  font-size: 14px;
+  line-height: 1.4;
+  color: #111;
+  box-shadow: 0 1px 0.5px rgba(0, 0, 0, 0.12);
+  animation: msgSlide 0.25s var(--ease-clay);
+  word-wrap: break-word;
+}
+
+.wa-msg--in {
+  align-self: flex-start;
+  background: #fff;
+  border-top-left-radius: 2px;
+}
+
+.wa-msg--out {
+  align-self: flex-end;
+  background: #d9fdd3;
+  border-top-right-radius: 2px;
+}
+
+.wa-msg__meta {
+  display: inline-flex;
+  align-items: center;
+  gap: 2px;
+  font-size: 10px;
+  color: #8a8a8a;
+  float: right;
+  margin: 8px 0 0 8px;
+}
+
+.wa-msg__foto {
+  display: block;
+  width: 180px;
+  max-width: 100%;
+  border-radius: 8px;
+  margin-bottom: 2px;
+}
+
+/* Indicador escribiendo… */
+.wa-typing {
+  display: inline-flex;
+  gap: 4px;
+  padding: 12px 14px;
+}
+
+.wa-typing span {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: #b5b5b5;
+  animation: typingDot 1.2s ease-in-out infinite;
+}
+
+.wa-typing span:nth-child(2) {
+  animation-delay: 0.15s;
+}
+.wa-typing span:nth-child(3) {
+  animation-delay: 0.3s;
+}
+
+@keyframes typingDot {
+  0%,
+  60%,
+  to {
+    transform: translateY(0);
+    opacity: 0.5;
+  }
+  30% {
+    transform: translateY(-4px);
+    opacity: 1;
+  }
+}
+
+/* Nota de voz */
+.wa-audio {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  min-width: 170px;
+  padding: 2px 0;
+}
+
+.wa-audio__play {
+  width: 30px;
+  height: 30px;
+  border: none;
+  border-radius: 50%;
+  background: #34b7f1;
+  color: #fff;
+  font-size: 12px;
+  cursor: pointer;
+  flex-shrink: 0;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.wa-audio__onda {
+  display: inline-flex;
+  align-items: center;
+  gap: 2px;
+  flex: 1;
+}
+
+.wa-audio__onda i {
+  width: 3px;
+  border-radius: 2px;
+  background: #8fbc8f;
+}
+
+.wa-audio__onda i:nth-child(odd) {
+  height: 14px;
+}
+.wa-audio__onda i:nth-child(even) {
+  height: 8px;
+}
+.wa-audio__onda i:nth-child(3n) {
+  height: 18px;
+}
+
+.wa-audio__dur {
+  font-size: 11px;
+  color: #8a8a8a;
+}
+
+/* Chips de sugerencia */
+.wa-chips {
+  display: flex;
+  gap: 6px;
+  padding: 6px 10px;
+  background: #f6f6f6;
+  overflow-x: auto;
+  scrollbar-width: none;
+}
+
+.wa-chips::-webkit-scrollbar {
+  display: none;
+}
+
+.wa-chip {
+  flex-shrink: 0;
+  border: 1.5px solid rgba(0, 0, 0, 0.14);
+  background: #fff;
+  color: #111;
+  font-family: var(--font-body, inherit);
+  font-size: 12.5px;
+  padding: 7px 12px;
+  border-radius: 999px;
+  cursor: pointer;
+  transition: all var(--duration-fast);
+}
+
+.wa-chip:hover {
+  background: var(--color-ambar);
+  border-color: var(--color-ambar);
+}
+
+/* Barra de input */
+.wa-input {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 8px 10px 22px;
+  background: #f6f6f6;
+}
+
+.wa-input__btn {
+  width: 36px;
+  height: 36px;
+  border: none;
+  background: none;
+  color: #007aff;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  border-radius: 50%;
+  transition: background var(--duration-fast);
+}
+
+.wa-input__btn:hover {
+  background: rgba(0, 122, 255, 0.1);
+}
+
+.wa-input__campo {
+  flex: 1;
+  background: #fff;
+  border: 1px solid rgba(0, 0, 0, 0.12);
+  border-radius: 999px;
+  padding: 7px 14px;
+}
+
+.wa-input__campo input {
+  width: 100%;
+  border: none;
+  outline: none;
+  background: none;
+  font-size: 14px;
+  font-family: inherit;
+  color: #111;
+}
+
+/* Overlay de grabación */
+.wa-grabando {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 12px 14px 24px;
+  background: #f6f6f6;
+  border-top: 1px solid rgba(0, 0, 0, 0.1);
+  z-index: 11;
+}
+
+.wa-grabando__punto {
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  background: #ff3b30;
+  animation: grabPulso 1s ease-in-out infinite;
+}
+
+@keyframes grabPulso {
+  0%,
+  to {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.25;
+  }
+}
+
+.wa-grabando__tiempo {
+  font-size: 14px;
+  font-weight: 700;
+  color: #111;
+  min-width: 40px;
+}
+
+.wa-grabando__cancelar {
+  margin-left: auto;
+  border: none;
+  background: none;
+  color: #8e8e93;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  padding: 6px 10px;
+}
+
+.wa-grabando__enviar {
+  width: 40px;
+  height: 40px;
+  border: none;
+  border-radius: 50%;
+  background: #25d366;
+  color: #fff;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* Mobile: el teléfono ocupa el ancho disponible */
+@media (max-width: 560px) {
+  .demo-title {
+    font-size: 20px;
+  }
+  .iphone {
+    width: 320px;
+  }
+  .iphone__pantalla {
+    height: 540px;
+  }
+}
+
+/* --- 4.6 Respeto por accesibilidad: sin movimiento si el usuario lo pidió --- */
+@media (prefers-reduced-motion: reduce) {
+  .pablo-hero img,
+  .topbar__pablo img,
+  .progress-fill::after,
+  .step.active .option-card {
+    animation: none !important;
+  }
+  .btn-primary,
+  .option-card {
+    transition-duration: 0.01ms;
+  }
 }

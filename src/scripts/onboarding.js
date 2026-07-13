@@ -14,6 +14,9 @@
 const STEP_ORDER = [
   "step-primer", // Pregunta inicial: "Quiero que Pablo me ayude a…"
   "entry", // ¡Hola, soy Pablo!
+  "step-fiesta", // Celebración con confetti: "¡Que empiece la fiesta!"
+  "step-fuente", // ¿Cómo supiste de Pablo?
+  "step-porque", // ¿Por qué quieres [objetivo]? (burbuja reactiva)
   "step-2", // No tienes que ser millonario…
   "step-3", // Hoy puedes hacerlo desde WhatsApp
   "step-4", // Demo WhatsApp: tu "primer gasto"
@@ -41,9 +44,12 @@ const STEP_ORDER = [
 const STEP_FLAGS = {
   "step-primer": { showTopbar: false, showSkip: false },
   entry: { showTopbar: false, showSkip: false },
+  "step-fiesta": { showTopbar: false, showSkip: false },
+  "step-fuente": { showTopbar: true, showSkip: false },
+  "step-porque": { showTopbar: true, showSkip: false },
   "step-2": { showTopbar: false, showSkip: true },
   "step-3": { showTopbar: false, showSkip: true },
-  "step-4": { showTopbar: false, showSkip: true },
+  "step-4": { showTopbar: true, showSkip: true },
   "step-5": { showTopbar: false, showSkip: false },
   "step-6": { showTopbar: true, showSkip: true },
   "step-7": { showTopbar: true, showSkip: true },
@@ -114,18 +120,26 @@ class OnboardingEngine {
       s.setAttribute("aria-hidden", "true");
     });
 
-    // Restaurar sesión en curso (recarga de página)
+    // Restaurar sesión en curso (recarga de página). Las respuestas también
+    // viven en localStorage para sobrevivir cierres de navegador: primero se
+    // cargan las duraderas y encima las de la sesión actual (más recientes).
     const savedStep = sessionStorage.getItem("pablo_current_step");
     const savedHistory = sessionStorage.getItem("pablo_history");
     const savedAnswers = sessionStorage.getItem("pablo_answers");
+    const durableAnswers = localStorage.getItem("pablo_answers_v1");
     if (savedHistory) {
       try {
         this.history = JSON.parse(savedHistory);
       } catch {}
     }
+    if (durableAnswers) {
+      try {
+        this.answers = { ...JSON.parse(durableAnswers) };
+      } catch {}
+    }
     if (savedAnswers) {
       try {
-        this.answers = JSON.parse(savedAnswers);
+        this.answers = { ...this.answers, ...JSON.parse(savedAnswers) };
       } catch {}
     }
 
@@ -192,6 +206,26 @@ class OnboardingEngine {
     el.scrollTop = 0;
 
     if (stepId === "step-16") this.initStep16();
+    if (stepId === "step-fiesta") this.initFiesta();
+    if (stepId === "step-porque") this.initPorque();
+    // Pantallas con CTA condicionado a haber respondido
+    if (stepId === "step-fuente") this.gateCta(stepId, !!this.answers.referralSource);
+    if (stepId === "step-porque") this.gateCta(stepId, !!this.answers.goalReason);
+    if (stepId === "step-4") this.gateCta(stepId, !!this.answers.demoGastoRegistrado);
+
+    // Pantallas "estilo Duolingo" con fondo blanco: el body (y con él la
+    // topbar transparente) acompaña para no dejar franjas lila.
+    const WHITE_STEPS = [
+      "step-primer",
+      "entry",
+      "step-fiesta",
+      "step-fuente",
+      "step-porque",
+      "step-2",
+      "step-3",
+      "step-4",
+    ];
+    document.body.classList.toggle("fondo-blanco", WHITE_STEPS.includes(stepId));
 
     // El intro queda visto cuando el usuario llega a la antesala de preguntas.
     if (STEP_ORDER.indexOf(stepId) >= STEP_ORDER.indexOf(RETURNING_START_STEP)) {
@@ -225,6 +259,22 @@ class OnboardingEngine {
     sessionStorage.setItem("pablo_current_step", this.currentStepId);
     sessionStorage.setItem("pablo_history", JSON.stringify(this.history));
     sessionStorage.setItem("pablo_answers", JSON.stringify(this.answers));
+    // Copia duradera: sobrevive cierres de navegador (la sesión no).
+    localStorage.setItem("pablo_answers_v1", JSON.stringify(this.answers));
+  }
+
+  /**
+   * Además del evento, la respuesta se fija como person property en PostHog
+   * (prefijo onboarding_). Así queda en el perfil y, como el distinct_id
+   * viaja a la app por ?ph_did=, el usuario registrado conserva sus
+   * respuestas del onboarding.
+   */
+  persistAnswerToProfile(key, value) {
+    try {
+      window.posthog?.setPersonProperties?.({ [`onboarding_${key}`]: value });
+    } catch (e) {
+      console.warn("[Pablo] No se pudo fijar person property:", e);
+    }
   }
 
   setAnswer(key, value) {
@@ -234,6 +284,7 @@ class OnboardingEngine {
       question: key,
       answer: value,
     });
+    this.persistAnswerToProfile(key, value);
     this.saveState();
   }
 
@@ -247,6 +298,7 @@ class OnboardingEngine {
       option: value,
       selected,
     });
+    this.persistAnswerToProfile(key, this.answers[key]);
     this.saveState();
   }
 
@@ -265,10 +317,23 @@ class OnboardingEngine {
     el.classList.add("selected");
     el.setAttribute("aria-checked", "true");
     this.setAnswer(key, value);
-    const cta = document.querySelector(".cta-footer .btn-primary");
+    // Habilitar el CTA del step actual (no el primero del documento)
+    const cta =
+      el.closest(".step")?.querySelector(".cta-footer .btn-primary") ??
+      document.querySelector(".cta-footer .btn-primary");
     if (cta?.classList.contains("disabled")) {
       cta.classList.remove("disabled");
       cta.removeAttribute("disabled");
+    }
+    // Burbuja reactiva estilo Duolingo: si la opción trae data-bubble, la
+    // mascota del step "responde" cambiando el texto con un pop.
+    const bubbleText = el.dataset.bubble;
+    const bubble = el.closest(".step")?.querySelector("[data-reactive-bubble]");
+    if (bubbleText && bubble) {
+      bubble.textContent = bubbleText;
+      bubble.classList.remove("bubble-react");
+      void bubble.offsetWidth; // reinicia la animación CSS
+      bubble.classList.add("bubble-react");
     }
   }
 
@@ -327,16 +392,10 @@ class OnboardingEngine {
     window.pabloGoTo = (id) => this.goTo(id);
     window.pabloSelect = (el, key, value) => this.selectOption(el, key, value);
     window.pabloToggle = (el, value) => this.toggleOption(el, value);
-    window.pabloConfirmExit = () => this.confirmExit();
-    window.pabloCancelExit = () => this.cancelExit();
-    window.pabloDoExit = () => this.doExit();
     window.pabloExitDirect = () => this.exitDirect();
     window.pabloTrack = track;
     window.pabloGoApp = (stepId) => this.goToApp(stepId);
     window.onboarding = this;
-    document.addEventListener("keydown", (e) => {
-      if (e.key === "Escape") this.cancelExit();
-    });
   }
 
   /**
@@ -354,28 +413,76 @@ class OnboardingEngine {
     window.location.href = url;
   }
 
-  /* Salida con confirmación (X de la topbar en pasos avanzados) */
-  confirmExit() {
-    const modal = document.getElementById("exitModal");
-    modal?.classList.remove("hidden");
-    modal?.classList.add("flex");
-  }
-
-  cancelExit() {
-    const modal = document.getElementById("exitModal");
-    modal?.classList.add("hidden");
-    modal?.classList.remove("flex");
-  }
-
-  doExit() {
-    track("onboarding_exited", { step_id: this.currentStepId, method: "modal" });
-    window.location.href = "/";
-  }
-
-  /* Salida directa desde la primera pantalla: sin modal de confirmación */
+  /* Salida directa: sin modal de confirmación (el progreso queda guardado
+   * en session/localStorage, así que volver no pierde nada) */
   exitDirect() {
     track("onboarding_exited", { step_id: this.currentStepId, method: "direct" });
     window.location.href = "/";
+  }
+
+  /**
+   * step-fiesta: dispara una explosión de confetti desde el centro.
+   * Cada pieza recibe por CSS custom props su ángulo, distancia, color y
+   * delay; la animación vive en custom.css (confettiBurst).
+   */
+  initFiesta() {
+    const stage = document.querySelector('[data-step="step-fiesta"] .fiesta-confetti');
+    if (!stage) return;
+    if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
+    stage.innerHTML = "";
+    const colors = ["#fba920", "#f59e0b", "#2b2c64", "#4d4f88", "#e94f64", "#3fa643", "#5ec9f0"];
+    const N = 44;
+    for (let i = 0; i < N; i++) {
+      const p = document.createElement("span");
+      p.className = "confetti-piece";
+      const angle = (i / N) * 2 * Math.PI + (Math.random() - 0.5) * 0.6;
+      const dist = 120 + Math.random() * 240;
+      p.style.setProperty("--dx", `${Math.cos(angle) * dist}px`);
+      p.style.setProperty("--dy", `${Math.sin(angle) * dist * 0.75 - 60}px`);
+      p.style.setProperty("--fall", `${140 + Math.random() * 180}px`);
+      p.style.setProperty("--rot", `${(Math.random() - 0.5) * 900}deg`);
+      p.style.setProperty("--delay", `${Math.random() * 0.12}s`);
+      p.style.setProperty("--dur", `${1.6 + Math.random() * 1.2}s`);
+      p.style.background = colors[i % colors.length];
+      if (i % 3 === 0) p.style.borderRadius = "50%";
+      if (i % 4 === 0) p.style.width = "7px";
+      stage.appendChild(p);
+    }
+    // Limpieza al terminar (las piezas quedan invisibles igualmente)
+    setTimeout(() => (stage.innerHTML = ""), 3400);
+  }
+
+  /**
+   * step-porque: la pregunta de la burbuja se personaliza según el objetivo
+   * elegido en step-primer (patrón Duolingo: "¿Por qué quieres aprender
+   * inglés?" tras elegir inglés).
+   */
+  initPorque() {
+    const QUESTIONS = {
+      "gastos-hormiga": "¿Por qué quieres controlar tus gastos hormiga?",
+      ahorrar: "¿Por qué quieres ahorrar más para el futuro?",
+      metas: "¿Por qué quieres avanzar hacia tus metas?",
+      automatizar: "¿Por qué quieres automatizar tus finanzas?",
+      deudas: "¿Por qué quieres gestionar tus deudas?",
+      educacion: "¿Por qué quieres educarte financieramente?",
+    };
+    const bubble = document.querySelector('[data-step="step-porque"] [data-reactive-bubble]');
+    if (bubble) {
+      bubble.textContent =
+        QUESTIONS[this.answers.mainGoal] ?? "¿Por qué quieres mejorar tus finanzas?";
+    }
+  }
+
+  /**
+   * CTA condicionado: deshabilitado hasta que haya respuesta (si el usuario
+   * vuelve atrás y ya respondió, se mantiene habilitado).
+   */
+  gateCta(stepId, answered) {
+    const cta = document.querySelector(`[data-step="${stepId}"] .cta-footer .btn-primary`);
+    if (!cta) return;
+    cta.classList.toggle("disabled", !answered);
+    if (answered) cta.removeAttribute("disabled");
+    else cta.setAttribute("disabled", "");
   }
 
   /**

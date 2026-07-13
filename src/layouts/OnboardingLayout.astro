@@ -48,7 +48,7 @@ const base = "/onboarding";
         <div class="w-full max-w-[560px] mx-auto flex items-center justify-between mt-6 px-2">
           <button
             class="btn-exit"
-            onclick="pabloConfirmExit()"
+            onclick="pabloExitDirect()"
             aria-label="Salir del onboarding"
             title="Salir"
           >
@@ -96,44 +96,6 @@ const base = "/onboarding";
       </header>
 
       <slot />
-    </div>
-
-    <!-- Modal de confirmación de salida (pasos avanzados) -->
-    <div
-      id="exitModal"
-      class="fixed inset-0 z-[110] hidden items-center justify-center"
-      role="dialog"
-      aria-modal="true"
-      aria-label="Confirmar salida del onboarding"
-    >
-      <div
-        class="exit-backdrop absolute inset-0 bg-[rgba(43,44,100,0.55)]"
-        onclick="pabloCancelExit()"
-      >
-      </div>
-      <div
-        class="relative w-full max-w-[340px] bg-lila rounded-[28px] mx-4 px-6 pt-7 pb-6 flex flex-col gap-2 text-center"
-      >
-        <h3 class="font-display font-bold text-[20px] text-navy">¿Seguro que quieres salir?</h3>
-        <p class="text-[14px] font-body text-navy-soft">
-          Vas a perder tu progreso en el onboarding.
-        </p>
-        <div class="flex flex-col gap-3 mt-4">
-          <button
-            class="w-full py-[14px] rounded-[var(--radius-pill)] bg-white font-display font-bold text-[16px] text-navy shadow-soft transition-transform duration-200 [transition-timing-function:var(--ease-clay)] hover:-translate-y-0.5 active:translate-y-px"
-            onclick="pabloCancelExit()"
-          >
-            Seguir aquí
-          </button>
-          <button
-            class="btn-primary w-full text-[16px] py-[14px]"
-            style="box-shadow: none"
-            onclick="pabloDoExit()"
-          >
-            Salir
-          </button>
-        </div>
-      </div>
     </div>
 
     <!-- Motor de navegación -->

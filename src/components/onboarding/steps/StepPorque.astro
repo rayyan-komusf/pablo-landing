@@ -1,0 +1,72 @@
+<!-- "¿Por qué quieres [objetivo elegido]?" (estilo Duolingo: tras elegir
+     idioma pregunta por qué). La pregunta de la burbuja la fija onboarding.js
+     (initPorque) según answers.mainGoal, y cambia con la reacción de cada
+     opción (data-bubble). Opciones provisionales hasta tener la lista final. -->
+<section class="step !pb-0" data-step="step-porque" aria-label="¿Por qué quieres lograrlo?" aria-hidden="true">
+  <div class="fuente-body flex-1 flex flex-col w-full mx-auto px-5 max-md:px-4 overflow-y-auto [scrollbar-width:none] [&::-webkit-scrollbar]:hidden vcenter">
+    <!-- Mascota + burbuja: pregunta personalizada → reacción al elegir -->
+    <div class="fuente-header">
+      <div class="fuente-pablo">
+        <picture>
+          <source srcset="/onboarding/images/pablo/pablo-anotando.webp" type="image/webp" />
+          <img
+            src="/onboarding/images/pablo/pablo-point.png"
+            alt=""
+            width="140"
+            height="140"
+            loading="lazy"
+          />
+        </picture>
+      </div>
+      <div class="speech-bubble speech-bubble--side" data-reactive-bubble aria-live="polite">
+        ¿Por qué quieres mejorar tus finanzas?
+      </div>
+    </div>
+
+    <!-- Motivos (sin auto-avance: se confirma con Continuar) -->
+    <div class="fuente-grid" role="radiogroup" aria-label="Selecciona tu motivo principal">
+      <button class="option-card option-card--pill" role="radio" aria-checked="false"
+        data-bubble="La paz con tu dinero se siente increíble 🧘"
+        onclick="pabloSelect(this, 'goalReason', 'paz-mental')">
+        <span class="option-icon">🧘</span>
+        <span class="option-label text-left">Quiero sentir paz con mi dinero</span>
+      </button>
+      <button class="option-card option-card--pill" role="radio" aria-checked="false"
+        data-bubble="Se acabaron los sustos de fin de mes 😮‍💨"
+        onclick="pabloSelect(this, 'goalReason', 'fin-de-mes')">
+        <span class="option-icon">😮‍💨</span>
+        <span class="option-label text-left">Llegar a fin de mes sin sustos</span>
+      </button>
+      <button class="option-card option-card--pill" role="radio" aria-checked="false"
+        data-bubble="¡Qué emoción! Vamos por eso 🎁"
+        onclick="pabloSelect(this, 'goalReason', 'meta-importante')">
+        <span class="option-icon">🎁</span>
+        <span class="option-label text-left">Estoy ahorrando para algo importante</span>
+      </button>
+      <button class="option-card option-card--pill" role="radio" aria-checked="false"
+        data-bubble="Los hábitos pequeños hacen cambios grandes 🌱"
+        onclick="pabloSelect(this, 'goalReason', 'mejores-habitos')">
+        <span class="option-icon">🌱</span>
+        <span class="option-label text-left">Construir mejores hábitos</span>
+      </button>
+      <button class="option-card option-card--pill" role="radio" aria-checked="false"
+        data-bubble="Eso es de admirar. Cuenta conmigo 🤝"
+        onclick="pabloSelect(this, 'goalReason', 'familia')">
+        <span class="option-icon">👨‍👩‍👧</span>
+        <span class="option-label text-left">Mi familia depende de mí</span>
+      </button>
+      <button class="option-card option-card--pill" role="radio" aria-checked="false"
+        data-bubble="¡Perfecto, vamos a por ello! ✨"
+        onclick="pabloSelect(this, 'goalReason', 'otro')">
+        <span class="option-icon">✨</span>
+        <span class="option-label text-left">Otro motivo</span>
+      </button>
+    </div>
+  </div>
+
+  <footer class="duo-footer cta-footer">
+    <button class="btn-primary btn-continue disabled" disabled onclick="pabloNext()" aria-label="Continuar">
+      Continuar
+    </button>
+  </footer>
+</section>

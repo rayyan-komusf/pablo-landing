@@ -1,141 +1,385 @@
-<!-- Demo WhatsApp: el usuario registra su "primer gasto" -->
-<section class="step !pb-0" data-step="step-4" aria-label="Demo WhatsApp" aria-hidden="true">
-  <div class="flex-1 flex flex-col items-center pt-6 px-6 pb-8 max-md:pb-[120px] max-md:pt-4 max-md:px-5 gap-5 max-md:gap-4 vcenter-flex">
-    <!-- Título -->
-    <h2 class="font-display font-bold text-[24px] md:text-[32px] max-[360px]:text-[19px] text-navy text-center tracking-[-0.02em] leading-[1.2]">
-      ¿Cuál ha sido tu <span class="text-ambar-deep">última compra</span>?
+<!-- Demo interactivo: el visitante registra un gasto REAL con Pablo por
+     "WhatsApp" (texto, foto o audio) dentro de un iPhone simulado.
+     El análisis lo hace la edge function demo-analizar-gasto (Gemini);
+     si falla o no está desplegada, hay un análisis local de respaldo
+     para que el demo nunca se rompa. -->
+<section class="step !pb-0" data-step="step-4" aria-label="Demo: registra tu primer gasto" aria-hidden="true">
+  <div class="demo-body flex-1 flex flex-col items-center w-full mx-auto px-5 max-md:px-3 overflow-y-auto [scrollbar-width:none] [&::-webkit-scrollbar]:hidden vcenter">
+    <h2 class="demo-title font-display font-bold text-navy text-center">
+      Pruébame: <span class="text-amber">regístrame un gasto</span> 👇
     </h2>
-    <!-- iPhone mockup -->
-    <div class="w-full max-w-[310px] max-md:max-w-[300px] max-[360px]:max-w-[270px] rounded-[32px] max-[360px]:rounded-[24px] bg-navy p-3 max-[360px]:p-2 shadow-hero animate-[phoneSlide_500ms_var(--ease-clay)_500ms_backwards]">
-      <div class="bg-[#E5DDD5] rounded-[22px] max-[360px]:rounded-[18px] overflow-hidden flex flex-col mt-2">
-        <!-- WhatsApp header -->
-        <div class="bg-[#3FA643] px-4 py-3 flex items-center gap-3">
-          <div class="w-9 h-9 rounded-full overflow-hidden shrink-0 bg-white">
-            <img
-              src="/onboarding/images/pablo/pablo-logo.png"
-              alt="Pablo"
-              width="36"
-              height="36"
-              class="w-full h-full object-cover"
-            />
-          </div>
-          <div class="flex flex-col">
-            <span class="font-display font-bold text-[15px] text-white">Pablo</span>
-            <span class="text-[12px] text-white/70">en línea</span>
-          </div>
+
+    <!-- ══════════ iPhone ══════════ -->
+    <div class="iphone" role="group" aria-label="Demo de chat de WhatsApp con Pablo">
+      <div class="iphone__isla" aria-hidden="true"></div>
+      <div class="iphone__pantalla">
+        <!-- Barra de estado iOS -->
+        <div class="ios-status" aria-hidden="true">
+          <span class="ios-status__hora">9:41</span>
+          <span class="ios-status__iconos">
+            <svg width="17" height="11" viewBox="0 0 17 11" fill="currentColor"><rect x="0" y="7" width="3" height="4" rx="0.8"/><rect x="4.5" y="5" width="3" height="6" rx="0.8"/><rect x="9" y="2.5" width="3" height="8.5" rx="0.8"/><rect x="13.5" y="0" width="3" height="11" rx="0.8"/></svg>
+            <svg width="16" height="12" viewBox="0 0 16 12" fill="currentColor"><path d="M8 9.5a1.4 1.4 0 1 0 0 2.8 1.4 1.4 0 0 0 0-2.8zM4.6 7.6l1.4 1.4A3.4 3.4 0 0 1 8 8.2c.8 0 1.5.3 2 .8l1.4-1.4A5.3 5.3 0 0 0 8 6.2a5.3 5.3 0 0 0-3.4 1.4zM1.8 4.8l1.4 1.4A7.2 7.2 0 0 1 8 4.2c1.9 0 3.6.7 4.8 2l1.4-1.4A9.2 9.2 0 0 0 8 2.2a9.2 9.2 0 0 0-6.2 2.6z"/></svg>
+            <svg width="25" height="12" viewBox="0 0 25 12" fill="none"><rect x="0.5" y="0.5" width="21" height="11" rx="3" stroke="currentColor" opacity="0.4"/><rect x="2" y="2" width="18" height="8" rx="1.6" fill="currentColor"/><path d="M23 4v4c.8-.2 1.3-1 1.3-2s-.5-1.8-1.3-2z" fill="currentColor" opacity="0.4"/></svg>
+          </span>
         </div>
-        <!-- Chat body -->
-        <div class="wsp-body px-3 py-4 min-h-[310px] flex flex-col gap-2 overflow-y-scroll [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
-          <!-- Mensaje de Pablo -->
-          <div class="max-w-[85%] px-[14px] pt-[10px] pb-[6px] rounded-[18px] text-[15px] leading-[1.5] relative bg-white text-[#303030] self-start rounded-tl-[4px] animate-[msgSlide_300ms_var(--ease-clay)_500ms_backwards]">
-            <p class="m-0">¡Hola! Cuéntame tu última compra y verás cómo lo categorizo 🔥</p>
-            <span class="block text-[11px] text-left mt-1 opacity-60">10:42 AM</span>
+
+        <!-- Header de WhatsApp (iOS) -->
+        <div class="wa-header">
+          <svg class="wa-header__back" width="12" height="20" viewBox="0 0 12 20" fill="none"><path d="M10.5 1.5 2 10l8.5 8.5" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          <img class="wa-header__avatar" src="/onboarding/images/pablo/pablo-logo.png" alt="" width="36" height="36" />
+          <div class="wa-header__info">
+            <span class="wa-header__nombre">Pablo</span>
+            <span class="wa-header__estado" id="waEstado">en línea</span>
           </div>
+          <svg class="wa-header__icono" width="24" height="16" viewBox="0 0 24 16" fill="currentColor"><path d="M15 3.2A2.2 2.2 0 0 0 12.8 1H3.2A2.2 2.2 0 0 0 1 3.2v9.6A2.2 2.2 0 0 0 3.2 15h9.6a2.2 2.2 0 0 0 2.2-2.2v-2.9l5.4 3.6c.7.4 1.6 0 1.6-.9V3.4c0-.8-.9-1.3-1.6-.9L15 6.1V3.2z"/></svg>
+          <svg class="wa-header__icono" width="18" height="18" viewBox="0 0 18 18" fill="currentColor"><path d="M16.7 12.9c-1-.9-2.3-1.5-3.5-1.5-.5 0-1 .2-1.4.5l-1 .8c-1.7-.9-3.4-2.6-4.5-4.5l.8-1c.5-.6.6-1.4.4-2.1C7.1 3.9 6.6 2.6 5.6 1.5 5.3 1.2 4.8 1 4.4 1c-.4 0-.9.2-1.2.5L1.6 3.1C.9 3.8.8 4.9 1.2 5.8c1.7 4.5 6.5 9.3 11 11 .3.1.7.2 1 .2.6 0 1.2-.2 1.6-.7l1.6-1.6c.7-.7.6-1.8-.1-2.4z"/></svg>
         </div>
-        <!-- Quick replies -->
-        <div class="chips-bar p-3 flex flex-wrap gap-2 bg-[#F0ECE5] border-t border-black/10">
-          <button
-            class="wsp-chip px-4 py-2 border-[1.5px] border-black/15 bg-white text-[13px] font-body text-[#303030] cursor-pointer transition-all duration-fast min-h-[40px] inline-flex items-center hover:bg-ambar-deep hover:text-white hover:border-ambar-deep hover:-translate-y-[1px] rounded-2xl"
-            data-reply="almuerzo"
-            onclick="wspSelectChipStep4(this)"
-          >
-            Almuerzo S/.15
+
+        <!-- Chat -->
+        <div class="wa-chat" id="waChat" aria-live="polite">
+          <div class="wa-dia"><span>Hoy</span></div>
+        </div>
+
+        <!-- Sugerencias rápidas -->
+        <div class="wa-chips" id="waChips">
+          <button class="wa-chip" data-gasto="Almuerzo de menú S/ 15">🍛 Almuerzo S/ 15</button>
+          <button class="wa-chip" data-gasto="Taxi al trabajo S/ 12">🚕 Taxi S/ 12</button>
+          <button class="wa-chip" data-gasto="Entrada al cine S/ 28">🍿 Cine S/ 28</button>
+        </div>
+
+        <!-- Barra de input estilo WhatsApp iOS -->
+        <div class="wa-input" id="waInputBar">
+          <button class="wa-input__btn" id="waFotoBtn" aria-label="Enviar una foto de tu compra" title="Enviar foto">
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="2.5" y="5" width="19" height="15" rx="3"/><circle cx="12" cy="12.5" r="4"/><path d="M8 5l1.2-2h5.6L16 5"/></svg>
           </button>
-          <button
-            class="wsp-chip px-4 py-2 border-[1.5px] border-black/15 bg-white text-[13px] font-body text-[#303030] cursor-pointer transition-all duration-fast min-h-[40px] inline-flex items-center hover:bg-ambar-deep hover:text-white hover:border-ambar-deep hover:-translate-y-[1px] rounded-2xl"
-            data-reply="pasaje"
-            onclick="wspSelectChipStep4(this)"
-          >
-            Pasaje de S/.2
+          <div class="wa-input__campo">
+            <input id="waTexto" type="text" inputmode="text" autocomplete="off" maxlength="200"
+              placeholder="Escribe tu gasto…" aria-label="Escribe tu gasto" />
+          </div>
+          <button class="wa-input__btn wa-input__btn--mic" id="waMicBtn" aria-label="Grabar un audio contando tu gasto" title="Grabar audio">
+            <svg class="icono-mic" width="20" height="22" viewBox="0 0 20 24" fill="currentColor"><rect x="6.5" y="1" width="7" height="13" rx="3.5"/><path d="M3 11a7 7 0 0 0 14 0h-1.8a5.2 5.2 0 0 1-10.4 0H3z"/><rect x="9.1" y="18" width="1.8" height="4" rx="0.9"/><rect x="6" y="22" width="8" height="1.8" rx="0.9"/></svg>
+            <svg class="icono-enviar" width="20" height="20" viewBox="0 0 24 24" fill="currentColor" style="display:none"><path d="M3.4 20.4 20.8 12 3.4 3.6c-.6-.3-1.3.2-1.1.9L4 11l9 1-9 1-1.7 6.5c-.2.7.5 1.2 1.1.9z"/></svg>
           </button>
-          <button
-            class="wsp-chip px-4 py-2 border-[1.5px] border-black/15 bg-white text-[13px] font-body text-[#303030] cursor-pointer transition-all duration-fast min-h-[40px] inline-flex items-center hover:bg-ambar-deep hover:text-white hover:border-ambar-deep hover:-translate-y-[1px] rounded-2xl"
-            data-reply="uber"
-            onclick="wspSelectChipStep4(this)"
-          >
-            Uber S/.12
-          </button>
-          <button
-            class="wsp-chip px-4 py-2 border-[1.5px] border-black/15 bg-white text-[13px] font-body text-[#303030] cursor-pointer transition-all duration-fast min-h-[40px] inline-flex items-center hover:bg-ambar-deep hover:text-white hover:border-ambar-deep hover:-translate-y-[1px] rounded-2xl"
-            data-reply="delivery"
-            onclick="wspSelectChipStep4(this)"
-          >
-            Delivery S/.28
+          <input type="file" id="waFotoInput" accept="image/*" hidden />
+        </div>
+
+        <!-- Overlay de grabación de audio -->
+        <div class="wa-grabando" id="waGrabando" hidden>
+          <span class="wa-grabando__punto"></span>
+          <span class="wa-grabando__tiempo" id="waGrabTiempo">0:00</span>
+          <button class="wa-grabando__cancelar" id="waGrabCancelar">Cancelar</button>
+          <button class="wa-grabando__enviar" id="waGrabEnviar" aria-label="Enviar audio">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="M3.4 20.4 20.8 12 3.4 3.6c-.6-.3-1.3.2-1.1.9L4 11l9 1-9 1-1.7 6.5c-.2.7.5 1.2 1.1.9z"/></svg>
           </button>
         </div>
+
+        <div class="iphone__homebar" aria-hidden="true"></div>
       </div>
     </div>
-    <!-- CTA -->
-    <div class="flex flex-col items-center gap-[14px] w-full max-md:-mt-[2px]">
-      <button class="btn-primary btn-primary--compact" onclick="pabloNext()">
-        Siguiente
-        <span class="arrow" aria-hidden="true">→</span>
-      </button>
-    </div>
   </div>
+
+  <footer class="duo-footer cta-footer">
+    <button class="btn-primary btn-continue disabled" disabled onclick="pabloNext()" aria-label="Continuar">
+      Continuar
+    </button>
+  </footer>
 </section>
 
-<script is:inline type="module">
-  const respuestas = {
-    almuerzo: `Listo, lo anoté en Comida ✓\nLlevas S/.40 en Comida esta semana`,
-    pasaje: `Listo, lo anoté en Movilidad ✓\nLlevas S/.14 en Pasaje esta semana`,
-    uber: `Listo, lo anoté en Movilidad ✓\nLlevas S/.42 en Uber esta semana`,
-    delivery: `Listo, lo anoté en Comida ✓\nLlevas S/.34 en Delivery esta semana`,
+<script>
+  // ─── Demo interactivo del chat (step-4) ────────────────────────────
+  const ENDPOINT =
+    "https://mezpfnagkubumzbromsh.supabase.co/functions/v1/demo-analizar-gasto";
+
+  const $ = (id: string) => document.getElementById(id)!;
+  const chat = $("waChat");
+  const inputTexto = $("waTexto") as HTMLInputElement;
+  const micBtn = $("waMicBtn");
+  const fotoBtn = $("waFotoBtn");
+  const fotoInput = $("waFotoInput") as HTMLInputElement;
+  const chips = $("waChips");
+  const grabandoUI = $("waGrabando");
+  const grabTiempo = $("waGrabTiempo");
+  const estadoHeader = $("waEstado");
+
+  let analizando = false;
+  let saludado = false;
+
+  /* ── util ── */
+  const hora = () => {
+    const d = new Date();
+    const h = d.getHours() % 12 || 12;
+    const m = String(d.getMinutes()).padStart(2, "0");
+    return `${h}:${m} ${d.getHours() >= 12 ? "p. m." : "a. m."}`;
   };
 
-  function seleccionarChip(chip) {
-    const step = document.querySelector('[data-step="step-4"]');
-    step.querySelectorAll(".wsp-chip").forEach((c) => {
-      c.disabled = true;
-      if (c !== chip) c.style.opacity = "0.4";
-    });
-    chip.style.backgroundColor = "#F59E0B";
-    chip.style.color = "#ffffff";
-    chip.style.borderColor = "#F5A623";
+  const scrollAbajo = () => (chat.scrollTop = chat.scrollHeight);
 
-    window.pabloTrack?.("onboarding_demo_gasto_selected", { gasto: chip.dataset.reply });
-
-    const body = step.querySelector(".wsp-body");
-    if (!body) return;
-    step.querySelector(".wsp-msg--user")?.remove();
-    step.querySelector(".wsp-msg--bot-reply")?.remove();
-    step.querySelector(".wsp-typing")?.remove();
-
-    const userMsg = document.createElement("div");
-    userMsg.className =
-      "wsp-msg--user max-w-[85%] px-[14px] pt-[10px] pb-[6px] rounded-[18px] text-[15px] leading-[1.5] relative bg-[#DCF8C6] text-[#303030] self-end rounded-tr-[4px] animate-[msgSlide_300ms_var(--ease-clay)]";
-    userMsg.innerHTML = `
-    <p class="m-0">${chip.textContent?.trim()}</p>
-    <span class="block text-[11px] text-right mt-1 opacity-60">10:43 AM</span>
-  `;
-    body.appendChild(userMsg);
-    body.scrollTop = body.scrollHeight;
-
-    setTimeout(() => {
-      const typing = document.createElement("div");
-      typing.className =
-        "wsp-typing max-w-[85%] px-[14px] py-[10px] rounded-xl bg-white self-start rounded-bl-[4px] flex gap-[4px] items-center animate-[msgSlide_300ms_var(--ease-clay)]";
-      typing.innerHTML = `
-      <span class="w-2 h-2 rounded-full bg-gray-400 animate-bounce [animation-delay:0ms]"></span>
-      <span class="w-2 h-2 rounded-full bg-gray-400 animate-bounce [animation-delay:150ms]"></span>
-      <span class="w-2 h-2 rounded-full bg-gray-400 animate-bounce [animation-delay:300ms]"></span>
-    `;
-      body.appendChild(typing);
-      body.scrollTop = body.scrollHeight;
-
-      setTimeout(() => {
-        typing.remove();
-        const botMsg = document.createElement("div");
-        botMsg.className =
-          "wsp-msg--bot-reply max-w-[95%] px-[14px] pt-[10px] pb-[6px] rounded-[18px] text-[15px] leading-[1.5] relative bg-white text-[#303030] self-start rounded-tl-[4px] animate-[msgSlide_300ms_var(--ease-clay)]";
-        botMsg.innerHTML = `
-        <p class="m-0 whitespace-pre-line">${respuestas[chip.dataset.reply] ?? ""}</p>
-        <span class="block text-[11px] text-left mt-1 opacity-60">10:43 AM</span>
-      `;
-        body.appendChild(botMsg);
-        body.scrollTop = body.scrollHeight;
-      }, 1600);
-    }, 400);
+  function burbuja(html: string, quien: "in" | "out") {
+    const div = document.createElement("div");
+    div.className = `wa-msg wa-msg--${quien}`;
+    div.innerHTML = `${html}<span class="wa-msg__meta">${hora()}${
+      quien === "out"
+        ? ' <svg width="15" height="9" viewBox="0 0 18 10" fill="none"><path d="M1 5.5 4 8.5 10 1.5" stroke="#53BDEB" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/><path d="M7 5.5 10 8.5 16 1.5" stroke="#53BDEB" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg>'
+        : ""
+    }</span>`;
+    chat.appendChild(div);
+    scrollAbajo();
+    return div;
   }
-  window.wspSelectChipStep4 = seleccionarChip;
+
+  let typingEl: HTMLElement | null = null;
+  function escribiendo(on: boolean) {
+    estadoHeader.textContent = on ? "escribiendo…" : "en línea";
+    if (on && !typingEl) {
+      typingEl = document.createElement("div");
+      typingEl.className = "wa-msg wa-msg--in wa-typing";
+      typingEl.innerHTML = "<span></span><span></span><span></span>";
+      chat.appendChild(typingEl);
+      scrollAbajo();
+    } else if (!on && typingEl) {
+      typingEl.remove();
+      typingEl = null;
+    }
+  }
+
+  /* ── saludo inicial la primera vez que se ve el step ── */
+  const stepEl = document.querySelector('[data-step="step-4"]')!;
+  new MutationObserver(() => {
+    if (stepEl.classList.contains("active") && !saludado) {
+      saludado = true;
+      setTimeout(() => {
+        burbuja(
+          "¡Hola! 👋 Cuéntame tu última compra —por texto, foto o audio— y mira cómo la registro al instante 🔥",
+          "in"
+        );
+      }, 600);
+    }
+  }).observe(stepEl, { attributes: true, attributeFilter: ["class"] });
+
+  /* ── análisis (backend real + respaldo local) ── */
+  const CATS: Record<string, [string, string]> = {
+    almuerzo: ["Alimentación", "🍔"], menu: ["Alimentación", "🍔"], comida: ["Alimentación", "🍔"],
+    desayuno: ["Alimentación", "🍔"], cena: ["Alimentación", "🍔"], pollo: ["Alimentación", "🍔"],
+    cafe: ["Alimentación", "🍔"], café: ["Alimentación", "🍔"], delivery: ["Alimentación", "🍔"],
+    taxi: ["Transporte", "🚗"], uber: ["Transporte", "🚗"], pasaje: ["Transporte", "🚗"],
+    bus: ["Transporte", "🚗"], gasolina: ["Transporte", "🚗"],
+    cine: ["Entretenimiento", "🎮"], juego: ["Entretenimiento", "🎮"], netflix: ["Entretenimiento", "🎮"],
+    farmacia: ["Salud", "💊"], doctor: ["Salud", "💊"],
+    curso: ["Educación", "📚"], libro: ["Educación", "📚"],
+    polo: ["Ropa", "👕"], zapatilla: ["Ropa", "👕"], ropa: ["Ropa", "👕"],
+    luz: ["Servicios", "💡"], agua: ["Servicios", "💡"], internet: ["Servicios", "💡"],
+    recarga: ["Servicios", "💡"], alquiler: ["Vivienda", "🏠"],
+  };
+
+  function analisisLocal(texto: string) {
+    const monto = texto.match(/(\d+(?:[.,]\d{1,2})?)/)?.[1]?.replace(",", ".") ?? null;
+    const t = texto.toLowerCase();
+    let cat = ["Otros Gastos", "📦"];
+    for (const k in CATS) {
+      if (t.includes(k)) {
+        cat = CATS[k];
+        break;
+      }
+    }
+    return {
+      es_gasto: !!monto,
+      monto: monto ? parseFloat(monto) : null,
+      moneda: "S/",
+      descripcion: texto.slice(0, 40),
+      categoria: cat[0],
+      emoji: cat[1],
+      comentario: monto ? "¡Anotado en segundos! Así de fácil 😎" : "¿Me dices cuánto costó? 😊",
+    };
+  }
+
+  function habilitarContinuar() {
+    const cta = document.querySelector(
+      '[data-step="step-4"] .cta-footer .btn-primary'
+    ) as HTMLButtonElement | null;
+    if (cta) {
+      cta.classList.remove("disabled");
+      cta.removeAttribute("disabled");
+    }
+    (window as any).onboarding?.setAnswer?.("demoGastoRegistrado", true);
+  }
+
+  async function analizar(payload: Record<string, unknown>) {
+    if (analizando) return;
+    analizando = true;
+    escribiendo(true);
+    let resultado: any = null;
+    try {
+      const r = await fetch(ENDPOINT, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(payload),
+        signal: AbortSignal.timeout(15000),
+      });
+      if (r.ok) resultado = (await r.json()).resultado;
+    } catch {
+      /* respaldo abajo */
+    }
+
+    if (!resultado) {
+      resultado =
+        payload.tipo === "texto"
+          ? analisisLocal(payload.texto as string)
+          : {
+              es_gasto: false,
+              comentario: "Ahora no pude analizarlo 😅 Escríbemelo, ej: “taxi 12 soles”",
+            };
+    }
+
+    // pausa corta para que la respuesta se sienta natural
+    await new Promise((res) => setTimeout(res, 700));
+    escribiendo(false);
+
+    if (resultado.es_gasto && resultado.monto != null) {
+      const monto = Number(resultado.monto).toFixed(2);
+      burbuja(
+        `✅ <b>¡Gasto registrado!</b><br>${resultado.emoji ?? "📦"} ${resultado.categoria ?? "Otros"} · <b>${resultado.moneda ?? "S/"} ${monto}</b><br>📝 ${resultado.descripcion ?? ""}`,
+        "in"
+      );
+      if (resultado.comentario) setTimeout(() => burbuja(resultado.comentario, "in"), 500);
+      habilitarContinuar();
+      (window as any).pabloTrack?.("demo_gasto_analizado", { tipo: payload.tipo });
+    } else {
+      burbuja(resultado.comentario ?? "¿Me cuentas qué compraste? 😊", "in");
+      (window as any).pabloTrack?.("demo_gasto_no_detectado", { tipo: payload.tipo });
+    }
+    analizando = false;
+  }
+
+  /* ── enviar texto ── */
+  function enviarTexto(texto: string) {
+    if (!texto.trim() || analizando) return;
+    burbuja(texto, "out");
+    chips.style.display = "none";
+    analizar({ tipo: "texto", texto: texto.trim() });
+  }
+
+  inputTexto.addEventListener("keydown", (e) => {
+    if (e.key === "Enter") {
+      enviarTexto(inputTexto.value);
+      inputTexto.value = "";
+      actualizarMic();
+    }
+  });
+
+  chips.addEventListener("click", (e) => {
+    const chip = (e.target as HTMLElement).closest(".wa-chip") as HTMLElement | null;
+    if (chip) enviarTexto(chip.dataset.gasto!);
+  });
+
+  /* mic ↔ enviar según haya texto (como WhatsApp) */
+  function actualizarMic() {
+    const hayTexto = inputTexto.value.trim().length > 0;
+    (micBtn.querySelector(".icono-mic") as HTMLElement).style.display = hayTexto ? "none" : "";
+    (micBtn.querySelector(".icono-enviar") as HTMLElement).style.display = hayTexto ? "" : "none";
+  }
+  inputTexto.addEventListener("input", actualizarMic);
+
+  /* ── foto ── */
+  fotoBtn.addEventListener("click", () => fotoInput.click());
+  fotoInput.addEventListener("change", async () => {
+    const file = fotoInput.files?.[0];
+    fotoInput.value = "";
+    if (!file || analizando) return;
+    // reescalar a máx 1024px por lado (controla peso y costo)
+    const dataUrl: string = await new Promise((resolve) => {
+      const img = new Image();
+      img.onload = () => {
+        const s = Math.min(1, 1024 / Math.max(img.width, img.height));
+        const c = document.createElement("canvas");
+        c.width = Math.round(img.width * s);
+        c.height = Math.round(img.height * s);
+        c.getContext("2d")!.drawImage(img, 0, 0, c.width, c.height);
+        resolve(c.toDataURL("image/jpeg", 0.82));
+      };
+      img.src = URL.createObjectURL(file);
+    });
+    burbuja(`<img class="wa-msg__foto" src="${dataUrl}" alt="Foto de tu compra" />`, "out");
+    chips.style.display = "none";
+    analizar({ tipo: "imagen", datosBase64: dataUrl.split(",")[1], mime: "image/jpeg" });
+  });
+
+  /* ── audio ── */
+  let mediaRec: MediaRecorder | null = null;
+  let trozos: Blob[] = [];
+  let grabInicio = 0;
+  let grabTimer: number | undefined;
+  let cancelado = false;
+
+  async function empezarGrabacion() {
+    try {
+      const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+      const mime = ["audio/ogg;codecs=opus", "audio/webm;codecs=opus", "audio/mp4"].find((m) =>
+        MediaRecorder.isTypeSupported(m)
+      );
+      mediaRec = new MediaRecorder(stream, mime ? { mimeType: mime } : undefined);
+      trozos = [];
+      cancelado = false;
+      mediaRec.ondataavailable = (e) => e.data.size && trozos.push(e.data);
+      mediaRec.onstop = async () => {
+        stream.getTracks().forEach((t) => t.stop());
+        grabandoUI.hidden = true;
+        clearInterval(grabTimer);
+        if (cancelado || !trozos.length) return;
+        const blob = new Blob(trozos, { type: mediaRec!.mimeType });
+        const segundos = Math.max(1, Math.round((Date.now() - grabInicio) / 1000));
+        const url = URL.createObjectURL(blob);
+        burbuja(
+          `<span class="wa-audio" data-url="${url}"><button class="wa-audio__play" aria-label="Reproducir audio">▶</button><span class="wa-audio__onda"><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i></span><span class="wa-audio__dur">0:${String(segundos).padStart(2, "0")}</span></span>`,
+          "out"
+        );
+        chips.style.display = "none";
+        const base64: string = await new Promise((resolve) => {
+          const fr = new FileReader();
+          fr.onload = () => resolve((fr.result as string).split(",")[1]);
+          fr.readAsDataURL(blob);
+        });
+        analizar({ tipo: "audio", datosBase64: base64, mime: mediaRec!.mimeType });
+      };
+      mediaRec.start();
+      grabInicio = Date.now();
+      grabandoUI.hidden = false;
+      grabTimer = window.setInterval(() => {
+        const s = Math.round((Date.now() - grabInicio) / 1000);
+        grabTiempo.textContent = `${Math.floor(s / 60)}:${String(s % 60).padStart(2, "0")}`;
+        if (s >= 30 && mediaRec?.state === "recording") mediaRec.stop(); // máx 30s
+      }, 250);
+    } catch {
+      burbuja("Necesito permiso del micrófono para escucharte 🎙️ — o escríbeme tu gasto 😊", "in");
+    }
+  }
+
+  micBtn.addEventListener("click", () => {
+    if (inputTexto.value.trim()) {
+      enviarTexto(inputTexto.value);
+      inputTexto.value = "";
+      actualizarMic();
+      return;
+    }
+    if (mediaRec?.state === "recording") return;
+    empezarGrabacion();
+  });
+
+  $("waGrabEnviar").addEventListener("click", () => {
+    if (mediaRec?.state === "recording") mediaRec.stop();
+  });
+  $("waGrabCancelar").addEventListener("click", () => {
+    cancelado = true;
+    if (mediaRec?.state === "recording") mediaRec.stop();
+  });
+
+  /* reproducir notas de voz */
+  chat.addEventListener("click", (e) => {
+    const play = (e.target as HTMLElement).closest(".wa-audio__play") as HTMLElement | null;
+    if (!play) return;
+    const cont = play.closest(".wa-audio") as HTMLElement;
+    const audio = new Audio(cont.dataset.url!);
+    play.textContent = "❚❚";
+    audio.play();
+    audio.onended = () => (play.textContent = "▶");
+  });
 </script>

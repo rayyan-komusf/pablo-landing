@@ -1,0 +1,73 @@
+<!-- ¿Cómo supiste de Pablo? (estilo Duolingo: mascota anotando + pills 2 col)
+     La imagen es placeholder PNG; se reemplaza por el GIF pablo-anotando
+     cuando esté generado. El CTA se habilita al elegir (initFuente). -->
+<section class="step !pb-0" data-step="step-fuente" aria-label="¿Cómo supiste de Pablo?" aria-hidden="true">
+  <div class="fuente-body flex-1 flex flex-col w-full mx-auto px-5 max-md:px-4 overflow-y-auto [scrollbar-width:none] [&::-webkit-scrollbar]:hidden vcenter">
+    <!-- Mascota + burbuja de pregunta -->
+    <div class="fuente-header">
+      <div class="fuente-pablo">
+        <picture>
+          <source srcset="/onboarding/images/pablo/pablo-anotando.webp" type="image/webp" />
+          <img
+            src="/onboarding/images/pablo/pablo-point.png"
+            alt=""
+            width="140"
+            height="140"
+            loading="lazy"
+          />
+        </picture>
+      </div>
+      <div class="speech-bubble speech-bubble--side">¿Cómo supiste de Pablo?</div>
+    </div>
+
+    <!-- Opciones (sin auto-avance: se confirma con Continuar) -->
+    <div class="fuente-grid" role="radiogroup" aria-label="Selecciona cómo conociste a Pablo">
+      <button class="option-card option-card--pill" role="radio" aria-checked="false"
+        onclick="pabloSelect(this, 'referralSource', 'google')">
+        <span class="option-icon">🔎</span>
+        <span class="option-label text-left">Búsqueda en Google</span>
+      </button>
+      <button class="option-card option-card--pill" role="radio" aria-checked="false"
+        onclick="pabloSelect(this, 'referralSource', 'amigos-familia')">
+        <span class="option-icon">👥</span>
+        <span class="option-label text-left">Amigos/familia</span>
+      </button>
+      <button class="option-card option-card--pill" role="radio" aria-checked="false"
+        onclick="pabloSelect(this, 'referralSource', 'tiktok')">
+        <span class="option-icon">🎵</span>
+        <span class="option-label text-left">TikTok</span>
+      </button>
+      <button class="option-card option-card--pill" role="radio" aria-checked="false"
+        onclick="pabloSelect(this, 'referralSource', 'youtube')">
+        <span class="option-icon">▶️</span>
+        <span class="option-label text-left">YouTube</span>
+      </button>
+      <button class="option-card option-card--pill" role="radio" aria-checked="false"
+        onclick="pabloSelect(this, 'referralSource', 'facebook-instagram')">
+        <span class="option-icon">📸</span>
+        <span class="option-label text-left">Facebook/Instagram</span>
+      </button>
+      <button class="option-card option-card--pill" role="radio" aria-checked="false"
+        onclick="pabloSelect(this, 'referralSource', 'whatsapp')">
+        <span class="option-icon">💬</span>
+        <span class="option-label text-left">WhatsApp</span>
+      </button>
+      <button class="option-card option-card--pill" role="radio" aria-checked="false"
+        onclick="pabloSelect(this, 'referralSource', 'noticias-blog')">
+        <span class="option-icon">📰</span>
+        <span class="option-label text-left">Noticias/artículos/blog</span>
+      </button>
+      <button class="option-card option-card--pill" role="radio" aria-checked="false"
+        onclick="pabloSelect(this, 'referralSource', 'otra')">
+        <span class="option-icon">✨</span>
+        <span class="option-label text-left">Otra</span>
+      </button>
+    </div>
+  </div>
+
+  <footer class="duo-footer cta-footer">
+    <button class="btn-primary btn-continue disabled" disabled onclick="pabloNext()" aria-label="Continuar">
+      Continuar
+    </button>
+  </footer>
+</section>
