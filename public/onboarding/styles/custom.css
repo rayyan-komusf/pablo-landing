@@ -1336,6 +1336,16 @@ body .topbar > div {
   color: #111;
 }
 
+/* Demo cerrado: botones del input apagados */
+.wa-input__btn--off {
+  opacity: 0.35;
+  pointer-events: none;
+}
+
+.wa-input__campo input:disabled {
+  color: #9b9b9b;
+}
+
 /* Overlay de grabación */
 .wa-grabando {
   position: absolute;
@@ -1411,6 +1421,53 @@ body .topbar > div {
   .iphone__pantalla {
     height: 540px;
   }
+}
+
+/* --- 4.11 Tarjetas y leyendas de las pantallas informativas ------------ */
+
+/* Tarjeta genérica estilo Duolingo (reemplaza las sombras clay) */
+.duo-card {
+  background: var(--color-white);
+  border: 2px solid #e5e5e5;
+  border-bottom-width: 4px;
+  border-radius: 20px;
+  box-shadow: none;
+}
+
+/* Leyenda del grid "No estás solo" */
+.nuevo1-zona {
+  max-width: 480px;
+  margin-inline: auto;
+  margin-top: 24px;
+}
+
+.nuevo1-leyenda {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  width: 100%;
+  max-width: 320px;
+}
+
+.nuevo1-leyenda__item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-family: var(--font-body, inherit);
+  font-size: 14px;
+  color: var(--color-navy);
+}
+
+.nuevo1-swatch {
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+
+/* En pills checkbox (step-13/16) el cuadrito de check SÍ se muestra */
+.option-card--pill.checkbox .option-radio {
+  display: flex;
 }
 
 /* --- 4.6 Respeto por accesibilidad: sin movimiento si el usuario lo pidió --- */

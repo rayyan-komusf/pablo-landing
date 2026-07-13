@@ -54,20 +54,20 @@ const STEP_FLAGS = {
   "step-6": { showTopbar: true, showSkip: true },
   "step-7": { showTopbar: true, showSkip: true },
   "step-8": { showTopbar: true, showSkip: true },
-  "step-nuevo-1": { showTopbar: false, showSkip: true },
+  "step-nuevo-1": { showTopbar: true, showSkip: true },
   "step-9": { showTopbar: true, showSkip: true },
-  "step-10": { showTopbar: false, showSkip: true },
+  "step-10": { showTopbar: true, showSkip: true },
   "step-11": { showTopbar: true, showSkip: true },
   "step-12": { showTopbar: true, showSkip: true },
   "step-13": { showTopbar: true, showSkip: true },
-  "step-nuevo-2": { showTopbar: false, showSkip: true },
-  "step-nuevo-3B": { showTopbar: false, showSkip: true },
+  "step-nuevo-2": { showTopbar: true, showSkip: true },
+  "step-nuevo-3B": { showTopbar: true, showSkip: true },
   "step-14": { showTopbar: true, showSkip: true },
   "step-15": { showTopbar: true, showSkip: true },
-  "step-nuevo-4": { showTopbar: false, showSkip: true },
-  "step-16": { showTopbar: false, showSkip: false },
-  "step-17": { showTopbar: false, showSkip: true },
-  "step-18": { showTopbar: false, showSkip: false },
+  "step-nuevo-4": { showTopbar: true, showSkip: true },
+  "step-16": { showTopbar: true, showSkip: false },
+  "step-17": { showTopbar: true, showSkip: true },
+  "step-18": { showTopbar: true, showSkip: false },
 };
 
 /** Progreso proporcional real: posición en el flujo lineal. */
@@ -543,8 +543,8 @@ class OnboardingEngine {
 
     const first = all.filter((v) => relevant.has(v));
     const rest = all.filter((v) => !relevant.has(v));
-    const stepMs = 500;
-    const pauseMs = 500;
+    const stepMs = 180;
+    const pauseMs = 220;
     first.forEach((v, i) => setTimeout(() => check(v), i * stepMs));
     const offset = first.length * stepMs + pauseMs;
     rest.forEach((v, i) => setTimeout(() => check(v), offset + i * stepMs));

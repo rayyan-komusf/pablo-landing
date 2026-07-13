@@ -1,27 +1,48 @@
-<!-- Animación "No estás solo": grid de puntos con el 68% / 16% -->
+<!-- Animación "No estás solo": 100 peruanos en puntos, con leyenda clara -->
 <section class="step !pb-0" data-step="step-nuevo-1" aria-label="No estás solo" aria-hidden="true">
-  <div class="flex-1 flex flex-col items-center justify-center px-6 pt-8 pb-8 max-md:pb-[32px] gap-6 max-md:px-5 max-md:pt-16">
-    <h2 class="font-display font-bold text-[26px] md:text-[30px] text-navy text-center tracking-[-0.02em] leading-[1.2]">
-      No estás solo 💛
-    </h2>
-    <div class="bg-white rounded-[24px] shadow-clay-card p-4 w-full max-w-[320px] max-[360px]:max-w-[260px]">
-      <div id="dotGrid" style="display: grid; grid-template-columns: repeat(10, 1fr); gap: 4px;"></div>
-    </div>
-    <div class="flex flex-col gap-2 w-full max-w-[320px]">
-      <p class="text-[14px] font-body text-navy leading-[1.5]">
-        El <strong>68%</strong> de peruanos se preocupan constantemente sobre el dinero.
-      </p>
-      <p class="text-[14px] font-body text-navy leading-[1.5]">
-        Solo el <strong>16%</strong> logra ahorrar algo a fin de mes.
-      </p>
-    </div>
-    <div class="w-full flex justify-center px-5 py-4 max-[360px]:py-3">
-      <button class="btn-primary btn-primary--compact" onclick="pabloNext()">
-        Siguiente
-        <span class="arrow" aria-hidden="true">→</span>
-      </button>
+  <div class="fuente-header">
+    <div class="fuente-header__inner">
+      <div class="fuente-pablo">
+        <img src="/onboarding/images/pablo/emotions/pablo-tierno.png" alt="" width="140" height="140" loading="lazy" />
+      </div>
+      <div class="speech-bubble speech-bubble--side">No estás solo 💛</div>
     </div>
   </div>
+
+  <div class="fuente-body flex-1 flex flex-col w-full mx-auto px-5 max-md:px-4 overflow-y-auto [scrollbar-width:none] [&::-webkit-scrollbar]:hidden vcenter">
+    <div class="nuevo1-zona flex flex-col items-center gap-5 w-full">
+      <p class="font-display font-bold text-[18px] text-navy text-center m-0">
+        De cada <span class="text-amber">100 peruanos</span>…
+      </p>
+      <div class="duo-card p-4 w-full max-w-[320px] max-[360px]:max-w-[260px]">
+        <div id="dotGrid" style="display: grid; grid-template-columns: repeat(10, 1fr); gap: 4px;"></div>
+      </div>
+      <!-- Leyenda: le da significado a cada color del grid -->
+      <div class="nuevo1-leyenda">
+        <div class="nuevo1-leyenda__item">
+          <span class="nuevo1-swatch" style="background:#F5A623"></span>
+          <span><strong>68</strong> viven preocupados por el dinero</span>
+        </div>
+        <div class="nuevo1-leyenda__item">
+          <span class="nuevo1-swatch" style="background:#1B2A6B"></span>
+          <span><strong>16</strong> logran ahorrar a fin de mes</span>
+        </div>
+        <div class="nuevo1-leyenda__item">
+          <span class="nuevo1-swatch" style="background:#9BA8D9"></span>
+          <span><strong>16</strong> van al día, sin ahorrar</span>
+        </div>
+      </div>
+      <p class="text-[14px] font-body text-navy-soft text-center m-0">
+        Pablo existe para pasarte al equipo de los que ahorran 💪
+      </p>
+    </div>
+  </div>
+
+  <footer class="duo-footer cta-footer">
+    <button class="btn-primary btn-continue" onclick="pabloNext()" aria-label="Continuar">
+      Continuar
+    </button>
+  </footer>
 </section>
 
 <script is:inline type="module">
@@ -51,24 +72,9 @@
     celdas.forEach((tipo) => {
       const c = paleta[tipo];
       const celda = document.createElement("div");
-      celda.style.cssText = `
-                background: ${c.bg};
-                border-radius: 6px;
-                aspect-ratio: 1;
-                display: flex;
-                align-items: center;
-                justify-content: center;
-                opacity: 0;
-                transform: scale(0.4);
-                transition: opacity 0.3s ease, transform 0.3s ease;
-            `;
+      celda.style.cssText = `background:${c.bg};border-radius:6px;aspect-ratio:1;display:flex;align-items:center;justify-content:center;opacity:0;transform:scale(0.4);transition:opacity 0.3s ease, transform 0.3s ease;`;
       const circulo = document.createElement("div");
-      circulo.style.cssText = `
-                width: 55%;
-                height: 55%;
-                border-radius: 50%;
-                background: ${c.circle};
-            `;
+      circulo.style.cssText = `width:55%;height:55%;border-radius:50%;background:${c.circle};`;
       celda.appendChild(circulo);
       grid.appendChild(celda);
     });
@@ -81,7 +87,7 @@
         setTimeout(() => {
           hijos[idx].style.opacity = "1";
           hijos[idx].style.transform = "scale(1)";
-        }, orden * 20);
+        }, orden * 14);
       });
   }
 

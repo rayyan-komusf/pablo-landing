@@ -1,21 +1,17 @@
-<!-- Rama con deuda: Pablo explica cómo ayuda con las deudas (card tarjeta de crédito) -->
-<section class="step" data-step="step-nuevo-2" aria-label="Deudas" aria-hidden="true">
-  <div class="flex-1 flex flex-col items-center justify-center pt-10 px-6 pb-8 max-md:pb-[120px] max-md:pt-12 max-md:px-3 max-[360px]:pt-7 max-[360px]:px-5 gap-0">
-    <!-- Pablo + burbuja -->
-    <div class="flex-none max-md:flex-none flex items-center justify-center relative w-full max-w-[480px] pt-6 pb-2">
-      <div
-        class="absolute top-[30%] right-0 md:-right-[40px] bg-white px-[18px] py-[10px] max-[360px]:px-[14px] max-[360px]:py-2 rounded-[var(--radius-md)] rounded-bl-[4px] shadow-clay-card font-display font-bold text-[13px] md:text-[15px] text-navy z-5 -translate-y-[65%] max-md:-translate-y-[90%] animate-[bubbleSlide_500ms_var(--ease-clay)_500ms_backwards] max-w-[200px]"
-        aria-live="polite"
-      >
-        ¡No hay problema! Te puedo ayudar a terminar de pagar todas esas deudas mientras sigues
-        creciendo tus ahorros. Amortizar tus deudas normalmente es mejor que solo ahorrar tu dinero.
+<!-- Rama con deuda: Pablo explica cómo ayuda (card tarjeta de crédito) -->
+<section class="step !pb-0" data-step="step-nuevo-2" aria-label="Deudas" aria-hidden="true">
+  <div class="fuente-header">
+    <div class="fuente-header__inner">
+      <div class="fuente-pablo">
+        <img src="/onboarding/images/pablo/emotions/pablo-tierno.png" alt="" width="140" height="140" loading="lazy" />
       </div>
-      <div class="w-[240px] h-[240px] md:w-[220px] md:h-[220px] max-[360px]:w-[200px] max-[360px]:h-[200px] mt-16 pablo-hero">
-        <img src="/onboarding/images/pablo/pablo-wave.png" alt="Pablo" width="240" height="240" loading="lazy" />
-      </div>
+      <div class="speech-bubble speech-bubble--side">¡No hay problema! Te ayudo a pagar tus deudas mientras tus ahorros siguen creciendo 💪</div>
     </div>
+  </div>
+
+  <div class="fuente-body flex-1 flex flex-col items-center w-full mx-auto px-5 max-md:px-4 overflow-y-auto [scrollbar-width:none] [&::-webkit-scrollbar]:hidden vcenter">
     <!-- Card de deudas -->
-    <div class="bg-white rounded-[20px] shadow-clay-card p-5 w-full max-w-[340px] flex flex-col gap-4">
+    <div class="bg-white rounded-[20px] duo-card p-5 w-full max-w-[340px] flex flex-col gap-4">
       <div class="flex items-center gap-3">
         <div class="w-10 h-10 rounded-full bg-[#EEF0FA] flex items-center justify-center shrink-0">
           <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#1B2A6B" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
@@ -60,11 +56,11 @@
         </div>
       </div>
     </div>
-    <!-- CTA -->
-    <div class="flex flex-col items-center gap-[14px] w-full mt-6 max-md:mt-4">
-      <button class="btn-primary btn-primary--compact" onclick="pabloNext()">
-        Siguiente <span class="arrow" aria-hidden="true">→</span>
-      </button>
-    </div>
   </div>
+
+  <footer class="duo-footer cta-footer">
+    <button class="btn-primary btn-continue" onclick="pabloNext()" aria-label="Continuar">
+      Continuar
+    </button>
+  </footer>
 </section>

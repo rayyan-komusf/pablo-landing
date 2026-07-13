@@ -40,13 +40,6 @@
           <div class="wa-dia"><span>Hoy</span></div>
         </div>
 
-        <!-- Sugerencias rápidas -->
-        <div class="wa-chips" id="waChips">
-          <button class="wa-chip" data-gasto="Almuerzo de menú S/ 15">🍛 Almuerzo S/ 15</button>
-          <button class="wa-chip" data-gasto="Taxi al trabajo S/ 12">🚕 Taxi S/ 12</button>
-          <button class="wa-chip" data-gasto="Entrada al cine S/ 28">🍿 Cine S/ 28</button>
-        </div>
-
         <!-- Barra de input estilo WhatsApp iOS -->
         <div class="wa-input" id="waInputBar">
           <button class="wa-input__btn" id="waFotoBtn" aria-label="Enviar una foto de tu compra" title="Enviar foto">
@@ -96,13 +89,38 @@
   const micBtn = $("waMicBtn");
   const fotoBtn = $("waFotoBtn");
   const fotoInput = $("waFotoInput") as HTMLInputElement;
-  const chips = $("waChips");
   const grabandoUI = $("waGrabando");
   const grabTiempo = $("waGrabTiempo");
   const estadoHeader = $("waEstado");
 
   let analizando = false;
   let saludado = false;
+
+  // Límite del demo: 5 mensajes y luego se invita a continuar
+  const MAX_MENSAJES = 5;
+  let mensajesEnviados = 0;
+  let demoCerrado = false;
+
+  function cerrarDemo() {
+    demoCerrado = true;
+    inputTexto.disabled = true;
+    inputTexto.placeholder = "Demo terminado 🙌";
+    (micBtn as HTMLButtonElement).disabled = true;
+    (fotoBtn as HTMLButtonElement).disabled = true;
+    micBtn.classList.add("wa-input__btn--off");
+    fotoBtn.classList.add("wa-input__btn--off");
+    setTimeout(() => {
+      burbuja(
+        "¡Me encantó registrar tus gastos! 🙌 Esto es solo una probadita — sigamos con tu plan. Dale a <b>Continuar</b> 👇",
+        "in"
+      );
+    }, 900);
+  }
+
+  function registrarEnvio() {
+    mensajesEnviados++;
+    if (mensajesEnviados >= MAX_MENSAJES) cerrarDemo();
+  }
 
   /* ── util ── */
   const hora = () => {
@@ -252,9 +270,9 @@
 
   /* ── enviar texto ── */
   function enviarTexto(texto: string) {
-    if (!texto.trim() || analizando) return;
+    if (!texto.trim() || analizando || demoCerrado) return;
     burbuja(texto, "out");
-    chips.style.display = "none";
+    registrarEnvio();
     analizar({ tipo: "texto", texto: texto.trim() });
   }
 
@@ -266,11 +284,6 @@
     }
   });
 
-  chips.addEventListener("click", (e) => {
-    const chip = (e.target as HTMLElement).closest(".wa-chip") as HTMLElement | null;
-    if (chip) enviarTexto(chip.dataset.gasto!);
-  });
-
   /* mic ↔ enviar según haya texto (como WhatsApp) */
   function actualizarMic() {
     const hayTexto = inputTexto.value.trim().length > 0;
@@ -280,11 +293,13 @@
   inputTexto.addEventListener("input", actualizarMic);
 
   /* ── foto ── */
-  fotoBtn.addEventListener("click", () => fotoInput.click());
+  fotoBtn.addEventListener("click", () => {
+    if (!demoCerrado) fotoInput.click();
+  });
   fotoInput.addEventListener("change", async () => {
     const file = fotoInput.files?.[0];
     fotoInput.value = "";
-    if (!file || analizando) return;
+    if (!file || analizando || demoCerrado) return;
     // reescalar a máx 1024px por lado (controla peso y costo)
     const dataUrl: string = await new Promise((resolve) => {
       const img = new Image();
@@ -299,7 +314,7 @@
       img.src = URL.createObjectURL(file);
     });
     burbuja(`<img class="wa-msg__foto" src="${dataUrl}" alt="Foto de tu compra" />`, "out");
-    chips.style.display = "none";
+    registrarEnvio();
     analizar({ tipo: "imagen", datosBase64: dataUrl.split(",")[1], mime: "image/jpeg" });
   });
 
@@ -332,7 +347,7 @@
           `<span class="wa-audio" data-url="${url}"><button class="wa-audio__play" aria-label="Reproducir audio">▶</button><span class="wa-audio__onda"><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i></span><span class="wa-audio__dur">0:${String(segundos).padStart(2, "0")}</span></span>`,
           "out"
         );
-        chips.style.display = "none";
+        registrarEnvio();
         const base64: string = await new Promise((resolve) => {
           const fr = new FileReader();
           fr.onload = () => resolve((fr.result as string).split(",")[1]);
@@ -354,6 +369,7 @@
   }
 
   micBtn.addEventListener("click", () => {
+    if (demoCerrado) return;
     if (inputTexto.value.trim()) {
       enviarTexto(inputTexto.value);
       inputTexto.value = "";
