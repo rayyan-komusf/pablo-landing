@@ -1388,14 +1388,17 @@ body .topbar > div {
 }
 .wa-grabando__enviar svg { width: 1.286em; height: 1.286em; }
 
-/* Mobile: reducir font-size del iPhone escala todo el interior a la vez.
- * A 320px de ancho, font-size = 320 * 0.0412 = 13.2 (base es 14 a 340). */
+/* Mobile: el ancho se deriva del alto disponible (svh menos topbar,
+ * título, footer sticky y padding) para que el iPhone siempre quepa
+ * completo sin invadir el CONTINUAR. Cap por vw en pantallas anchas
+ * y por px en pantallas grandes. Font-size proporcional al ancho
+ * escala todo el interior uniformemente. */
 @media (max-width: 560px) {
   .demo-title {
     font-size: 20px;
   }
   .iphone {
-    --w: min(90vw, 320px);
+    --w: clamp(200px, min(66vw, calc((100svh - 320px) / 1.85)), 300px);
     font-size: calc(var(--w) * 0.0412);
   }
 }
