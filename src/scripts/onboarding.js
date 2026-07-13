@@ -93,6 +93,16 @@ function track(event, props = {}) {
   }
 }
 
+// Meta Pixel: el onboarding es una SPA (un solo PageView al entrar), así que
+// el avance por step se envía como evento personalizado para poder medirlo en Meta.
+function fbqTrack(event, props = {}) {
+  try {
+    window.fbq?.("trackCustom", event, props);
+  } catch (e) {
+    console.warn("[Pablo] No se pudo enviar evento a Meta Pixel:", e);
+  }
+}
+
 class OnboardingEngine {
   currentStepId = STEP_ORDER[0];
   history = [];
@@ -241,6 +251,12 @@ class OnboardingEngine {
       progress_percent: progressFor(stepId),
     });
 
+    fbqTrack("OnboardingStep", {
+      step_id: stepId,
+      step_index: STEP_ORDER.indexOf(stepId),
+      progress_percent: progressFor(stepId),
+    });
+
     if (stepId === "step-18" && !sessionStorage.getItem("pablo_paywall_seen")) {
       sessionStorage.setItem("pablo_paywall_seen", "1");
       track("onboarding_completed", {
@@ -253,6 +269,7 @@ class OnboardingEngine {
         cash_flow: this.answers.cashFlow,
         money_clarity: this.answers.moneyClarity,
       });
+      fbqTrack("OnboardingCompleted", { main_goal: this.answers.mainGoal });
     }
 
     this.saveState();
