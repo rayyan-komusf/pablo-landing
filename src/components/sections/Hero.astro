@@ -26,13 +26,13 @@ import { CTA, IS_LIVE, APP_URL } from "../../siteConfig";
               href={CTA.href!}
               class="btn-primary hero__cta"
               id="hero-cta-btn"
-              onclick="if(typeof fbq!=='undefined')fbq('trackCustom','Ver_Planes');if(typeof ttq!=='undefined')ttq.track('ClickButton',{content_name:'Ver_Planes'});"
+              onclick="try{window.posthog?.capture('landing_cta_clicked',{cta:'hero_desbloquea',location:'hero'})}catch(e){};if(typeof fbq!=='undefined')fbq('trackCustom','Ver_Planes');if(typeof ttq!=='undefined')ttq.track('ClickButton',{content_name:'Ver_Planes'});"
             >
               {CTA.label}
             </a>
           ) : (
             <button
-              onclick="window.openWaitlistModal();"
+              onclick="try{window.posthog?.capture('landing_cta_clicked',{cta:'hero_waitlist',location:'hero'})}catch(e){};window.openWaitlistModal();"
               class="btn-primary hero__cta"
               id="hero-cta-btn"
             >
@@ -40,7 +40,11 @@ import { CTA, IS_LIVE, APP_URL } from "../../siteConfig";
             </button>
           )
         }
-        <a href={APP_URL} class="btn-secondary hero__cta">Ya tengo una cuenta</a>
+        <a
+          href={APP_URL}
+          class="btn-secondary hero__cta"
+          onclick="try{window.posthog?.capture('landing_cta_clicked',{cta:'ya_tengo_cuenta',location:'hero'})}catch(e){}"
+        >Ya tengo una cuenta</a>
       </div>
     </div>
   </div>
