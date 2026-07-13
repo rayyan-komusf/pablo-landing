@@ -250,9 +250,9 @@
   }
 }
 
-/* --- 4.4 Barra de progreso con vida: más gruesa + brillo que recorre --- */
+/* --- 4.4 Barra de progreso con vida: gruesa como Duolingo + brillo --- */
 .progress-track {
-  height: 10px;
+  height: 14px;
 }
 
 .progress-fill {

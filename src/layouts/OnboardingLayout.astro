@@ -44,44 +44,16 @@ const base = "/onboarding";
   <body>
     <div class="app-shell" id="appShell">
       <header class="topbar hidden" id="topbar" role="banner">
-        <!-- Fila superior: X + Saltar -->
-        <div class="w-full max-w-[560px] mx-auto flex items-center justify-between mt-6 px-2">
-          <button
-            class="btn-exit"
-            onclick="pabloExitDirect()"
-            aria-label="Salir del onboarding"
-            title="Salir"
-          >
-            ✕
-          </button>
-          <button
-            class="btn-topbar-skip"
-            id="topbarSkip"
-            onclick="pabloSkip()"
-            aria-label="Saltar este paso"
-          >
-            Saltar
-          </button>
-        </div>
-        <!-- Fila inferior: ← + Pablo avatar + barra progreso -->
-        <div class="w-full max-w-[560px] mx-auto flex items-center gap-2 px-1">
+        <!-- Una sola fila estilo Duolingo: ← (atrás/salir) + barra de progreso -->
+        <div class="w-full max-w-[560px] mx-auto flex items-center gap-2 px-1 mt-4">
           <button
             class="btn-back"
             onclick="pabloPrev()"
-            aria-label="Volver al paso anterior"
+            aria-label="Volver al paso anterior o salir"
             title="Atrás"
           >
             ←
           </button>
-          <div class="topbar__pablo" aria-hidden="true">
-            <img
-              src={`${base}/images/pablo/pablo-logo.png`}
-              alt="Pablo"
-              width="34"
-              height="34"
-              loading="eager"
-            />
-          </div>
           <div
             class="progress-track"
             role="progressbar"
@@ -92,6 +64,14 @@ const base = "/onboarding";
           >
             <div class="progress-fill" id="progressFill"></div>
           </div>
+          <button
+            class="btn-topbar-skip"
+            id="topbarSkip"
+            onclick="pabloSkip()"
+            aria-label="Saltar este paso"
+          >
+            Saltar
+          </button>
         </div>
       </header>
 

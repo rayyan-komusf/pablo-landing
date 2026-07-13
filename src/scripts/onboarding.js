@@ -178,6 +178,9 @@ class OnboardingEngine {
     if (prevId) {
       track("onboarding_back", { from_step_id: this.currentStepId, to_step_id: prevId });
       this.goTo(prevId);
+    } else {
+      // Sin historial: la flecha funciona como salida (patrón Duolingo, sin X)
+      this.exitDirect();
     }
   }
 
@@ -376,7 +379,8 @@ class OnboardingEngine {
     if (!this.topbar) return;
     this.topbar.classList.toggle("hidden", !flags.showTopbar);
     if (this.skipBtn) {
-      this.skipBtn.style.visibility = flags.showSkip ? "visible" : "hidden";
+      // display (no visibility): oculto no ocupa espacio y la barra llega al borde
+      this.skipBtn.style.display = flags.showSkip ? "" : "none";
     }
   }
 
