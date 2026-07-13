@@ -44,17 +44,21 @@
 
 <style is:global>
   /* Todo prefijado con .hphone: no toca nada fuera del componente. */
+  /* Todo con font-size base 14px + medidas en em, así el Hero puede
+   * cambiar font-size y el iPhone se escala uniformemente (isla, status,
+   * mensajes, input — todo mantiene proporciones perfectas). */
   .hphone {
     --w: 340px;
+    font-size: 14px; /* base: cambia en mobile desde el Hero */
     position: relative;
     width: var(--w);
     max-width: 88vw;
-    border-radius: 54px;
-    padding: 10px;
+    border-radius: 3.857em;
+    padding: 0.714em;
     background: linear-gradient(145deg, #3a3a3c, #1c1c1e 40%, #48484a);
     box-shadow:
-      0 30px 60px -18px rgba(43, 44, 100, 0.4),
-      inset 0 0 2px 2px rgba(255, 255, 255, 0.08);
+      0 2.14em 4.28em -1.28em rgba(43, 44, 100, 0.4),
+      inset 0 0 0.14em 0.14em rgba(255, 255, 255, 0.08);
     flex-shrink: 0;
   }
 
@@ -63,27 +67,27 @@
     content: "";
     position: absolute;
     background: #2c2c2e;
-    border-radius: 3px;
+    border-radius: 0.214em;
   }
-  .hphone::before { left: -2.5px; top: 130px; width: 3px; height: 58px; }
-  .hphone::after { right: -2.5px; top: 150px; width: 3px; height: 84px; }
+  .hphone::before { left: -0.178em; top: 9.28em; width: 0.214em; height: 4.14em; }
+  .hphone::after { right: -0.178em; top: 10.71em; width: 0.214em; height: 6em; }
 
   .hphone__isla {
     position: absolute;
-    top: 15px; /* centro en y=28, igual que la fila de estado (14..42) */
+    top: 1.07em; /* centro alineado con la fila de estado */
     left: 50%;
     transform: translateX(-50%);
-    width: 96px;
-    height: 26px;
+    width: 6.857em;
+    height: 1.857em;
     background: #000;
-    border-radius: 20px;
+    border-radius: 1.428em;
     z-index: 12;
   }
 
   .hphone__pantalla {
     position: relative;
-    height: 660px; /* ratio pantalla ~1.94 sobre 340, delgado iPhone real */
-    border-radius: 44px;
+    height: 47.14em; /* ratio pantalla ~1.94, iPhone real */
+    border-radius: 3.14em;
     overflow: hidden;
     background: #efe7dd;
     display: flex;
@@ -92,12 +96,12 @@
 
   .hphone__homebar {
     position: absolute;
-    bottom: 6px;
+    bottom: 0.428em;
     left: 50%;
     transform: translateX(-50%);
-    width: 110px;
-    height: 4px;
-    border-radius: 4px;
+    width: 7.857em;
+    height: 0.285em;
+    border-radius: 0.285em;
     background: rgba(0, 0, 0, 0.35);
     z-index: 12;
     pointer-events: none;
@@ -107,74 +111,80 @@
     display: flex;
     justify-content: space-between;
     align-items: center;
-    height: 42px; /* fila fija: hora e iconos centrados a la altura de la isla */
-    padding: 14px 26px 0 30px;
+    height: 3em; /* alineada con la isla */
+    padding: 1em 1.857em 0 2.14em;
     background: #f6f6f6;
     color: #000;
     font-family: -apple-system, "SF Pro Text", sans-serif;
-    font-size: 14px;
+    font-size: 1em;
     font-weight: 700;
     flex-shrink: 0;
   }
+  /* Los SVGs de la barra de estado usan width/height propios en px; los
+   * escalamos con em usando font-size en el contenedor */
+  .hphone__status svg { width: auto; height: 0.786em; }
+  .hphone__status svg:first-child { height: 0.786em; }
 
-  .hphone__iconos { display: inline-flex; align-items: center; gap: 5px; }
+  .hphone__iconos { display: inline-flex; align-items: center; gap: 0.357em; }
 
   .hphone__waheader {
     display: flex;
     align-items: center;
-    gap: 8px;
-    padding: 6px 12px 8px;
+    gap: 0.571em;
+    padding: 0.428em 0.857em 0.571em;
     background: #f6f6f6;
     border-bottom: 1px solid rgba(0, 0, 0, 0.12);
     color: #007aff;
   }
+  .hphone__waheader svg { height: 1em; width: auto; }
+  .hphone__waheader svg:first-child { height: 1.28em; }
 
   .hphone__waheader img {
-    width: 34px;
-    height: 34px;
+    width: 2.428em;
+    height: 2.428em;
     border-radius: 50%;
     object-fit: cover;
     background: #fff;
   }
 
   .hphone__wainfo { flex: 1; display: flex; flex-direction: column; line-height: 1.15; }
-  .hphone__wanombre { font-weight: 700; font-size: 15px; color: #000; }
-  .hphone__waestado { font-size: 11.5px; color: #8e8e93; }
-  .hphone__waheader svg:last-child { margin-left: 6px; }
+  .hphone__wanombre { font-weight: 700; font-size: 1.07em; color: #000; }
+  .hphone__waestado { font-size: 0.821em; color: #8e8e93; }
+  .hphone__waheader svg:last-child { margin-left: 0.428em; }
 
   .hphone__chat {
     flex: 1;
     overflow-y: auto;
     scrollbar-width: none;
-    padding: 10px 12px 8px;
+    padding: 0.714em 0.857em 0.571em;
     display: flex;
     flex-direction: column;
-    gap: 6px;
+    gap: 0.428em;
     background:
       radial-gradient(circle at 20% 30%, rgba(255, 255, 255, 0.25) 0.8px, transparent 1px),
       radial-gradient(circle at 70% 60%, rgba(255, 255, 255, 0.25) 0.8px, transparent 1px),
       #efe7dd;
-    background-size: 46px 46px, 38px 38px, auto;
+    background-size: 3.285em 3.285em, 2.71em 2.71em, auto;
     overscroll-behavior: contain;
   }
   .hphone__chat::-webkit-scrollbar { display: none; }
 
-  .hphone__dia { align-self: center; margin-block: 4px; }
+  .hphone__dia { align-self: center; margin-block: 0.286em; }
   .hphone__dia span {
     background: #dcd3c8;
     color: #5b5b5b;
-    font-size: 11px;
+    font-size: 0.786em;
     font-weight: 600;
-    padding: 4px 10px;
-    border-radius: 8px;
+    padding: 0.286em 0.714em;
+    border-radius: 0.571em;
   }
 
   .hphone .hmsg {
     position: relative;
     max-width: 84%;
-    padding: 7px 10px 5px;
-    border-radius: 10px;
-    font-size: 13.5px;
+    padding: 0.5em 0.714em 0.357em;
+    border-radius: 0.714em;
+    font-size: 0.964em;
     line-height: 1.4;
     color: #111;
     box-shadow: 0 1px 0.5px rgba(0, 0, 0, 0.12);
@@ -187,27 +197,28 @@
     to { opacity: 1; transform: translateY(0) scale(1); }
   }
 
-  .hphone .hmsg--in { align-self: flex-start; background: #fff; border-top-left-radius: 2px; }
-  .hphone .hmsg--out { align-self: flex-end; background: #d9fdd3; border-top-right-radius: 2px; }
+  .hphone .hmsg--in { align-self: flex-start; background: #fff; border-top-left-radius: 0.143em; }
+  .hphone .hmsg--out { align-self: flex-end; background: #d9fdd3; border-top-right-radius: 0.143em; }
 
   .hphone .hmsg__meta {
     display: inline-flex;
     align-items: center;
-    gap: 2px;
-    font-size: 10px;
+    gap: 0.143em;
+    font-size: 0.714em;
     color: #8a8a8a;
     float: right;
-    margin: 8px 0 0 8px;
+    margin: 0.571em 0 0 0.571em;
   }
+  .hphone .hmsg__meta svg { width: 1.07em; height: 0.643em; }
 
   .hphone .htyping {
     display: inline-flex;
-    gap: 4px;
-    padding: 12px 14px;
+    gap: 0.286em;
+    padding: 0.857em 1em;
   }
   .hphone .htyping span {
-    width: 7px;
-    height: 7px;
+    width: 0.5em;
+    height: 0.5em;
     border-radius: 50%;
     background: #b5b5b5;
     animation: htypingDot 1.2s ease-in-out infinite;
@@ -224,79 +235,76 @@
   .hphone .haudio {
     display: inline-flex;
     align-items: center;
-    gap: 8px;
-    min-width: 165px;
-    padding: 2px 0;
+    gap: 0.571em;
+    min-width: 11.78em;
+    padding: 0.143em 0;
   }
   .hphone .haudio__play {
-    width: 28px;
-    height: 28px;
+    width: 2em;
+    height: 2em;
     border-radius: 50%;
     background: #34b7f1;
     color: #fff;
-    font-size: 11px;
+    font-size: 0.786em;
     flex-shrink: 0;
     display: inline-flex;
     align-items: center;
     justify-content: center;
   }
-  .hphone .haudio__onda { display: inline-flex; align-items: center; gap: 2px; flex: 1; }
-  .hphone .haudio__onda i { width: 3px; border-radius: 2px; background: #8fbc8f; }
-  .hphone .haudio__onda i:nth-child(odd) { height: 13px; }
-  .hphone .haudio__onda i:nth-child(even) { height: 7px; }
-  .hphone .haudio__onda i:nth-child(3n) { height: 17px; }
-  .hphone .haudio__dur { font-size: 11px; color: #8a8a8a; }
+  .hphone .haudio__onda { display: inline-flex; align-items: center; gap: 0.143em; flex: 1; }
+  .hphone .haudio__onda i { width: 0.214em; border-radius: 0.143em; background: #8fbc8f; }
+  .hphone .haudio__onda i:nth-child(odd) { height: 0.928em; }
+  .hphone .haudio__onda i:nth-child(even) { height: 0.5em; }
+  .hphone .haudio__onda i:nth-child(3n) { height: 1.214em; }
+  .hphone .haudio__dur { font-size: 0.786em; color: #8a8a8a; }
 
   /* Recibo Yape mock */
   .hphone .hrecibo {
-    width: 168px;
-    border-radius: 8px;
+    width: 12em;
+    border-radius: 0.571em;
     overflow: hidden;
     background: #722f8e;
     color: #fff;
     font-family: inherit;
-    margin-bottom: 2px;
+    margin-bottom: 0.143em;
   }
   .hphone .hrecibo__top {
-    padding: 10px 12px 6px;
+    padding: 0.714em 0.857em 0.428em;
     font-weight: 800;
-    font-size: 13px;
+    font-size: 0.928em;
     letter-spacing: 0.02em;
   }
   .hphone .hrecibo__body {
     background: #fff;
     color: #222;
-    margin: 0 8px 8px;
-    border-radius: 6px;
-    padding: 8px 10px;
+    margin: 0 0.571em 0.571em;
+    border-radius: 0.428em;
+    padding: 0.571em 0.714em;
     display: flex;
     flex-direction: column;
-    gap: 2px;
+    gap: 0.143em;
   }
-  .hphone .hrecibo__monto { font-size: 16px; font-weight: 800; color: #111; }
-  .hphone .hrecibo__dest { font-size: 11px; color: #555; }
+  .hphone .hrecibo__monto { font-size: 1.14em; font-weight: 800; color: #111; }
+  .hphone .hrecibo__dest { font-size: 0.786em; color: #555; }
 
   .hphone__input {
     display: flex;
     align-items: center;
-    gap: 6px;
-    padding: 8px 10px 22px;
+    gap: 0.428em;
+    padding: 0.571em 0.714em 1.57em;
     background: #f6f6f6;
   }
+  .hphone__input svg { width: 1.57em; height: 1.57em; }
   .hphone__campo {
     flex: 1;
     background: #fff;
     border: 1px solid rgba(0, 0, 0, 0.12);
     border-radius: 999px;
-    padding: 8px 14px;
-    font-size: 13.5px;
+    padding: 0.571em 1em;
+    font-size: 0.964em;
     color: #9b9b9b;
   }
 
-  /* Nota: no se necesitan overrides internos en mobile. El teléfono se
-   * dibuja a tamaño base (340×680) y todo el bloque se escala con
-   * transform: scale() desde el Hero, así isla, status, header, mensajes
-   * e input mantienen sus proporciones perfectas. */
   @media (max-width: 768px) {
     .hphone::before, .hphone::after { display: none; }
   }
