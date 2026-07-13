@@ -147,27 +147,37 @@ import { CTA, IS_LIVE, APP_URL } from "../../siteConfig";
     box-shadow: 0 1px 0 0 #e5e5e5;
   }
 
-  /* ── Responsive: mobile apilado, todo dentro del viewport ── */
+  /* ── Responsive: mobile apilado, todo dentro del viewport.
+   * Como Duolingo: el teléfono llena el espacio disponible y los CTAs
+   * quedan anclados en la parte de abajo. ── */
   @media (max-width: 768px) {
     .hero {
       height: calc(100dvh - 72px);
-      min-height: 620px;
-      align-items: flex-start;
-      padding-top: 12px;
+      min-height: 560px;
+      align-items: stretch;
+      padding-block: 4px 14px;
     }
 
     .hero__inner {
-      grid-template-columns: 1fr;
-      gap: 20px;
-      justify-items: center;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      align-items: center;
+      height: 100%;
     }
 
     .hero__phone-area {
       order: 1;
+      flex: 1;
+      min-height: 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
     }
 
     .hero__content {
       order: 2;
+      flex: none;
       align-items: center;
       text-align: center;
       gap: 18px;
@@ -191,10 +201,10 @@ import { CTA, IS_LIVE, APP_URL } from "../../siteConfig";
     /* El teléfono se dimensiona por viewport: NUNCA desborda el hero.
      * Pantalla ≈ 44% del alto visible; el ancho acompaña en proporción. */
     .hero :global(.hphone) {
-      --w: clamp(225px, 27dvh, 300px);
+      --w: clamp(235px, 31dvh, 330px);
     }
     .hero :global(.hphone__pantalla) {
-      height: clamp(345px, 44dvh, 520px);
+      height: clamp(355px, 54dvh, 580px);
       border-radius: 36px;
     }
     .hero :global(.hphone) {

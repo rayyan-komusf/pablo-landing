@@ -70,7 +70,7 @@
 
   .hphone__isla {
     position: absolute;
-    top: 11px; /* centro en y=24, igual que la fila de estado (10..38) */
+    top: 15px; /* centro en y=28, igual que la fila de estado (14..42) */
     left: 50%;
     transform: translateX(-50%);
     width: 96px;
@@ -107,8 +107,8 @@
     display: flex;
     justify-content: space-between;
     align-items: center;
-    height: 38px; /* fila fija: hora e iconos centrados a la altura de la isla */
-    padding: 10px 26px 0 30px;
+    height: 42px; /* fila fija: hora e iconos centrados a la altura de la isla */
+    padding: 14px 26px 0 30px;
     background: #f6f6f6;
     color: #000;
     font-family: -apple-system, "SF Pro Text", sans-serif;
@@ -300,10 +300,10 @@
 
     /* Interior a escala: isla más chica y barra de estado compacta para
      * que el 9:41 y los iconos no choquen con la isla */
-    .hphone__isla { width: 72px; height: 20px; top: 9px; }
+    .hphone__isla { width: 72px; height: 20px; top: 15px; }
     .hphone__status {
-      height: 32px;
-      padding: 8px 16px 0 20px;
+      height: 38px; /* centro y=25, igual que la isla (15..35) */
+      padding: 12px 16px 0 20px;
       font-size: 11px;
     }
     .hphone__status svg { transform: scale(0.85); }
