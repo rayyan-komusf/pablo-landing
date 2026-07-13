@@ -734,7 +734,7 @@ body.fondo-blanco {
 .fuente-body {
   max-width: 1024px;
   gap: 0; /* espaciado manual: header → gap grande → grid */
-  padding-top: 8px;
+  padding-top: 0; /* nada de franja sobre el header sticky */
   padding-bottom: 24px; /* el footer sticky va en flujo, tras el contenido */
   min-height: 0;
 }
@@ -751,8 +751,8 @@ body.fondo-blanco .topbar > div {
 }
 
 /* Header sticky (patrón Duolingo): la mascota + burbuja quedan fijas
- * arriba mientras las opciones scrollean por debajo. Fondo sólido para
- * que las tarjetas desaparezcan al pasar detrás. */
+ * arriba mientras las opciones scrollean por debajo. Fondo sólido y
+ * línea inferior que marca el límite, como Duolingo. */
 .fuente-header {
   display: flex;
   align-items: center;
@@ -762,7 +762,20 @@ body.fondo-blanco .topbar > div {
   z-index: 5;
   background: var(--color-white);
   padding-top: 16px;
-  padding-bottom: 12px;
+  padding-bottom: 14px;
+  border-bottom: 2px solid #e5e5e5;
+}
+
+/* Tapa superior: cubre la rendija de redondeo entre el header sticky y el
+ * borde del scrollport para que nada se asome por encima */
+.fuente-header::before {
+  content: "";
+  position: absolute;
+  top: -8px;
+  left: 0;
+  right: 0;
+  height: 8px;
+  background: var(--color-white);
 }
 
 .fuente-pablo img {
