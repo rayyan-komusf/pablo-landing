@@ -6,8 +6,15 @@
 <section class="step !pb-0" data-step="step-4" aria-label="Demo: registra tu primer gasto" aria-hidden="true">
   <div class="demo-body flex-1 flex flex-col items-center w-full mx-auto px-5 max-md:px-3 overflow-y-auto [scrollbar-width:none] [&::-webkit-scrollbar]:hidden vcenter">
     <h2 class="demo-title font-display font-bold text-navy text-center">
-      Pruébame: <span class="text-amber">regístrame un gasto</span> 👇
+      Pruébame: <span class="text-amber">regístrame un gasto</span>
     </h2>
+
+    <!-- Chips: qué maneras puede usar el visitante (guía visual) -->
+    <div class="demo-tips" aria-hidden="true">
+      <span class="demo-tip">✏️ Escribe</span>
+      <span class="demo-tip">📸 Foto</span>
+      <span class="demo-tip">🎙️ Audio</span>
+    </div>
 
     <!-- ══════════ iPhone ══════════ -->
     <div class="iphone" role="group" aria-label="Demo de chat de WhatsApp con Pablo">
@@ -47,7 +54,7 @@
           </button>
           <div class="wa-input__campo">
             <input id="waTexto" type="text" inputmode="text" autocomplete="off" maxlength="200"
-              placeholder="Escribe tu gasto…" aria-label="Escribe tu gasto" />
+              placeholder="Ej: almuerzo 15 soles" aria-label="Escribe tu gasto" />
           </div>
           <button class="wa-input__btn wa-input__btn--mic" id="waMicBtn" aria-label="Grabar un audio contando tu gasto" title="Grabar audio">
             <svg class="icono-mic" width="20" height="22" viewBox="0 0 20 24" fill="currentColor"><rect x="6.5" y="1" width="7" height="13" rx="3.5"/><path d="M3 11a7 7 0 0 0 14 0h-1.8a5.2 5.2 0 0 1-10.4 0H3z"/><rect x="9.1" y="18" width="1.8" height="4" rx="0.9"/><rect x="6" y="22" width="8" height="1.8" rx="0.9"/></svg>
@@ -95,6 +102,22 @@
 
   let analizando = false;
   let saludado = false;
+
+  // Placeholder rotativo del input: sugerencias que rotan cada 2.4s
+  // hasta que el user escribe/registra su primer gasto.
+  const EJEMPLOS = [
+    "Ej: almuerzo 15 soles",
+    "Ej: taxi 12 soles",
+    "Ej: cine 28 soles",
+    "Ej: recarga 20",
+    "Ej: café con Vale 8",
+  ];
+  let ejIdx = 0;
+  const rotarPlaceholder = setInterval(() => {
+    if (demoCerrado || mensajesEnviados > 0 || inputTexto.value) return;
+    ejIdx = (ejIdx + 1) % EJEMPLOS.length;
+    inputTexto.placeholder = EJEMPLOS[ejIdx];
+  }, 2400);
 
   // Límite del demo: 5 mensajes y luego se invita a continuar
   const MAX_MENSAJES = 5;

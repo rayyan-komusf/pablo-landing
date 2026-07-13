@@ -956,6 +956,48 @@ body .topbar > div {
   letter-spacing: -0.01em;
 }
 
+/* Chips arriba del iPhone: dejan clarísimo que puede usar 3 formas */
+.demo-tips {
+  display: flex;
+  gap: 8px;
+  margin-top: 6px;
+  flex-wrap: wrap;
+  justify-content: center;
+}
+
+.demo-tip {
+  background: var(--color-lila-light);
+  border: 1.5px solid var(--color-lila-deep);
+  border-radius: 999px;
+  padding: 6px 12px;
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--color-navy);
+  font-family: var(--font-display);
+}
+
+@media (max-width: 560px) {
+  .demo-tip {
+    font-size: 12px;
+    padding: 5px 10px;
+  }
+}
+
+/* Pulse suave en los botones foto/mic para atraer la atención mientras
+ * el user aún no ha registrado nada (se apaga al primer envío) */
+@keyframes waBtnPulse {
+  0%, 100% { transform: scale(1); }
+  50% { transform: scale(1.12); }
+}
+
+.wa-input__btn:not(.wa-input__btn--off) {
+  animation: waBtnPulse 2.2s ease-in-out infinite;
+}
+
+.wa-input__btn:not(.wa-input__btn--off):nth-of-type(2) {
+  animation-delay: 1.1s;
+}
+
 /* ── Marco del iPhone (titanio + isla dinámica + barra home) ─────────
  * Todo con font-size + em para escalar uniformemente al reducir --w
  * (mismo patrón que HeroPhone.astro del hero de la landing) */
