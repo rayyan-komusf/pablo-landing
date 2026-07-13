@@ -200,17 +200,29 @@ import { CTA, IS_LIVE, APP_URL } from "../../siteConfig";
 
     /* El teléfono se dimensiona por viewport: NUNCA desborda el hero.
      * Pantalla ≈ 44% del alto visible; el ancho acompaña en proporción. */
-    /* Ancho basado en vw para crecer en iPhones Plus/Max, capado por dvh
-     * para no comerse los botones. Altura proporcional al ancho con ratio
-     * más achatado (1.5) y cap dvh conservador (48%): así el marco nunca
-     * invade el título aunque Safari muestre su toolbar. */
+    /* iPhone 17 Pro Max real: delgado, ratio ~1.9. El ancho se DERIVA
+     * del espacio vertical libre (viewport svh menos navbar, título,
+     * botones, padding), así el teléfono nunca invade el título ni los
+     * CTAs. En pantallas cortas se hace pequeño (zoom-out) manteniendo
+     * el look premium/delgado. svh = viewport pequeño (con toolbar). */
     .hero :global(.hphone) {
-      --w: clamp(240px, min(80vw, 44dvh), 340px);
-      border-radius: 46px;
+      --w: clamp(170px, min(58vw, calc((100svh - 340px) / 1.9)), 260px);
+      border-radius: 42px;
     }
     .hero :global(.hphone__pantalla) {
-      height: clamp(340px, min(calc(var(--w) * 1.5), 48dvh), 520px);
-      border-radius: 38px;
+      height: calc(var(--w) * 1.9);
+      border-radius: 36px;
+    }
+  }
+
+  /* iPhone SE y similares (muy cortos): título más compacto para que
+   * el teléfono no se reduzca demasiado. */
+  @media (max-width: 768px) and (max-height: 640px) {
+    .hero__content {
+      gap: 12px;
+    }
+    .hero__title {
+      font-size: 20px;
     }
   }
 
