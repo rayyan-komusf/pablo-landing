@@ -82,7 +82,7 @@
 
   .hphone__pantalla {
     position: relative;
-    height: 600px;
+    height: 660px; /* ratio pantalla ~1.94 sobre 340, delgado iPhone real */
     border-radius: 44px;
     overflow: hidden;
     background: #efe7dd;
@@ -293,27 +293,12 @@
     color: #9b9b9b;
   }
 
+  /* Nota: no se necesitan overrides internos en mobile. El teléfono se
+   * dibuja a tamaño base (340×680) y todo el bloque se escala con
+   * transform: scale() desde el Hero, así isla, status, header, mensajes
+   * e input mantienen sus proporciones perfectas. */
   @media (max-width: 768px) {
-    .hphone { --w: 290px; border-radius: 46px; }
-    .hphone__pantalla { height: 480px; border-radius: 38px; }
     .hphone::before, .hphone::after { display: none; }
-
-    /* Interior a escala: isla más chica y barra de estado compacta para
-     * que el 9:41 y los iconos no choquen con la isla */
-    .hphone__isla { width: 72px; height: 20px; top: 15px; }
-    .hphone__status {
-      height: 38px; /* centro y=25, igual que la isla (15..35) */
-      padding: 12px 16px 0 20px;
-      font-size: 11px;
-    }
-    .hphone__status svg { transform: scale(0.85); }
-    .hphone__waheader { padding: 4px 10px 6px; }
-    .hphone__waheader img { width: 28px; height: 28px; }
-    .hphone__wanombre { font-size: 13px; }
-    .hphone__waestado { font-size: 10.5px; white-space: nowrap; }
-    .hphone__campo { font-size: 12px; padding: 6px 12px; }
-    .hphone__input { padding: 6px 8px 16px; }
-    .hphone .hmsg { font-size: 12.5px; max-width: 88%; }
   }
 </style>
 

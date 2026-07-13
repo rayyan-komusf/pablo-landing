@@ -10,7 +10,9 @@ import { CTA, IS_LIVE, APP_URL } from "../../siteConfig";
   <div class="container hero__inner">
     <!-- ── Izquierda: iPhone con el demo en loop ── -->
     <div class="hero__phone-area">
-      <HeroPhone />
+      <div class="hphone-wrap">
+        <HeroPhone />
+      </div>
     </div>
 
     <!-- ── Derecha: titular + CTAs apilados ── -->
@@ -200,18 +202,35 @@ import { CTA, IS_LIVE, APP_URL } from "../../siteConfig";
 
     /* El teléfono se dimensiona por viewport: NUNCA desborda el hero.
      * Pantalla ≈ 44% del alto visible; el ancho acompaña en proporción. */
-    /* iPhone 17 Pro Max real: delgado, ratio ~1.9. El ancho se DERIVA
-     * del espacio vertical libre (viewport svh menos navbar, título,
-     * botones, padding), así el teléfono nunca invade el título ni los
-     * CTAs. En pantallas cortas se hace pequeño (zoom-out) manteniendo
-     * el look premium/delgado. svh = viewport pequeño (con toolbar). */
-    .hero :global(.hphone) {
-      --w: clamp(170px, min(58vw, calc((100svh - 340px) / 1.9)), 260px);
-      border-radius: 42px;
+    /* iPhone 17 Pro Max delgado. El teléfono se dibuja a tamaño BASE
+     * (340px lógico) y todo el bloque se escala con transform: así
+     * isla, status, header, mensajes e input conservan proporciones
+     * exactas — como un iPhone real fotografiado a menos zoom. */
+    .hero__phone-area {
+      overflow: hidden;
     }
-    .hero :global(.hphone__pantalla) {
-      height: calc(var(--w) * 1.9);
-      border-radius: 36px;
+    .hphone-wrap {
+      /* Ancho derivado del alto disponible (svh menos navbar+content),
+       * cap por vw en pantallas anchas. */
+      --w-phone: clamp(170px, min(58vw, calc((100svh - 340px) / 1.94)), 260px);
+      width: var(--w-phone);
+      /* aspect-ratio 340:680 → altura wrap = ancho * 2 (marco a escala) */
+      aspect-ratio: 340 / 680;
+      position: relative;
+      overflow: hidden; /* si el scale sobra por décimales, no invade */
+    }
+    .hphone-wrap :global(.hphone) {
+      width: 340px !important;
+      max-width: none;
+      --w: 340px;
+      position: absolute;
+      top: 0;
+      left: 0;
+      transform-origin: top left;
+      /* Truco tan(atan2): CSS resuelve una división de lengths a número
+       * puro. atan2(--w, 340px) devuelve un ángulo cuya tangente = w/340.
+       * Soportado en Chrome/Safari/Firefox modernos. */
+      transform: scale(tan(atan2(var(--w-phone), 340px)));
     }
   }
 
