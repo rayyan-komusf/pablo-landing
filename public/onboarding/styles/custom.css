@@ -752,12 +752,10 @@ body.fondo-blanco .topbar > div {
 
 /* Header fijo (patrón Duolingo): vive FUERA de la zona de scroll — la
  * mascota + burbuja quedan arriba y solo las opciones scrollean debajo.
- * Márgenes negativos: la línea límite cruza de borde a borde de la
- * pantalla, igual que la del footer. */
+ * En desktop va limpio (sin línea, como Duolingo web); en mobile lleva
+ * la línea límite de borde a borde, igual que la del footer. */
 .fuente-header {
-  margin-inline: -24px;
   background: var(--color-white);
-  border-bottom: 2px solid #e5e5e5;
   flex-shrink: 0;
 }
 
@@ -768,6 +766,27 @@ body.fondo-blanco .topbar > div {
   align-items: center;
   gap: 14px;
   padding: 12px 20px 14px;
+}
+
+@media (max-width: 560px) {
+  .fuente-header {
+    margin-inline: -24px;
+    border-bottom: 2px solid #e5e5e5;
+  }
+}
+
+/* Caja de la mascota FIJA: sin flex-shrink ni dimensiones fluidas, para
+ * que Pablito no salte cuando la burbuja reactiva cambia de tamaño */
+.fuente-pablo {
+  flex-shrink: 0;
+  width: 140px;
+  height: 140px;
+}
+
+.fuente-pablo picture {
+  display: flex;
+  width: 100%;
+  height: 100%;
 }
 
 .fuente-pablo img {
@@ -889,12 +908,17 @@ body.fondo-blanco .topbar > div {
     gap: 12px;
     margin-top: 32px;
   }
+  .fuente-pablo,
   .fuente-pablo img {
     width: 96px;
     height: 96px;
   }
   .speech-bubble {
     font-size: 15px;
+  }
+  /* Altura mínima del header: una burbuja de 1 o 3 líneas no lo mueve */
+  .fuente-header__inner {
+    min-height: 124px;
   }
 }
 

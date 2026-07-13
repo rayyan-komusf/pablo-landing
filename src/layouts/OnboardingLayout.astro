@@ -35,9 +35,11 @@ const base = "/onboarding";
     <!-- Preconnect Google Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-    <!-- Estilos: base (reconstruido del deploy original) + overrides -->
+    <!-- Estilos: base (reconstruido del deploy original) + overrides.
+         ?v= : cache-busting manual — subirlo al cambiar custom.css para que
+         producción no sirva una versión cacheada con markup nuevo. -->
     <link rel="stylesheet" href={`${base}/styles/base.css`} />
-    <link rel="stylesheet" href={`${base}/styles/custom.css`} />
+    <link rel="stylesheet" href={`${base}/styles/custom.css?v=2`} />
     <!-- PostHog (pageviews manuales: cada pantalla emite onboarding_screen_viewed) -->
     <PostHogSnippet capturePageview={false} />
   </head>
