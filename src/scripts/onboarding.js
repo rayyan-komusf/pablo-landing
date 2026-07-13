@@ -271,9 +271,15 @@ class OnboardingEngine {
    * (prefijo onboarding_). Así queda en el perfil y, como el distinct_id
    * viaja a la app por ?ph_did=, el usuario registrado conserva sus
    * respuestas del onboarding.
+   *
+   * La landing tiene person_profiles: 'identified_only', así que sin la
+   * llamada a createPersonProfile() los anónimos no tendrían perfil y las
+   * properties no persistirían. Se crea la primera vez que responden algo
+   * en el onboarding (el intent es fuerte, no dispara para cualquier bounce).
    */
   persistAnswerToProfile(key, value) {
     try {
+      window.posthog?.createPersonProfile?.();
       window.posthog?.setPersonProperties?.({ [`onboarding_${key}`]: value });
     } catch (e) {
       console.warn("[Pablo] No se pudo fijar person property:", e);

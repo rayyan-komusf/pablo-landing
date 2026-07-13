@@ -1,0 +1,278 @@
+---
+// Card de meta con el look del dashboard REAL de Pablo
+// (src/pages/Metas/components/GoalCard.tsx). Replica en Astro puro:
+// gradient success cuando la meta va bien, icono Target en cuadro,
+// badges (Activa + código), progreso circular grande y tip de Pablo.
+// Datos mockeados: Fondo de Emergencia al 90%.
+---
+
+<article class="mcard mcard--activa">
+  <!-- Gradient success -->
+  <div class="mcard__bg" aria-hidden="true"></div>
+
+  <!-- Sparkles cuando >= 90% (celebration effect) -->
+  <div class="mcard__sparkles" aria-hidden="true">
+    <svg viewBox="0 0 24 24" fill="currentColor" width="18" height="18"><path d="M12 3l1.9 5.6L19.5 10l-5.6 1.9L12 17.5l-1.9-5.6L4.5 10l5.6-1.4L12 3zm7 12l1.1 3.2 3.2 1.1-3.2 1.1L19 23.6l-1.1-3.2-3.2-1.1 3.2-1.1L19 15z"/></svg>
+  </div>
+
+  <!-- Header -->
+  <div class="mcard__head">
+    <div class="mcard__icon">
+      <!-- Lucide Target SVG -->
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="20" height="20">
+        <circle cx="12" cy="12" r="10"/>
+        <circle cx="12" cy="12" r="6"/>
+        <circle cx="12" cy="12" r="2"/>
+      </svg>
+    </div>
+    <span class="mcard__badge mcard__badge--activa">
+      <svg viewBox="0 0 24 24" fill="currentColor" width="10" height="10"><polygon points="5 3 19 12 5 21 5 3"/></svg>
+      Activa
+    </span>
+    <span class="mcard__code">FON2125</span>
+  </div>
+
+  <h3 class="mcard__title">Fondo de Emergencia</h3>
+
+  <!-- Contenido: progreso circular + datos -->
+  <div class="mcard__content">
+    <div class="mcard__ring">
+      <svg viewBox="0 0 100 100" width="96" height="96">
+        <circle cx="50" cy="50" r="40" fill="none" stroke="rgba(16, 185, 129, 0.15)" stroke-width="8"/>
+        <circle
+          cx="50" cy="50" r="40" fill="none"
+          stroke="#10b981" stroke-width="8" stroke-linecap="round"
+          stroke-dasharray="251.33"
+          stroke-dashoffset="25.13"
+          transform="rotate(-90 50 50)"
+          style="transition: stroke-dashoffset 0.9s cubic-bezier(0.22, 0.9, 0.35, 1);"
+        />
+      </svg>
+      <span class="mcard__ring-value">90%</span>
+    </div>
+
+    <div class="mcard__stats">
+      <div class="mcard__stat">
+        <span class="mcard__stat-label">Ahorrado</span>
+        <span class="mcard__stat-value mcard__stat-value--success">S/ 900.00</span>
+      </div>
+      <div class="mcard__stat-sep"></div>
+      <div class="mcard__stat">
+        <span class="mcard__stat-label">Objetivo</span>
+        <span class="mcard__stat-value">S/ 1,000.00</span>
+      </div>
+      <div class="mcard__stat-sep"></div>
+      <div class="mcard__stat">
+        <span class="mcard__stat-label">Restante</span>
+        <span class="mcard__stat-value">S/ 100.00</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- Meta info: días + fecha -->
+  <div class="mcard__meta">
+    <span class="mcard__meta-item">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" width="12" height="12">
+        <circle cx="12" cy="12" r="10"/>
+        <polyline points="12 6 12 12 16 14"/>
+      </svg>
+      217 días restantes
+    </span>
+    <span class="mcard__meta-item">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" width="12" height="12">
+        <rect x="3" y="4" width="18" height="18" rx="2"/>
+        <line x1="16" y1="2" x2="16" y2="6"/>
+        <line x1="8" y1="2" x2="8" y2="6"/>
+        <line x1="3" y1="10" x2="21" y2="10"/>
+      </svg>
+      30 dic 2026
+    </span>
+  </div>
+
+  <!-- Tip de Pablo (patrón getPabloTip del GoalCard real) -->
+  <div class="mcard__tip">
+    <span class="mcard__tip-emoji">🔥</span>
+    <span>¡Estás a punto de lograrlo! Un último empujón y llegas a tu meta.</span>
+  </div>
+</article>
+
+<style>
+  .mcard {
+    position: relative;
+    width: 100%;
+    max-width: 380px;
+    border-radius: 16px;
+    background: #fff;
+    border: 2px solid rgba(16, 185, 129, 0.28);
+    box-shadow: 0 10px 30px -12px rgba(43, 44, 100, 0.18);
+    overflow: hidden;
+    padding: 18px 18px 16px;
+  }
+
+  .mcard__bg {
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(135deg, rgba(16, 185, 129, 0.1), rgba(16, 185, 129, 0.05));
+    pointer-events: none;
+  }
+
+  .mcard__sparkles {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    color: var(--color-ambar, #fba920);
+    z-index: 2;
+    animation: mcardPulse 2s ease-in-out infinite;
+  }
+
+  @keyframes mcardPulse {
+    0%, 100% { opacity: 0.6; transform: scale(1); }
+    50% { opacity: 1; transform: scale(1.15); }
+  }
+
+  .mcard__head {
+    position: relative;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 10px;
+  }
+
+  .mcard__icon {
+    color: #059669;
+    background: rgba(16, 185, 129, 0.15);
+    padding: 8px;
+    border-radius: 10px;
+    display: inline-flex;
+  }
+
+  .mcard__badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    padding: 3px 10px;
+    border-radius: 999px;
+    font-size: 11px;
+    font-weight: 700;
+  }
+
+  .mcard__badge--activa {
+    background: rgba(16, 185, 129, 0.15);
+    color: #059669;
+    border: 1px solid rgba(16, 185, 129, 0.3);
+  }
+
+  .mcard__code {
+    font-family: ui-monospace, "SF Mono", Menlo, monospace;
+    font-size: 11px;
+    color: #6b7280;
+    background: rgba(0, 0, 0, 0.05);
+    padding: 2px 8px;
+    border-radius: 6px;
+  }
+
+  .mcard__title {
+    position: relative;
+    font-family: var(--font-display, "Nunito", sans-serif);
+    font-weight: 800;
+    font-size: 18px;
+    color: #2b2c64;
+    letter-spacing: -0.01em;
+    margin: 0 0 12px;
+  }
+
+  .mcard__content {
+    position: relative;
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    padding: 4px 0 12px;
+  }
+
+  .mcard__ring {
+    position: relative;
+    flex-shrink: 0;
+    display: inline-flex;
+  }
+
+  .mcard__ring-value {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-family: var(--font-display, "Nunito", sans-serif);
+    font-weight: 800;
+    font-size: 20px;
+    color: #059669;
+  }
+
+  .mcard__stats {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+  }
+
+  .mcard__stat {
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+    font-size: 12.5px;
+  }
+
+  .mcard__stat-label {
+    color: #6b7280;
+  }
+
+  .mcard__stat-value {
+    font-family: var(--font-display, "Nunito", sans-serif);
+    font-weight: 700;
+    color: #2b2c64;
+  }
+
+  .mcard__stat-value--success {
+    color: #059669;
+  }
+
+  .mcard__stat-sep {
+    height: 1px;
+    background: rgba(0, 0, 0, 0.06);
+    margin: 2px 0;
+  }
+
+  .mcard__meta {
+    position: relative;
+    display: flex;
+    justify-content: space-between;
+    padding: 10px 0;
+    border-top: 1px solid rgba(0, 0, 0, 0.06);
+    font-size: 11.5px;
+    color: #6b7280;
+  }
+
+  .mcard__meta-item {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+  }
+
+  .mcard__tip {
+    position: relative;
+    display: flex;
+    align-items: flex-start;
+    gap: 8px;
+    padding: 10px 12px;
+    background: rgba(16, 185, 129, 0.08);
+    border: 1px solid rgba(16, 185, 129, 0.2);
+    border-radius: 10px;
+    font-size: 12px;
+    color: #065f46;
+    line-height: 1.45;
+  }
+
+  .mcard__tip-emoji {
+    font-size: 16px;
+    flex-shrink: 0;
+  }
+</style>

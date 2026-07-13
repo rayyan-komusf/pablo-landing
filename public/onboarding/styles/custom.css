@@ -1425,6 +1425,17 @@ body .topbar > div {
 
 /* --- 4.11 Tarjetas y leyendas de las pantallas informativas ------------ */
 
+/* Hint sobre las cards que replican el dashboard real */
+.dashboard-preview-hint {
+  font-family: var(--font-body, inherit);
+  font-size: 12px;
+  color: var(--color-navy-soft);
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  font-weight: 700;
+  margin: 12px 0 14px;
+}
+
 /* Tarjeta genérica estilo Duolingo (reemplaza las sombras clay) */
 .duo-card {
   background: var(--color-white);

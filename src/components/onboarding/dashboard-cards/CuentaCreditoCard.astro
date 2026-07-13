@@ -1,0 +1,203 @@
+---
+// Card de cuenta de crédito con el look del dashboard REAL de Pablo
+// (src/pages/Cuentas/components/AccountCard.tsx). Replica en Astro puro:
+// gradient por tipo tarjeta_credito (púrpura), icono CreditCard en cuadro,
+// badge de estado y balance grande. Datos mockeados para el onboarding.
+---
+
+<article class="dcard dcard--credito">
+  <!-- Gradient de fondo por tipo (tarjeta_credito → púrpura) -->
+  <div class="dcard__bg" aria-hidden="true"></div>
+
+  <!-- Badge Principal en la esquina -->
+  <div class="dcard__pin" aria-hidden="true">
+    <svg viewBox="0 0 24 24" fill="currentColor" width="12" height="12"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>
+    Principal
+  </div>
+
+  <div class="dcard__body">
+    <!-- Header: icono + más ... -->
+    <div class="dcard__head">
+      <div class="dcard__icon">
+        <!-- Lucide CreditCard SVG -->
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="24" height="24">
+          <rect width="20" height="14" x="2" y="5" rx="2"/>
+          <line x1="2" x2="22" y1="10" y2="10"/>
+        </svg>
+      </div>
+    </div>
+
+    <h3 class="dcard__title">Visa Interbank</h3>
+    <p class="dcard__type">Tarjeta de crédito</p>
+
+    <!-- Balance principal -->
+    <div class="dcard__balance">
+      <div>
+        <p class="dcard__label">Saldo disponible</p>
+        <p class="dcard__amount">S/ 400.00</p>
+      </div>
+      <span class="dcard__badge">Activa</span>
+    </div>
+
+    <!-- Utilización (extra pedagógico para el onboarding) -->
+    <div class="dcard__usage">
+      <div class="dcard__usage-row">
+        <span>Gastado <b>S/ 2,600</b></span>
+        <span>Límite <b>S/ 3,000</b></span>
+      </div>
+      <div class="dcard__bar">
+        <div class="dcard__bar-fill" style="width: 87%"></div>
+      </div>
+      <p class="dcard__usage-hint">87% usado</p>
+    </div>
+  </div>
+</article>
+
+<style>
+  .dcard {
+    --tint: #a855f7; /* Tarjeta de crédito: púrpura, como en AccountCard */
+    position: relative;
+    width: 100%;
+    max-width: 380px;
+    border-radius: 16px;
+    background: #fff;
+    border: 2px solid rgba(168, 85, 247, 0.32);
+    box-shadow: 0 10px 30px -12px rgba(43, 44, 100, 0.18);
+    overflow: hidden;
+  }
+
+  .dcard__bg {
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(135deg, rgba(168, 85, 247, 0.12), rgba(168, 85, 247, 0.06));
+    pointer-events: none;
+  }
+
+  .dcard__pin {
+    position: absolute;
+    top: 0;
+    right: 0;
+    z-index: 2;
+    background: var(--color-ambar, #fba920);
+    color: #2b2c64;
+    padding: 5px 10px 5px 8px;
+    border-bottom-left-radius: 12px;
+    font-size: 11px;
+    font-weight: 700;
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+  }
+
+  .dcard__body {
+    position: relative;
+    padding: 20px;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+  }
+
+  .dcard__head {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+
+  .dcard__icon {
+    color: var(--tint);
+    background: rgba(168, 85, 247, 0.15);
+    padding: 10px;
+    border-radius: 12px;
+    display: inline-flex;
+  }
+
+  .dcard__title {
+    font-family: var(--font-display, "Nunito", sans-serif);
+    font-weight: 800;
+    font-size: 18px;
+    color: #2b2c64;
+    margin: 4px 0 0;
+    letter-spacing: -0.01em;
+  }
+
+  .dcard__type {
+    font-size: 12px;
+    color: #6b7280;
+    margin: 0 0 8px;
+  }
+
+  .dcard__balance {
+    display: flex;
+    align-items: flex-end;
+    justify-content: space-between;
+    gap: 12px;
+    margin-top: 4px;
+  }
+
+  .dcard__label {
+    font-size: 11px;
+    color: #6b7280;
+    margin: 0 0 2px;
+  }
+
+  .dcard__amount {
+    font-family: var(--font-display, "Nunito", sans-serif);
+    font-weight: 800;
+    font-size: 24px;
+    color: #2b2c64;
+    letter-spacing: -0.02em;
+    margin: 0;
+  }
+
+  .dcard__badge {
+    background: rgba(16, 185, 129, 0.15);
+    color: #059669;
+    border: 1px solid rgba(16, 185, 129, 0.3);
+    padding: 3px 10px;
+    border-radius: 999px;
+    font-size: 11px;
+    font-weight: 700;
+  }
+
+  /* Utilización con barra */
+  .dcard__usage {
+    padding-top: 12px;
+    margin-top: 6px;
+    border-top: 1px solid rgba(0, 0, 0, 0.06);
+  }
+
+  .dcard__usage-row {
+    display: flex;
+    justify-content: space-between;
+    font-size: 12px;
+    color: #6b7280;
+    margin-bottom: 6px;
+  }
+
+  .dcard__usage-row b {
+    color: #2b2c64;
+    font-weight: 700;
+  }
+
+  .dcard__bar {
+    height: 6px;
+    background: rgba(0, 0, 0, 0.06);
+    border-radius: 999px;
+    overflow: hidden;
+  }
+
+  .dcard__bar-fill {
+    height: 100%;
+    background: linear-gradient(90deg, #a855f7, #ef4444);
+    border-radius: 999px;
+    transition: width 0.9s cubic-bezier(0.22, 0.9, 0.35, 1);
+  }
+
+  .dcard__usage-hint {
+    text-align: right;
+    font-size: 11px;
+    color: #ef4444;
+    font-weight: 700;
+    margin: 4px 0 0;
+  }
+</style>
