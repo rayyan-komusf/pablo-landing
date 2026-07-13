@@ -1,11 +1,6 @@
 ---
 import { Image } from 'astro:assets';
 import logoImg from '../assets/Logo.png';
-import { CTA, IS_LIVE, APP_URL } from '../siteConfig';
-import { getPosts } from '../lib/notion';
-
-const posts = await getPosts();
-const recentPosts = posts.slice(0, 4);
 ---
 
 <header class="navbar">
@@ -83,51 +78,25 @@ const recentPosts = posts.slice(0, 4);
         </div>
       </div>
 
-      <!-- Recursos -->
+      <!-- Recursos: dropdown simplificado — solo botones directos -->
       <div class="nav-item">
         <a href="/blog" class="nav-trigger">
           Recursos <span class="nav-arrow">▾</span>
         </a>
-        <div class="dropdown dropdown--wide">
-          <div class="dropdown-col">
-            <span class="dropdown-col-label">Blog</span>
-            {recentPosts.length > 0 ? (
-              recentPosts.map((post) => (
-                <a href={`/blog/${post.slug}`} class="dropdown-item dropdown-item--compact">
-                  <span class="di-label">{post.title}</span>
-                </a>
-              ))
-            ) : (
-              <span class="dropdown-item dropdown-item--disabled dropdown-item--compact">
-                <span class="di-label">Pronto habrá artículos</span>
-              </span>
-            )}
-            <a href="/blog" class="dropdown-viewall">Ver todos →</a>
-          </div>
-          <div class="dropdown-col dropdown-col--border">
-            <span class="dropdown-col-label">Cursos</span>
-            <a href="/cursos" class="dropdown-item dropdown-item--compact">
-              <span class="di-label">Cómo ahorrar como un futuro millonario</span>
-            </a>
-            <a href="/cursos" class="dropdown-viewall">Ver todos →</a>
-            <span class="dropdown-col-label dropdown-col-label--mt">Tutoriales</span>
-            <div class="dropdown-item dropdown-item--disabled dropdown-item--compact">
-              <span class="di-label">Próximamente <span class="di-badge di-badge--soon">Próximamente</span></span>
-            </div>
-          </div>
+        <div class="dropdown">
+          <a href="/blog" class="dropdown-item">
+            <span class="di-label">Blog</span>
+          </a>
+          <a href="/cursos" class="dropdown-item">
+            <span class="di-label">Cursos</span>
+          </a>
+          <span class="dropdown-item dropdown-item--disabled">
+            <span class="di-label">Tutoriales <span class="di-badge di-badge--soon">Próximamente</span></span>
+          </span>
         </div>
       </div>
 
-      <a href={APP_URL} class="nav-link">Inicia sesión</a>
     </nav>
-
-    <!-- CTA -->
-    <div class="navbar__actions">
-      {IS_LIVE
-        ? <a href="/onboarding" class="btn-primary btn-sm" id="navbar-cta-btn" onclick="if(typeof fbq!=='undefined')fbq('trackCustom','Ver_Planes');if(typeof ttq!=='undefined')ttq.track('ClickButton',{content_name:'Ver_Planes'});">{CTA.label} <span class="btn-arrow">→</span></a>
-        : <button onclick="window.openWaitlistModal()" class="btn-primary btn-sm" id="navbar-cta-btn">{CTA.label} <span class="btn-arrow">→</span></button>
-      }
-    </div>
 
     <button class="hamburger" id="hamburger-btn" aria-label="Abrir menú" aria-expanded="false">
       <span></span><span></span><span></span>
@@ -167,31 +136,16 @@ const recentPosts = posts.slice(0, 4);
       </div>
     </div>
 
-    <!-- Recursos accordion -->
+    <!-- Recursos accordion — solo botones directos -->
     <div class="mob-section">
       <button class="mob-section__trigger">Recursos <span class="mob-arrow">▾</span></button>
       <div class="mob-section__body">
-        <span class="mob-section-label">Blog</span>
-        {recentPosts.map((post) => (
-          <a href={`/blog/${post.slug}`} class="mob-link mob-link--sub">{post.title}</a>
-        ))}
-        <a href="/blog" class="mob-link mob-link--viewall">Ver todos →</a>
-        <span class="mob-section-label">Cursos</span>
-        <a href="/cursos" class="mob-link mob-link--sub">Cómo ahorrar como un futuro millonario</a>
-        <a href="/cursos" class="mob-link mob-link--viewall">Ver todos →</a>
-        <span class="mob-section-label">Tutoriales</span>
-        <span class="mob-link mob-link--disabled">Próximamente</span>
+        <a href="/blog" class="mob-link">Blog</a>
+        <a href="/cursos" class="mob-link">Cursos</a>
+        <span class="mob-link mob-link--disabled">Tutoriales <span class="mob-badge mob-badge--soon">Próximamente</span></span>
       </div>
     </div>
 
-    <a href={APP_URL} class="mob-link mob-link--standalone">Inicia sesión</a>
-
-    <div class="mobile-actions">
-      {IS_LIVE
-        ? <a href="/onboarding" class="btn-primary" id="navbar-mobile-cta-btn">{CTA.label} <span class="btn-arrow">→</span></a>
-        : <button onclick="window.openWaitlistModal()" class="btn-primary" id="navbar-mobile-cta-btn">{CTA.label} <span class="btn-arrow">→</span></button>
-      }
-    </div>
   </div>
 </header>
 
@@ -217,9 +171,14 @@ const recentPosts = posts.slice(0, 4);
   .navbar__inner {
     display: flex;
     align-items: center;
-    justify-content: space-between;
     height: 72px;
     gap: 16px;
+  }
+
+  /* La navegación se lleva el espacio restante del logo y ancla a la derecha
+   * (patrón Duolingo: logo a la izquierda, opciones alineadas a la derecha) */
+  .navbar__nav {
+    margin-left: auto;
   }
 
   /* Logo */
