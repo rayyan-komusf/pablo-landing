@@ -211,24 +211,24 @@ class OnboardingEngine {
     if (stepId === "step-16") this.initStep16();
     if (stepId === "step-fiesta") this.initFiesta();
     if (stepId === "step-porque") this.initPorque();
-    // Pantallas con CTA condicionado a haber respondido
-    if (stepId === "step-fuente") this.gateCta(stepId, !!this.answers.referralSource);
-    if (stepId === "step-porque") this.gateCta(stepId, !!this.answers.goalReason);
-    if (stepId === "step-4") this.gateCta(stepId, !!this.answers.demoGastoRegistrado);
 
-    // Pantallas "estilo Duolingo" con fondo blanco: el body (y con él la
-    // topbar transparente) acompaña para no dejar franjas lila.
-    const WHITE_STEPS = [
-      "step-primer",
-      "entry",
-      "step-fiesta",
-      "step-fuente",
-      "step-porque",
-      "step-2",
-      "step-3",
-      "step-4",
-    ];
-    document.body.classList.toggle("fondo-blanco", WHITE_STEPS.includes(stepId));
+    // Preguntas con CTA condicionado: la clave es la respuesta que habilita
+    // Continuar (comparación con undefined: hasDebt=false también habilita).
+    const GATED = {
+      "step-fuente": "referralSource",
+      "step-porque": "goalReason",
+      "step-4": "demoGastoRegistrado",
+      "step-6": "age",
+      "step-7": "budgetingExp",
+      "step-9": "moneyClarity",
+      "step-11": "registrationPref",
+      "step-12": "hasDebt",
+      "step-14": "cashFlow",
+      "step-15": "hasSavingsGoal",
+    };
+    if (GATED[stepId]) {
+      this.gateCta(stepId, this.answers[GATED[stepId]] !== undefined);
+    }
 
     // El intro queda visto cuando el usuario llega a la antesala de preguntas.
     if (STEP_ORDER.indexOf(stepId) >= STEP_ORDER.indexOf(RETURNING_START_STEP)) {

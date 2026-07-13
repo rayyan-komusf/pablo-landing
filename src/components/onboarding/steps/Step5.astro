@@ -1,41 +1,33 @@
-<section class="step" data-step="step-5" aria-label="Paso 5" aria-hidden="true">
-  <div class="flex-1 flex flex-col items-center pt-10 px-6 pb-12 max-md:pt-12 max-md:px-3 max-md:pb-8 max-[360px]:pt-7 max-[360px]:px-5 max-[360px]:pb-9 gap-0 vcenter-flex">
-    <!-- Título -->
-    <h1 class="font-display font-bold text-[clamp(19px,5.2vw,36px)] text-navy text-center tracking-[-0.02em] leading-[1.15] max-md:leading-[1.1] max-w-[600px] whitespace-nowrap max-md:mt-8">
-      <span class="text-amber">Libérate</span> del estrés financiero
-    </h1>
-    <!-- Pablo + burbuja -->
-    <div class="flex-1 max-md:flex-none flex items-center justify-center relative w-full max-w-[480px] py-6 max-md:py-[40px] max-md:h-[260px]">
-      <div
-        class="absolute top-[30%] right-0 md:-right-[40px] bg-white px-[18px] py-[10px] max-[360px]:px-[14px] max-[360px]:py-2 rounded-[var(--radius-md)] rounded-bl-[4px] shadow-clay-card font-display font-bold text-[13px] md:text-[15px] text-navy z-5 -translate-y-[110%] max-md:-translate-y-[60%] animate-[bubbleSlide_500ms_var(--ease-clay)_500ms_backwards] max-w-[220px]"
-        aria-live="polite"
-      >
-        Ahora, para entender tu situación personal, solo tengo algunas preguntas.
-      </div>
-      <div class="w-[300px] h-[320px] md:w-[350px] md:h-[350px] max-[360px]:w-[260px] max-[360px]:h-[260px] mt-16 max-md:translate-y-[100px] pablo-hero">
-        <img
-          src="/onboarding/images/pablo/pablo-wave.png"
-          alt="Pablo"
-          width="350"
-          height="350"
-          loading="lazy"
-          class="w-full h-full object-contain"
-        />
-      </div>
+<!-- Antesala de preguntas (estilo Duolingo: escenario compartido + burbuja) -->
+<section class="step !pb-0" data-step="step-5" aria-label="Paso 5" aria-hidden="true">
+  <div class="duo-stage flex-1 flex flex-col items-center justify-center relative w-full px-6">
+    <div class="speech-bubble" aria-live="polite">
+      Ahora, para entender tu situación personal, solo tengo algunas preguntas 📝
     </div>
-    <!-- CTA -->
-    <div class="flex flex-col items-center gap-[14px] w-full max-md:mt-[200px] relative z-10">
-      <button class="btn-primary btn-primary--compact" onclick="pabloNext()" aria-label="Continuar">
-        Siguiente
-        <span class="arrow" aria-hidden="true">→</span>
-      </button>
-      <button
-        class="text-[14px] text-navy-soft bg-transparent border-none cursor-pointer font-body p-[6px] min-h-[44px] inline-flex items-center transition-colors duration-fast hover:text-navy"
-        onclick="pabloGoApp('step-5')"
-        aria-label="Iniciar sesión si ya eres miembro"
-      >
-        ¿Ya eres miembro?
-      </button>
+    <div class="duo-stage__pablo">
+      <picture>
+        <source srcset="/onboarding/images/pablo/pablo-anotando.webp" type="image/webp" />
+        <img
+          src="/onboarding/images/pablo/pablo-point.png"
+          alt="Pablo"
+          width="240"
+          height="240"
+          loading="lazy"
+        />
+      </picture>
     </div>
   </div>
+
+  <footer class="duo-footer cta-footer">
+    <button
+      class="duo-footer__link"
+      onclick="pabloGoApp('step-5')"
+      aria-label="Iniciar sesión si ya eres miembro"
+    >
+      ¿Ya eres miembro?
+    </button>
+    <button class="btn-primary btn-continue" onclick="pabloNext()" aria-label="Continuar">
+      Continuar
+    </button>
+  </footer>
 </section>

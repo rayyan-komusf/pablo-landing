@@ -1,17 +1,20 @@
-<!-- Pregunta 3: nivel de estrés (slider). Con nivel <= 2 se salta la animación "No estás solo". -->
+<!-- Pregunta 3: nivel de estrés (slider con emociones de Pablito).
+     Con nivel <= 2 se salta la animación "No estás solo". -->
 <section class="step !pb-0" data-step="step-8" aria-label="Pregunta 3 - Nivel de estrés" aria-hidden="true">
-  <div class="flex-1 flex flex-col gap-5 w-full max-w-[560px] mx-auto px-5 pt-5 pb-4 max-md:px-4 max-md:gap-4 max-[360px]:px-3 max-[360px]:gap-3 overflow-y-auto vcenter">
-    <!-- Header -->
-    <div class="flex flex-col gap-2.5">
-      <span class="font-display font-bold text-[12px] rounded-2xl text-amber tracking-[0.08em] uppercase bg-white px-3 py-1 inline-flex items-center gap-1 w-fit shadow-soft">
-        Pregunta <span class="text-navy-soft font-medium">3</span>
-      </span>
-      <h2 class="font-display font-bold text-[22px] max-[360px]:text-[18px] md:text-[24px] text-navy tracking-[-0.01em] leading-[1.25]">
-        ¿Qué tan estresado te sientes sobre el dinero?
-      </h2>
+  <div class="fuente-header">
+    <div class="fuente-header__inner">
+      <div class="fuente-pablo">
+        <picture>
+          <source srcset="/onboarding/images/pablo/pablo-anotando.webp" type="image/webp" />
+          <img src="/onboarding/images/pablo/pablo-point.png" alt="" width="140" height="140" loading="lazy" />
+        </picture>
+      </div>
+      <div class="speech-bubble speech-bubble--side">¿Qué tan estresado te sientes sobre el dinero?</div>
     </div>
-    <!-- Slider UI -->
-    <div class="flex flex-col items-center gap-4 py-2 w-full">
+  </div>
+
+  <div class="fuente-body flex-1 flex flex-col w-full mx-auto px-5 max-md:px-4 overflow-y-auto [scrollbar-width:none] [&::-webkit-scrollbar]:hidden vcenter">
+    <div class="slider-zona flex flex-col items-center gap-4 py-2 w-full">
       <!-- Imagen reactiva -->
       <div
         class="w-[120px] h-[120px] max-md:w-[100px] max-md:h-[100px] transition-transform duration-200 ease-clay select-none slider-emoji"
@@ -30,7 +33,7 @@
         />
       </div>
       <!-- Texto descriptivo -->
-      <div class="bg-white rounded-[var(--radius-md)] px-6 py-[18px] max-md:px-[18px] max-md:py-[14px] shadow-clay-card w-full text-[15px] max-md:text-[14px] font-body text-navy font-medium leading-[1.5] text-left min-h-[64px] flex items-center">
+      <div class="slider-caja w-full text-[15px] max-md:text-[14px] font-body text-navy font-medium leading-[1.5] text-left min-h-[64px] flex items-center">
         <p id="sliderLabel">Solo un poco, estoy buscando cómo mejorar.</p>
       </div>
       <!-- Slider input -->
@@ -51,13 +54,12 @@
       </div>
     </div>
   </div>
-  <!-- CTA Footer -->
-  <div class="w-full flex justify-center px-5 py-4 max-[360px]:py-3 max-md:mt-[33px]">
-    <button class="btn-primary btn-primary--compact" onclick="pabloNext()">
-      Siguiente
-      <span class="arrow" aria-hidden="true">→</span>
+
+  <footer class="duo-footer cta-footer">
+    <button class="btn-primary btn-continue" onclick="pabloNext()" aria-label="Continuar">
+      Continuar
     </button>
-  </div>
+  </footer>
 </section>
 
 <script is:inline type="module">
