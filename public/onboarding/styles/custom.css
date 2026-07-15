@@ -321,9 +321,8 @@
   padding-bottom: 32px;
 }
 
-/* Fondo blanco en esta pantalla, como Duolingo (el body global es lila) */
 .step[data-step="step-primer"] {
-  background: var(--color-white);
+  background: var(--color-lila);
 }
 
 .options-grid {
@@ -520,13 +519,13 @@
 
 .step[data-step="step-fiesta"],
 .step[data-step="step-fuente"] {
-  background: var(--color-white);
+  background: var(--color-lila);
 }
 
-/* Todo el onboarding va sobre blanco (estilo Duolingo); el lila original
- * de base.css queda atrás. */
+/* Todo el onboarding va sobre lila (como la landing usapablo.com); las
+ * tarjetas, pills y footers blancos resaltan encima. */
 body {
-  background: var(--color-white);
+  background: var(--color-lila);
 }
 
 /* Slider de estrés sobre blanco: caja con borde estilo pill */
@@ -664,7 +663,7 @@ body {
 .step[data-step="entry"],
 .step[data-step="step-2"],
 .step[data-step="step-3"] {
-  background: var(--color-white);
+  background: var(--color-lila);
 }
 
 .duo-stage__pablo {
@@ -770,7 +769,7 @@ body .topbar > div {
  * En desktop va limpio (sin línea, como Duolingo web); en mobile lleva
  * la línea límite de borde a borde, igual que la del footer. */
 .fuente-header {
-  background: var(--color-white);
+  background: var(--color-lila);
   flex-shrink: 0;
 }
 
@@ -940,7 +939,7 @@ body .topbar > div {
 /* --- 4.10 Demo interactivo (step-4): iPhone + WhatsApp ----------------- */
 
 .step[data-step="step-4"] {
-  background: var(--color-white);
+  background: var(--color-lila);
 }
 
 .demo-body {
