@@ -227,13 +227,11 @@ import { CTA, IS_LIVE, APP_URL } from "../../siteConfig";
   }
 
   /* Cerco duro contra overflow: si algo pasa se recorta antes que invada
-   * el content. En mobile el phone-area también se marca overflow:hidden
-   * para que el marco redondeado del teléfono nunca se solape con el título. */
+   * el content. El tamaño del teléfono ya está clampeado por --w así que
+   * nunca desborda; NO recortamos .hero__phone-area porque cortaba la
+   * sombra difusa del iPhone con una línea recta (feedback Rodrigo 14-jul). */
   @media (max-width: 768px) {
     .hero {
-      overflow: hidden;
-    }
-    .hero__phone-area {
       overflow: hidden;
     }
   }

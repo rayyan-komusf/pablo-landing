@@ -56,8 +56,10 @@
     border-radius: 3.857em;
     padding: 0.714em;
     background: linear-gradient(145deg, #3a3a3c, #1c1c1e 40%, #48484a);
+    /* Sombra más corta y transparente: aunque algo la recorte, el borde
+     * ya no se nota (antes caía 2.14em y se cortaba en mobile). */
     box-shadow:
-      0 2.14em 4.28em -1.28em rgba(43, 44, 100, 0.4),
+      0 1.4em 3.2em -1.1em rgba(43, 44, 100, 0.3),
       inset 0 0 0.14em 0.14em rgba(255, 255, 255, 0.08);
     flex-shrink: 0;
   }
