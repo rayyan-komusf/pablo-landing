@@ -2,6 +2,7 @@
 import Layout from "../../layouts/Layout.astro";
 import Navbar from "../../components/Navbar.astro";
 import Footer from "../../components/Footer.astro";
+import PlantillaLeadModal from "../../components/PlantillaLeadModal.astro";
 import { getPosts, getPostBySlug, renderBlocks } from "../../lib/notion";
 
 export async function getStaticPaths() {
@@ -16,6 +17,9 @@ if (!data) return Astro.redirect("/blog");
 
 const { meta, blocks } = data;
 const content = renderBlocks(blocks);
+// Lead magnet: si el post enlaza la Plantilla de Presupuesto, el link se
+// intercepta con un form (nombre + correo → Brevo) antes de entregarla.
+const tienePlantilla = content.includes("1PvzGpNJavzwq0-mDEzKakf6jmJIiCSX6");
 const fecha = meta.fecha
   ? new Date(meta.fecha).toLocaleDateString("es-PE", {
       year: "numeric",
@@ -63,6 +67,7 @@ const fecha = meta.fecha
       </div>
     </article>
   </main>
+  {tienePlantilla && <PlantillaLeadModal />}
   <Footer />
 </Layout>
 

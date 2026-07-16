@@ -1,0 +1,573 @@
+---
+// Lead magnet de la Plantilla de Presupuesto (post "plantilla-detox-financiero"):
+// intercepta el botón de descarga del post y pide nombre + correo. Los datos
+// van a la edge function suscribir-plantilla (Brevo: lista "Plantilla de
+// Presupuesto" + correo con el link). Tras enviar: confirmación + upsell
+// estilo comercial (Pablo con teléfono) que lleva al onboarding.
+---
+
+<div
+  id="plantilla-modal"
+  class="pl-overlay"
+  aria-hidden="true"
+  role="dialog"
+  aria-modal="true"
+  aria-label="Descarga tu plantilla de presupuesto"
+>
+  <div class="pl-card">
+    <button class="pl-close" id="pl-close" aria-label="Cerrar">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round">
+        <line x1="18" y1="6" x2="6" y2="18"></line>
+        <line x1="6" y1="6" x2="18" y2="18"></line>
+      </svg>
+    </button>
+
+    <!-- ── Paso 1: formulario ── -->
+    <div class="pl-paso" id="pl-paso-form">
+      <img
+        class="pl-mascota"
+        src="/onboarding/images/pablo/pablo-anotando.webp"
+        alt=""
+        width="110"
+        height="110"
+        loading="lazy"
+      />
+      <h3 class="pl-titulo">Llévate tu plantilla gratis</h3>
+      <p class="pl-sub">Dime a dónde te la mando y en segundos la tienes en tu correo.</p>
+
+      <form id="pl-form" novalidate>
+        <label class="pl-label" for="pl-nombre">Tu nombre</label>
+        <input
+          class="pl-input"
+          id="pl-nombre"
+          name="nombre"
+          type="text"
+          placeholder="¿Cómo te llamas?"
+          autocomplete="name"
+          maxlength="80"
+          required
+        />
+        <label class="pl-label" for="pl-email">Tu correo</label>
+        <input
+          class="pl-input"
+          id="pl-email"
+          name="email"
+          type="email"
+          placeholder="tucorreo@ejemplo.com"
+          autocomplete="email"
+          maxlength="120"
+          required
+        />
+        <p class="pl-error" id="pl-error" hidden></p>
+        <button class="pl-cta" id="pl-enviar" type="submit">¡Envíame la plantilla!</button>
+      </form>
+      <p class="pl-legal">Solo te enviaremos la plantilla y tips de Pablo. Cero spam.</p>
+    </div>
+
+    <!-- ── Paso 2: confirmación + upsell ── -->
+    <div class="pl-paso" id="pl-paso-exito" hidden>
+      <img
+        class="pl-mascota"
+        src="/onboarding/images/pablo/emotions/pablo-emocionado.png"
+        alt=""
+        width="110"
+        height="96"
+        loading="lazy"
+      />
+      <h3 class="pl-titulo">¡Enviada! Revisa tu correo</h3>
+      <p class="pl-sub">
+        Tu plantilla va en camino a <strong id="pl-email-confirmado"></strong>.
+        Si no la ves en unos minutos, busca en Promociones o Spam.
+      </p>
+
+      <a
+        class="pl-upsell"
+        href="/onboarding"
+        id="pl-upsell-link"
+      >
+        <div class="pl-upsell__copy">
+          <span class="pl-upsell__kicker">¿Y si pasas al siguiente nivel?</span>
+          <span class="pl-upsell__texto">
+            Olvídate de llenar plantillas: con Pablo mandas un mensajito por
+            WhatsApp y tu gasto queda registrado solito.
+          </span>
+          <span class="pl-upsell__btn">¡Desbloquea a Pablo!</span>
+        </div>
+        <div class="pl-upsell__escena" aria-hidden="true">
+          <div class="pl-fono">
+            <div class="pl-fono__pantalla">
+              <div class="pl-burbuja pl-burbuja--out">gasté 25 en almuerzo</div>
+              <div class="pl-burbuja pl-burbuja--in">✅ Alimentación<br /><b>S/ 25.00</b></div>
+            </div>
+          </div>
+          <img
+            class="pl-upsell__pablo"
+            src="/onboarding/images/pablo/pablo-point.png"
+            alt=""
+            width="120"
+            height="150"
+            loading="lazy"
+          />
+        </div>
+      </a>
+    </div>
+  </div>
+</div>
+
+<style>
+  .pl-overlay {
+    position: fixed;
+    inset: 0;
+    z-index: 1000;
+    background: rgba(43, 44, 100, 0.5);
+    backdrop-filter: blur(6px);
+    -webkit-backdrop-filter: blur(6px);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 20px;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.25s ease;
+  }
+
+  .pl-overlay.is-open {
+    opacity: 1;
+    pointer-events: all;
+  }
+
+  .pl-card {
+    position: relative;
+    background: #fff;
+    border-radius: 24px;
+    width: 100%;
+    max-width: 440px;
+    max-height: 92vh;
+    overflow-y: auto;
+    padding: 32px 28px 26px;
+    box-shadow: 0 24px 80px rgba(43, 44, 100, 0.22);
+    transform: translateY(14px) scale(0.98);
+    opacity: 0;
+    transition:
+      transform 0.28s cubic-bezier(0.22, 1, 0.36, 1),
+      opacity 0.25s ease;
+  }
+
+  .pl-overlay.is-open .pl-card {
+    transform: translateY(0) scale(1);
+    opacity: 1;
+  }
+
+  .pl-close {
+    position: absolute;
+    top: 12px;
+    right: 12px;
+    width: 34px;
+    height: 34px;
+    border-radius: 50%;
+    background: rgba(238, 234, 250, 0.9);
+    border: none;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--color-heading);
+    transition: background 0.15s, transform 0.15s;
+  }
+
+  .pl-close:hover {
+    background: #e0dbf5;
+    transform: scale(1.08);
+  }
+
+  .pl-paso {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+  }
+
+  .pl-paso[hidden] {
+    display: none;
+  }
+
+  .pl-mascota {
+    width: 110px;
+    height: auto;
+    margin-bottom: 6px;
+  }
+
+  .pl-titulo {
+    font-family: var(--font-heading);
+    font-size: 1.5rem;
+    color: var(--color-heading);
+    line-height: 1.25;
+    margin-bottom: 8px;
+  }
+
+  .pl-sub {
+    color: var(--color-body);
+    font-size: 0.95rem;
+    line-height: 1.55;
+    margin-bottom: 20px;
+    max-width: 320px;
+  }
+
+  #pl-form {
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    text-align: left;
+  }
+
+  .pl-label {
+    font-size: 0.82rem;
+    font-weight: 700;
+    color: var(--color-heading);
+    margin: 0 0 6px 4px;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+  }
+
+  .pl-input {
+    width: 100%;
+    font-family: var(--font-body);
+    font-size: 1rem;
+    color: var(--color-heading);
+    background: #fff;
+    border: 2px solid #e5e5e5;
+    border-radius: 16px;
+    padding: 13px 16px;
+    margin-bottom: 14px;
+    outline: none;
+    transition: border-color 0.15s, box-shadow 0.15s;
+  }
+
+  .pl-input::placeholder {
+    color: #b3b2c9;
+  }
+
+  .pl-input:focus {
+    border-color: var(--color-amber);
+    box-shadow: 0 0 0 3px rgba(245, 166, 35, 0.18);
+  }
+
+  .pl-error {
+    color: #d64545;
+    font-size: 0.85rem;
+    font-weight: 600;
+    margin: -4px 4px 10px;
+  }
+
+  /* CTA estilo Duolingo: reborde inferior 3D, uppercase (mismo look del hero) */
+  .pl-cta {
+    width: 100%;
+    border: none;
+    cursor: pointer;
+    border-radius: 16px;
+    padding: 15px 22px;
+    margin-top: 4px;
+    font-family: var(--font-body);
+    font-weight: 800;
+    font-size: 15px;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    background: var(--color-amber);
+    color: #2b2c64;
+    box-shadow: 0 4px 0 0 #c9820a;
+    transition: transform 0.12s ease, box-shadow 0.12s ease, opacity 0.15s;
+  }
+
+  .pl-cta:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 5px 0 0 #c9820a;
+  }
+
+  .pl-cta:active {
+    transform: translateY(3px);
+    box-shadow: 0 1px 0 0 #c9820a;
+  }
+
+  .pl-cta:disabled {
+    opacity: 0.65;
+    cursor: wait;
+    transform: none;
+  }
+
+  .pl-legal {
+    font-size: 0.75rem;
+    color: var(--color-secondary);
+    margin-top: 14px;
+  }
+
+  /* ── Upsell tipo comercial: Pablo + teléfono sobre navy ── */
+  .pl-upsell {
+    display: grid;
+    grid-template-columns: 1fr auto;
+    align-items: center;
+    gap: 8px;
+    width: 100%;
+    margin-top: 8px;
+    background: var(--color-navy);
+    border-radius: 20px;
+    padding: 20px 8px 0 20px;
+    text-align: left;
+    text-decoration: none;
+    overflow: hidden;
+    box-shadow: 0 4px 0 0 #1d1e49;
+    transition: transform 0.12s ease, box-shadow 0.12s ease;
+  }
+
+  .pl-upsell:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 5px 0 0 #1d1e49;
+  }
+
+  .pl-upsell:active {
+    transform: translateY(3px);
+    box-shadow: 0 1px 0 0 #1d1e49;
+  }
+
+  .pl-upsell__copy {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    padding-bottom: 20px;
+  }
+
+  .pl-upsell__kicker {
+    font-family: var(--font-heading);
+    font-weight: 700;
+    font-size: 1.05rem;
+    line-height: 1.3;
+    color: #fff;
+  }
+
+  .pl-upsell__texto {
+    font-size: 0.82rem;
+    line-height: 1.5;
+    color: rgba(255, 255, 255, 0.78);
+  }
+
+  .pl-upsell__btn {
+    display: inline-block;
+    align-self: flex-start;
+    margin-top: 4px;
+    background: var(--color-amber);
+    color: #2b2c64;
+    font-weight: 800;
+    font-size: 12px;
+    text-transform: uppercase;
+    letter-spacing: 0.07em;
+    padding: 10px 16px;
+    border-radius: 12px;
+    box-shadow: 0 3px 0 0 #c9820a;
+  }
+
+  .pl-upsell__escena {
+    position: relative;
+    align-self: end;
+    display: flex;
+    align-items: flex-end;
+    padding-right: 4px;
+  }
+
+  .pl-upsell__pablo {
+    width: 88px;
+    height: auto;
+    margin-left: -26px;
+    margin-bottom: -4px;
+    /* Volteado para que apunte hacia el teléfono (queda a su izquierda) */
+    transform: scaleX(-1);
+    filter: drop-shadow(0 6px 10px rgba(0, 0, 0, 0.3));
+  }
+
+  /* Mini teléfono estático con look WhatsApp (mismo lenguaje del hero) */
+  .pl-fono {
+    width: 92px;
+    border-radius: 14px 14px 0 0;
+    padding: 5px 5px 0;
+    background: linear-gradient(145deg, #3a3a3c, #1c1c1e 40%, #48484a);
+    box-shadow: inset 0 0 2px 2px rgba(255, 255, 255, 0.08);
+  }
+
+  .pl-fono__pantalla {
+    background: #efe7dd;
+    border-radius: 10px 10px 0 0;
+    padding: 8px 5px 10px;
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+    min-height: 96px;
+  }
+
+  .pl-burbuja {
+    max-width: 92%;
+    font-size: 8.5px;
+    line-height: 1.35;
+    color: #111;
+    padding: 4px 6px;
+    border-radius: 7px;
+    box-shadow: 0 1px 0.5px rgba(0, 0, 0, 0.12);
+  }
+
+  .pl-burbuja--out {
+    align-self: flex-end;
+    background: #d9fdd3;
+    border-top-right-radius: 2px;
+  }
+
+  .pl-burbuja--in {
+    align-self: flex-start;
+    background: #fff;
+    border-top-left-radius: 2px;
+  }
+
+  @media (max-width: 480px) {
+    .pl-card {
+      padding: 28px 20px 22px;
+      border-radius: 20px;
+    }
+
+    .pl-upsell {
+      padding-left: 16px;
+    }
+
+    .pl-upsell__pablo {
+      width: 74px;
+      margin-left: -22px;
+    }
+
+    .pl-fono {
+      width: 80px;
+    }
+  }
+</style>
+
+<script>
+  const ENDPOINT =
+    "https://mezpfnagkubumzbromsh.supabase.co/functions/v1/suscribir-plantilla";
+  // Id del Google Sheet de la plantilla: solo interceptamos ese link del post.
+  const SHEET_ID = "1PvzGpNJavzwq0-mDEzKakf6jmJIiCSX6";
+  const STORAGE_KEY = "pablo_plantilla_lead";
+
+  const overlay = document.getElementById("plantilla-modal");
+  const closeBtn = document.getElementById("pl-close");
+  const form = document.getElementById("pl-form") as HTMLFormElement | null;
+  const inputNombre = document.getElementById("pl-nombre") as HTMLInputElement | null;
+  const inputEmail = document.getElementById("pl-email") as HTMLInputElement | null;
+  const errorEl = document.getElementById("pl-error");
+  const btnEnviar = document.getElementById("pl-enviar") as HTMLButtonElement | null;
+  const pasoForm = document.getElementById("pl-paso-form");
+  const pasoExito = document.getElementById("pl-paso-exito");
+  const emailConfirmado = document.getElementById("pl-email-confirmado");
+  const upsellLink = document.getElementById("pl-upsell-link");
+
+  const capture = (evento: string, props?: Record<string, unknown>) => {
+    try {
+      (window as any).posthog?.capture(evento, props);
+    } catch {
+      /* PostHog puede no estar cargado */
+    }
+  };
+
+  function abrir() {
+    overlay?.classList.add("is-open");
+    overlay?.setAttribute("aria-hidden", "false");
+    document.body.style.overflow = "hidden";
+    capture("plantilla_modal_abierto");
+  }
+
+  function cerrar() {
+    overlay?.classList.remove("is-open");
+    overlay?.setAttribute("aria-hidden", "true");
+    document.body.style.overflow = "";
+  }
+
+  // Intercepta el botón "Descarga la Plantilla Gratis" del contenido del post.
+  document
+    .querySelectorAll<HTMLAnchorElement>(`.post-content a[href*="${SHEET_ID}"]`)
+    .forEach((link) => {
+      link.addEventListener("click", (e) => {
+        e.preventDefault();
+        abrir();
+      });
+    });
+
+  closeBtn?.addEventListener("click", cerrar);
+  overlay?.addEventListener("click", (e) => {
+    if (e.target === overlay) cerrar();
+  });
+  document.addEventListener("keydown", (e) => {
+    if (e.key === "Escape" && overlay?.classList.contains("is-open")) cerrar();
+  });
+
+  // Si ya dejó sus datos antes, se los prellenamos.
+  try {
+    const guardado = JSON.parse(localStorage.getItem(STORAGE_KEY) ?? "null");
+    if (guardado?.nombre && inputNombre) inputNombre.value = guardado.nombre;
+    if (guardado?.email && inputEmail) inputEmail.value = guardado.email;
+  } catch {
+    /* datos corruptos: se ignoran */
+  }
+
+  function mostrarError(msg: string) {
+    if (!errorEl) return;
+    errorEl.textContent = msg;
+    errorEl.hidden = false;
+  }
+
+  form?.addEventListener("submit", async (e) => {
+    e.preventDefault();
+    if (errorEl) errorEl.hidden = true;
+
+    const nombre = inputNombre?.value.trim() ?? "";
+    const email = inputEmail?.value.trim() ?? "";
+    if (!nombre) return mostrarError("Cuéntanos tu nombre para personalizar tu plantilla.");
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(email))
+      return mostrarError("Ese correo no se ve bien, ¿lo revisas?");
+
+    if (btnEnviar) {
+      btnEnviar.disabled = true;
+      btnEnviar.textContent = "Enviando…";
+    }
+
+    try {
+      const res = await fetch(ENDPOINT, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ nombre, email }),
+      });
+      if (!res.ok) {
+        const data = await res.json().catch(() => null);
+        throw new Error(data?.error ?? "No pudimos enviarte la plantilla.");
+      }
+
+      try {
+        localStorage.setItem(STORAGE_KEY, JSON.stringify({ nombre, email }));
+      } catch {
+        /* almacenamiento lleno o bloqueado */
+      }
+
+      if (emailConfirmado) emailConfirmado.textContent = email;
+      if (pasoForm) pasoForm.hidden = true;
+      if (pasoExito) pasoExito.hidden = false;
+      capture("plantilla_form_enviado", { email });
+    } catch (err) {
+      mostrarError(
+        err instanceof Error && err.message
+          ? err.message
+          : "Algo falló, intenta de nuevo en un ratito.",
+      );
+    } finally {
+      if (btnEnviar) {
+        btnEnviar.disabled = false;
+        btnEnviar.textContent = "¡Envíame la plantilla!";
+      }
+    }
+  });
+
+  upsellLink?.addEventListener("click", () => {
+    capture("plantilla_upsell_clicked", { destino: "/onboarding" });
+  });
+</script>
