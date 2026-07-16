@@ -75,9 +75,9 @@
         loading="lazy"
       />
       <h3 class="pl-titulo">¡Enviada! Revisa tu correo</h3>
-      <p class="pl-sub">
+      <p class="pl-sub pl-sub--exito">
         Tu plantilla va en camino a <strong id="pl-email-confirmado"></strong>.
-        Si no la ves en unos minutos, busca en Promociones o Spam.
+        Si no la ves, revisa Promociones o Spam.
       </p>
 
       <a
@@ -91,7 +91,7 @@
             Olvídate de llenar plantillas: con Pablo mandas un mensajito por
             WhatsApp y tu gasto queda registrado solito.
           </span>
-          <span class="pl-upsell__btn">¡Desbloquea a Pablo!</span>
+          <span class="pl-upsell__btn">¡Prueba a Pablo Gratis!</span>
         </div>
         <div class="pl-upsell__escena" aria-hidden="true">
           <div class="pl-fono">
@@ -211,6 +211,12 @@
     line-height: 1.55;
     margin-bottom: 20px;
     max-width: 320px;
+  }
+
+  /* Más ancho en la confirmación: el correo es largo y el texto debe
+   * caber en 3 líneas (feedback Rayyan 15-jul) */
+  .pl-sub--exito {
+    max-width: 100%;
   }
 
   #pl-form {
@@ -351,7 +357,8 @@
 
   .pl-upsell__btn {
     display: inline-block;
-    align-self: flex-start;
+    align-self: stretch;
+    text-align: center;
     margin-top: 4px;
     background: var(--color-amber);
     color: #2b2c64;
