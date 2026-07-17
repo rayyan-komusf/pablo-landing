@@ -1,0 +1,423 @@
+---
+import Layout from "../../../layouts/Layout.astro";
+import Navbar from "../../../components/Navbar.astro";
+import Footer from "../../../components/Footer.astro";
+import CursoLeadModal from "../../../components/CursoLeadModal.astro";
+import { CURSO, SESIONES } from "../../../lib/cursos";
+
+// Página del curso estilo Anthropic Academy: portada + descripción + botón
+// de inscripción gratis + currículum visible (sesiones y certificado). Las
+// clases se desbloquean dejando nombre + correo en el modal de inscripción.
+---
+
+<Layout
+  title={`${CURSO.title} — Cursos — Pablo`}
+  description={`${CURSO.title}: ${CURSO.description}`}
+>
+  <Navbar />
+  <main class="curso-page">
+    <div class="container">
+
+      <header class="curso-header">
+        <a href="/cursos" class="curso-badge">🎓 Curso gratuito</a>
+        <h1>{CURSO.title}</h1>
+        <p class="curso-subtitle">{CURSO.subtitle}</p>
+      </header>
+
+      <img
+        src={CURSO.portada}
+        alt={`Portada del curso ${CURSO.title}`}
+        class="curso-portada"
+        fetchpriority="high"
+        decoding="async"
+      />
+
+      <p class="curso-desc">{CURSO.description}</p>
+
+      <div class="curso-inscribir">
+        <button
+          class="curso-cta"
+          id="curso-cta-inscribir"
+          data-inscrito-label="Continuar el curso →"
+        >Inscríbete gratis</button>
+        <p class="curso-cta-nota" id="curso-cta-nota">
+          Con tu inscripción desbloqueas las 4 sesiones y tu certificado al completar el curso.
+        </p>
+      </div>
+
+      <h2 class="curriculum-titulo">Las clases</h2>
+
+      <!-- Sesiones estilo blog: tarjeta con la miniatura y el título abajo -->
+      <div class="sesiones-grid">
+        {SESIONES.map((sesion) => (
+          <a
+            href={`/cursos/${CURSO.slug}/${sesion.slug}`}
+            class="sesion-card"
+            data-sesion-link
+          >
+            <div class="sesion-card__cover">
+              <img
+                src={`https://img.youtube.com/vi/${sesion.videoId}/hqdefault.jpg`}
+                alt={`${sesion.label}: ${sesion.nombre} — ${CURSO.title}`}
+                width="640"
+                height="360"
+                loading="lazy"
+                decoding="async"
+              />
+              <div class="sesion-card__overlay">
+                <div class="sesion-card__play" data-play-icon>
+                  <svg viewBox="0 0 24 24" fill="currentColor" width="26" height="26">
+                    <path d="M8 5v14l11-7z"/>
+                  </svg>
+                </div>
+              </div>
+            </div>
+            <div class="sesion-card__body">
+              <div class="sesion-card__meta">
+                <span class="sesion-card__label">{sesion.label}</span>
+              </div>
+              <h3 class="sesion-card__title">{sesion.nombre}</h3>
+            </div>
+          </a>
+        ))}
+      </div>
+
+      <!-- Como Anthropic: el certificado es el último ítem del currículum -->
+      <div class="certificado">
+        <span class="certificado__icono">🏆</span>
+        <div class="certificado__copy">
+          <h3>Certificado de finalización</h3>
+          <p>Completa las 4 sesiones y te enviamos tu certificado de {CURSO.title} a tu correo.</p>
+        </div>
+      </div>
+
+      <div class="curso-back">
+        <a href="/cursos">← Volver a cursos</a>
+      </div>
+
+    </div>
+  </main>
+  <CursoLeadModal />
+  <Footer />
+</Layout>
+
+<style>
+  .curso-page {
+    min-height: 100vh;
+    padding: clamp(24px, 5vw, 56px) 0 120px;
+    background: var(--bg-page);
+  }
+
+  .container {
+    max-width: 720px;
+    margin: 0 auto;
+    padding: 0 var(--gutter);
+  }
+
+  .curso-header {
+    text-align: center;
+    margin-bottom: 32px;
+  }
+
+  .curso-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    background: #EAE8FF;
+    color: var(--color-heading);
+    font-size: 0.78rem;
+    font-weight: 700;
+    padding: 5px 14px;
+    border-radius: 100px;
+    margin-bottom: 18px;
+    transition: transform 0.15s ease;
+  }
+
+  .curso-badge:hover {
+    transform: scale(1.04);
+  }
+
+  .curso-header h1 {
+    font-family: var(--font-heading);
+    font-size: clamp(1.9rem, 4.5vw, 2.8rem);
+    color: var(--color-heading);
+    line-height: 1.2;
+    margin-bottom: 8px;
+  }
+
+  .curso-subtitle {
+    font-size: 1.05rem;
+    color: var(--color-body);
+    font-weight: 600;
+  }
+
+  .curso-portada {
+    width: 100%;
+    border-radius: var(--radius-lg);
+    box-shadow: 0 4px 16px rgba(43, 44, 100, 0.12);
+    margin-bottom: 28px;
+    display: block;
+  }
+
+  .curso-desc {
+    font-size: 1.05rem;
+    color: var(--color-body);
+    line-height: 1.75;
+    text-align: center;
+    max-width: 600px;
+    margin: 0 auto 32px;
+  }
+
+  /* Inscripción (como el Register | FREE de Anthropic) */
+  .curso-inscribir {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 56px;
+  }
+
+  .curso-cta {
+    display: block;
+    width: 100%;
+    max-width: 340px;
+    border: none;
+    cursor: pointer;
+    text-align: center;
+    border-radius: 16px;
+    padding: 16px 22px;
+    font-family: var(--font-body);
+    font-weight: 800;
+    font-size: 15px;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    background: var(--color-ambar, #fba920);
+    color: #2b2c64;
+    box-shadow: 0 4px 0 0 #c9820a;
+    transition: transform 0.12s ease, box-shadow 0.12s ease;
+  }
+
+  .curso-cta:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 5px 0 0 #c9820a;
+  }
+
+  .curso-cta:active {
+    transform: translateY(3px);
+    box-shadow: 0 1px 0 0 #c9820a;
+  }
+
+  .curso-cta-nota {
+    font-size: 0.85rem;
+    color: var(--color-secondary);
+    text-align: center;
+    max-width: 400px;
+    line-height: 1.5;
+  }
+
+  .curriculum-titulo {
+    font-family: var(--font-heading);
+    font-size: clamp(1.25rem, 3vw, 1.6rem);
+    color: var(--color-heading);
+    margin-bottom: 24px;
+  }
+
+  /* Sesiones estilo blog: título afuera, debajo de la imagen */
+  .sesiones-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    gap: 40px 32px;
+  }
+
+  .sesion-card {
+    display: flex;
+    flex-direction: column;
+    text-decoration: none;
+    color: inherit;
+    gap: 14px;
+  }
+
+  .sesion-card__cover {
+    position: relative;
+    width: 100%;
+    aspect-ratio: 16/9;
+    overflow: hidden;
+    border-radius: var(--radius-md);
+    box-shadow: 0 4px 16px rgba(43, 44, 100, 0.12);
+  }
+
+  .sesion-card__cover img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transition: transform 0.3s ease;
+  }
+
+  .sesion-card:hover .sesion-card__cover img {
+    transform: scale(1.04);
+  }
+
+  .sesion-card__overlay {
+    position: absolute;
+    inset: 0;
+    background: rgba(20, 20, 60, 0.28);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: background 0.2s;
+  }
+
+  .sesion-card:hover .sesion-card__overlay {
+    background: rgba(20, 20, 60, 0.16);
+  }
+
+  .sesion-card__play {
+    width: 52px;
+    height: 52px;
+    border-radius: 50%;
+    background: white;
+    color: var(--color-heading);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 4px 16px rgba(0,0,0,0.25);
+    transition: transform 0.2s ease, background 0.2s;
+    padding-left: 3px;
+    font-size: 1.1rem;
+  }
+
+  .sesion-card:hover .sesion-card__play {
+    transform: scale(1.1);
+    background: var(--color-amber);
+  }
+
+  .sesion-card__body {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+  }
+
+  .sesion-card__meta {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .sesion-card__label {
+    font-size: 0.78rem;
+    color: var(--color-secondary);
+    font-weight: 600;
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
+  }
+
+  .sesion-card__title {
+    font-family: var(--font-heading);
+    font-size: 1.25rem;
+    color: var(--color-heading);
+    line-height: 1.3;
+    transition: color 0.15s;
+  }
+
+  .sesion-card:hover .sesion-card__title {
+    color: var(--color-purple);
+  }
+
+  /* Certificado al final del currículum */
+  .certificado {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    margin-top: 48px;
+    background: var(--highlight-bg, rgba(236, 216, 183, 0.4));
+    border-radius: var(--radius-lg);
+    padding: 20px 24px;
+  }
+
+  .certificado__icono {
+    font-size: 2rem;
+    line-height: 1;
+  }
+
+  .certificado__copy h3 {
+    font-family: var(--font-heading);
+    font-size: 1.05rem;
+    color: var(--color-heading);
+    margin-bottom: 4px;
+  }
+
+  .certificado__copy p {
+    font-size: 0.9rem;
+    color: var(--color-body);
+    line-height: 1.55;
+  }
+
+  .curso-back {
+    margin-top: 72px;
+    padding-top: 32px;
+    border-top: 1px solid rgba(43, 44, 100, 0.1);
+  }
+
+  .curso-back a {
+    color: var(--color-body);
+    font-weight: 500;
+    transition: color 0.15s;
+  }
+
+  .curso-back a:hover {
+    color: var(--color-heading);
+  }
+
+  @media (max-width: 640px) {
+    .sesiones-grid {
+      grid-template-columns: 1fr;
+    }
+  }
+</style>
+
+<script>
+  import { CURSO_LEAD_KEY, CURSO, SESIONES } from "../../../lib/cursos";
+
+  const inscrito = () => {
+    try {
+      return !!localStorage.getItem(CURSO_LEAD_KEY);
+    } catch {
+      return false;
+    }
+  };
+
+  const abrirModal = (destino?: string) =>
+    (window as any).abrirCursoModal?.(destino);
+
+  // Las clases se desbloquean con la inscripción (gate estilo Anthropic).
+  document.querySelectorAll<HTMLAnchorElement>("a[data-sesion-link]").forEach((link) => {
+    link.addEventListener("click", (e) => {
+      if (inscrito()) return;
+      e.preventDefault();
+      abrirModal(link.href);
+    });
+  });
+
+  const cta = document.getElementById("curso-cta-inscribir");
+  const nota = document.getElementById("curso-cta-nota");
+  const primeraSesion = `/cursos/${CURSO.slug}/${SESIONES[0].slug}`;
+
+  if (cta) {
+    if (inscrito()) {
+      cta.textContent = cta.dataset.inscritoLabel || "Continuar el curso →";
+      if (nota) nota.textContent = "Ya estás inscrito: tus 4 sesiones están desbloqueadas.";
+    }
+    cta.addEventListener("click", () => {
+      if (inscrito()) {
+        window.location.href = primeraSesion;
+      } else {
+        abrirModal(primeraSesion);
+      }
+    });
+  }
+
+  // Deep link (p. ej. redirigido desde una clase sin inscripción).
+  if (new URLSearchParams(window.location.search).has("inscribete") && !inscrito()) {
+    abrirModal(primeraSesion);
+  }
+</script>

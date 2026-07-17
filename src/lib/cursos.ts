@@ -12,11 +12,18 @@ export interface Sesion {
 }
 
 export const CURSO = {
+  slug: "camino-al-millon",
   title: "Camino al Millón",
+  subtitle: "Finanzas de un Futuro Millonario",
   description:
     "El programa de finanzas de Pablo, completo y gratis: 4 sesiones para aprender a ahorrar, hacer tu presupuesto, ponerte metas reales y salir de deudas.",
   portada: "/cursos/camino-al-millon.webp",
 };
+
+// Clave de localStorage que marca que el visitante ya se inscribió al curso
+// (nombre + correo enviados a Brevo). La leen el modal, la página del curso
+// y las páginas de sesión para el gate estilo Anthropic Academy.
+export const CURSO_LEAD_KEY = "pablo_curso_cam_lead";
 
 export const SESIONES: Sesion[] = [
   {

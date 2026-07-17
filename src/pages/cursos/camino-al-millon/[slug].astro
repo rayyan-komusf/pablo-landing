@@ -1,8 +1,8 @@
 ---
-import Layout from "../../layouts/Layout.astro";
-import Navbar from "../../components/Navbar.astro";
-import Footer from "../../components/Footer.astro";
-import { CURSO, SESIONES } from "../../lib/cursos";
+import Layout from "../../../layouts/Layout.astro";
+import Navbar from "../../../components/Navbar.astro";
+import Footer from "../../../components/Footer.astro";
+import { CURSO, SESIONES } from "../../../lib/cursos";
 
 export function getStaticPaths() {
   return SESIONES.map((sesion) => ({ params: { slug: sesion.slug } }));
@@ -11,7 +11,7 @@ export function getStaticPaths() {
 const { slug } = Astro.params;
 const index = SESIONES.findIndex((s) => s.slug === slug);
 const sesion = SESIONES[index];
-if (!sesion) return Astro.redirect("/cursos");
+if (!sesion) return Astro.redirect(`/cursos/${CURSO.slug}`);
 
 const siguiente = SESIONES[index + 1] ?? null;
 ---
@@ -24,7 +24,7 @@ const siguiente = SESIONES[index + 1] ?? null;
   <main class="clase-page">
     <article class="container">
       <header class="clase-header">
-        <a href="/cursos" class="clase-curso-link">🎓 {CURSO.title}</a>
+        <a href={`/cursos/${CURSO.slug}`} class="clase-curso-link">🎓 {CURSO.title}</a>
         <h1>{sesion.label}: {sesion.nombre}</h1>
       </header>
 
@@ -49,16 +49,16 @@ const siguiente = SESIONES[index + 1] ?? null;
           onclick="try{window.posthog?.capture('landing_cta_clicked',{cta:'cursos_desbloquea',location:'curso_sesion'})}catch(e){};if(typeof fbq!=='undefined')fbq('trackCustom','Ver_Planes');if(typeof ttq!=='undefined')ttq.track('ClickButton',{content_name:'Ver_Planes'});"
         >Desbloquea a Pablo gratis hoy</a>
         {siguiente ? (
-          <a href={`/cursos/${siguiente.slug}`} class="clase-siguiente">
+          <a href={`/cursos/${CURSO.slug}/${siguiente.slug}`} class="clase-siguiente">
             Ir al siguiente video: {siguiente.label} — {siguiente.nombre} →
           </a>
         ) : (
-          <a href="/cursos" class="clase-siguiente">← Volver al curso</a>
+          <a href={`/cursos/${CURSO.slug}`} class="clase-siguiente">← Volver al curso</a>
         )}
       </div>
 
       <div class="clase-back">
-        <a href="/cursos">← Volver a cursos</a>
+        <a href={`/cursos/${CURSO.slug}`}>← Volver al curso</a>
       </div>
     </article>
   </main>
@@ -203,3 +203,17 @@ const siguiente = SESIONES[index + 1] ?? null;
     color: var(--color-heading);
   }
 </style>
+
+<script>
+  import { CURSO_LEAD_KEY, CURSO } from "../../../lib/cursos";
+
+  // Gate estilo Anthropic: las clases requieren inscripción. Si no la hay,
+  // volvemos a la página del curso con el modal de inscripción abierto.
+  try {
+    if (!localStorage.getItem(CURSO_LEAD_KEY)) {
+      window.location.replace(`/cursos/${CURSO.slug}?inscribete=1`);
+    }
+  } catch {
+    /* localStorage bloqueado: dejamos ver la clase */
+  }
+</script>
