@@ -1515,3 +1515,12 @@ body .topbar > div {
     transition-duration: 0.01ms;
   }
 }
+
+/* Los WebP/GIF animados de Pablito traen el fondo blanqueado a #fff puro
+ * (se optimizaron cuando el onboarding era blanco). Sobre el lila actual
+ * dejaban un cuadro blanco: multiply funde el blanco con CUALQUIER fondo
+ * (el resto de colores apenas se oscurece sobre un lila tan claro). */
+.duo-stage__pablo img,
+.fuente-pablo img {
+  mix-blend-mode: multiply;
+}
