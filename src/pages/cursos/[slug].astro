@@ -1,0 +1,205 @@
+---
+import Layout from "../../layouts/Layout.astro";
+import Navbar from "../../components/Navbar.astro";
+import Footer from "../../components/Footer.astro";
+import { CURSO, SESIONES } from "../../lib/cursos";
+
+export function getStaticPaths() {
+  return SESIONES.map((sesion) => ({ params: { slug: sesion.slug } }));
+}
+
+const { slug } = Astro.params;
+const index = SESIONES.findIndex((s) => s.slug === slug);
+const sesion = SESIONES[index];
+if (!sesion) return Astro.redirect("/cursos");
+
+const siguiente = SESIONES[index + 1] ?? null;
+---
+
+<Layout
+  title={`${sesion.label}: ${sesion.nombre} — ${CURSO.title} — Pablo`}
+  description={`${sesion.label} del programa ${CURSO.title}: ${sesion.nombre}. Curso gratuito de finanzas personales de Pablo.`}
+>
+  <Navbar />
+  <main class="clase-page">
+    <article class="container">
+      <header class="clase-header">
+        <a href="/cursos" class="clase-curso-link">🎓 {CURSO.title}</a>
+        <h1>{sesion.label}: {sesion.nombre}</h1>
+      </header>
+
+      <div class="clase-video">
+        <iframe
+          src={`https://www.youtube.com/embed/${sesion.videoId}?rel=0`}
+          title={`${sesion.label}: ${sesion.nombre} — ${CURSO.title}`}
+          allow="autoplay; encrypted-media; picture-in-picture"
+          allowfullscreen
+          loading="lazy"
+        ></iframe>
+      </div>
+
+      <div class="clase-desc">
+        {sesion.parrafos.map((p) => <p>{p}</p>)}
+      </div>
+
+      <div class="clase-cta-wrap">
+        <a
+          href="/#planes"
+          class="clase-cta"
+          onclick="try{window.posthog?.capture('landing_cta_clicked',{cta:'cursos_desbloquea',location:'curso_sesion'})}catch(e){};if(typeof fbq!=='undefined')fbq('trackCustom','Ver_Planes');if(typeof ttq!=='undefined')ttq.track('ClickButton',{content_name:'Ver_Planes'});"
+        >Desbloquea a Pablo gratis hoy</a>
+        {siguiente ? (
+          <a href={`/cursos/${siguiente.slug}`} class="clase-siguiente">
+            Ir al siguiente video: {siguiente.label} — {siguiente.nombre} →
+          </a>
+        ) : (
+          <a href="/cursos" class="clase-siguiente">← Volver al curso</a>
+        )}
+      </div>
+
+      <div class="clase-back">
+        <a href="/cursos">← Volver a cursos</a>
+      </div>
+    </article>
+  </main>
+  <Footer />
+</Layout>
+
+<style>
+  .clase-page {
+    min-height: 100vh;
+    background: var(--bg-page);
+    padding-bottom: 120px;
+  }
+
+  .container {
+    max-width: 720px;
+    margin: 0 auto;
+    padding: 0 var(--gutter);
+  }
+
+  .clase-header {
+    padding: 64px 0 32px;
+    text-align: center;
+  }
+
+  .clase-curso-link {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    background: #EAE8FF;
+    color: var(--color-heading);
+    font-size: 0.78rem;
+    font-weight: 700;
+    padding: 5px 14px;
+    border-radius: 100px;
+    margin-bottom: 18px;
+    transition: transform 0.15s ease;
+  }
+
+  .clase-curso-link:hover {
+    transform: scale(1.04);
+  }
+
+  .clase-header h1 {
+    font-family: var(--font-heading);
+    font-size: clamp(1.8rem, 4vw, 2.8rem);
+    color: var(--color-heading);
+    line-height: 1.2;
+  }
+
+  /* El video es el protagonista de la página */
+  .clase-video {
+    aspect-ratio: 16/9;
+    border-radius: var(--radius-lg);
+    overflow: hidden;
+    background: black;
+    box-shadow: 0 4px 16px rgba(43, 44, 100, 0.15);
+    margin-bottom: 48px;
+  }
+
+  .clase-video iframe {
+    width: 100%;
+    height: 100%;
+    border: none;
+    display: block;
+  }
+
+  /* La carta de rodrigo */
+  .clase-desc p {
+    font-size: 1.05rem;
+    line-height: 1.8;
+    color: var(--color-body);
+    margin-bottom: 20px;
+  }
+
+  .clase-desc p:last-child {
+    font-weight: 700;
+    color: var(--color-heading);
+  }
+
+  /* CTA grande + hyperlink pequeño al siguiente video */
+  .clase-cta-wrap {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 18px;
+    margin-top: 48px;
+  }
+
+  .clase-cta {
+    display: block;
+    width: 100%;
+    max-width: 340px;
+    text-align: center;
+    border-radius: 16px;
+    padding: 16px 22px;
+    font-weight: 800;
+    font-size: 15px;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    background: var(--color-ambar, #fba920);
+    color: #2b2c64;
+    box-shadow: 0 4px 0 0 #c9820a;
+    transition: transform 0.12s ease, box-shadow 0.12s ease;
+  }
+
+  .clase-cta:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 5px 0 0 #c9820a;
+  }
+
+  .clase-cta:active {
+    transform: translateY(3px);
+    box-shadow: 0 1px 0 0 #c9820a;
+  }
+
+  .clase-siguiente {
+    font-size: 0.9rem;
+    font-weight: 600;
+    color: var(--color-body);
+    text-decoration: underline;
+    text-underline-offset: 3px;
+    transition: color 0.15s;
+  }
+
+  .clase-siguiente:hover {
+    color: var(--color-heading);
+  }
+
+  .clase-back {
+    margin-top: 72px;
+    padding-top: 32px;
+    border-top: 1px solid rgba(43, 44, 100, 0.1);
+  }
+
+  .clase-back a {
+    color: var(--color-body);
+    font-weight: 500;
+    transition: color 0.15s;
+  }
+
+  .clase-back a:hover {
+    color: var(--color-heading);
+  }
+</style>
