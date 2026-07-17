@@ -34,9 +34,8 @@
       />
       <h3 class="cl-titulo">Inscríbete gratis al curso</h3>
       <p class="cl-sub">
-        Déjanos tu nombre y tu correo para desbloquear las 4 sesiones de
-        <strong>Camino al Millón</strong>. Al completar el curso te enviaremos
-        tu certificado 🎓
+        Déjanos tu nombre y tu correo para desbloquear gratis las 4 sesiones
+        de <strong>Camino al Millón</strong>.
       </p>
 
       <form id="cl-form" novalidate>
@@ -81,8 +80,7 @@
       <h3 class="cl-titulo">¡Estás dentro!</h3>
       <p class="cl-sub cl-sub--exito">
         Curso desbloqueado. Te enviamos la bienvenida a
-        <strong id="cl-email-confirmado"></strong> y tu certificado llegará
-        cuando completes las 4 sesiones.
+        <strong id="cl-email-confirmado"></strong>. ¡Disfruta las 4 sesiones!
       </p>
       <a class="cl-cta cl-cta--link" id="cl-ir-clase" href="#">Empezar la clase →</a>
     </div>
@@ -370,7 +368,7 @@
 
     const nombre = inputNombre?.value.trim() ?? "";
     const email = inputEmail?.value.trim() ?? "";
-    if (!nombre) return mostrarError("Cuéntanos tu nombre para tu certificado.");
+    if (!nombre) return mostrarError("Cuéntanos tu nombre para tu inscripción.");
     if (!/^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(email))
       return mostrarError("Ese correo no se ve bien, ¿lo revisas?");
 

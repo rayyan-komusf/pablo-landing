@@ -33,21 +33,18 @@ import { CURSO, SESIONES } from "../../lib/cursos";
             />
             <span class="curso-card__gratis">Gratis</span>
           </div>
-          <div class="curso-card__body">
+          <div class="curso-card__panel">
             <h2 class="curso-card__title">{CURSO.title}</h2>
             <p class="curso-card__subtitle">{CURSO.subtitle}</p>
             <div class="curso-card__chips">
               {SESIONES.map((sesion, i) => (
                 <span class="curso-card__chip">
                   <span class="curso-card__chip-num">{i + 1}</span>
-                  {sesion.nombre}
+                  <span class="curso-card__chip-nombre">{sesion.nombre}</span>
                 </span>
               ))}
             </div>
-            <div class="curso-card__footer">
-              <span class="curso-card__cert">🏆 Con certificado</span>
-              <span class="curso-card__btn">Empezar gratis →</span>
-            </div>
+            <span class="curso-card__btn">Empezar gratis →</span>
           </div>
         </a>
       </div>
@@ -113,28 +110,18 @@ import { CURSO, SESIONES } from "../../lib/cursos";
     margin: 0 auto;
   }
 
-  /* Tarjeta del curso: card blanca estilo Duo (borde inferior 3D suave) */
+  /* Tarjeta del curso: la portada y el panel de info son bloques separados */
   .curso-card {
     display: flex;
     flex-direction: column;
+    gap: 16px;
     text-decoration: none;
     color: inherit;
-    background: #fff;
-    border-radius: 24px;
-    overflow: hidden;
-    border: 2px solid #e9e6f8;
-    box-shadow: 0 4px 0 0 #e0dcf3, 0 16px 40px rgba(43, 44, 100, 0.1);
-    transition: transform 0.15s ease, box-shadow 0.15s ease;
+    transition: transform 0.15s ease;
   }
 
   .curso-card:hover {
     transform: translateY(-3px);
-    box-shadow: 0 7px 0 0 #e0dcf3, 0 22px 48px rgba(43, 44, 100, 0.14);
-  }
-
-  .curso-card:active {
-    transform: translateY(2px);
-    box-shadow: 0 2px 0 0 #e0dcf3, 0 10px 28px rgba(43, 44, 100, 0.1);
   }
 
   .curso-card__cover {
@@ -142,6 +129,8 @@ import { CURSO, SESIONES } from "../../lib/cursos";
     width: 100%;
     aspect-ratio: 16/9;
     overflow: hidden;
+    border-radius: 24px;
+    box-shadow: 0 4px 16px rgba(43, 44, 100, 0.14);
   }
 
   .curso-card__cover img {
@@ -170,11 +159,21 @@ import { CURSO, SESIONES } from "../../lib/cursos";
     box-shadow: 0 2px 0 0 #c9820a;
   }
 
-  .curso-card__body {
+  /* Panel de info: card blanca estilo Duo (borde inferior 3D suave) */
+  .curso-card__panel {
     display: flex;
     flex-direction: column;
     gap: 8px;
     padding: 20px 22px 22px;
+    background: #fff;
+    border-radius: 24px;
+    border: 2px solid #e9e6f8;
+    box-shadow: 0 4px 0 0 #e0dcf3, 0 16px 40px rgba(43, 44, 100, 0.1);
+    transition: box-shadow 0.15s ease;
+  }
+
+  .curso-card:hover .curso-card__panel {
+    box-shadow: 0 6px 0 0 #e0dcf3, 0 20px 44px rgba(43, 44, 100, 0.13);
   }
 
   .curso-card__title {
@@ -190,30 +189,36 @@ import { CURSO, SESIONES } from "../../lib/cursos";
     line-height: 1.5;
   }
 
-  /* Las 4 sesiones como chips numerados */
+  /* Las 4 sesiones como chips numerados: SIEMPRE en una sola línea,
+   * repartidos a lo ancho del panel (sin espacio en blanco sobrante) */
   .curso-card__chips {
     display: flex;
-    flex-wrap: wrap;
+    flex-wrap: nowrap;
     gap: 8px;
     margin-top: 8px;
   }
 
   .curso-card__chip {
+    flex: 1 1 0;
+    min-width: 0;
     display: inline-flex;
     align-items: center;
+    justify-content: center;
     gap: 6px;
     background: #f1effb;
     color: var(--color-heading);
-    font-size: 0.8rem;
+    font-size: clamp(0.68rem, 2vw, 0.8rem);
     font-weight: 700;
-    padding: 5px 12px 5px 6px;
+    padding: 5px 6px;
     border-radius: 100px;
+    white-space: nowrap;
   }
 
   .curso-card__chip-num {
     display: inline-flex;
     align-items: center;
     justify-content: center;
+    flex-shrink: 0;
     width: 20px;
     height: 20px;
     border-radius: 50%;
@@ -223,31 +228,18 @@ import { CURSO, SESIONES } from "../../lib/cursos";
     font-weight: 800;
   }
 
-  .curso-card__footer {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    gap: 12px;
-    margin-top: 14px;
-    padding-top: 16px;
-    border-top: 1px solid #efedf9;
-  }
-
-  .curso-card__cert {
-    font-size: 0.82rem;
-    font-weight: 600;
-    color: var(--color-secondary);
-  }
-
   .curso-card__btn {
+    display: block;
+    text-align: center;
+    margin-top: 14px;
     background: var(--color-amber);
     color: #2b2c64;
     font-weight: 800;
-    font-size: 0.8rem;
+    font-size: 0.85rem;
     text-transform: uppercase;
     letter-spacing: 0.06em;
-    padding: 10px 18px;
-    border-radius: 12px;
+    padding: 13px 18px;
+    border-radius: 14px;
     box-shadow: 0 3px 0 0 #c9820a;
     transition: transform 0.12s ease, box-shadow 0.12s ease;
     white-space: nowrap;
@@ -263,8 +255,21 @@ import { CURSO, SESIONES } from "../../lib/cursos";
       grid-template-columns: 1fr;
     }
 
-    .curso-card__body {
+    .curso-card__panel {
       padding: 18px 18px 20px;
+    }
+  }
+
+  /* En pantallas muy angostas los números se ocultan para que los 4
+   * nombres sigan cabiendo en una línea */
+  @media (max-width: 460px) {
+    .curso-card__chip {
+      gap: 0;
+      padding: 6px 4px;
+    }
+
+    .curso-card__chip-num {
+      display: none;
     }
   }
 </style>

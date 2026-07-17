@@ -41,7 +41,7 @@ import { CURSO, SESIONES } from "../../../lib/cursos";
           data-inscrito-label="Continuar el curso →"
         >Inscríbete gratis</button>
         <p class="curso-cta-nota" id="curso-cta-nota">
-          Con tu inscripción desbloqueas las 4 sesiones y tu certificado al completar el curso.
+          Con tu inscripción desbloqueas las 4 sesiones del curso, gratis.
         </p>
       </div>
 
@@ -80,15 +80,6 @@ import { CURSO, SESIONES } from "../../../lib/cursos";
             </div>
           </a>
         ))}
-      </div>
-
-      <!-- Como Anthropic: el certificado es el último ítem del currículum -->
-      <div class="certificado">
-        <span class="certificado__icono">🏆</span>
-        <div class="certificado__copy">
-          <h3>Certificado de finalización</h3>
-          <p>Completa las 4 sesiones y te enviamos tu certificado de {CURSO.title} a tu correo.</p>
-        </div>
       </div>
 
       <div class="curso-back">
@@ -321,35 +312,6 @@ import { CURSO, SESIONES } from "../../../lib/cursos";
 
   .sesion-card:hover .sesion-card__title {
     color: var(--color-purple);
-  }
-
-  /* Certificado al final del currículum */
-  .certificado {
-    display: flex;
-    align-items: center;
-    gap: 16px;
-    margin-top: 48px;
-    background: var(--highlight-bg, rgba(236, 216, 183, 0.4));
-    border-radius: var(--radius-lg);
-    padding: 20px 24px;
-  }
-
-  .certificado__icono {
-    font-size: 2rem;
-    line-height: 1;
-  }
-
-  .certificado__copy h3 {
-    font-family: var(--font-heading);
-    font-size: 1.05rem;
-    color: var(--color-heading);
-    margin-bottom: 4px;
-  }
-
-  .certificado__copy p {
-    font-size: 0.9rem;
-    color: var(--color-body);
-    line-height: 1.55;
   }
 
   .curso-back {
