@@ -34,8 +34,8 @@ import { CURSO, SESIONES } from "../../lib/cursos";
             <span class="curso-card__gratis">Gratis</span>
           </div>
           <div class="curso-card__panel">
-            <h2 class="curso-card__title">{CURSO.title}</h2>
-            <p class="curso-card__subtitle">{CURSO.subtitle}</p>
+            <h2 class="curso-card__title">{CURSO.subtitle}</h2>
+            <p class="curso-card__subtitle">{CURSO.title}</p>
             <div class="curso-card__chips">
               {SESIONES.map((sesion, i) => (
                 <span class="curso-card__chip">
@@ -124,19 +124,20 @@ import { CURSO, SESIONES } from "../../lib/cursos";
     transform: translateY(-3px);
   }
 
+  /* La portada se muestra completa, con su proporción natural (sin
+   * recorte ni zoom): la imagen mide exactamente lo mismo que el bloque */
   .curso-card__cover {
     position: relative;
     width: 100%;
-    aspect-ratio: 16/9;
     overflow: hidden;
     border-radius: 24px;
     box-shadow: 0 4px 16px rgba(43, 44, 100, 0.14);
   }
 
   .curso-card__cover img {
+    display: block;
     width: 100%;
-    height: 100%;
-    object-fit: cover;
+    height: auto;
     transition: transform 0.3s ease;
   }
 
