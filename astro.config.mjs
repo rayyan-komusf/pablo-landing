@@ -5,6 +5,10 @@ import sitemap from '@astrojs/sitemap';
 // https://astro.build/config
 export default defineConfig({
   site: 'https://www.usapablo.com',
+  redirects: {
+    // El webinar es el único evento activo: /eventos va directo a la landing
+    '/eventos': '/webinar',
+  },
   integrations: [
     sitemap({
       changefreq: 'weekly',

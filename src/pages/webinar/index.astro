@@ -1,0 +1,20 @@
+---
+import Layout from '../../layouts/Layout.astro';
+import Navbar from '../../components/Navbar.astro';
+import Footer from '../../components/Footer.astro';
+import EventoMandamientos from '../../components/eventos/EventoMandamientos.astro';
+import RegistroWebinar from '../../components/eventos/RegistroWebinar.astro';
+// src/pages/webinar/index.astro
+---
+
+<Layout
+  title="Los 4 Mandamientos Financieros — Webinar gratis"
+  description="Webinar en vivo y gratis: las 4 reglas simples para ordenar tu plata de una vez por todas. Jueves 23 de julio por YouTube. Reserva tu lugar."
+>
+  <Navbar />
+  <main>
+    <EventoMandamientos />
+    <RegistroWebinar />
+  </main>
+  <Footer />
+</Layout>

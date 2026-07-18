@@ -1,0 +1,331 @@
+---
+import { WEBINAR_MANDAMIENTOS as W } from '../../siteConfig';
+// Formulario de registro al webinar: guarda el contacto en Brevo vía la
+// edge function registro-webinar y redirige a la página de gracias
+// (que muestra el link del grupo de WhatsApp).
+
+const horaChip = W.horaConfirmada ? W.horaTexto : 'Hora por confirmar';
+---
+
+<section class="registro" id="registro">
+  <div class="container registro__inner">
+    <div class="registro__card">
+      <p class="registro__eyebrow">Cupos limitados</p>
+      <h2 class="registro__title">Completa tus datos y reserva tu lugar gratis</h2>
+      <p class="registro__sub">
+        {W.fechaTexto} · {horaChip} · En vivo por {W.plataforma}
+      </p>
+
+      <form id="wm-form" novalidate>
+        <label class="registro__label" for="wm-nombre">Nombre completo</label>
+        <input
+          id="wm-nombre"
+          class="registro__input"
+          type="text"
+          name="nombre"
+          placeholder="¿Cómo te llamas?"
+          autocomplete="name"
+          maxlength="80"
+          required
+        />
+
+        <label class="registro__label" for="wm-email">
+          Correo electrónico
+          <span class="registro__hint">Escribe el correo donde quieres recibir el acceso</span>
+        </label>
+        <input
+          id="wm-email"
+          class="registro__input"
+          type="email"
+          name="email"
+          placeholder="tucorreo@ejemplo.com"
+          autocomplete="email"
+          maxlength="120"
+          required
+        />
+
+        <label class="registro__label" for="wm-whatsapp">WhatsApp</label>
+        <input
+          id="wm-whatsapp"
+          class="registro__input"
+          type="tel"
+          name="whatsapp"
+          placeholder="+51 999 999 999"
+          autocomplete="tel"
+          maxlength="20"
+          required
+        />
+
+        <label class="registro__consent">
+          <input type="checkbox" id="wm-acepto" />
+          <span>
+            Acepto recibir información, recordatorios del webinar y novedades de
+            Pablo. Puedes cancelar tu suscripción cuando quieras.
+          </span>
+        </label>
+
+        <p class="registro__error" id="wm-error" hidden></p>
+
+        <button class="registro__cta" id="wm-enviar" type="submit">
+          Quiero reservar mi lugar gratis
+        </button>
+      </form>
+    </div>
+  </div>
+</section>
+
+<style>
+  .registro {
+    background: var(--bg-testimonials);
+    padding: var(--section-py) 0;
+  }
+
+  .registro__inner {
+    max-width: 560px;
+    margin: 0 auto;
+  }
+
+  .registro__card {
+    background: white;
+    border-radius: var(--radius-lg);
+    padding: 36px 40px;
+    box-shadow: var(--card-shadow-hover);
+    display: flex;
+    flex-direction: column;
+    text-align: center;
+  }
+
+  .registro__eyebrow {
+    font-size: 12px;
+    font-weight: 600;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--color-amber);
+    margin-bottom: 6px;
+  }
+
+  .registro__title {
+    font-family: var(--font-heading);
+    font-weight: 700;
+    font-size: 28px;
+    color: var(--color-heading);
+    margin-bottom: 8px;
+  }
+
+  .registro__sub {
+    font-size: 15px;
+    line-height: 1.6;
+    color: var(--color-body);
+    margin-bottom: 24px;
+  }
+
+  #wm-form {
+    display: flex;
+    flex-direction: column;
+    text-align: left;
+  }
+
+  .registro__label {
+    display: flex;
+    flex-direction: column;
+    gap: 1px;
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--color-heading);
+    margin: 0 4px 6px;
+  }
+
+  .registro__hint {
+    font-size: 12px;
+    font-weight: 400;
+    color: var(--color-secondary);
+  }
+
+  /* Checkbox de consentimiento */
+  .registro__consent {
+    display: flex;
+    align-items: flex-start;
+    gap: 10px;
+    font-size: 13px;
+    line-height: 1.5;
+    color: var(--color-body);
+    margin: 2px 4px 14px;
+    cursor: pointer;
+  }
+
+  .registro__consent input {
+    width: 18px;
+    height: 18px;
+    margin-top: 2px;
+    flex-shrink: 0;
+    accent-color: var(--color-amber);
+    cursor: pointer;
+  }
+
+  .registro__input {
+    font-family: var(--font-body);
+    font-size: 15px;
+    color: var(--color-heading);
+    background: var(--bg-hero);
+    border: 2px solid transparent;
+    border-radius: 14px;
+    padding: 14px 16px;
+    margin-bottom: 16px;
+    outline: none;
+    transition: border-color 0.15s ease, background 0.15s ease;
+  }
+
+  .registro__input::placeholder {
+    color: var(--color-secondary);
+  }
+
+  .registro__input:focus {
+    border-color: var(--color-amber);
+    background: white;
+  }
+
+  .registro__error {
+    color: #d64545;
+    font-size: 0.85rem;
+    font-weight: 600;
+    margin: -4px 4px 10px;
+  }
+
+  /* CTA estilo Duolingo: reborde inferior 3D, uppercase (mismo look del hero) */
+  .registro__cta {
+    width: 100%;
+    border: none;
+    cursor: pointer;
+    border-radius: 16px;
+    padding: 16px 22px;
+    margin-top: 4px;
+    font-family: var(--font-body);
+    font-weight: 800;
+    font-size: 15px;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    background: var(--color-amber);
+    color: var(--color-navy);
+    box-shadow: 0 4px 0 0 #c9820a;
+    transition: transform 0.12s ease, box-shadow 0.12s ease, opacity 0.15s;
+  }
+
+  .registro__cta:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 5px 0 0 #c9820a;
+  }
+
+  .registro__cta:active {
+    transform: translateY(3px);
+    box-shadow: 0 1px 0 0 #c9820a;
+  }
+
+  .registro__cta:disabled {
+    opacity: 0.65;
+    cursor: wait;
+    transform: none;
+  }
+
+  @media (max-width: 480px) {
+    .registro__card {
+      padding: 28px 20px 22px;
+      border-radius: 20px;
+    }
+
+    .registro__title {
+      font-size: 24px;
+    }
+  }
+</style>
+
+<script>
+  import { WEBINAR_MANDAMIENTOS as W } from '../../siteConfig';
+
+  const form = document.getElementById('wm-form') as HTMLFormElement | null;
+  const inputNombre = document.getElementById('wm-nombre') as HTMLInputElement | null;
+  const inputEmail = document.getElementById('wm-email') as HTMLInputElement | null;
+  const inputWhatsapp = document.getElementById('wm-whatsapp') as HTMLInputElement | null;
+  const inputAcepto = document.getElementById('wm-acepto') as HTMLInputElement | null;
+  const errorEl = document.getElementById('wm-error');
+  const btnEnviar = document.getElementById('wm-enviar') as HTMLButtonElement | null;
+
+  const capture = (evento: string, props?: Record<string, unknown>) => {
+    try {
+      (window as any).posthog?.capture(evento, props);
+    } catch {
+      /* PostHog puede no estar cargado */
+    }
+  };
+
+  // Prellenar si el lead ya se registró antes en este navegador
+  try {
+    const previo = JSON.parse(localStorage.getItem(W.leadKey) ?? 'null');
+    if (previo?.nombre && inputNombre) inputNombre.value = previo.nombre;
+    if (previo?.email && inputEmail) inputEmail.value = previo.email;
+    if (previo?.whatsapp && inputWhatsapp) inputWhatsapp.value = previo.whatsapp;
+  } catch {
+    /* datos corruptos: se ignoran */
+  }
+
+  function mostrarError(msg: string) {
+    if (!errorEl) return;
+    errorEl.textContent = msg;
+    errorEl.hidden = false;
+  }
+
+  form?.addEventListener('submit', async (e) => {
+    e.preventDefault();
+    if (errorEl) errorEl.hidden = true;
+
+    const nombre = inputNombre?.value.trim() ?? '';
+    const email = inputEmail?.value.trim() ?? '';
+    const whatsapp = inputWhatsapp?.value.trim() ?? '';
+    if (!nombre) return mostrarError('Cuéntanos tu nombre para reservar tu lugar.');
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(email))
+      return mostrarError('Ese correo no se ve bien, ¿lo revisas?');
+    if (!/^\+?[\d\s()-]{7,20}$/.test(whatsapp))
+      return mostrarError('Ese número de WhatsApp no se ve bien, ¿lo revisas?');
+    if (!inputAcepto?.checked)
+      return mostrarError('Debes aceptar recibir información del webinar para registrarte.');
+
+    if (btnEnviar) {
+      btnEnviar.disabled = true;
+      btnEnviar.textContent = 'Reservando…';
+    }
+
+    try {
+      const res = await fetch(W.formEndpoint, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ nombre, email, whatsapp }),
+      });
+      if (!res.ok) {
+        const data = await res.json().catch(() => null);
+        throw new Error(data?.error ?? 'No pudimos registrarte, intenta de nuevo.');
+      }
+
+      // Guardar el lead para prellenar en próximas visitas
+      try {
+        localStorage.setItem(W.leadKey, JSON.stringify({ nombre, email, whatsapp }));
+      } catch {
+        /* localStorage puede fallar en modo privado */
+      }
+
+      capture('webinar_registro_completado', { webinar: '4_mandamientos' });
+      try {
+        (window as any).fbq?.('track', 'Lead', { content_name: 'webinar_4_mandamientos' });
+      } catch {
+        /* el pixel puede no estar cargado */
+      }
+
+      window.location.href = '/webinar/gracias';
+    } catch (err) {
+      capture('webinar_registro_error', { webinar: '4_mandamientos' });
+      mostrarError(err instanceof Error ? err.message : 'Algo salió mal, intenta de nuevo.');
+      if (btnEnviar) {
+        btnEnviar.disabled = false;
+        btnEnviar.textContent = 'Quiero reservar mi lugar gratis';
+      }
+    }
+  });
+</script>

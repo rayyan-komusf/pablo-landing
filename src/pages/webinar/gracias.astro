@@ -1,0 +1,317 @@
+---
+import { Image } from 'astro:assets';
+import Layout from '../../layouts/Layout.astro';
+import Navbar from '../../components/Navbar.astro';
+import Footer from '../../components/Footer.astro';
+import iconPablo from '../../assets/iconpablo.png';
+import { WEBINAR_MANDAMIENTOS as W } from '../../siteConfig';
+// src/pages/webinar/gracias.astro — mensaje post-registro del webinar
+---
+
+<Layout
+  title="¡Felicitaciones, tu lugar está reservado! — Los 4 Mandamientos Financieros"
+  description="Te has registrado correctamente para asistir en vivo a Los 4 Mandamientos Financieros. Únete al grupo exclusivo de WhatsApp."
+>
+  <Navbar />
+  <main>
+    <section class="gracias">
+      <div class="container gracias__inner">
+        <!-- Cara de Pablo emocionada -->
+        <div class="gracias__mascot">
+          <Image src={iconPablo} alt="Pablo emocionado" width={110} height={110} />
+        </div>
+
+        <h1 class="gracias__title">¡Felicitaciones, tu lugar está <span class="highlight">reservado</span>! 🎉</h1>
+
+        <p class="gracias__sub">
+          Te has registrado correctamente para asistir, <strong>EN VIVO</strong>,
+          a <strong>Los 4 Mandamientos Financieros</strong> — te hemos enviado un
+          correo con todos los detalles.
+        </p>
+
+        <!-- CTA principal: la sala exclusiva es el grupo de WhatsApp -->
+        <a
+          href={W.whatsappUrl}
+          class="gracias__sala"
+          target="_blank"
+          rel="noopener noreferrer"
+          onclick="try{window.posthog?.capture('webinar_whatsapp_clicked',{webinar:'4_mandamientos'})}catch(e){};if(typeof fbq!=='undefined')fbq('trackCustom','Unirse_Grupo_WhatsApp');"
+        >
+          Ingresar a la sala exclusiva
+          <span class="btn-arrow">→</span>
+        </a>
+
+        <!-- Qué desbloquea el grupo -->
+        <div class="gracias__card">
+          <p class="gracias__card-title">
+            Ahora únete al grupo exclusivo de WhatsApp para desbloquear:
+          </p>
+          <ul class="gracias__unlocks">
+            <li><span class="check">✓</span><span>El enlace para entrar al webinar.</span></li>
+            <li><span class="check">✓</span><span>Recursos gratuitos antes y durante el en vivo.</span></li>
+            <li><span class="check">✓</span><span>Recordatorios para que no te pierdas el evento.</span></li>
+            <li><span class="check">✓</span><span>Información exclusiva para los participantes.</span></li>
+          </ul>
+        </div>
+      </div>
+    </section>
+
+    <!-- Pitch de Pablo -->
+    <section class="pitch">
+      <div class="container pitch__inner">
+        <h2 class="pitch__title">
+          Prueba a Pablo <span class="highlight">GRATIS por 7 días</span> antes del taller
+        </h2>
+        <p class="pitch__text">
+          Pablo te ayuda a entender tus gastos, ahorrar mejor y dejar atrás el
+          estrés financiero. <strong>Todo desde WhatsApp, sin complicarte.</strong>
+        </p>
+        <a
+          href="https://www.usapablo.com/#planes"
+          class="pitch__cta"
+          onclick="try{window.posthog?.capture('webinar_pitch_clicked',{webinar:'4_mandamientos'})}catch(e){};if(typeof fbq!=='undefined')fbq('trackCustom','Webinar_Prueba_Pablo');"
+        >
+          Desbloquea a Pablo
+        </a>
+      </div>
+    </section>
+  </main>
+  <Footer />
+
+  <!-- Pixel de Meta: conversión de registro completada -->
+  <script is:inline>
+    if (typeof fbq !== 'undefined') {
+      fbq('track', 'CompleteRegistration', { content_name: 'webinar_4_mandamientos' });
+    }
+  </script>
+</Layout>
+
+<style>
+  .gracias {
+    background: var(--bg-hero);
+    padding: 72px 0 90px;
+  }
+
+  .gracias__inner {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    gap: 20px;
+    max-width: 620px;
+    margin: 0 auto;
+  }
+
+  .gracias__mascot {
+    width: 110px;
+    height: 110px;
+    animation: floatMascot 3s ease-in-out infinite;
+  }
+
+  @keyframes floatMascot {
+    0%, 100% { transform: translateY(0); }
+    50%       { transform: translateY(-6px); }
+  }
+
+  .gracias__title {
+    font-family: var(--font-heading);
+    font-weight: 700;
+    font-size: 40px;
+    line-height: 1.15;
+    color: var(--color-heading);
+  }
+
+  .gracias__sub {
+    font-size: 18px;
+    line-height: 1.6;
+    color: var(--color-body);
+  }
+
+  .gracias__sub strong {
+    color: var(--color-heading);
+  }
+
+  /* CTA a la sala exclusiva (grupo de WhatsApp), estilo Duolingo en verde */
+  .gracias__sala {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    border-radius: 16px;
+    padding: 18px 34px;
+    font-weight: 800;
+    font-size: 16px;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    background: #25D366;
+    color: #0b3d1f;
+    box-shadow: 0 4px 0 0 #199c4b;
+    transition: transform 0.12s ease, box-shadow 0.12s ease;
+  }
+
+  .gracias__sala:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 5px 0 0 #199c4b;
+  }
+
+  .gracias__sala:active {
+    transform: translateY(3px);
+    box-shadow: 0 1px 0 0 #199c4b;
+  }
+
+  .gracias__sala .btn-arrow {
+    display: inline-block;
+    transition: transform 0.2s ease;
+  }
+
+  .gracias__sala:hover .btn-arrow {
+    transform: translateX(5px);
+  }
+
+  .gracias__card {
+    background: white;
+    border-radius: var(--radius-lg);
+    padding: 28px 32px;
+    box-shadow: var(--card-shadow);
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+    width: 100%;
+    margin-top: 8px;
+    text-align: left;
+  }
+
+  .gracias__card-title {
+    font-family: var(--font-heading);
+    font-weight: 700;
+    font-size: 19px;
+    color: var(--color-heading);
+    text-align: center;
+  }
+
+  .gracias__unlocks {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+  }
+
+  .gracias__unlocks li {
+    display: flex;
+    align-items: flex-start;
+    gap: 12px;
+    background: var(--bg-hero);
+    border-radius: var(--radius-md);
+    padding: 12px 16px;
+    font-size: 15px;
+    color: var(--color-heading);
+    font-weight: 500;
+    line-height: 1.5;
+  }
+
+  .check {
+    font-weight: 800;
+    font-size: 15px;
+    color: var(--color-green);
+    background: white;
+    border-radius: 50%;
+    width: 26px;
+    height: 26px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    box-shadow: 0 1px 6px rgba(43, 44, 100, 0.1);
+  }
+
+  /* ── Pitch de Pablo ── */
+  .pitch {
+    background: var(--bg-page);
+    padding: 72px 0 90px;
+  }
+
+  .pitch__inner {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    gap: 16px;
+    max-width: 560px;
+    margin: 0 auto;
+  }
+
+  .pitch__title {
+    font-family: var(--font-heading);
+    font-weight: 700;
+    font-size: 32px;
+    line-height: 1.2;
+    color: var(--color-heading);
+  }
+
+  .pitch__text {
+    font-size: 17px;
+    line-height: 1.6;
+    color: var(--color-body);
+  }
+
+  .pitch__text strong {
+    color: var(--color-heading);
+  }
+
+  .pitch__cta {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    margin-top: 8px;
+    border-radius: 16px;
+    padding: 16px 32px;
+    font-weight: 800;
+    font-size: 15px;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    background: var(--color-amber);
+    color: var(--color-navy);
+    box-shadow: 0 4px 0 0 #c9820a;
+    transition: transform 0.12s ease, box-shadow 0.12s ease;
+  }
+
+  .pitch__cta:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 5px 0 0 #c9820a;
+  }
+
+  .pitch__cta:active {
+    transform: translateY(3px);
+    box-shadow: 0 1px 0 0 #c9820a;
+  }
+
+  @media (max-width: 768px) {
+    .gracias {
+      padding: 56px 0 72px;
+    }
+
+    .gracias__title {
+      font-size: 30px;
+    }
+
+    .gracias__sub {
+      font-size: 16px;
+    }
+
+    .gracias__card {
+      padding: 24px 20px;
+    }
+
+    .gracias__sala {
+      font-size: 14px;
+      padding: 16px 26px;
+    }
+
+    .pitch__title {
+      font-size: 26px;
+    }
+  }
+</style>
