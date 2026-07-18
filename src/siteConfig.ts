@@ -49,13 +49,12 @@ export const IS_LIVE = SITE_MODE === 'live';
 export const WEBINAR_MANDAMIENTOS = {
   nombre: 'Los 4 Mandamientos Financieros',
   fechaTexto: 'Jueves 23 de julio',
-  // ⚠️ HORA POR DEFINIR — actualizar horaTexto, horaConfirmada y fechaISO
-  horaTexto: '7:00 PM (hora Perú)',
-  horaConfirmada: false, // false → la landing muestra "Hora por confirmar"
-  fechaISO: '2026-07-23T19:00:00-05:00', // usada por el contador regresivo
+  horaTexto: '8:00 PM (hora peruana)',
+  horaConfirmada: true, // false → la landing muestra "Hora por confirmar"
+  fechaISO: '2026-07-23T20:00:00-05:00', // usada por el contador regresivo
   plataforma: 'YouTube',
-  // ⚠️ Reemplazar con el link real del grupo de WhatsApp del webinar
-  whatsappUrl: 'https://chat.whatsapp.com/REEMPLAZAR',
+  // Grupo de WhatsApp del webinar
+  whatsappUrl: 'https://chat.whatsapp.com/BXhFKSLO1QWApbvAnqJPTo?s=cl&p=i&ilr=0',
   // Edge function que guarda el contacto en Brevo y envía la bienvenida
   formEndpoint:
     'https://mezpfnagkubumzbromsh.supabase.co/functions/v1/registro-webinar',

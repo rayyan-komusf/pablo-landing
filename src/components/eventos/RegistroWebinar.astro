@@ -11,7 +11,7 @@ const horaChip = W.horaConfirmada ? W.horaTexto : 'Hora por confirmar';
   <div class="container registro__inner">
     <div class="registro__card">
       <p class="registro__eyebrow">Cupos limitados</p>
-      <h2 class="registro__title">Completa tus datos y reserva tu lugar gratis</h2>
+      <h2 class="registro__title">Completa tus datos<br />y reserva tu lugar gratis</h2>
       <p class="registro__sub">
         {W.fechaTexto} · {horaChip} · En vivo por {W.plataforma}
       </p>
@@ -108,13 +108,14 @@ const horaChip = W.horaConfirmada ? W.horaTexto : 'Hora por confirmar';
     font-family: var(--font-heading);
     font-weight: 700;
     font-size: 28px;
+    line-height: 1.15;
     color: var(--color-heading);
     margin-bottom: 8px;
   }
 
   .registro__sub {
-    font-size: 15px;
-    line-height: 1.6;
+    font-size: 13px;
+    line-height: 1.5;
     color: var(--color-body);
     margin-bottom: 24px;
   }
@@ -146,16 +147,16 @@ const horaChip = W.horaConfirmada ? W.horaTexto : 'Hora por confirmar';
     display: flex;
     align-items: flex-start;
     gap: 10px;
-    font-size: 13px;
-    line-height: 1.5;
+    font-size: 11px;
+    line-height: 1.45;
     color: var(--color-body);
     margin: 2px 4px 14px;
     cursor: pointer;
   }
 
   .registro__consent input {
-    width: 18px;
-    height: 18px;
+    width: 16px;
+    height: 16px;
     margin-top: 2px;
     flex-shrink: 0;
     accent-color: var(--color-amber);
