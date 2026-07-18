@@ -1,0 +1,62 @@
+<!-- Registro paso a paso (2/3): correo. La burbuja saluda por nombre
+     ([data-cuenta-saludo], la llena el step anterior). -->
+<section class="step !pb-0" data-step="step-cuenta-correo" aria-label="Crea tu cuenta: tu correo" aria-hidden="true">
+  <div class="fuente-header">
+    <div class="fuente-header__inner">
+      <div class="fuente-pablo">
+        <picture>
+          <source srcset="/onboarding/images/pablo/pablo-anotando.webp" type="image/webp" />
+          <img
+            src="/onboarding/images/pablo/pablo-point.png"
+            alt=""
+            width="140"
+            height="140"
+            loading="lazy"
+          />
+        </picture>
+      </div>
+      <div class="speech-bubble speech-bubble--side" data-cuenta-saludo>¿Cuál es tu correo?</div>
+    </div>
+  </div>
+
+  <div class="fuente-body flex-1 flex flex-col w-full mx-auto px-5 max-md:px-4 overflow-y-auto [scrollbar-width:none] [&::-webkit-scrollbar]:hidden vcenter">
+    <div class="cuenta-form">
+      <input
+        id="cuenta-correo"
+        class="cuenta-input"
+        type="email"
+        inputmode="email"
+        placeholder="tucorreo@ejemplo.com"
+        autocomplete="email"
+        autocapitalize="off"
+        spellcheck="false"
+        maxlength="120"
+        oninput="pabloCuentaCorreoInput(this)"
+        onkeydown="if(event.key==='Enter')pabloCuentaCorreoNext()"
+      />
+      <p class="cuenta-hint">Con este correo entrarás a Pablo y te llegarán tus recibos.</p>
+    </div>
+  </div>
+
+  <footer class="duo-footer cta-footer">
+    <button class="btn-primary btn-continue disabled" disabled onclick="pabloCuentaCorreoNext()" aria-label="Continuar">
+      Continuar
+    </button>
+  </footer>
+
+  <script is:inline>
+    (function () {
+      var EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/;
+      window.pabloCuentaCorreoInput = function (el) {
+        window.onboarding?.gateCta("step-cuenta-correo", EMAIL_RE.test(el.value.trim().toLowerCase()));
+      };
+      window.pabloCuentaCorreoNext = function () {
+        var correo = (document.getElementById("cuenta-correo")?.value || "").trim().toLowerCase();
+        if (!EMAIL_RE.test(correo)) return;
+        sessionStorage.setItem("pablo_cuenta_correo", correo);
+        window.pabloTrack?.("onboarding_cuenta_correo_ok", {});
+        window.pabloNext();
+      };
+    })();
+  </script>
+</section>

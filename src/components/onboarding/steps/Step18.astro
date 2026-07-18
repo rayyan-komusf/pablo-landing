@@ -138,21 +138,18 @@
 </section>
 
 <script is:inline type="module">
-  // El pago es con Flow dentro de la app: /pricing preselecciona el plan y
-  // retoma el checkout automáticamente después del registro/login.
+  // Elegir plan ya no redirige: sigue al registro paso a paso
+  // (steps cuenta-*) y el pago con Flow ocurre en la app, ya logueado.
   const planes = {
     semanal: {
-      checkoutUrl: "https://usapablo.app/pricing?plan=semanal",
       trialDays: 0,
       ctaLabel: "Continuar con el plan semanal",
     },
     mensual: {
-      checkoutUrl: "https://usapablo.app/pricing?plan=mensual",
       trialDays: 3,
       ctaLabel: "Empieza tu prueba gratuita de 3 días",
     },
     anual: {
-      checkoutUrl: "https://usapablo.app/pricing?plan=anual",
       trialDays: 7,
       ctaLabel: "Empieza tu prueba gratuita de 7 días",
     },
@@ -185,41 +182,12 @@
     window.pabloTrack?.("onboarding_plan_selected", { plan });
   }
 
-  // Landing en local (localhost:4321 / IP LAN) → probar contra la app local
-  // (vite en localhost:8080) en vez de producción.
-  function resolverAppUrl(url) {
-    try {
-      const esLocal = /^(localhost|127\.0\.0\.1|192\.168\.)/.test(location.hostname);
-      if (!esLocal) return url;
-      const u = new URL(url);
-      return "http://localhost:8080" + u.pathname + u.search;
-    } catch {
-      return url;
-    }
-  }
-
-  // Navegación por JS: el decorador global de <a> no aplica, así que el
-  // distinct_id de PostHog (?ph_did=) se agrega a mano para no perder el funnel.
-  function conPhDid(url) {
-    try {
-      const did = window.posthog?.get_distinct_id?.();
-      if (!did) return url;
-      const u = new URL(url);
-      u.searchParams.set("ph_did", did);
-      return u.toString();
-    } catch {
-      return url;
-    }
-  }
-
   function iniciarPrueba(plan = planSeleccionado) {
-    const { checkoutUrl } = planes[plan];
-    if (!checkoutUrl) {
-      console.warn(`Checkout del plan "${plan}" — falta configurar el link.`);
-      return;
-    }
+    if (!planes[plan]) return;
+    sessionStorage.setItem("pablo_plan_elegido", plan);
     window.pabloTrack?.("onboarding_trial_started", { plan });
-    window.location.href = conPhDid(resolverAppUrl(checkoutUrl));
+    cerrarPlanes();
+    window.pabloNext();
   }
 
   document.addEventListener("keydown", (e) => {
