@@ -483,6 +483,20 @@ import iconPremiumRaw from '../assets/icon-premium.svg?raw';
   document.getElementById('smodal-check-terms')?.addEventListener('change', updateBtn);
   document.getElementById('smodal-check-privacy')?.addEventListener('change', updateBtn);
 
+  // Landing en local (localhost:4321 / IP LAN) → probar contra la app local
+  // (vite en localhost:8080) en vez de producción. La landing es estática,
+  // así que el destino se resuelve en runtime según el hostname.
+  function resolverAppUrl(url: string): string {
+    try {
+      const esLocal = /^(localhost|127\.0\.0\.1|192\.168\.)/.test(location.hostname);
+      if (!esLocal) return url;
+      const u = new URL(url);
+      return 'http://localhost:8080' + u.pathname + u.search;
+    } catch {
+      return url;
+    }
+  }
+
   // El pago vive en la app (usapablo.app + Flow): como navegamos por JS, el
   // decorador global de <a> no aplica y el ph_did se agrega aquí a mano.
   function conPhDid(url: string): string {
@@ -518,7 +532,7 @@ import iconPremiumRaw from '../assets/icon-premium.svg?raw';
           currency: 'PEN',
         });
       }
-      window.open(conPhDid(_checkoutUrl), '_blank');
+      window.open(conPhDid(resolverAppUrl(_checkoutUrl)), '_blank');
     }
   });
 

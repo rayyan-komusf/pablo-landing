@@ -185,6 +185,19 @@
     window.pabloTrack?.("onboarding_plan_selected", { plan });
   }
 
+  // Landing en local (localhost:4321 / IP LAN) → probar contra la app local
+  // (vite en localhost:8080) en vez de producción.
+  function resolverAppUrl(url) {
+    try {
+      const esLocal = /^(localhost|127\.0\.0\.1|192\.168\.)/.test(location.hostname);
+      if (!esLocal) return url;
+      const u = new URL(url);
+      return "http://localhost:8080" + u.pathname + u.search;
+    } catch {
+      return url;
+    }
+  }
+
   // Navegación por JS: el decorador global de <a> no aplica, así que el
   // distinct_id de PostHog (?ph_did=) se agrega a mano para no perder el funnel.
   function conPhDid(url) {
@@ -206,7 +219,7 @@
       return;
     }
     window.pabloTrack?.("onboarding_trial_started", { plan });
-    window.location.href = conPhDid(checkoutUrl);
+    window.location.href = conPhDid(resolverAppUrl(checkoutUrl));
   }
 
   document.addEventListener("keydown", (e) => {
