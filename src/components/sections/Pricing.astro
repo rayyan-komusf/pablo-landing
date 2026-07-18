@@ -1,10 +1,10 @@
 ---
-import { IS_LIVE, STRIPE_URLS, OFFER_AVAILABLE, FREE_TRIAL, KOMU_PROMO } from '../../siteConfig';
+import { IS_LIVE, CHECKOUT_URLS, OFFER_AVAILABLE, FREE_TRIAL, KOMU_PROMO } from '../../siteConfig';
 import iconPremiumRaw from '../../assets/icon-premium.svg?raw';
 import coronaRaw from '../../assets/corona-premium.svg?raw';
 
 // Selecciona el link correcto del plan anual según el modo FREE_TRIAL
-const annualStripeUrl = FREE_TRIAL ? STRIPE_URLS.annual_trial : STRIPE_URLS.annual_no_trial;
+const annualCheckoutUrl = FREE_TRIAL ? CHECKOUT_URLS.annual_trial : CHECKOUT_URLS.annual_no_trial;
 // src/components/sections/Pricing.astro
 ---
 
@@ -92,7 +92,7 @@ const annualStripeUrl = FREE_TRIAL ? STRIPE_URLS.annual_trial : STRIPE_URLS.annu
             </div>
             {OFFER_AVAILABLE ? (
               <button
-                onclick={`window.planSeleccionado={name:'Plan Mensual Komu',value:20};if(typeof fbq!=='undefined')fbq('trackCustom','Abrir_Modal',{plan:'mensual_komu'});window.openSubscribeModal('${STRIPE_URLS.monthly}')`}
+                onclick={`window.planSeleccionado={name:'Plan Mensual Komu',value:20};if(typeof fbq!=='undefined')fbq('trackCustom','Abrir_Modal',{plan:'mensual_komu'});window.openSubscribeModal('${CHECKOUT_URLS.monthly}')`}
                 class="plan-cta plan-cta--monthly"
                 id="pricing-komu-monthly-cta"
               >
@@ -176,7 +176,7 @@ const annualStripeUrl = FREE_TRIAL ? STRIPE_URLS.annual_trial : STRIPE_URLS.annu
             </div>
             {OFFER_AVAILABLE ? (
               <button
-                onclick={`window.planSeleccionado={name:'Plan Anual Komu',value:200};if(typeof fbq!=='undefined')fbq('trackCustom','Abrir_Modal',{plan:'anual_komu'});window.openSubscribeModal('${annualStripeUrl}')`}
+                onclick={`window.planSeleccionado={name:'Plan Anual Komu',value:200};if(typeof fbq!=='undefined')fbq('trackCustom','Abrir_Modal',{plan:'anual_komu'});window.openSubscribeModal('${annualCheckoutUrl}')`}
                 class="plan-cta plan-cta--premium btn-primary"
                 id="pricing-komu-annual-cta"
               >
@@ -260,7 +260,7 @@ const annualStripeUrl = FREE_TRIAL ? STRIPE_URLS.annual_trial : STRIPE_URLS.annu
               </ul>
               {OFFER_AVAILABLE ? (
                 <button
-                  onclick={`window.planSeleccionado={name:'Plan Semanal',value:5};if(typeof fbq!=='undefined')fbq('trackCustom','Abrir_Modal',{plan:'semanal'});if(typeof ttq!=='undefined')ttq.track('ViewContent',{content_name:'Plan Semanal',value:5,currency:'PEN'});window.openSubscribeModal('${STRIPE_URLS.weekly}')`}
+                  onclick={`window.planSeleccionado={name:'Plan Semanal',value:7};if(typeof fbq!=='undefined')fbq('trackCustom','Abrir_Modal',{plan:'semanal'});if(typeof ttq!=='undefined')ttq.track('ViewContent',{content_name:'Plan Semanal',value:7,currency:'PEN'});window.openSubscribeModal('${CHECKOUT_URLS.weekly}')`}
                   class="plan-cta plan-cta--monthly"
                   id="pricing-weekly-cta"
                 >
@@ -316,7 +316,7 @@ const annualStripeUrl = FREE_TRIAL ? STRIPE_URLS.annual_trial : STRIPE_URLS.annu
               </ul>
               {OFFER_AVAILABLE ? (
                 <button
-                  onclick={`window.planSeleccionado={name:'Plan Mensual',value:20};if(typeof fbq!=='undefined')fbq('trackCustom','Abrir_Modal',{plan:'mensual'});if(typeof ttq!=='undefined')ttq.track('ViewContent',{content_name:'Plan Mensual',value:20,currency:'PEN'});window.openSubscribeModal('${STRIPE_URLS.monthly}')`}
+                  onclick={`window.planSeleccionado={name:'Plan Mensual',value:20};if(typeof fbq!=='undefined')fbq('trackCustom','Abrir_Modal',{plan:'mensual'});if(typeof ttq!=='undefined')ttq.track('ViewContent',{content_name:'Plan Mensual',value:20,currency:'PEN'});window.openSubscribeModal('${CHECKOUT_URLS.monthly}')`}
                   class="plan-cta plan-cta--monthly"
                   id="pricing-monthly-cta"
                 >
@@ -382,7 +382,7 @@ const annualStripeUrl = FREE_TRIAL ? STRIPE_URLS.annual_trial : STRIPE_URLS.annu
               </ul>
               {OFFER_AVAILABLE ? (
                 <button
-                  onclick={`window.planSeleccionado={name:'Plan Anual',value:200};if(typeof fbq!=='undefined')fbq('trackCustom','Abrir_Modal',{plan:'anual'});if(typeof ttq!=='undefined')ttq.track('ViewContent',{content_name:'Plan Anual',value:200,currency:'PEN'});window.openSubscribeModal('${annualStripeUrl}')`}
+                  onclick={`window.planSeleccionado={name:'Plan Anual',value:200};if(typeof fbq!=='undefined')fbq('trackCustom','Abrir_Modal',{plan:'anual'});if(typeof ttq!=='undefined')ttq.track('ViewContent',{content_name:'Plan Anual',value:200,currency:'PEN'});window.openSubscribeModal('${annualCheckoutUrl}')`}
                   class="plan-cta plan-cta--premium btn-primary"
                   id="pricing-annual-cta"
                 >

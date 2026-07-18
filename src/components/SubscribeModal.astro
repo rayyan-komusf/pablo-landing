@@ -1,7 +1,6 @@
 ---
 import { Image } from 'astro:assets';
 import logoModal from '../assets/logodelmodal.png';
-import { STRIPE_URLS } from '../siteConfig';
 import iconPremiumRaw from '../assets/icon-premium.svg?raw';
 ---
 
@@ -446,11 +445,11 @@ import iconPremiumRaw from '../assets/icon-premium.svg?raw';
 </style>
 
 <script>
-  // Receives the Stripe URL from the Pricing card btn onclick
-  let _stripeUrl = '';
+  // Recibe la URL de checkout (app con Flow) del botón de la card de Pricing
+  let _checkoutUrl = '';
 
-  window.openSubscribeModal = function(stripeUrl: string = '') {
-    _stripeUrl = stripeUrl;
+  window.openSubscribeModal = function(checkoutUrl: string = '') {
+    _checkoutUrl = checkoutUrl;
     // Reset checkboxes
     (document.getElementById('smodal-check-terms') as HTMLInputElement).checked = false;
     (document.getElementById('smodal-check-privacy') as HTMLInputElement).checked = false;
@@ -484,9 +483,23 @@ import iconPremiumRaw from '../assets/icon-premium.svg?raw';
   document.getElementById('smodal-check-terms')?.addEventListener('change', updateBtn);
   document.getElementById('smodal-check-privacy')?.addEventListener('change', updateBtn);
 
-  // On click: fire Meta Pixel InitiateCheckout + go to Stripe
+  // El pago vive en la app (usapablo.app + Flow): como navegamos por JS, el
+  // decorador global de <a> no aplica y el ph_did se agrega aquí a mano.
+  function conPhDid(url: string): string {
+    try {
+      const did = (window as any).posthog?.get_distinct_id?.();
+      if (!did) return url;
+      const u = new URL(url);
+      u.searchParams.set('ph_did', did);
+      return u.toString();
+    } catch {
+      return url;
+    }
+  }
+
+  // On click: fire Meta Pixel InitiateCheckout + ir al checkout de la app
   document.getElementById('smodal-register-btn')?.addEventListener('click', () => {
-    if (_stripeUrl) {
+    if (_checkoutUrl) {
       // Fire Meta Pixel InitiateCheckout with correct plan value
       const plan = (window as any).planSeleccionado;
       if (typeof (window as any).fbq !== 'undefined' && plan) {
@@ -505,7 +518,7 @@ import iconPremiumRaw from '../assets/icon-premium.svg?raw';
           currency: 'PEN',
         });
       }
-      window.open(_stripeUrl, '_blank');
+      window.open(conPhDid(_checkoutUrl), '_blank');
     }
   });
 

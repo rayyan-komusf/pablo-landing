@@ -43,16 +43,39 @@ export const CTA = CTA_CONFIG[SITE_MODE];
 export const IS_LIVE = SITE_MODE === 'live';
 
 // ============================================================
+//  WEBINAR "LOS 4 MANDAMIENTOS FINANCIEROS"
+//  Landing en /eventos/cuatro-mandamientos
+// ============================================================
+export const WEBINAR_MANDAMIENTOS = {
+  nombre: 'Los 4 Mandamientos Financieros',
+  fechaTexto: 'Jueves 23 de julio',
+  // ⚠️ HORA POR DEFINIR — actualizar horaTexto, horaConfirmada y fechaISO
+  horaTexto: '7:00 PM (hora Perú)',
+  horaConfirmada: false, // false → la landing muestra "Hora por confirmar"
+  fechaISO: '2026-07-23T19:00:00-05:00', // usada por el contador regresivo
+  plataforma: 'YouTube',
+  // ⚠️ Reemplazar con el link real del grupo de WhatsApp del webinar
+  whatsappUrl: 'https://chat.whatsapp.com/REEMPLAZAR',
+  // Edge function que guarda el contacto en Brevo y envía la bienvenida
+  formEndpoint:
+    'https://mezpfnagkubumzbromsh.supabase.co/functions/v1/registro-webinar',
+  leadKey: 'pablo_webinar_4mandamientos_lead',
+} as const;
+
+// ============================================================
 //  APP LINKS
 // ============================================================
 export const APP_URL = 'https://usapablo.app/';
 
 // ============================================================
-//  STRIPE LINKS — URLs de pago de Stripe
+//  CHECKOUT — el pago ahora es con Flow DENTRO de la app:
+//  estos links llevan a usapablo.app/pricing con el plan preseleccionado;
+//  la app pide login/registro y retoma el checkout de Flow automáticamente.
+//  Los trials (mensual 3 días, anual 7) viven en los planes de Flow.
 // ============================================================
-export const STRIPE_URLS = {
-  weekly: 'https://buy.stripe.com/14A14ocXHejuaY6cGJ1sQ0v',          // S/.5/semana
-  monthly: 'https://buy.stripe.com/6oU6oIe1L4IU8PY6il1sQ0u',        // S/.20/mes — CON 3 días gratis
-  annual_trial: 'https://buy.stripe.com/3cIaEYcXHcbmd6egWZ1sQ0r',   // S/.200/año — CON 7 días gratis
-  annual_no_trial: 'https://buy.stripe.com/6oU28saPz3EQ0js4ad1sQ0t', // S/.200/año — SIN 7 días gratis
+export const CHECKOUT_URLS = {
+  weekly: 'https://usapablo.app/pricing?plan=semanal',   // S/.7/semana — sin trial
+  monthly: 'https://usapablo.app/pricing?plan=mensual',  // S/.20/mes — 3 días gratis
+  annual_trial: 'https://usapablo.app/pricing?plan=anual',    // S/.200/año — 7 días gratis
+  annual_no_trial: 'https://usapablo.app/pricing?plan=anual', // el trial lo define el plan de Flow
 };
