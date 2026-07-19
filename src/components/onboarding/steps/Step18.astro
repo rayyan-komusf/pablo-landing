@@ -1,4 +1,4 @@
-<!-- Paywall: prueba gratuita + modal de planes (checkout con Flow en la app) -->
+<!-- Paywall: prueba gratuita + modal de planes (TEMPORAL: checkout con links de Stripe mientras Flow no está operativo en prod) -->
 <section class="step !pb-0" data-step="step-18" aria-label="Empieza tu prueba gratuita" aria-hidden="true">
   <div class="flex flex-col flex-1 w-full max-w-[340px] mx-auto px-5 pt-6 pb-8 max-md:pb-[40px] overflow-y-auto [scrollbar-width:none] [&::-webkit-scrollbar]:hidden vcenter">
     <!-- Top Block -->
@@ -138,18 +138,23 @@
 </section>
 
 <script is:inline type="module">
-  // Elegir plan ya no redirige: sigue al registro paso a paso
-  // (steps cuenta-*) y el pago con Flow ocurre en la app, ya logueado.
+  // TEMPORAL: de vuelta a Stripe mientras Flow no esté operativo en prod.
+  // Elegir plan redirige al payment link (paga primero, se registra después
+  // vía n8n + usapablo.app/auth); el registro paso a paso (steps cuenta-*)
+  // queda desconectado hasta que Flow vuelva.
   const planes = {
     semanal: {
+      stripeUrl: "https://buy.stripe.com/14A14ocXHejuaY6cGJ1sQ0v",
       trialDays: 0,
       ctaLabel: "Continuar con el plan semanal",
     },
     mensual: {
+      stripeUrl: "https://buy.stripe.com/6oU6oIe1L4IU8PY6il1sQ0u",
       trialDays: 3,
       ctaLabel: "Empieza tu prueba gratuita de 3 días",
     },
     anual: {
+      stripeUrl: "https://buy.stripe.com/3cIaEYcXHcbmd6egWZ1sQ0r",
       trialDays: 7,
       ctaLabel: "Empieza tu prueba gratuita de 7 días",
     },
@@ -183,11 +188,14 @@
   }
 
   function iniciarPrueba(plan = planSeleccionado) {
-    if (!planes[plan]) return;
+    const { stripeUrl } = planes[plan] ?? {};
+    if (!stripeUrl) {
+      console.warn(`Checkout del plan "${plan}" — falta configurar el link de Stripe.`);
+      return;
+    }
     sessionStorage.setItem("pablo_plan_elegido", plan);
     window.pabloTrack?.("onboarding_trial_started", { plan });
-    cerrarPlanes();
-    window.pabloNext();
+    window.location.href = stripeUrl;
   }
 
   document.addEventListener("keydown", (e) => {

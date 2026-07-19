@@ -67,14 +67,15 @@ export const WEBINAR_MANDAMIENTOS = {
 export const APP_URL = 'https://usapablo.app/';
 
 // ============================================================
-//  CHECKOUT — el pago ahora es con Flow DENTRO de la app:
-//  estos links llevan a usapablo.app/pricing con el plan preseleccionado;
-//  la app pide login/registro y retoma el checkout de Flow automáticamente.
-//  Los trials (mensual 3 días, anual 7) viven en los planes de Flow.
+//  CHECKOUT — TEMPORAL: de vuelta a los payment links de Stripe
+//  mientras Flow no esté operativo en producción (Yape/tarjetas de
+//  suscripción bloqueados). Flujo clásico: paga primero en Stripe,
+//  n8n aprueba el correo y recién ahí se registra en usapablo.app/auth.
+//  Cuando Flow esté listo, volver a usapablo.app/pricing?plan=….
 // ============================================================
 export const CHECKOUT_URLS = {
-  weekly: 'https://usapablo.app/pricing?plan=semanal',   // S/.7/semana — sin trial
-  monthly: 'https://usapablo.app/pricing?plan=mensual',  // S/.20/mes — 3 días gratis
-  annual_trial: 'https://usapablo.app/pricing?plan=anual',    // S/.200/año — 7 días gratis
-  annual_no_trial: 'https://usapablo.app/pricing?plan=anual', // el trial lo define el plan de Flow
+  weekly: 'https://buy.stripe.com/14A14ocXHejuaY6cGJ1sQ0v',          // S/.7/semana — sin trial
+  monthly: 'https://buy.stripe.com/6oU6oIe1L4IU8PY6il1sQ0u',        // S/.20/mes — CON 3 días gratis
+  annual_trial: 'https://buy.stripe.com/3cIaEYcXHcbmd6egWZ1sQ0r',   // S/.200/año — CON 7 días gratis
+  annual_no_trial: 'https://buy.stripe.com/6oU28saPz3EQ0js4ad1sQ0t', // S/.200/año — SIN 7 días gratis
 };
