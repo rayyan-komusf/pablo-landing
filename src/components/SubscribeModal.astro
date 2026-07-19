@@ -485,29 +485,25 @@ import iconPremiumRaw from '../assets/icon-premium.svg?raw';
 
   // Landing en local (localhost:4321 / IP LAN) → probar contra la app local
   // (vite en localhost:8080) en vez de producción. La landing es estática,
-  // así que el destino se resuelve en runtime según el hostname. Solo aplica
-  // a URLs de la app (usapablo.app); links externos (Stripe) pasan tal cual.
+  // así que el destino se resuelve en runtime según el hostname.
   function resolverAppUrl(url: string): string {
     try {
-      const u = new URL(url);
-      if (u.hostname !== 'usapablo.app') return url;
       const esLocal = /^(localhost|127\.0\.0\.1|192\.168\.)/.test(location.hostname);
       if (!esLocal) return url;
+      const u = new URL(url);
       return 'http://localhost:8080' + u.pathname + u.search;
     } catch {
       return url;
     }
   }
 
-  // Cross-domain de PostHog: como navegamos por JS, el decorador global de
-  // <a> no aplica y el ph_did se agrega aquí a mano — solo a URLs de la app
-  // (a Stripe no le sirve el distinct_id).
+  // El pago vive en la app (usapablo.app + Flow): como navegamos por JS, el
+  // decorador global de <a> no aplica y el ph_did se agrega aquí a mano.
   function conPhDid(url: string): string {
     try {
-      const u = new URL(url);
-      if (!/(^|\.)usapablo\.(app|com)$/.test(u.hostname) && u.hostname !== 'localhost') return url;
       const did = (window as any).posthog?.get_distinct_id?.();
       if (!did) return url;
+      const u = new URL(url);
       u.searchParams.set('ph_did', did);
       return u.toString();
     } catch {
