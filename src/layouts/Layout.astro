@@ -2,6 +2,7 @@
 import "../styles/global.css";
 import SubscribeModal from "../components/SubscribeModal.astro";
 import CountdownBanner from "../components/CountdownBanner.astro";
+import MonedaPopup from "../components/MonedaPopup.astro";
 import PostHogSnippet from "../components/PostHogSnippet.astro";
 import { IS_LIVE } from "../siteConfig";
 
@@ -212,5 +213,8 @@ const ogImage = `${siteUrl}/Logo.png`;
     <CountdownBanner />
     <slot />
     {IS_LIVE && <SubscribeModal />}
+    <!-- Pop-up de la moneda: solo se activa en / y /blog/<post> (se
+         auto-guarda por pathname dentro de su script) -->
+    <MonedaPopup />
   </body>
 </html>

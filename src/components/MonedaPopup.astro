@@ -1,0 +1,727 @@
+---
+// Pop-up gamificado de la moneda (home + posts del blog): a los ~11s en móvil
+// (o 50% de scroll) y con exit-intent en desktop, Pablo ofrece tirar una
+// moneda a cambio de nombre + correo. El volado lo decide la edge function
+// moneda-pablo (50/50 real, determinístico por correo): si gana → código de
+// 5% de descuento para siempre, aplicable a cualquier plan (viaja en
+// usapablo.app/pricing?codigo=… y también llega por correo); si pierde →
+// consuelo: la Plantilla de Presupuesto por correo. Se muestra 1 vez
+// (localStorage); kill-switch remoto con el feature flag `popup-moneda`.
+---
+
+<div
+  id="moneda-popup"
+  class="mp-overlay"
+  aria-hidden="true"
+  role="dialog"
+  aria-modal="true"
+  aria-label="Tira la moneda y gana un descuento en Pablo"
+>
+  <div class="mp-card">
+    <button class="mp-close" id="mp-close" aria-label="Cerrar">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round">
+        <line x1="18" y1="6" x2="6" y2="18"></line>
+        <line x1="6" y1="6" x2="18" y2="18"></line>
+      </svg>
+    </button>
+
+    <!-- ── Paso 1: nombre + correo ── -->
+    <div class="mp-paso" id="mp-paso-form">
+      <img
+        class="mp-mascota"
+        src="/onboarding/images/pablo/pablo-point.png"
+        alt=""
+        width="110"
+        height="138"
+        loading="lazy"
+      />
+      <h3 class="mp-titulo">¿Tiramos una moneda?</h3>
+      <p class="mp-sub">
+        Si cae de tu lado, te llevas <strong>5% de descuento PARA SIEMPRE</strong>,
+        en el plan que quieras. Y si no… igual te llevas nuestra Plantilla de
+        Presupuesto. Tú eliges el lado.
+      </p>
+
+      <form id="mp-form" novalidate>
+        <label class="mp-label" for="mp-nombre">Tu nombre</label>
+        <input
+          class="mp-input"
+          id="mp-nombre"
+          name="nombre"
+          type="text"
+          placeholder="¿Cómo te llamas?"
+          autocomplete="name"
+          maxlength="80"
+          required
+        />
+        <label class="mp-label" for="mp-email">Tu correo</label>
+        <input
+          class="mp-input"
+          id="mp-email"
+          name="email"
+          type="email"
+          placeholder="tucorreo@ejemplo.com"
+          autocomplete="email"
+          maxlength="120"
+          required
+        />
+        <p class="mp-error" id="mp-error" hidden></p>
+        <button class="mp-cta" id="mp-continuar" type="submit">¡Quiero tirar la moneda!</button>
+      </form>
+      <p class="mp-legal">Tu premio llega a ese correo. Cero spam, palabra de chancho.</p>
+    </div>
+
+    <!-- ── Paso 2: elegir cara o sello (la moneda gira aquí mismo) ── -->
+    <div class="mp-paso" id="mp-paso-moneda" hidden>
+      <h3 class="mp-titulo" id="mp-moneda-titulo">¿Cara o sello?</h3>
+      <p class="mp-sub" id="mp-moneda-sub">Elige tu lado y que la suerte decida.</p>
+
+      <div class="mp-coin-escena" aria-hidden="true">
+        <div class="mp-coin" id="mp-coin">
+          <div class="mp-coin__cara">S/</div>
+          <div class="mp-coin__sello">🐷</div>
+        </div>
+      </div>
+
+      <div class="mp-lados" id="mp-lados">
+        <button class="mp-lado" id="mp-lado-cara" type="button" data-lado="cara">Cara <span>S/</span></button>
+        <button class="mp-lado" id="mp-lado-sello" type="button" data-lado="sello">Sello <span>🐷</span></button>
+      </div>
+      <p class="mp-error" id="mp-error-volado" hidden></p>
+    </div>
+
+    <!-- ── Paso 3a: ganó ── -->
+    <div class="mp-paso" id="mp-paso-gano" hidden>
+      <img
+        class="mp-mascota"
+        src="/onboarding/images/pablo/emotions/pablo-emocionado.png"
+        alt=""
+        width="110"
+        height="96"
+        loading="lazy"
+      />
+      <h3 class="mp-titulo">¡Cayó de tu lado! 🎉</h3>
+      <p class="mp-sub mp-sub--ancho">
+        Te ganaste <strong>5% de descuento PARA SIEMPRE</strong>, en el plan
+        que elijas y en cada cobro, de por vida. Este es tu código:
+      </p>
+      <div class="mp-codigo" id="mp-codigo" aria-live="polite"></div>
+      <a class="mp-cta mp-cta--link" id="mp-premio-link" href="https://usapablo.app/pricing">
+        Usar mi descuento
+      </a>
+      <p class="mp-legal" id="mp-correo-gano"></p>
+    </div>
+
+    <!-- ── Paso 3b: perdió ── -->
+    <div class="mp-paso" id="mp-paso-perdio" hidden>
+      <img
+        class="mp-mascota"
+        src="/onboarding/images/pablo/emotions/pablo-triste.png"
+        alt=""
+        width="110"
+        height="96"
+        loading="lazy"
+      />
+      <h3 class="mp-titulo" id="mp-titulo-perdio">Salió sello…</h3>
+      <p class="mp-sub mp-sub--ancho">
+        Esta vez la moneda no quiso. Pero no te vas con las manos vacías:
+        te mandamos la <strong>Plantilla de Presupuesto</strong> a tu correo
+        para tu detox financiero.
+      </p>
+      <a class="mp-cta mp-cta--link" id="mp-consuelo-link" href="/onboarding">
+        Conocer a Pablo igual
+      </a>
+      <p class="mp-legal" id="mp-correo-perdio"></p>
+    </div>
+  </div>
+</div>
+
+<style>
+  .mp-overlay {
+    position: fixed;
+    inset: 0;
+    z-index: 1000;
+    background: rgba(43, 44, 100, 0.5);
+    backdrop-filter: blur(6px);
+    -webkit-backdrop-filter: blur(6px);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 20px;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.25s ease;
+  }
+
+  .mp-overlay.is-open {
+    opacity: 1;
+    pointer-events: all;
+  }
+
+  .mp-card {
+    position: relative;
+    background: #fff;
+    border-radius: 24px;
+    width: 100%;
+    max-width: 440px;
+    max-height: 92vh;
+    overflow-y: auto;
+    padding: 32px 28px 26px;
+    box-shadow: 0 24px 80px rgba(43, 44, 100, 0.22);
+    transform: translateY(14px) scale(0.98);
+    opacity: 0;
+    transition:
+      transform 0.28s cubic-bezier(0.22, 1, 0.36, 1),
+      opacity 0.25s ease;
+  }
+
+  .mp-overlay.is-open .mp-card {
+    transform: translateY(0) scale(1);
+    opacity: 1;
+  }
+
+  .mp-close {
+    position: absolute;
+    top: 12px;
+    right: 12px;
+    width: 34px;
+    height: 34px;
+    border-radius: 50%;
+    background: rgba(238, 234, 250, 0.9);
+    border: none;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--color-heading);
+    transition: background 0.15s, transform 0.15s;
+    z-index: 1;
+  }
+
+  .mp-close:hover {
+    background: #e0dbf5;
+    transform: scale(1.08);
+  }
+
+  .mp-paso {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+  }
+
+  .mp-paso[hidden] {
+    display: none;
+  }
+
+  .mp-mascota {
+    width: 110px;
+    height: auto;
+    margin-bottom: 6px;
+  }
+
+  .mp-titulo {
+    font-family: var(--font-heading);
+    font-size: 1.5rem;
+    color: var(--color-heading);
+    line-height: 1.25;
+    margin-bottom: 8px;
+  }
+
+  .mp-sub {
+    color: var(--color-body);
+    font-size: 0.95rem;
+    line-height: 1.55;
+    margin-bottom: 20px;
+    max-width: 320px;
+  }
+
+  .mp-sub--ancho {
+    max-width: 100%;
+  }
+
+  #mp-form {
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    text-align: left;
+  }
+
+  .mp-label {
+    font-size: 0.82rem;
+    font-weight: 700;
+    color: var(--color-heading);
+    margin: 0 0 6px 4px;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+  }
+
+  .mp-input {
+    width: 100%;
+    font-family: var(--font-body);
+    font-size: 1rem;
+    color: var(--color-heading);
+    background: #fff;
+    border: 2px solid #e5e5e5;
+    border-radius: 16px;
+    padding: 13px 16px;
+    margin-bottom: 14px;
+    outline: none;
+    transition: border-color 0.15s, box-shadow 0.15s;
+  }
+
+  .mp-input::placeholder {
+    color: #b3b2c9;
+  }
+
+  .mp-input:focus {
+    border-color: var(--color-amber);
+    box-shadow: 0 0 0 3px rgba(245, 166, 35, 0.18);
+  }
+
+  .mp-error {
+    color: #d64545;
+    font-size: 0.85rem;
+    font-weight: 600;
+    margin: -4px 4px 10px;
+  }
+
+  /* CTA estilo Duolingo: reborde inferior 3D, uppercase (mismo look del hero) */
+  .mp-cta {
+    width: 100%;
+    border: none;
+    cursor: pointer;
+    border-radius: 16px;
+    padding: 15px 22px;
+    margin-top: 4px;
+    font-family: var(--font-body);
+    font-weight: 800;
+    font-size: 15px;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    background: var(--color-amber);
+    color: #2b2c64;
+    box-shadow: 0 4px 0 0 #c9820a;
+    transition: transform 0.12s ease, box-shadow 0.12s ease, opacity 0.15s;
+  }
+
+  .mp-cta:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 5px 0 0 #c9820a;
+  }
+
+  .mp-cta:active {
+    transform: translateY(3px);
+    box-shadow: 0 1px 0 0 #c9820a;
+  }
+
+  .mp-cta:disabled {
+    opacity: 0.65;
+    cursor: wait;
+    transform: none;
+  }
+
+  .mp-cta--link {
+    display: block;
+    text-align: center;
+    text-decoration: none;
+  }
+
+  .mp-legal {
+    font-size: 0.75rem;
+    color: var(--color-secondary);
+    margin-top: 14px;
+  }
+
+  /* El código del ganador, estilo ticket */
+  .mp-codigo {
+    border: 2px dashed var(--color-navy);
+    border-radius: 12px;
+    background: #f4f2fb;
+    padding: 12px 24px;
+    margin-bottom: 18px;
+    font-family: var(--font-heading);
+    font-weight: 700;
+    font-size: 1.35rem;
+    letter-spacing: 0.12em;
+    color: var(--color-navy);
+  }
+
+  /* ── La moneda 3D ── */
+  .mp-coin-escena {
+    perspective: 700px;
+    margin: 6px 0 22px;
+  }
+
+  .mp-coin {
+    position: relative;
+    width: 130px;
+    height: 130px;
+    transform-style: preserve-3d;
+  }
+
+  .mp-coin__cara,
+  .mp-coin__sello {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 50%;
+    font-family: var(--font-heading);
+    font-weight: 700;
+    font-size: 44px;
+    backface-visibility: hidden;
+    -webkit-backface-visibility: hidden;
+  }
+
+  .mp-coin__cara {
+    background: radial-gradient(circle at 35% 30%, #ffd97a, #f5a623 62%, #d88c0c);
+    color: #7a4d03;
+    border: 6px solid #e09612;
+    box-shadow: inset 0 0 0 4px rgba(255, 255, 255, 0.35), 0 10px 24px rgba(43, 44, 100, 0.25);
+  }
+
+  .mp-coin__sello {
+    background: radial-gradient(circle at 35% 30%, #565897, #2b2c64 65%, #1d1e49);
+    border: 6px solid #22234f;
+    box-shadow: inset 0 0 0 4px rgba(255, 255, 255, 0.14), 0 10px 24px rgba(43, 44, 100, 0.25);
+    transform: rotateY(180deg);
+  }
+
+  /* Suspenso mientras responde el servidor… */
+  .mp-coin.is-girando {
+    animation: mp-girar 0.45s linear infinite;
+  }
+
+  /* …y aterrizaje según el lado que salió (múltiplos de 360° = cara). */
+  .mp-coin.is-cara {
+    animation: mp-cae-cara 2s cubic-bezier(0.18, 0.9, 0.32, 1) forwards;
+  }
+
+  .mp-coin.is-sello {
+    animation: mp-cae-sello 2s cubic-bezier(0.18, 0.9, 0.32, 1) forwards;
+  }
+
+  @keyframes mp-girar {
+    from { transform: rotateY(0deg); }
+    to { transform: rotateY(360deg); }
+  }
+
+  @keyframes mp-cae-cara {
+    from { transform: rotateY(0deg); }
+    to { transform: rotateY(1800deg); }
+  }
+
+  @keyframes mp-cae-sello {
+    from { transform: rotateY(0deg); }
+    to { transform: rotateY(1980deg); }
+  }
+
+  /* ── Botones cara / sello ── */
+  .mp-lados {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 12px;
+    width: 100%;
+  }
+
+  .mp-lado {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    border: 2px solid #e5e5e5;
+    border-radius: 16px;
+    background: #fff;
+    padding: 14px 10px;
+    font-family: var(--font-body);
+    font-weight: 800;
+    font-size: 15px;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    color: var(--color-heading);
+    cursor: pointer;
+    box-shadow: 0 3px 0 0 #e5e5e5;
+    transition: transform 0.12s ease, box-shadow 0.12s ease, border-color 0.15s, opacity 0.15s;
+  }
+
+  .mp-lado span {
+    font-size: 18px;
+  }
+
+  .mp-lado:hover {
+    border-color: var(--color-amber);
+    box-shadow: 0 4px 0 0 var(--color-amber);
+    transform: translateY(-1px);
+  }
+
+  .mp-lado:active {
+    transform: translateY(2px);
+    box-shadow: 0 1px 0 0 var(--color-amber);
+  }
+
+  .mp-lado:disabled {
+    opacity: 0.55;
+    cursor: wait;
+    transform: none;
+  }
+
+  @media (max-width: 480px) {
+    .mp-card {
+      padding: 28px 20px 22px;
+      border-radius: 20px;
+    }
+
+    .mp-coin {
+      width: 110px;
+      height: 110px;
+    }
+  }
+</style>
+
+<script>
+  const ENDPOINT =
+    "https://mezpfnagkubumzbromsh.supabase.co/functions/v1/moneda-pablo";
+  const KEY_VISTA = "pablo_moneda_vista"; // timestamp del último cierre sin jugar
+  const KEY_JUGADO = "pablo_moneda_participado"; // { email, gano }
+  const KEY_LEAD_PLANTILLA = "pablo_plantilla_lead"; // prefill si ya dejó datos
+  const REAPARECE_DIAS = 30;
+  const FLAG = "popup-moneda"; // kill-switch remoto (PostHog)
+
+  const overlay = document.getElementById("moneda-popup");
+  const closeBtn = document.getElementById("mp-close");
+  const form = document.getElementById("mp-form") as HTMLFormElement | null;
+  const inputNombre = document.getElementById("mp-nombre") as HTMLInputElement | null;
+  const inputEmail = document.getElementById("mp-email") as HTMLInputElement | null;
+  const errorEl = document.getElementById("mp-error");
+  const errorVolado = document.getElementById("mp-error-volado");
+  const btnContinuar = document.getElementById("mp-continuar") as HTMLButtonElement | null;
+  const pasos = {
+    form: document.getElementById("mp-paso-form"),
+    moneda: document.getElementById("mp-paso-moneda"),
+    gano: document.getElementById("mp-paso-gano"),
+    perdio: document.getElementById("mp-paso-perdio"),
+  };
+  const coin = document.getElementById("mp-coin");
+  const monedaTitulo = document.getElementById("mp-moneda-titulo");
+  const monedaSub = document.getElementById("mp-moneda-sub");
+  const tituloPerdio = document.getElementById("mp-titulo-perdio");
+  const botonesLado = Array.from(
+    document.querySelectorAll<HTMLButtonElement>("#mp-lados .mp-lado"),
+  );
+
+  let pasoActual = "form";
+  let datos = { nombre: "", email: "" };
+
+  const capture = (evento: string, props?: Record<string, unknown>) => {
+    try {
+      (window as any).posthog?.capture(evento, props);
+    } catch {
+      /* PostHog puede no estar cargado */
+    }
+  };
+
+  const leer = (key: string) => {
+    try {
+      return JSON.parse(localStorage.getItem(key) ?? "null");
+    } catch {
+      return null;
+    }
+  };
+
+  const guardar = (key: string, valor: unknown) => {
+    try {
+      localStorage.setItem(key, JSON.stringify(valor));
+    } catch {
+      /* almacenamiento lleno o bloqueado */
+    }
+  };
+
+  function mostrarPaso(paso: keyof typeof pasos) {
+    pasoActual = paso;
+    for (const [k, el] of Object.entries(pasos)) {
+      if (el) el.hidden = k !== paso;
+    }
+  }
+
+  function abrir(trigger: string) {
+    overlay?.classList.add("is-open");
+    overlay?.setAttribute("aria-hidden", "false");
+    document.body.style.overflow = "hidden";
+    guardar(KEY_VISTA, Date.now());
+    capture("moneda_popup_shown", { trigger, pagina: location.pathname });
+  }
+
+  function cerrar() {
+    overlay?.classList.remove("is-open");
+    overlay?.setAttribute("aria-hidden", "true");
+    document.body.style.overflow = "";
+    capture("moneda_popup_dismissed", { paso: pasoActual });
+  }
+
+  closeBtn?.addEventListener("click", cerrar);
+  overlay?.addEventListener("click", (e) => {
+    if (e.target === overlay) cerrar();
+  });
+  document.addEventListener("keydown", (e) => {
+    if (e.key === "Escape" && overlay?.classList.contains("is-open")) cerrar();
+  });
+
+  function mostrarError(el: HTMLElement | null, msg: string) {
+    if (!el) return;
+    el.textContent = msg;
+    el.hidden = false;
+  }
+
+  // ── Paso 1 → 2: valida los datos y pasa a elegir lado ──
+  form?.addEventListener("submit", (e) => {
+    e.preventDefault();
+    if (errorEl) errorEl.hidden = true;
+
+    const nombre = inputNombre?.value.trim() ?? "";
+    const email = (inputEmail?.value.trim() ?? "").toLowerCase();
+    if (!nombre) return mostrarError(errorEl, "Cuéntanos tu nombre para saber a quién premiar.");
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(email))
+      return mostrarError(errorEl, "Ese correo no se ve bien, ¿lo revisas?");
+
+    datos = { nombre, email };
+    capture("moneda_popup_submitted", { email });
+    mostrarPaso("moneda");
+  });
+
+  // ── Paso 2: tirar la moneda ──
+  botonesLado.forEach((btn) => {
+    btn.addEventListener("click", async () => {
+      const eleccion = btn.dataset.lado === "sello" ? "sello" : "cara";
+      if (errorVolado) errorVolado.hidden = true;
+      botonesLado.forEach((b) => (b.disabled = true));
+      if (monedaTitulo) monedaTitulo.textContent = "Girando…";
+      if (monedaSub) monedaSub.textContent = `Elegiste ${eleccion}. Cruza los dedos.`;
+      coin?.classList.remove("is-cara", "is-sello");
+      coin?.classList.add("is-girando");
+
+      try {
+        const res = await fetch(ENDPOINT, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ ...datos, eleccion }),
+        });
+        const data = await res.json().catch(() => null);
+        if (!res.ok || !data?.ok) {
+          throw new Error(data?.error ?? "No pudimos tirar la moneda, intenta de nuevo.");
+        }
+
+        guardar(KEY_JUGADO, { email: datos.email, gano: data.gano, codigo: data.codigo ?? null });
+        capture("moneda_flip_result", {
+          gano: data.gano,
+          eleccion,
+          resultado: data.resultado,
+        });
+
+        // La moneda aterriza en el lado que dijo el servidor…
+        if (coin) {
+          coin.classList.remove("is-girando");
+          void coin.offsetWidth; // reinicia la animación
+          coin.classList.add(data.resultado === "sello" ? "is-sello" : "is-cara");
+        }
+
+        // …y al terminar de girar se revela el resultado.
+        setTimeout(() => {
+          if (data.gano) {
+            const codigoEl = document.getElementById("mp-codigo");
+            if (codigoEl) codigoEl.textContent = data.codigo ?? "";
+            const premioLink = document.getElementById("mp-premio-link") as HTMLAnchorElement | null;
+            if (premioLink && data.premioUrl) premioLink.href = data.premioUrl;
+            const correoGano = document.getElementById("mp-correo-gano");
+            if (correoGano)
+              correoGano.textContent = `También te lo enviamos a ${datos.email} por si acaso.`;
+            mostrarPaso("gano");
+          } else {
+            if (tituloPerdio)
+              tituloPerdio.textContent = `Salió ${data.resultado}…`;
+            const correoPerdio = document.getElementById("mp-correo-perdio");
+            if (correoPerdio)
+              correoPerdio.textContent = `La plantilla va en camino a ${datos.email}. Revisa Promociones o Spam.`;
+            mostrarPaso("perdio");
+          }
+        }, 2100);
+      } catch (err) {
+        coin?.classList.remove("is-girando", "is-cara", "is-sello");
+        botonesLado.forEach((b) => (b.disabled = false));
+        if (monedaTitulo) monedaTitulo.textContent = "¿Cara o sello?";
+        if (monedaSub) monedaSub.textContent = "Elige tu lado y que la suerte decida.";
+        mostrarError(
+          errorVolado,
+          err instanceof Error && err.message ? err.message : "Algo falló, intenta de nuevo en un ratito.",
+        );
+      }
+    });
+  });
+
+  document.getElementById("mp-premio-link")?.addEventListener("click", () => {
+    capture("moneda_cta_clicked", { destino: "pricing?codigo" });
+  });
+  document.getElementById("mp-consuelo-link")?.addEventListener("click", () => {
+    capture("moneda_cta_clicked", { destino: "/onboarding" });
+  });
+
+  // ── Triggers de apertura ──
+  (function programarApertura() {
+    const path = location.pathname;
+    // Solo home y posts del blog (no el índice /blog/).
+    const paginaValida = path === "/" || /^\/blog\/[^/]+\/?$/.test(path);
+    if (!paginaValida || !overlay) return;
+
+    // Ya jugó: nunca más. Ya lo vio y lo cerró: reaparece a los 30 días.
+    if (leer(KEY_JUGADO)) return;
+    const vista = leer(KEY_VISTA);
+    if (typeof vista === "number" && Date.now() - vista < REAPARECE_DIAS * 86_400_000) return;
+
+    // Prefill si ya dejó sus datos en el lead magnet de la plantilla.
+    const lead = leer(KEY_LEAD_PLANTILLA);
+    if (lead?.nombre && inputNombre) inputNombre.value = lead.nombre;
+    if (lead?.email && inputEmail) inputEmail.value = lead.email;
+
+    let abierto = false;
+    const intentarAbrir = (trigger: string) => {
+      if (abierto || overlay.classList.contains("is-open")) return;
+      // Kill-switch remoto: solo un false explícito lo apaga (si PostHog no
+      // cargó o el flag no existe, el pop-up se muestra igual).
+      try {
+        const ph = (window as any).posthog;
+        if (ph?.isFeatureEnabled && ph.isFeatureEnabled(FLAG) === false) return;
+      } catch {
+        /* PostHog bloqueado: seguimos */
+      }
+      // Otro modal abierto (plantilla, suscripción): no encimarse, reintentar.
+      if (document.body.style.overflow === "hidden") {
+        setTimeout(() => intentarAbrir(trigger), 12_000);
+        return;
+      }
+      abierto = true;
+      abrir(trigger);
+    };
+
+    const esTactil = window.matchMedia("(pointer: coarse)").matches;
+    if (esTactil) {
+      // Móvil: 11s en la página o medio scroll, lo que pase primero
+      // (mediana de salida sin convertir: 23s; el que convierte sale a los 8s).
+      setTimeout(() => intentarAbrir("timer"), 11_000);
+      const alScrollear = () => {
+        const total = document.documentElement.scrollHeight - innerHeight;
+        if (total > 0 && scrollY / total >= 0.5) {
+          removeEventListener("scroll", alScrollear);
+          intentarAbrir("scroll");
+        }
+      };
+      addEventListener("scroll", alScrollear, { passive: true });
+    } else {
+      // Desktop: exit-intent (mouse saliendo por arriba) + respaldo a los 20s.
+      document.addEventListener("mouseout", (e) => {
+        if (!e.relatedTarget && e.clientY <= 0) intentarAbrir("exit_intent");
+      });
+      setTimeout(() => intentarAbrir("timer"), 20_000);
+    }
+  })();
+</script>
