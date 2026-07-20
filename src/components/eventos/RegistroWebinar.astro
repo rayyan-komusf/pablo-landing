@@ -44,7 +44,7 @@ const horaChip = W.horaConfirmada ? W.horaTexto : 'Hora por confirmar';
           required
         />
 
-        <label class="registro__label" for="wm-whatsapp">WhatsApp</label>
+        <label class="registro__label" for="wm-whatsapp">WhatsApp (opcional)</label>
         <input
           id="wm-whatsapp"
           class="registro__input"
@@ -53,11 +53,10 @@ const horaChip = W.horaConfirmada ? W.horaTexto : 'Hora por confirmar';
           placeholder="+51 999 999 999"
           autocomplete="tel"
           maxlength="20"
-          required
         />
 
         <label class="registro__consent">
-          <input type="checkbox" id="wm-acepto" />
+          <input type="checkbox" id="wm-acepto" checked />
           <span>
             Acepto recibir información, recordatorios del webinar y novedades de
             Pablo. Puedes cancelar tu suscripción cuando quieras.
@@ -278,16 +277,14 @@ const horaChip = W.horaConfirmada ? W.horaTexto : 'Hora por confirmar';
     e.preventDefault();
     if (errorEl) errorEl.hidden = true;
 
-    const nombre = inputNombre?.value.trim() ?? '';
+    // Validación mínima: solo se necesita un correo. Nombre y WhatsApp
+    // son opcionales para no bloquear ningún registro; Brevo se encarga
+    // de no duplicar contactos ni correos de bienvenida.
     const email = inputEmail?.value.trim() ?? '';
+    const nombre = inputNombre?.value.trim() || email.split('@')[0] || '';
     const whatsapp = inputWhatsapp?.value.trim() ?? '';
-    if (!nombre) return mostrarError('Cuéntanos tu nombre para reservar tu lugar.');
-    if (!/^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(email))
-      return mostrarError('Ese correo no se ve bien, ¿lo revisas?');
-    if (!/^\+?[\d\s()-]{7,20}$/.test(whatsapp))
-      return mostrarError('Ese número de WhatsApp no se ve bien, ¿lo revisas?');
-    if (!inputAcepto?.checked)
-      return mostrarError('Debes aceptar recibir información del webinar para registrarte.');
+    if (!email.includes('@'))
+      return mostrarError('Escribe tu correo para reservar tu lugar.');
 
     if (btnEnviar) {
       btnEnviar.disabled = true;
@@ -295,11 +292,20 @@ const horaChip = W.horaConfirmada ? W.horaTexto : 'Hora por confirmar';
     }
 
     try {
-      const res = await fetch(W.formEndpoint, {
+      let res = await fetch(W.formEndpoint, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ nombre, email, whatsapp }),
       });
+      // Si falla con WhatsApp (p. ej. número ya usado por otro contacto
+      // en Brevo), reintenta sin el número: el correo es lo esencial.
+      if (!res.ok && whatsapp) {
+        res = await fetch(W.formEndpoint, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ nombre, email, whatsapp: '' }),
+        });
+      }
       if (!res.ok) {
         const data = await res.json().catch(() => null);
         throw new Error(data?.error ?? 'No pudimos registrarte, intenta de nuevo.');
