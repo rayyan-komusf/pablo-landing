@@ -1,0 +1,282 @@
+---
+import Layout from "../layouts/Layout.astro";
+/**
+ * Retorno del checkout de Stripe iniciado desde el onboarding (la cuenta se
+ * crea en la landing y va DIRECTO a Stripe, sin pasar por la app).
+ *
+ *  - ?estado=exito      → pago confirmado: puente de sesión a usapablo.app
+ *                         con los tokens guardados en sessionStorage.
+ *  - ?estado=cancelado  → el pago no se completó: mensaje + reintento (crea
+ *                         otra Checkout Session con la misma sesión).
+ *
+ * Los tokens viven en sessionStorage (`pablo_sesion_tokens`, misma pestaña):
+ * los deja StepCuentaPassword justo antes de saltar a Stripe.
+ */
+---
+
+<Layout
+  title="Tu pago — Pablo"
+  description="Confirmación del pago de tu suscripción a Pablo."
+>
+  <main class="pago-main">
+    <!-- Éxito -->
+    <section class="pago-card" id="pago-exito" hidden>
+      <img src="/onboarding/images/pablo/emotions/pablo-emocionado.png" alt="" width="140" height="140" />
+      <h1>¡Pago confirmado!</h1>
+      <p>Tu cuenta premium está lista. Te estamos llevando a Pablo…</p>
+      <div class="pago-spinner" aria-hidden="true"></div>
+    </section>
+
+    <!-- Cancelado / error -->
+    <section class="pago-card" id="pago-cancelado" hidden>
+      <img src="/onboarding/images/pablo/emotions/pablo-triste.png" alt="" width="140" height="140" />
+      <h1>Tu pago no se completó</h1>
+      <p>
+        No te preocupes: tu cuenta ya está creada y no se te cobró nada.
+        Puedes intentarlo de nuevo cuando quieras.
+      </p>
+      <p class="pago-error" id="pago-error" role="alert" hidden></p>
+      <button class="pago-btn" id="pago-reintentar" type="button">Intentar de nuevo</button>
+      <a class="pago-link" id="pago-ir-app" href="https://usapablo.app/auth">Entrar a Pablo sin premium</a>
+    </section>
+  </main>
+
+  <script is:inline>
+    (function () {
+      var SUPABASE_URL = "https://mezpfnagkubumzbromsh.supabase.co";
+      var SUPABASE_ANON_KEY =
+        "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im1lenBmbmFna3VidW16YnJvbXNoIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjM0NDM3NDMsImV4cCI6MjA3OTAxOTc0M30.HsTSJqkzslq4HWxLlIvuFwudrFzkemHELgsi54vIJDw";
+      var NOMBRE_PLAN = { semanal: "Plan Semanal", mensual: "Plan Mensual", anual: "Plan Anual" };
+
+      var params = new URLSearchParams(location.search);
+      var estado = params.get("estado");
+      var plan = params.get("plan");
+      if (plan !== "semanal" && plan !== "mensual" && plan !== "anual") {
+        plan = sessionStorage.getItem("pablo_plan_elegido") || "anual";
+      }
+
+      function appBase() {
+        return /^(localhost|127\.0\.0\.1|192\.168\.)/.test(location.hostname)
+          ? "http://localhost:8080"
+          : "https://usapablo.app";
+      }
+      function conPhDid(url) {
+        try {
+          var did = window.posthog?.get_distinct_id?.();
+          if (!did) return url;
+          var u = new URL(url);
+          u.searchParams.set("ph_did", did);
+          return u.toString();
+        } catch (e) {
+          return url;
+        }
+      }
+      function tokens() {
+        try {
+          return JSON.parse(sessionStorage.getItem("pablo_sesion_tokens") || "null");
+        } catch (e) {
+          return null;
+        }
+      }
+      function guardarTokens(t) {
+        try {
+          sessionStorage.setItem("pablo_sesion_tokens", JSON.stringify(t));
+        } catch (e) {
+          /* sin storage */
+        }
+      }
+      function track(evento, props) {
+        try {
+          window.posthog?.capture?.(evento, props || {});
+        } catch (e) {
+          /* sin posthog */
+        }
+      }
+
+      /* Puente de sesión a la app: con tokens entra logueado; sin tokens, al login. */
+      function irALaApp() {
+        var t = tokens();
+        if (t && t.access_token && t.refresh_token) {
+          sessionStorage.removeItem("pablo_sesion_tokens");
+          location.replace(
+            conPhDid(appBase() + "/auth/sesion") +
+              "#access_token=" +
+              encodeURIComponent(t.access_token) +
+              "&refresh_token=" +
+              encodeURIComponent(t.refresh_token)
+          );
+        } else {
+          location.replace(conPhDid(appBase() + "/auth"));
+        }
+      }
+
+      async function postJson(path, headers, body) {
+        var res = await fetch(SUPABASE_URL + path, {
+          method: "POST",
+          headers: Object.assign({ "Content-Type": "application/json", apikey: SUPABASE_ANON_KEY }, headers),
+          body: JSON.stringify(body),
+        });
+        var data = {};
+        try {
+          data = await res.json();
+        } catch (e) {
+          /* respuesta sin body */
+        }
+        return { ok: res.ok, status: res.status, data: data };
+      }
+
+      /* El access token dura 1h; si el usuario se quedó en Stripe, se refresca. */
+      async function accessTokenVigente() {
+        var t = tokens();
+        if (!t || !t.refresh_token) return null;
+        var r = await postJson("/auth/v1/token?grant_type=refresh_token", {}, {
+          refresh_token: t.refresh_token,
+        });
+        if (r.ok && r.data.access_token) {
+          guardarTokens({ access_token: r.data.access_token, refresh_token: r.data.refresh_token });
+          return r.data.access_token;
+        }
+        return t.access_token || null;
+      }
+
+      async function reintentar() {
+        var btn = document.getElementById("pago-reintentar");
+        var err = document.getElementById("pago-error");
+        btn.disabled = true;
+        btn.textContent = "Preparando tu pago…";
+        err.hidden = true;
+        track("pago_stripe_reintento", { plan: plan });
+
+        try {
+          var token = await accessTokenVigente();
+          if (!token) {
+            // Sin sesión guardada (p. ej. otra pestaña): flujo clásico en la app.
+            location.href = conPhDid(appBase() + "/pricing?plan=" + plan);
+            return;
+          }
+          var r = await postJson(
+            "/functions/v1/stripe-suscripcion",
+            { Authorization: "Bearer " + token },
+            {
+              accion: "checkout",
+              plan: NOMBRE_PLAN[plan],
+              success_url: location.origin + "/pago?estado=exito",
+              cancel_url: location.origin + "/pago?estado=cancelado&plan=" + plan,
+            }
+          );
+          if (r.ok && r.data.url) {
+            location.href = r.data.url;
+            return;
+          }
+          throw new Error(r.data.error || "Checkout sin URL");
+        } catch (e) {
+          console.error("[Pablo] Reintento de pago falló:", e);
+          err.textContent = "No pudimos conectar con el pago. Revisa tu internet e intenta otra vez.";
+          err.hidden = false;
+          btn.disabled = false;
+          btn.textContent = "Intentar de nuevo";
+        }
+      }
+
+      if (estado === "exito") {
+        document.getElementById("pago-exito").hidden = false;
+        track("pago_stripe_exitoso", { plan: plan });
+        // Un momento para leer el mensaje y a la app, ya logueado.
+        setTimeout(irALaApp, 2000);
+      } else if (estado === "cancelado") {
+        document.getElementById("pago-cancelado").hidden = false;
+        track("pago_stripe_cancelado", { plan: plan });
+        document.getElementById("pago-reintentar").addEventListener("click", reintentar);
+        document.getElementById("pago-ir-app").addEventListener("click", function (e) {
+          e.preventDefault();
+          irALaApp();
+        });
+      } else {
+        location.replace("/");
+      }
+    })();
+  </script>
+</Layout>
+
+<style>
+  .pago-main {
+    min-height: 100dvh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 24px;
+    background: var(--bg-page, #f5f3ff);
+  }
+  .pago-card {
+    max-width: 420px;
+    width: 100%;
+    background: #fff;
+    border-radius: 24px;
+    padding: 40px 32px;
+    text-align: center;
+    box-shadow: 0 10px 40px rgba(43, 44, 100, 0.12);
+  }
+  .pago-card img {
+    margin: 0 auto 16px;
+  }
+  .pago-card h1 {
+    font-size: 1.6rem;
+    font-weight: 800;
+    color: var(--color-heading, #2b2c64);
+    margin: 0 0 8px;
+  }
+  .pago-card p {
+    color: var(--color-body, #56578f);
+    margin: 0 0 16px;
+    line-height: 1.5;
+  }
+  .pago-error {
+    color: #d33;
+    font-weight: 600;
+    font-size: 0.9rem;
+  }
+  .pago-btn {
+    display: block;
+    width: 100%;
+    padding: 14px 20px;
+    border: none;
+    border-radius: 16px;
+    background: var(--color-heading, #2b2c64);
+    color: #fff;
+    font-size: 1rem;
+    font-weight: 700;
+    cursor: pointer;
+    box-shadow: 0 4px 0 rgba(43, 44, 100, 0.35);
+    transition: transform 0.1s ease;
+  }
+  .pago-btn:hover {
+    transform: translateY(-1px);
+  }
+  .pago-btn:disabled {
+    opacity: 0.7;
+    cursor: default;
+    transform: none;
+  }
+  .pago-link {
+    display: inline-block;
+    margin-top: 14px;
+    color: var(--color-body, #56578f);
+    font-size: 0.9rem;
+    text-decoration: underline;
+    text-underline-offset: 3px;
+  }
+  .pago-spinner {
+    width: 28px;
+    height: 28px;
+    margin: 0 auto;
+    border: 3px solid rgba(43, 44, 100, 0.15);
+    border-top-color: var(--color-heading, #2b2c64);
+    border-radius: 50%;
+    animation: pago-girar 0.8s linear infinite;
+  }
+  @keyframes pago-girar {
+    to {
+      transform: rotate(360deg);
+    }
+  }
+</style>
