@@ -1,0 +1,279 @@
+---
+import Layout from '../layouts/Layout.astro';
+import Navbar from '../components/Navbar.astro';
+import Footer from '../components/Footer.astro';
+// src/pages/eliminar-cuenta.astro — página requerida por Google Play (URL de
+// eliminación de cuenta de la ficha) y enlazada también desde la app.
+---
+
+<Layout
+  title="Eliminar tu cuenta — Pablo"
+  description="Cómo eliminar tu cuenta de Pablo y todos tus datos asociados, desde la app o por correo."
+>
+  <Navbar />
+
+  <main class="legal-page">
+    <div class="container legal-page__inner">
+
+      <!-- Breadcrumb -->
+      <nav class="legal-breadcrumb" aria-label="Breadcrumb">
+        <a href="/">Inicio</a>
+        <span>›</span>
+        <span>Eliminar tu cuenta</span>
+      </nav>
+
+      <!-- Badge + Title (centered) -->
+      <div class="legal-header">
+        <div class="legal-badge">🗑️ Gestión de tu cuenta</div>
+        <h1 class="legal-title">Eliminar tu cuenta de Pablo</h1>
+        <p class="legal-updated">
+          Aplica a la app Pablo para Android y iOS, y al servicio de
+          Komu AI Software Development S.A.C.
+        </p>
+      </div>
+
+      <!-- Sections -->
+      <article class="legal-content">
+
+        <section>
+          <h2>1. Eliminar tu cuenta desde la app (recomendado)</h2>
+          <p>
+            Si tienes la app de <strong>Pablo</strong> instalada, puedes eliminar tu cuenta
+            tú mismo en menos de un minuto:
+          </p>
+          <ul>
+            <li>Abre la app de Pablo e inicia sesión.</li>
+            <li>Entra a tu <strong>Perfil</strong> (botón con tu avatar, arriba a la derecha).</li>
+            <li>Baja hasta el final y toca <strong>"Eliminar mi cuenta"</strong>.</li>
+            <li>Confirma en el diálogo. La eliminación es <strong>inmediata y permanente</strong>.</li>
+          </ul>
+        </section>
+
+        <section>
+          <h2>2. Solicitar la eliminación por correo</h2>
+          <p>
+            Si ya no tienes la app instalada (o prefieres hacerlo por escrito), envía un correo a
+            <strong><a href="mailto:team@usapablo.com">team@usapablo.com</a></strong> desde la
+            dirección con la que te registraste, con el asunto "Eliminar mi cuenta".
+          </p>
+          <ul>
+            <li>
+              <strong>Periodo de gracia de 30 días:</strong> con esta vía, tu cuenta queda en estado
+              "inactivo" durante 30 días por si cambias de opinión. Pasado ese plazo, todos tus
+              datos se eliminan de forma permanente e irrecuperable.
+            </li>
+          </ul>
+        </section>
+
+        <section>
+          <h2>3. Qué datos se eliminan</h2>
+          <p>Al eliminar tu cuenta se borran de forma permanente:</p>
+          <ul>
+            <li><strong>Tu cuenta y perfil:</strong> nombre, correo electrónico, número de WhatsApp y foto de perfil.</li>
+            <li><strong>Tus datos financieros:</strong> cuentas, transacciones, presupuestos, metas y movimientos recurrentes.</li>
+            <li><strong>Tu historial de conversaciones</strong> con Pablo (chat, notas de voz e imágenes de recibos).</li>
+          </ul>
+        </section>
+
+        <section>
+          <h2>4. Qué datos podemos conservar y por cuánto tiempo</h2>
+          <ul>
+            <li>
+              <strong>Comprobantes de pago y facturación:</strong> si tuviste una suscripción,
+              conservamos los registros de facturación que la normativa tributaria y contable
+              peruana nos obliga a mantener, únicamente durante el plazo legal aplicable. Estos
+              registros no incluyen tus datos financieros personales (transacciones, cuentas, etc.).
+            </li>
+            <li>
+              <strong>Solicitudes por correo:</strong> durante el periodo de gracia de 30 días tus
+              datos permanecen inactivos (no visibles ni procesados) hasta su borrado definitivo.
+            </li>
+          </ul>
+        </section>
+
+        <section>
+          <h2>5. Importante: tu suscripción se cancela aparte</h2>
+          <p>
+            Eliminar tu cuenta <strong>no cancela automáticamente</strong> una suscripción activa.
+            Cancélala en la plataforma donde la contrataste: <strong>Google Play</strong>
+            (Play Store → Pagos y suscripciones), el <strong>App Store</strong> (Ajustes →
+            Suscripciones) o <strong>usapablo.com</strong> si contrataste en la web.
+          </p>
+        </section>
+
+      </article>
+
+      <!-- Footer note -->
+      <div class="legal-footer-note">
+        <p>¿Tienes alguna duda sobre la eliminación de tu cuenta o tus datos?</p>
+        <a href="mailto:team@usapablo.com"><strong>team@usapablo.com</strong></a>
+      </div>
+
+    </div>
+  </main>
+
+  <Footer />
+</Layout>
+
+<style>
+  .legal-page {
+    background: var(--bg-body, #F5F4FF);
+    min-height: 100vh;
+    padding: 60px 0 80px;
+  }
+
+  .legal-page__inner {
+    max-width: 760px;
+    margin: 0 auto;
+  }
+
+  /* Breadcrumb */
+  .legal-breadcrumb {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 13px;
+    color: var(--color-body, #5C5E84);
+    margin-bottom: 28px;
+  }
+
+  .legal-breadcrumb a {
+    color: var(--color-brand, #2B2C64);
+    font-weight: 500;
+    text-decoration: none;
+  }
+
+  .legal-breadcrumb a:hover {
+    text-decoration: underline;
+  }
+
+  /* Header block */
+  .legal-header {
+    text-align: center;
+    margin-bottom: 48px;
+  }
+
+  .legal-header .legal-badge {
+    display: inline-flex;
+    margin-left: auto;
+    margin-right: auto;
+    margin-bottom: 20px;
+  }
+
+  /* Badge */
+  .legal-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    background: #EAE8FF;
+    color: var(--color-brand, #2B2C64);
+    font-size: 12px;
+    font-weight: 600;
+    padding: 5px 14px;
+    border-radius: 100px;
+    margin-bottom: 20px;
+  }
+
+  /* Title */
+  .legal-title {
+    font-family: var(--font-heading, 'Outfit', sans-serif);
+    font-size: clamp(28px, 5vw, 42px);
+    font-weight: 700;
+    color: var(--color-heading, #1A1B4B);
+    line-height: 1.2;
+    margin-bottom: 10px;
+  }
+
+  .legal-updated {
+    font-size: 13px;
+    color: var(--color-body, #5C5E84);
+  }
+
+  /* Content */
+  .legal-content {
+    display: flex;
+    flex-direction: column;
+    gap: 40px;
+  }
+
+  .legal-content section h2 {
+    font-family: var(--font-heading, 'Outfit', sans-serif);
+    font-size: 20px;
+    font-weight: 700;
+    color: var(--color-heading, #1A1B4B);
+    margin-bottom: 14px;
+  }
+
+  .legal-content section p {
+    font-size: 15px;
+    line-height: 1.75;
+    color: var(--color-body, #5C5E84);
+    margin-bottom: 12px;
+  }
+
+  .legal-content section p:last-child {
+    margin-bottom: 0;
+  }
+
+  .legal-content ul {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    padding-left: 18px;
+    margin-top: 8px;
+  }
+
+  .legal-content ul li {
+    font-size: 15px;
+    line-height: 1.75;
+    color: var(--color-body, #5C5E84);
+  }
+
+  .legal-content a {
+    color: var(--color-brand, #2B2C64);
+    text-decoration: underline;
+    font-weight: 500;
+  }
+
+  .legal-content a:hover {
+    opacity: 0.75;
+  }
+
+  /* Footer note */
+  .legal-footer-note {
+    margin-top: 60px;
+    padding: 24px 28px;
+    background: white;
+    border-radius: 16px;
+    border: 1px solid #E5E3F0;
+    font-size: 14px;
+    color: var(--color-body, #5C5E84);
+    text-align: center;
+  }
+
+  .legal-footer-note p {
+    margin-bottom: 6px;
+  }
+
+  .legal-footer-note a {
+    color: var(--color-brand, #2B2C64);
+    font-weight: 600;
+    text-decoration: underline;
+  }
+
+  /* Mobile */
+  @media (max-width: 768px) {
+    .legal-page {
+      padding: 40px 0 60px;
+    }
+
+    .legal-content section h2 {
+      font-size: 18px;
+    }
+
+    .legal-content section p,
+    .legal-content ul li {
+      font-size: 14px;
+    }
+  }
+</style>
