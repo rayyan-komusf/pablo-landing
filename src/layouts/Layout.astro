@@ -9,11 +9,20 @@ import { IS_LIVE } from "../siteConfig";
 interface Props {
   title?: string;
   description?: string;
+  /** Oculta el CountdownBanner global (default false — solo landings de campaña como /webinardespues). */
+  hideBanner?: boolean;
+  /** Oculta el MonedaPopup global (default false — solo landings de campaña como /webinardespues). */
+  hideMoneda?: boolean;
+  /** Marca la página como noindex/nofollow (default false — solo landings escondidas de campaña). */
+  noindex?: boolean;
 }
 
 const {
   title = "Pablo — Tu asistente financiero en WhatsApp",
   description = "Manejar tu dinero nunca fue tan fácil. Conoce a Pablo, tu asistente financiero en WhatsApp que te ayuda a ahorrar y controlar tus gastos con IA y sin estrés.",
+  hideBanner = false,
+  hideMoneda = false,
+  noindex = false,
 } = Astro.props;
 
 const siteUrl = "https://www.usapablo.com";
@@ -59,6 +68,7 @@ const ogImage = `${siteUrl}/Logo.png`;
     <link rel="preconnect" href="https://www.notion.so" />
 
     <meta name="generator" content={Astro.generator} />
+    {noindex && <meta name="robots" content="noindex, nofollow" />}
     <meta name="description" content={description} />
 
     <!-- Open Graph (Facebook, WhatsApp, Telegram, LinkedIn) -->
@@ -210,11 +220,13 @@ const ogImage = `${siteUrl}/Logo.png`;
     <PostHogSnippet />
   </head>
   <body>
-    <CountdownBanner />
+    {!hideBanner && <CountdownBanner />}
     <slot />
     {IS_LIVE && <SubscribeModal />}
-    <!-- Pop-up de la moneda: solo se activa en / y /blog/<post> (se
-         auto-guarda por pathname dentro de su script) -->
-    <MonedaPopup />
+    {
+      /* Pop-up de la moneda: solo se activa en / y /blog/<post> (se
+         auto-guarda por pathname dentro de su script) */
+    }
+    {!hideMoneda && <MonedaPopup />}
   </body>
 </html>

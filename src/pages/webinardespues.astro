@@ -1,0 +1,1724 @@
+---
+import { Image } from 'astro:assets';
+import Layout from '../layouts/Layout.astro';
+import Footer from '../components/Footer.astro';
+import logoImg from '../assets/Logo.png';
+
+// ============================================================
+//  OFERTA MILLONARIA — landing de ventas (framework $100M Offers)
+//  Ruta: /millonaria
+//  ⚠️ CHECKOUT_URL se reemplazará por un payment link de Stripe.
+//  Chrome de página: sin CountdownBanner global, sin MonedaPopup y con
+//  header mínimo (solo logo, sin links) — cada link del menú es una fuga.
+// ============================================================
+const CHECKOUT_URL = "https://www.usapablo.com/planes";
+
+// Martes 29 de julio de 2026, 11:59 p.m. hora Perú (UTC-5)
+const DEADLINE_ISO = "2026-07-29T23:59:59-05:00";
+const DEADLINE_TEXTO = "martes 29 de julio";
+
+// El stack de la oferta (solo valores reales: S/.200, S/.240 y $60 USD)
+const stack = [
+  {
+    tag: "Lo principal",
+    titulo: "Plan Anual de Pablo",
+    valor: "S/.240 si pagaras mes a mes",
+    img: "/onboarding/images/pablo/pablo-wave.png",
+    alt: "Pablo, tu asistente financiero",
+    desc: "Tu asistente financiero en WhatsApp, todo un año. 12 meses al precio de 10.",
+    bullets: [
+      "Registra tus gastos por texto, audio o foto del yape — en lo que tardas en mandar un WhatsApp.",
+      "Sin excel, sin app nueva: solo chats que ya haces todos los días.",
+      "Presupuesto de 3 cajones: lo esencial, tu futuro y tus gustos.",
+      "Metas de ahorro para que tu plata tenga destino.",
+      "Panel web para ver todo de un vistazo.",
+    ],
+  },
+  {
+    tag: "Bono 1",
+    titulo: "Reto “Empieza tu Camino al Millón en 30 días”",
+    valor: "Si lo completas: 100% de reembolso",
+    img: "/onboarding/images/pablo/emotions/pablo-emocionado.png",
+    alt: "Pablo emocionado con el reto",
+    desc: "El plan paso a paso para que empieces fuerte y, si cumples, recuperes cada sol.",
+    bullets: [],
+  },
+  {
+    tag: "Bono 2",
+    titulo: "Pase Mensual a La Komunidad de Futuros Millonarios",
+    valor: "Valor: $60 USD",
+    img: "/onboarding/images/pablo/pablo-saludando.webp",
+    alt: "Pablo saludando a la comunidad",
+    desc: "Un mes de clases EN VIVO con Rodrigo y la comunidad — lo que otros pagan $60 solo por este pase.",
+    bullets: [],
+  },
+  {
+    tag: "Bono 3",
+    titulo: "Curso “Finanzas de un Futuro Millonario”",
+    valor: "Incluido con tu plan",
+    img: "/onboarding/images/pablo/pablo-anotando.webp",
+    alt: "Pablo tomando apuntes del curso",
+    desc: "Para entender tu plata sin palabreo de banco ni fórmulas raras.",
+    bullets: [],
+  },
+  {
+    tag: "Bono 4",
+    titulo: "Toolkit Komunitario",
+    valor: "Incluido con tu plan",
+    img: "/onboarding/images/pablo/pablo-point.png",
+    alt: "Pablo señalando los recursos",
+    desc: "Más de 10 recursos listos para usar: plantillas y guías de finanzas e inversiones.",
+    bullets: [],
+  },
+  {
+    tag: "Bono 5",
+    titulo: "Garantía de satisfacción de 14 días",
+    valor: "Red de seguridad #1",
+    img: "/onboarding/images/pablo/emotions/pablo-tierno.png",
+    alt: "Pablo tranquilo",
+    desc: "Si en las primeras 2 semanas sientes que Pablo no es para ti, te devolvemos tu plata. Sin preguntas, sin letra chica.",
+    bullets: [],
+  },
+];
+
+// El Pacto — las 4 cosas que hacemos juntos en los primeros 30 días
+const pasosPacto = [
+  "Registrar tus gastos todos los días por WhatsApp",
+  "Armar tu presupuesto en 3 cajones",
+  "Darle su primer aporte a una meta",
+  "Terminar el curso “Finanzas de un Futuro Millonario”",
+];
+
+// Mini-testimonios en pills, pegados al pacto
+const pactoPills = [
+  {
+    quote: "«Antes me tomaba 2 horas, ahora 30 minutos por semana.»",
+    autor: "— Daniel, 25",
+  },
+  {
+    quote: "«Pablo me cambia la vida, la verdad.»",
+    autor: "— Adrián, 19",
+  },
+];
+
+// Testimonios — citas textuales de entrevistas a usuarios activos (jun-2026)
+const testimonios = [
+  {
+    quote:
+      "Antes agarraba un papel y lapicero; ahora le tomo la foto por WhatsApp y se sube a la base de datos y te da un reporte al instante.",
+    nombre: "Daniel",
+    detalle: "25 años · ingeniero civil",
+    contexto: "Pasó de 2 horas a 30 minutos por semana ordenando su plata.",
+  },
+  {
+    quote: "Pablo me cambia la vida, la verdad.",
+    nombre: "Adrián",
+    detalle: "19 años · papá primerizo",
+    contexto: "Bajó de S/.100 a S/.40 por salida.",
+  },
+  {
+    quote:
+      "Si ya no tengo Pablo, otra vez voy a volver al desorden en el que estaba: todo en el aire. Ya estoy muy acostumbrado a tener orden.",
+    nombre: "Rodrigo P.",
+    detalle: "39 años · entrenador",
+    contexto: null,
+  },
+  {
+    quote: "[Si Pablo desapareciera] lo que más extrañaría es la visibilidad de todo.",
+    nombre: "Mirella",
+    detalle: "trabaja en aduanas",
+    contexto: "Armó su fondo de emergencia con Pablo.",
+  },
+  {
+    quote: "Me gusta que sea por WhatsApp, se siente más humano.",
+    nombre: "Tracy",
+    detalle: "22 años",
+    contexto: null,
+  },
+];
+
+// FAQ — redactada desde el Messaging Framework (objeciones → respuestas)
+const faqs = [
+  {
+    q: "Ya tengo mi Excel y me funciona.",
+    a: "Pablo ES tu Excel, pero por WhatsApp y sin fórmulas: le mandas un mensaje y listo. Te ahorras el tiempo de anotar a mano y ganas reportes claros, presupuesto de 3 cajones y una comunidad que te acompaña. Daniel pasó de 2 horas a 30 minutos por semana.",
+  },
+  {
+    q: "¿Y si no me hago el hábito?",
+    a: "Para eso existe el reto de 30 días: registrar toma lo que tardas en mandar un WhatsApp, y la racha te da una razón concreta para no soltarlo (te devolvemos el 100% si lo completas). Un día a la vez, sin presión. No hay excel, no hay app nueva — solo chats que ya haces todos los días.",
+  },
+  {
+    q: "Me da roche escribirle a un bot.",
+    a: "Pablo no te juzga, te ordena. Nunca te va a regañar por un gustito ni a decirte “deberías”. Y como dice Tracy (22): “me gusta que sea por WhatsApp, se siente más humano”. Empiezas hoy, sin vergüenza.",
+  },
+  {
+    q: "S/.200 de golpe es un montón para mí.",
+    a: "Son menos de 55 céntimos por día — y es el año completo, 12 meses al precio de 10. Además, si completas el reto de 30 días te devolvemos todo: bien hecho, este año Pablo te puede salir gratis.",
+  },
+  {
+    q: "¿Funciona si gano poquito?",
+    a: "Pablo no es para gente con “un montón de plata”. Es para que, con lo que ya ganas, dejes de sentir que se evapora. El presupuesto de 3 cajones se arma con TU sueldo real, sea el que sea.",
+  },
+  {
+    q: "¿De verdad me devuelven la plata?",
+    a: "Sí. Las condiciones del reto son 4 y están escritas arriba, sin letra chica: racha de 30 días registrando, presupuesto mensual definido, primer aporte a una meta y curso completado. Si cumples las 4, te reembolsamos el 100% de lo pagado.",
+  },
+  {
+    q: "¿Pablo se renueva solo el próximo año?",
+    a: "Tu plan es anual: pagas S/.200 una vez y te cubre 12 meses completos. Puedes desactivar la renovación cuando quieras desde tu cuenta, sin trámites ni letra chica, y sigues usando Pablo hasta que termine tu año.",
+  },
+  {
+    q: "Ya me quemé con otras suscripciones, ¿qué pasa si quiero salir?",
+    a: "Tienes 14 días para probarlo todo y pedir tu reembolso total si no es para ti. Y aunque te quedes, puedes cancelar la renovación en cualquier momento para que el siguiente año no se cobre.",
+  },
+  {
+    q: "¿Cómo accedo a los bonos?",
+    a: "Apenas compras, te llegan por correo los accesos a todo: el reto, el curso, La Komunidad y el toolkit. Revisa tu bandeja (y el spam, por si acaso).",
+  },
+  {
+    q: "¿Mi información está segura?",
+    a: "Tu data es tuya y es privada. Está protegida con encriptación y no la compartimos con terceros. Punto.",
+  },
+];
+---
+
+<Layout
+  title="La Oferta Millonaria — Pablo"
+  description="Ordena tu plata en 30 días por WhatsApp: Plan Anual de Pablo + reto de 30 días con reembolso del 100%, curso, comunidad y toolkit. Solo hasta el martes 29 de julio."
+  hideBanner
+  hideMoneda
+  noindex
+>
+  <!-- Fuente manuscrita solo para esta página (firma de la carta) -->
+  <link
+    rel="stylesheet"
+    href="https://fonts.googleapis.com/css2?family=Caveat:wght@500;600&display=swap"
+  />
+
+  <!-- Header mínimo: solo el logo, sin links (cada link del menú es una fuga) -->
+  <header class="om-header">
+    <div class="container om-header__inner">
+      <span class="om-header__logo">
+        <Image src={logoImg} alt="Pablo logo" class="om-header__img" width={36} height={36} />
+        <span class="om-header__text">Pablo</span>
+      </span>
+    </div>
+  </header>
+
+  <main class="om">
+    <!-- ════════════════ 1. HERO ════════════════ -->
+    <section class="om-hero">
+      <div class="om-hero__blob om-hero__blob--1" aria-hidden="true"></div>
+      <div class="om-hero__blob om-hero__blob--2" aria-hidden="true"></div>
+
+      <div class="container om-hero__inner">
+        <div class="om-badge">
+          <span class="om-badge__dot"></span>
+          Solo hasta el {DEADLINE_TEXTO}
+        </div>
+
+        <h1 class="om-hero__title">
+          Ordena tu plata en 30 días por WhatsApp — y si cumples el reto,
+          Pablo te sale <span class="om-gratis">GRATIS</span> todo el año
+        </h1>
+
+        <p class="om-hero__sub">
+          Pagas S/.200 una sola vez, usas Pablo 12 meses y, si haces tu parte
+          en los primeros 30 días, te devolvemos el 100%. Sin letra chica, sin
+          cobros escondidos.
+        </p>
+
+        <a
+          href={CHECKOUT_URL}
+          class="om-cta"
+          id="om-cta-hero"
+          onclick="try{window.posthog?.capture('millonaria_cta_clicked',{location:'hero'})}catch(e){};if(typeof fbq!=='undefined')fbq('trackCustom','Millonaria_CTA',{location:'hero'});"
+        >
+          Quiero ordenar mi plata y empezar el reto
+        </a>
+
+        <div class="om-countdown" data-deadline={DEADLINE_ISO}>
+          <div class="om-cd__unit"><span class="om-cd__num" data-cd="d">--</span><span class="om-cd__label">días</span></div>
+          <span class="om-cd__sep">:</span>
+          <div class="om-cd__unit"><span class="om-cd__num" data-cd="h">--</span><span class="om-cd__label">horas</span></div>
+          <span class="om-cd__sep">:</span>
+          <div class="om-cd__unit"><span class="om-cd__num" data-cd="m">--</span><span class="om-cd__label">min</span></div>
+          <span class="om-cd__sep">:</span>
+          <div class="om-cd__unit"><span class="om-cd__num" data-cd="s">--</span><span class="om-cd__label">seg</span></div>
+        </div>
+
+        <p class="om-hero__trust">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+            <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" />
+          </svg>
+          Pago único de S/.200 por 12 meses. Cancelas la renovación cuando quieras, sin trámites.
+        </p>
+      </div>
+    </section>
+
+    <!-- ════════════════ 2. EL PACTO (el reto, arriba) ════════════════ -->
+    <section class="om-reto" id="pacto">
+      <div class="container om-reto__inner">
+        <div class="om-sec-header">
+          <h2 class="om-sec-title">
+            El pacto: <span class="highlight">tú cumples 30 días, yo te devuelvo cada sol</span>
+          </h2>
+          <p class="om-sec-sub">
+            Hoy pagas y en 10 minutos ya estás chateando con Pablo. Y durante
+            los primeros 30 días vamos a hacer 4 cosas juntos:
+          </p>
+        </div>
+
+        <ol class="om-reto__pasos">
+          {pasosPacto.map((paso, i) => (
+            <li class="om-paso">
+              <span class="om-paso__num">{i + 1}</span>
+              <div>
+                <h3 class="om-paso__title">{paso}</h3>
+              </div>
+            </li>
+          ))}
+        </ol>
+
+        <div class="om-reto__cierre">
+          <p>
+            Si completas las 4 cosas en 30 días, me escribes y te devuelvo el
+            100% de los S/.200. Te quedas con el hábito, el orden y Pablo
+            pagado por todo el año.
+          </p>
+          <p class="om-reto__frase">
+            La única forma de perder es no hacer tu parte.
+          </p>
+          <p class="om-reto__ventana">
+            Solo quienes entren antes del martes 29 participan del reto con
+            reembolso del 100%. Después, el plan anual sigue existiendo — pero
+            sin esta condición especial.
+          </p>
+        </div>
+
+        <div class="om-pacto__pills">
+          {pactoPills.map((pill) => (
+            <figure class="om-pill">
+              <blockquote class="om-pill__quote">{pill.quote}</blockquote>
+              <figcaption class="om-pill__autor">{pill.autor}</figcaption>
+            </figure>
+          ))}
+        </div>
+      </div>
+    </section>
+
+    <!-- ════════════════ 3. VALUE STACK ════════════════ -->
+    <section class="om-stack" id="oferta">
+      <div class="container om-stack__inner">
+        <div class="om-sec-header">
+          <h2 class="om-sec-title">
+            Esto es <span class="highlight">todo lo que te llevas</span>
+          </h2>
+          <p class="om-sec-sub">
+            Una sola compra. Un año entero. Y un plan para que te salga gratis.
+          </p>
+        </div>
+
+        <div class="om-stack__list">
+          {stack.map((item) => (
+            <article class="om-item">
+              <div class="om-item__media">
+                <img
+                  src={item.img}
+                  alt={item.alt}
+                  width="140"
+                  height="140"
+                  loading="lazy"
+                  decoding="async"
+                />
+              </div>
+              <div class="om-item__body">
+                <span class="om-item__tag">{item.tag}</span>
+                <h3 class="om-item__title">{item.titulo}</h3>
+                <span class="om-item__valor">{item.valor}</span>
+                <p class="om-item__desc">{item.desc}</p>
+                {item.bullets.length > 0 && (
+                  <ul class="om-item__bullets">
+                    {item.bullets.map((b) => (
+                      <li>
+                        <svg class="om-check" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#3FA643" stroke-width="2.5" aria-hidden="true"><polyline points="20 6 9 17 4 12" /></svg>
+                        {b}
+                      </li>
+                    ))}
+                  </ul>
+                )}
+              </div>
+            </article>
+          ))}
+        </div>
+
+        <!-- RECAP del stack -->
+        <div class="om-recap">
+          <h3 class="om-recap__title">Hagamos los números</h3>
+          <ul class="om-recap__list">
+            <li>
+              <span>Plan Anual de Pablo (12 meses)</span>
+              <span class="om-recap__val"><s>S/.240</s> mes a mes</span>
+            </li>
+            <li>
+              <span>Reto “Camino al Millón en 30 días”</span>
+              <span class="om-recap__val">100% de reembolso si lo completas</span>
+            </li>
+            <li>
+              <span>Pase Mensual a La Komunidad</span>
+              <span class="om-recap__val">valor $60 USD</span>
+            </li>
+            <li>
+              <span>Curso “Finanzas de un Futuro Millonario”</span>
+              <span class="om-recap__val">incluido</span>
+            </li>
+            <li>
+              <span>Toolkit Komunitario (+10 recursos)</span>
+              <span class="om-recap__val">incluido</span>
+            </li>
+            <li>
+              <span>Garantía de satisfacción de 14 días</span>
+              <span class="om-recap__val">incluida</span>
+            </li>
+          </ul>
+          <div class="om-recap__compare">
+            <div class="om-comp">
+              <span class="om-comp__precio"><s>S/.240</s></span>
+              <span class="om-comp__label">si pagaras mes a mes</span>
+            </div>
+            <span class="om-comp__flecha" aria-hidden="true">→</span>
+            <div class="om-comp om-comp--hoy">
+              <span class="om-comp__precio">hoy S/.200</span>
+              <span class="om-comp__label">(2 meses de regalo)</span>
+            </div>
+            <span class="om-comp__flecha" aria-hidden="true">→</span>
+            <div class="om-comp om-comp--gratis">
+              <span class="om-comp__precio">S/.0</span>
+              <span class="om-comp__label">si completas el reto</span>
+            </div>
+          </div>
+          <a
+            href={CHECKOUT_URL}
+            class="om-cta om-cta--full"
+            id="om-cta-recap"
+            onclick="try{window.posthog?.capture('millonaria_cta_clicked',{location:'recap'})}catch(e){};if(typeof fbq!=='undefined')fbq('trackCustom','Millonaria_CTA',{location:'recap'});"
+          >
+            Convierto mi Pablo en anual
+          </a>
+        </div>
+      </div>
+    </section>
+
+    <!-- ════════════════ 4. CARTA DEL CREADOR ════════════════ -->
+    <section class="om-carta-sec">
+      <div class="container">
+        <div class="om-carta">
+          <div class="om-carta__pin" aria-hidden="true"></div>
+          <p class="om-carta__p">querido futuro millonario,</p>
+          <p class="om-carta__p">
+            si estás acá, probablemente anoche estuviste conmigo en el
+            taller... o alguien que te quiere te mandó este link
+          </p>
+          <p class="om-carta__p">déjame contarte por qué existe esta oferta.</p>
+          <p class="om-carta__p">
+            a los 19 años malgasté S/.15 000 de ahorros en cosas que ni
+            recuerdo. años después, me endeudé con más de S/.100 000
+            construyendo Pablo — porque creo con todo lo que tengo que los
+            peruanos merecemos una forma más simple de ordenar nuestra plata.
+          </p>
+          <p class="om-carta__p">
+            en el camino aprendí algo: el problema nunca fue cuánto ganas. es
+            que no VES tu plata. y lo que no ves, no lo puedes controlar.
+          </p>
+          <p class="om-carta__p">
+            por eso armé la Oferta Millonaria: no quiero venderte una app.
+            quiero que este año sí sea el año en que tomas el control — y armé
+            la oferta de tal forma que, si haces tu parte, te salga gratis.
+          </p>
+          <p class="om-carta__p">
+            lee todo lo de abajo. si haces los números, la única forma de
+            perder es no empezar.
+          </p>
+          <p class="om-carta__firma">- Rodrigo · papá de Pablo</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- ════════════════ 5. TESTIMONIOS ════════════════ -->
+    <section class="om-testimonios">
+      <div class="container om-testimonios__inner">
+        <div class="om-sec-header">
+          <h2 class="om-sec-title">
+            Gente real que ya <span class="highlight">ve su plata</span>
+          </h2>
+          <p class="om-sec-sub">Palabras textuales de usuarios de Pablo.</p>
+        </div>
+
+        <div class="om-test__grid">
+          {testimonios.map((t) => (
+            <figure class="om-test-card">
+              <svg class="om-test-card__quote" width="30" height="30" viewBox="0 0 24 24" fill="#D4D0F0" aria-hidden="true"><path d="M3 21c3 0 7-1 7-8V5c0-1.25-.756-2.017-2-2H4c-1.25 0-2 .75-2 1.972V11c0 1.25.75 2 2 2 1 0 1 0 1 1v1c0 1-1 2-2 2s-1 .008-1 1.031V20c0 1 0 1 1 1z" /><path d="M15 21c3 0 7-1 7-8V5c0-1.25-.757-2.017-2-2h-4c-1.25 0-2 .75-2 1.972V11c0 1.25.75 2 2 2h.75c0 2.25.25 4-2.75 4v3c0 1 0 1 1 1z" /></svg>
+              <blockquote class="om-test-card__text">"{t.quote}"</blockquote>
+              {t.contexto && <p class="om-test-card__ctx">{t.contexto}</p>}
+              <figcaption class="om-test-card__author">
+                <span class="om-test-card__name">{t.nombre}</span>
+                <span class="om-test-card__detail">{t.detalle}</span>
+              </figcaption>
+            </figure>
+          ))}
+        </div>
+      </div>
+    </section>
+
+    <!-- ════════════════ 6. GARANTÍA DOBLE ════════════════ -->
+    <section class="om-garantia">
+      <div class="container om-garantia__inner">
+        <div class="om-sec-header">
+          <h2 class="om-sec-title">
+            Doble red de seguridad: <span class="highlight">el riesgo lo asumimos nosotros</span>
+          </h2>
+        </div>
+
+        <div class="om-garantia__cards">
+          <div class="om-g-card">
+            <div class="om-g-card__icon">
+              <svg width="30" height="30" viewBox="0 0 24 24" fill="none" stroke="#2B2C64" stroke-width="2" aria-hidden="true">
+                <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" />
+                <polyline points="9 12 11 14 15 10" />
+              </svg>
+            </div>
+            <h3 class="om-g-card__title">Red de seguridad #1: garantía de 14 días</h3>
+            <p class="om-g-card__desc">
+              Pruébalo 2 semanas. Si sientes que no es para ti, te devolvemos
+              tu plata. Sin preguntas.
+            </p>
+          </div>
+          <div class="om-g-card om-g-card--amber">
+            <div class="om-g-card__icon">
+              <svg width="30" height="30" viewBox="0 0 24 24" fill="none" stroke="#875A00" stroke-width="2" aria-hidden="true">
+                <circle cx="12" cy="12" r="10" />
+                <path d="M8 12h8M12 8v8" />
+              </svg>
+            </div>
+            <h3 class="om-g-card__title">Red de seguridad #2: el reto con reembolso del 100%</h3>
+            <p class="om-g-card__desc">
+              Haz tu parte durante 30 días y te devolvemos todo lo pagado.
+              Ganas el hábito y recuperas tu plata.
+            </p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ════════════════ 7. URGENCIA HONESTA ════════════════ -->
+    <section class="om-urgencia">
+      <div class="container om-urgencia__inner">
+        <h2 class="om-urgencia__title">
+          La oferta cierra el {DEADLINE_TEXTO} a las 11:59 p.m. (hora Perú)
+        </h2>
+        <p class="om-urgencia__sub">
+          Esta es la semana en que entra tu sueldo y tu grati de Fiestas
+          Patrias. O se va en gastos hormiga, o la usas para ordenar tu año
+          completo.
+        </p>
+        <p class="om-urgencia__sub">
+          Sin cupos falsos ni relojes que se reinician.
+        </p>
+
+        <div class="om-countdown om-countdown--big" data-deadline={DEADLINE_ISO}>
+          <div class="om-cd__unit"><span class="om-cd__num" data-cd="d">--</span><span class="om-cd__label">días</span></div>
+          <span class="om-cd__sep">:</span>
+          <div class="om-cd__unit"><span class="om-cd__num" data-cd="h">--</span><span class="om-cd__label">horas</span></div>
+          <span class="om-cd__sep">:</span>
+          <div class="om-cd__unit"><span class="om-cd__num" data-cd="m">--</span><span class="om-cd__label">min</span></div>
+          <span class="om-cd__sep">:</span>
+          <div class="om-cd__unit"><span class="om-cd__num" data-cd="s">--</span><span class="om-cd__label">seg</span></div>
+        </div>
+
+        <a
+          href={CHECKOUT_URL}
+          class="om-cta"
+          id="om-cta-urgencia"
+          onclick="try{window.posthog?.capture('millonaria_cta_clicked',{location:'urgencia'})}catch(e){};if(typeof fbq!=='undefined')fbq('trackCustom','Millonaria_CTA',{location:'urgencia'});"
+        >
+          Quiero empezar mi camino al millón
+        </a>
+      </div>
+    </section>
+
+    <!-- ════════════════ 8. FAQ ════════════════ -->
+    <section class="om-faq" id="preguntas">
+      <div class="container om-faq__inner">
+        <div class="om-sec-header">
+          <h2 class="om-sec-title">Preguntas que nos hacen siempre</h2>
+          <p class="om-sec-sub">Directo y sin letra chica.</p>
+        </div>
+
+        <div class="om-faq__list" role="list">
+          {faqs.map((faq, i) => (
+            <div class="om-faq-item" role="listitem">
+              <button
+                class="om-faq-q"
+                aria-expanded="false"
+                aria-controls={`om-faq-a-${i}`}
+                id={`om-faq-btn-${i}`}
+              >
+                <span>{faq.q}</span>
+                <svg class="om-faq-chevron" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" aria-hidden="true"><polyline points="6 9 12 15 18 9" /></svg>
+              </button>
+              <div class="om-faq-a" id={`om-faq-a-${i}`} role="region" aria-labelledby={`om-faq-btn-${i}`} hidden>
+                <p>{faq.a}</p>
+              </div>
+            </div>
+          ))}
+        </div>
+      </div>
+    </section>
+
+    <!-- ════════════════ 9. CTA FINAL ════════════════ -->
+    <section class="om-final">
+      <div class="container om-final__inner">
+        <img
+          src="/onboarding/images/pablo/pablo-point.png"
+          alt="Pablo animándote a empezar"
+          width="120"
+          height="120"
+          loading="lazy"
+          decoding="async"
+          class="om-final__mascot"
+        />
+        <h2 class="om-final__title">
+          Este año sí. Y si haces tu parte, te sale gratis.
+        </h2>
+        <p class="om-final__sub">
+          Un año de Pablo + el reto + el curso + La Komunidad + el toolkit, por
+          S/.200. Solo hasta el {DEADLINE_TEXTO}.
+        </p>
+        <p class="om-final__cierre">
+          Después del martes 29 a las 11:59 p.m., esta oferta se cierra y esta
+          combinación de bonos ya no existe.
+        </p>
+        <a
+          href={CHECKOUT_URL}
+          class="om-cta om-cta--xl"
+          id="om-cta-final"
+          onclick="try{window.posthog?.capture('millonaria_cta_clicked',{location:'final'})}catch(e){};if(typeof fbq!=='undefined')fbq('trackCustom','Millonaria_CTA',{location:'final'});"
+        >
+          Quiero empezar mi camino al millón
+        </a>
+        <p class="om-final__trust">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" /></svg>
+          Garantía de 14 días. Reto con reembolso del 100%. Tú decides.
+        </p>
+      </div>
+    </section>
+  </main>
+  <Footer />
+</Layout>
+
+<style>
+  /* ════════════════ HEADER MÍNIMO ════════════════ */
+  .om-header {
+    background: var(--bg-hero);
+  }
+
+  .om-header__inner {
+    display: flex;
+    align-items: center;
+    height: 72px;
+  }
+
+  .om-header__logo {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    flex-shrink: 0;
+    cursor: default;
+  }
+
+  .om-header__img {
+    width: 36px;
+    height: 36px;
+    object-fit: contain;
+    border-radius: 8px;
+  }
+
+  .om-header__text {
+    font-family: var(--font-heading);
+    font-weight: 700;
+    font-size: 20px;
+    color: var(--color-heading);
+  }
+
+  /* ════════════════ BASE ════════════════ */
+  .om {
+    --om-cream: #fffaf0;
+    --om-navy: var(--color-navy);
+  }
+
+  .om-sec-header {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 12px;
+    text-align: center;
+  }
+
+  .om-sec-title {
+    font-family: var(--font-heading);
+    font-weight: 700;
+    font-size: 34px;
+    line-height: 1.15;
+    color: var(--color-heading);
+    max-width: 640px;
+  }
+
+  .om-sec-sub {
+    font-size: 16px;
+    color: var(--color-body);
+    max-width: 480px;
+  }
+
+  /* CTA estilo Duolingo (reborde 3D como el hero del index) */
+  .om-cta {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 100%;
+    max-width: 380px;
+    padding: 16px 24px;
+    border-radius: 16px;
+    background: var(--gradient-cta);
+    color: #2b2c64;
+    font-family: var(--font-body);
+    font-weight: 800;
+    font-size: 15px;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    text-align: center;
+    box-shadow: 0 4px 0 0 #c9820a;
+    transition: transform 0.12s ease, box-shadow 0.12s ease;
+    cursor: pointer;
+  }
+
+  .om-cta:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 5px 0 0 #c9820a;
+  }
+
+  .om-cta:active {
+    transform: translateY(3px);
+    box-shadow: 0 1px 0 0 #c9820a;
+  }
+
+  .om-cta--full {
+    max-width: none;
+  }
+
+  .om-cta--xl {
+    max-width: 440px;
+    padding: 18px 28px;
+    font-size: 16px;
+  }
+
+  /* Badge deadline */
+  .om-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    background: white;
+    border: 1.5px solid rgba(43, 44, 100, 0.12);
+    border-radius: var(--radius-pill);
+    padding: 5px 14px;
+    font-size: 12px;
+    font-weight: 700;
+    color: var(--color-heading);
+    letter-spacing: 0.02em;
+    box-shadow: 0 2px 12px rgba(43, 44, 100, 0.06);
+  }
+
+  .om-badge__dot {
+    width: 7px;
+    height: 7px;
+    border-radius: 50%;
+    background: #e04545;
+    box-shadow: 0 0 0 3px rgba(224, 69, 69, 0.2);
+    animation: om-pulse 1.8s ease-in-out infinite;
+  }
+
+  @keyframes om-pulse {
+    0%, 100% { box-shadow: 0 0 0 3px rgba(224, 69, 69, 0.2); }
+    50% { box-shadow: 0 0 0 6px rgba(224, 69, 69, 0.08); }
+  }
+
+  /* Countdown (mismo lenguaje visual que el webinar) */
+  .om-countdown {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .om-cd__unit {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    background: white;
+    border-radius: var(--radius-md);
+    padding: 7px 12px;
+    min-width: 56px;
+    box-shadow: var(--card-shadow);
+  }
+
+  .om-cd__num {
+    font-family: var(--font-heading);
+    font-weight: 700;
+    font-size: 21px;
+    line-height: 1.1;
+    color: var(--color-heading);
+    font-variant-numeric: tabular-nums;
+  }
+
+  .om-cd__label {
+    font-size: 10px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    color: var(--color-secondary);
+  }
+
+  .om-cd__sep {
+    font-family: var(--font-heading);
+    font-weight: 700;
+    font-size: 18px;
+    color: var(--color-amber);
+  }
+
+  .om-countdown--big .om-cd__unit {
+    min-width: 68px;
+    padding: 10px 14px;
+  }
+
+  .om-countdown--big .om-cd__num {
+    font-size: 30px;
+  }
+
+  /* ════════════════ 1. HERO ════════════════ */
+  .om-hero {
+    background: var(--bg-hero);
+    padding: 48px 0 64px;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .om-hero__blob {
+    position: absolute;
+    border-radius: 50%;
+    filter: blur(80px);
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  .om-hero__blob--1 {
+    width: 420px;
+    height: 420px;
+    background: rgba(246, 183, 43, 0.14);
+    top: -100px;
+    right: -80px;
+  }
+
+  .om-hero__blob--2 {
+    width: 340px;
+    height: 340px;
+    background: rgba(86, 87, 143, 0.1);
+    bottom: -60px;
+    left: -60px;
+  }
+
+  .om-hero__inner {
+    position: relative;
+    z-index: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    gap: 18px;
+    max-width: 720px;
+    margin: 0 auto;
+  }
+
+  .om-hero__title {
+    font-family: var(--font-heading);
+    font-weight: 700;
+    font-size: 40px;
+    line-height: 1.12;
+    color: var(--color-heading);
+  }
+
+  .om-gratis {
+    color: var(--color-green);
+  }
+
+  .om-hero__sub {
+    font-size: 17px;
+    line-height: 1.55;
+    color: var(--color-body);
+    max-width: 540px;
+  }
+
+  .om-hero__trust {
+    display: flex;
+    align-items: center;
+    gap: 7px;
+    font-size: 13px;
+    color: var(--color-secondary);
+    font-weight: 500;
+  }
+
+  /* ════════════════ 2. EL PACTO ════════════════ */
+  .om-reto {
+    background: #ffffff;
+    padding: var(--section-py) 0;
+  }
+
+  .om-reto__inner {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 40px;
+  }
+
+  .om-reto__pasos {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 20px;
+    width: 100%;
+    max-width: 760px;
+    counter-reset: paso;
+  }
+
+  .om-paso {
+    display: flex;
+    gap: 16px;
+    align-items: center;
+    background: var(--bg-hero);
+    border-radius: var(--radius-md);
+    padding: 22px;
+  }
+
+  .om-paso__num {
+    flex-shrink: 0;
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    background: var(--gradient-cta);
+    color: var(--color-navy);
+    font-family: var(--font-heading);
+    font-weight: 700;
+    font-size: 19px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 3px 10px rgba(245, 166, 35, 0.35);
+  }
+
+  .om-paso__title {
+    font-family: var(--font-heading);
+    font-weight: 700;
+    font-size: 17px;
+    line-height: 1.35;
+    color: var(--color-heading);
+  }
+
+  .om-reto__cierre {
+    text-align: center;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 14px;
+    max-width: 560px;
+  }
+
+  .om-reto__cierre p {
+    font-size: 16px;
+    color: var(--color-body);
+  }
+
+  .om-reto__frase {
+    font-family: var(--font-heading);
+    font-weight: 700;
+    font-size: 22px !important;
+    color: var(--color-heading) !important;
+  }
+
+  .om-reto__ventana {
+    font-size: 14px !important;
+    line-height: 1.6;
+    color: #875a00 !important;
+    background: #fef3da;
+    border: 1px solid #f5c970;
+    border-radius: var(--radius-md);
+    padding: 12px 20px;
+  }
+
+  /* Mini-testimonios en pills pegados al pacto */
+  .om-pacto__pills {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 14px;
+    width: 100%;
+    max-width: 760px;
+  }
+
+  .om-pill {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 4px;
+    background: white;
+    border: 1.5px solid #e5e3f0;
+    border-radius: 18px;
+    padding: 14px 24px;
+    box-shadow: var(--card-shadow);
+    text-align: center;
+    max-width: 340px;
+  }
+
+  .om-pill__quote {
+    font-size: 14px;
+    font-weight: 600;
+    line-height: 1.5;
+    color: var(--color-heading);
+  }
+
+  .om-pill__autor {
+    font-size: 12px;
+    color: var(--color-secondary);
+  }
+
+  /* ════════════════ 3. VALUE STACK ════════════════ */
+  .om-stack {
+    background: var(--bg-how);
+    padding: var(--section-py) 0;
+  }
+
+  .om-stack__inner {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 40px;
+  }
+
+  .om-stack__list {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+    width: 100%;
+    max-width: 760px;
+  }
+
+  .om-item {
+    display: flex;
+    gap: 24px;
+    align-items: flex-start;
+    background: white;
+    border: 1.5px solid #e5e3f0;
+    border-radius: var(--radius-lg);
+    padding: 28px;
+    box-shadow: var(--card-shadow);
+    transition: box-shadow 0.25s, transform 0.25s;
+  }
+
+  .om-item:hover {
+    box-shadow: var(--card-shadow-hover);
+    transform: translateY(-3px);
+  }
+
+  .om-item__media {
+    flex-shrink: 0;
+    width: 110px;
+    height: 110px;
+    background: #ffffff;
+    border: 1.5px solid #e5e3f0;
+    border-radius: var(--radius-md);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    overflow: hidden;
+  }
+
+  .om-item__media img {
+    width: 90px;
+    height: 90px;
+    object-fit: contain;
+  }
+
+  .om-item__body {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+  }
+
+  .om-item__tag {
+    align-self: flex-start;
+    background: #eeedf5;
+    color: var(--color-heading);
+    font-size: 11px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    padding: 3px 10px;
+    border-radius: var(--radius-pill);
+  }
+
+  .om-item__title {
+    font-family: var(--font-heading);
+    font-weight: 700;
+    font-size: 20px;
+    line-height: 1.25;
+    color: var(--color-heading);
+  }
+
+  .om-item__valor {
+    align-self: flex-start;
+    background: #fef3da;
+    color: #875a00;
+    border: 1px solid #f5c970;
+    font-size: 12px;
+    font-weight: 700;
+    padding: 3px 10px;
+    border-radius: var(--radius-pill);
+  }
+
+  .om-item__desc {
+    font-size: 15px;
+    line-height: 1.6;
+    color: var(--color-body);
+  }
+
+  .om-item__bullets {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    margin-top: 4px;
+  }
+
+  .om-item__bullets li {
+    display: flex;
+    align-items: flex-start;
+    gap: 10px;
+    font-size: 14px;
+    line-height: 1.5;
+    color: var(--color-body);
+  }
+
+  .om-check {
+    flex-shrink: 0;
+    margin-top: 2px;
+  }
+
+  /* Recap */
+  .om-recap {
+    width: 100%;
+    max-width: 640px;
+    background: white;
+    border: 2px solid var(--color-amber);
+    border-radius: var(--radius-lg);
+    padding: 36px 32px;
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+    box-shadow: 0 8px 40px rgba(245, 166, 35, 0.2);
+  }
+
+  .om-recap__title {
+    font-family: var(--font-heading);
+    font-weight: 700;
+    font-size: 24px;
+    color: var(--color-heading);
+    text-align: center;
+  }
+
+  .om-recap__list {
+    display: flex;
+    flex-direction: column;
+  }
+
+  .om-recap__list li {
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+    gap: 16px;
+    padding: 12px 0;
+    border-bottom: 1px dashed rgba(43, 44, 100, 0.15);
+    font-size: 14px;
+    color: var(--color-heading);
+    font-weight: 500;
+  }
+
+  .om-recap__val {
+    color: var(--color-secondary);
+    font-weight: 600;
+    text-align: right;
+    white-space: nowrap;
+    font-size: 13px;
+  }
+
+  .om-recap__val s {
+    color: var(--color-secondary);
+  }
+
+  /* Comparación: S/.240 → hoy S/.200 → S/.0 */
+  .om-recap__compare {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 16px;
+    flex-wrap: wrap;
+    text-align: center;
+    padding: 6px 0;
+  }
+
+  .om-comp {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 2px;
+  }
+
+  .om-comp__precio {
+    font-family: var(--font-heading);
+    font-weight: 700;
+    font-size: 24px;
+    line-height: 1.1;
+    color: var(--color-secondary);
+  }
+
+  .om-comp--hoy .om-comp__precio {
+    font-size: 34px;
+    color: var(--color-heading);
+  }
+
+  .om-comp--gratis .om-comp__precio {
+    font-size: 34px;
+    color: var(--color-green);
+  }
+
+  .om-comp__label {
+    font-size: 12.5px;
+    font-weight: 500;
+    color: var(--color-secondary);
+  }
+
+  .om-comp__flecha {
+    font-family: var(--font-heading);
+    font-weight: 700;
+    font-size: 22px;
+    color: var(--color-amber);
+  }
+
+  /* ════════════════ 4. CARTA ════════════════ */
+  .om-carta-sec {
+    background: #ffffff;
+    padding: var(--section-py) 0;
+  }
+
+  .om-carta {
+    position: relative;
+    max-width: 640px;
+    margin: 0 auto;
+    background: var(--om-cream, #fffaf0);
+    border: 1px solid rgba(43, 44, 100, 0.1);
+    border-radius: 6px;
+    padding: 48px 40px 40px;
+    box-shadow: 0 2px 6px rgba(43, 44, 100, 0.06), 0 16px 40px rgba(43, 44, 100, 0.1);
+    transform: rotate(-0.4deg);
+    background-image: repeating-linear-gradient(
+      transparent,
+      transparent 31px,
+      rgba(43, 44, 100, 0.05) 31px,
+      rgba(43, 44, 100, 0.05) 32px
+    );
+  }
+
+  /* "Cinta" que sostiene la carta */
+  .om-carta__pin {
+    position: absolute;
+    top: -12px;
+    left: 50%;
+    transform: translateX(-50%) rotate(1.5deg);
+    width: 110px;
+    height: 26px;
+    background: rgba(245, 166, 35, 0.35);
+    border-left: 1px dashed rgba(43, 44, 100, 0.15);
+    border-right: 1px dashed rgba(43, 44, 100, 0.15);
+  }
+
+  .om-carta__p {
+    font-size: 16px;
+    line-height: 2;
+    color: var(--color-heading);
+    margin-bottom: 18px;
+  }
+
+  .om-carta__firma {
+    font-family: 'Caveat', cursive;
+    font-weight: 600;
+    font-size: 30px;
+    color: var(--color-heading);
+    margin-top: 28px;
+    transform: rotate(-1.2deg);
+  }
+
+  /* ════════════════ 5. TESTIMONIOS ════════════════ */
+  .om-testimonios {
+    background: var(--bg-testimonials);
+    padding: var(--section-py) 0;
+  }
+
+  .om-testimonios__inner {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 40px;
+  }
+
+  .om-test__grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 20px;
+    width: 100%;
+    max-width: 860px;
+  }
+
+  .om-test-card {
+    background: white;
+    border-radius: var(--radius-lg);
+    padding: 28px;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    box-shadow: var(--card-shadow);
+  }
+
+  .om-test-card:last-child {
+    grid-column: 1 / -1;
+    max-width: 420px;
+    justify-self: center;
+    width: 100%;
+  }
+
+  .om-test-card__quote {
+    opacity: 0.6;
+  }
+
+  .om-test-card__text {
+    font-size: 15px;
+    line-height: 1.65;
+    color: var(--color-heading);
+    flex: 1;
+  }
+
+  .om-test-card__ctx {
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--color-green);
+  }
+
+  .om-test-card__author {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+    gap: 2px;
+  }
+
+  .om-test-card__name {
+    font-weight: 700;
+    font-size: 14px;
+    color: var(--color-heading);
+  }
+
+  .om-test-card__detail {
+    font-size: 12px;
+    color: var(--color-secondary);
+  }
+
+  /* ════════════════ 6. GARANTÍA ════════════════ */
+  .om-garantia {
+    background: #ffffff;
+    padding: var(--section-py) 0;
+  }
+
+  .om-garantia__inner {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 40px;
+  }
+
+  .om-garantia__cards {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 20px;
+    width: 100%;
+    max-width: 760px;
+  }
+
+  .om-g-card {
+    background: #fafafe;
+    border: 2px solid #c8c5d6;
+    border-radius: var(--radius-lg);
+    padding: 32px 28px;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+  }
+
+  .om-g-card--amber {
+    background: linear-gradient(135deg, #f7ecd4 0%, #f3f3f6 100%);
+    border-color: var(--color-amber);
+  }
+
+  .om-g-card__icon {
+    width: 52px;
+    height: 52px;
+    border-radius: var(--radius-md);
+    background: white;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: var(--card-shadow);
+  }
+
+  .om-g-card__title {
+    font-family: var(--font-heading);
+    font-weight: 700;
+    font-size: 20px;
+    line-height: 1.3;
+    color: var(--color-heading);
+  }
+
+  .om-g-card__desc {
+    font-size: 15px;
+    line-height: 1.6;
+    color: var(--color-body);
+  }
+
+  /* ════════════════ 7. URGENCIA ════════════════ */
+  .om-urgencia {
+    background: var(--bg-hero);
+    padding: var(--section-py) 0;
+  }
+
+  .om-urgencia__inner {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    gap: 22px;
+    max-width: 640px;
+    margin: 0 auto;
+  }
+
+  .om-urgencia__title {
+    font-family: var(--font-heading);
+    font-weight: 700;
+    font-size: 30px;
+    line-height: 1.2;
+    color: var(--color-heading);
+  }
+
+  .om-urgencia__sub {
+    font-size: 16px;
+    line-height: 1.6;
+    color: var(--color-body);
+  }
+
+  /* ════════════════ 8. FAQ ════════════════ */
+  .om-faq {
+    background: var(--bg-faq);
+    padding: var(--section-py) 0;
+  }
+
+  .om-faq__inner {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 40px;
+  }
+
+  .om-faq__list {
+    width: 100%;
+    max-width: 760px;
+    display: flex;
+    flex-direction: column;
+  }
+
+  .om-faq-item {
+    border-bottom: 1px solid rgba(43, 44, 100, 0.1);
+  }
+
+  .om-faq-q {
+    width: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 16px;
+    padding: 20px 4px;
+    font-size: 16px;
+    font-weight: 600;
+    color: var(--color-heading);
+    background: none;
+    border: none;
+    cursor: pointer;
+    text-align: left;
+    transition: color 0.15s;
+  }
+
+  .om-faq-q:hover {
+    color: var(--color-purple);
+  }
+
+  .om-faq-chevron {
+    flex-shrink: 0;
+    transition: transform 0.3s ease;
+    color: var(--color-heading);
+  }
+
+  .om-faq-q[aria-expanded='true'] {
+    color: var(--color-purple);
+  }
+
+  .om-faq-q[aria-expanded='true'] .om-faq-chevron {
+    transform: rotate(180deg);
+  }
+
+  .om-faq-a p {
+    padding: 0 4px 20px;
+    font-size: 15px;
+    line-height: 1.7;
+    color: var(--color-body);
+  }
+
+  /* ════════════════ 9. CTA FINAL ════════════════ */
+  .om-final {
+    background: var(--bg-footer);
+    padding: var(--section-py) 0;
+  }
+
+  .om-final__inner {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    gap: 18px;
+    max-width: 640px;
+    margin: 0 auto;
+  }
+
+  .om-final__mascot {
+    width: 110px;
+    height: 110px;
+    object-fit: contain;
+  }
+
+  .om-final__title {
+    font-family: var(--font-heading);
+    font-weight: 700;
+    font-size: 34px;
+    line-height: 1.15;
+    color: white;
+  }
+
+  .om-final__sub {
+    font-size: 16px;
+    line-height: 1.6;
+    color: var(--color-footer-text);
+  }
+
+  .om-final__cierre {
+    font-size: 14px;
+    line-height: 1.6;
+    font-weight: 600;
+    color: var(--color-footer-text);
+  }
+
+  .om-final__trust {
+    display: flex;
+    align-items: center;
+    gap: 7px;
+    font-size: 13px;
+    color: var(--color-footer-text);
+    font-weight: 500;
+  }
+
+  /* ════════════════ RESPONSIVE ════════════════ */
+  @media (max-width: 768px) {
+    .om-sec-title {
+      font-size: 26px;
+    }
+
+    .om-hero {
+      padding: 32px 0 48px;
+    }
+
+    .om-hero__title {
+      font-size: 28px;
+    }
+
+    .om-hero__sub {
+      font-size: 15px;
+    }
+
+    .om-reto__pasos {
+      grid-template-columns: 1fr;
+    }
+
+    .om-carta {
+      padding: 40px 24px 32px;
+    }
+
+    .om-carta__p {
+      font-size: 15px;
+    }
+
+    .om-item {
+      flex-direction: column;
+      align-items: center;
+      text-align: center;
+      padding: 24px 20px;
+    }
+
+    .om-item__body {
+      align-items: center;
+    }
+
+    .om-item__tag,
+    .om-item__valor {
+      align-self: center;
+    }
+
+    .om-item__bullets li {
+      text-align: left;
+    }
+
+    .om-recap {
+      padding: 28px 20px;
+    }
+
+    .om-recap__list li {
+      flex-direction: column;
+      gap: 2px;
+      align-items: flex-start;
+    }
+
+    .om-recap__val {
+      white-space: normal;
+      text-align: left;
+    }
+
+    .om-recap__compare {
+      flex-direction: column;
+      gap: 8px;
+    }
+
+    .om-comp__flecha {
+      transform: rotate(90deg);
+    }
+
+    .om-test__grid {
+      grid-template-columns: 1fr;
+      max-width: 480px;
+    }
+
+    .om-test-card:last-child {
+      grid-column: auto;
+      max-width: none;
+    }
+
+    .om-garantia__cards {
+      grid-template-columns: 1fr;
+      max-width: 480px;
+    }
+
+    .om-urgencia__title {
+      font-size: 24px;
+    }
+
+    .om-countdown--big .om-cd__unit {
+      min-width: 58px;
+      padding: 8px 10px;
+    }
+
+    .om-countdown--big .om-cd__num {
+      font-size: 24px;
+    }
+
+    .om-final__title {
+      font-size: 26px;
+    }
+  }
+
+  @media (max-width: 390px) {
+    .om-hero__title {
+      font-size: 25px;
+    }
+
+    .om-cd__unit {
+      min-width: 50px;
+      padding: 6px 8px;
+    }
+  }
+</style>
+
+<script>
+  // ── Contadores regresivos (hero + urgencia comparten deadline) ──
+  function pad(n: number) {
+    return String(n).padStart(2, '0');
+  }
+
+  const countdowns = document.querySelectorAll<HTMLElement>('.om-countdown');
+
+  function tick() {
+    countdowns.forEach((cd) => {
+      const deadline = cd.dataset.deadline ? new Date(cd.dataset.deadline).getTime() : 0;
+      const resta = deadline - Date.now();
+      const s = Math.max(0, Math.floor(resta / 1000));
+
+      const setVal = (key: string, val: number) => {
+        const el = cd.querySelector<HTMLElement>(`[data-cd="${key}"]`);
+        if (el) el.textContent = pad(val);
+      };
+
+      setVal('d', Math.floor(s / 86400));
+      setVal('h', Math.floor((s % 86400) / 3600));
+      setVal('m', Math.floor((s % 3600) / 60));
+      setVal('s', s % 60);
+    });
+  }
+
+  if (countdowns.length) {
+    tick();
+    setInterval(tick, 1000);
+  }
+
+  // ── FAQ acordeón (mismo patrón que FAQ.astro) ──
+  document.querySelectorAll('.om-faq-q').forEach((button) => {
+    button.addEventListener('click', () => {
+      const isExpanded = button.getAttribute('aria-expanded') === 'true';
+
+      document.querySelectorAll('.om-faq-q').forEach((b) => {
+        b.setAttribute('aria-expanded', 'false');
+        const id = b.getAttribute('aria-controls')!;
+        const a = document.getElementById(id);
+        if (a) a.hidden = true;
+      });
+
+      if (!isExpanded) {
+        button.setAttribute('aria-expanded', 'true');
+        const answer = document.getElementById(button.getAttribute('aria-controls')!);
+        if (answer) answer.hidden = false;
+      }
+    });
+  });
+</script>
