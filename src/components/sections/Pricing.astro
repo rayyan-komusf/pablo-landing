@@ -1,5 +1,5 @@
 ---
-import { IS_LIVE, CHECKOUT_URLS, OFFER_AVAILABLE, FREE_TRIAL, KOMU_PROMO } from '../../siteConfig';
+import { IS_LIVE, CHECKOUT_URLS, OFFER_AVAILABLE, FREE_TRIAL, KOMU_PROMO, PROMO_MILLONARIA } from '../../siteConfig';
 import iconPremiumRaw from '../../assets/icon-premium.svg?raw';
 import coronaRaw from '../../assets/corona-premium.svg?raw';
 
@@ -207,6 +207,9 @@ const annualCheckoutUrl = FREE_TRIAL ? CHECKOUT_URLS.annual_trial : CHECKOUT_URL
             <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>
             Pasos simples, resultados reales
           </div>
+          <div class="millonaria-pill" data-promo-millonaria hidden>
+            🔥 Oferta Millonaria — solo del 23 al 29 de julio
+          </div>
           <h2 class="pricing__title section-title">
             Da el primer paso hacia tu <span class="highlight">bienestar financiero</span>
           </h2>
@@ -291,7 +294,11 @@ const annualCheckoutUrl = FREE_TRIAL ? CHECKOUT_URLS.annual_trial : CHECKOUT_URL
               <ul class="plan-features">
                 <li>
                   <svg class="check" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#2B2C64" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>
-                  3 días gratis de prueba
+                  <span data-pm-swap="14 días gratis de prueba">3 días gratis de prueba</span>
+                </li>
+                <li data-promo-millonaria hidden>
+                  <svg class="check" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#2B2C64" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>
+                  Acceso al reto Camino al Millón
                 </li>
                 <li>
                   <svg class="check" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#2B2C64" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>
@@ -360,7 +367,7 @@ const annualCheckoutUrl = FREE_TRIAL ? CHECKOUT_URLS.annual_trial : CHECKOUT_URL
                 {FREE_TRIAL && (
                   <li>
                     <svg class="check check--amber" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#F5A623" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>
-                    7 días gratis de prueba.
+                    <span data-pm-swap="14 días gratis de prueba.">7 días gratis de prueba.</span>
                   </li>
                 )}
                 <li>
@@ -380,6 +387,31 @@ const annualCheckoutUrl = FREE_TRIAL ? CHECKOUT_URLS.annual_trial : CHECKOUT_URL
                   Acompañamiento a largo plazo para asegurar que cumplas tus metas.
                 </li>
               </ul>
+              <div class="millonaria-bonus" data-promo-millonaria hidden>
+                <div class="millonaria-bonus__header">🏆 Oferta Millonaria · 5 bonos incluidos</div>
+                <ul class="plan-features">
+                  <li>
+                    <svg class="check check--amber" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#F5A623" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>
+                    <span><strong>Reto "Camino al Millón en 30 días"</strong>: complétalo y te devolvemos el 100% (Pablo gratis un año)</span>
+                  </li>
+                  <li>
+                    <svg class="check check--amber" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#F5A623" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>
+                    <span>Asesoría 1-a-1 con Rodrigo ($80 USD)</span>
+                  </li>
+                  <li>
+                    <svg class="check check--amber" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#F5A623" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>
+                    <span>Pase Mensual a La Komunidad de Futuros Millonarios ($60 USD)</span>
+                  </li>
+                  <li>
+                    <svg class="check check--amber" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#F5A623" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>
+                    <span>Toolkit Komunitario: +10 recursos de finanzas e inversiones</span>
+                  </li>
+                  <li>
+                    <svg class="check check--amber" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#F5A623" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>
+                    <span>Garantía de satisfacción de 14 días</span>
+                  </li>
+                </ul>
+              </div>
               {OFFER_AVAILABLE ? (
                 <button
                   onclick={`window.planSeleccionado={name:'Plan Anual',value:200};if(typeof fbq!=='undefined')fbq('trackCustom','Abrir_Modal',{plan:'anual'});if(typeof ttq!=='undefined')ttq.track('ViewContent',{content_name:'Plan Anual',value:200,currency:'PEN'});window.openSubscribeModal('${annualCheckoutUrl}')`}
@@ -572,6 +604,47 @@ const annualCheckoutUrl = FREE_TRIAL ? CHECKOUT_URLS.annual_trial : CHECKOUT_URL
   .komu-card.plan-monthly {
     border-color: #2B2C64;
     box-shadow: 0 4px 24px rgba(43, 44, 100, 0.12);
+  }
+
+  /* Los elementos de la Oferta Millonaria nacen con [hidden] y el script de
+     abajo los muestra solo dentro de la ventana 23-29 jul. El !important gana
+     a los display de las clases. */
+  [hidden] {
+    display: none !important;
+  }
+
+  /* Oferta Millonaria */
+  .millonaria-pill {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 7px 18px;
+    border-radius: var(--radius-pill);
+    background: #FEF3DA;
+    color: #875A00;
+    font-weight: 700;
+    font-size: 14px;
+    border: 1.5px solid #F5C970;
+    letter-spacing: -0.01em;
+  }
+
+  .millonaria-bonus {
+    background: #FFFDF5;
+    border: 1.5px solid #F5C970;
+    border-radius: var(--radius-md);
+    padding: 14px 16px;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    margin-top: -8px;
+  }
+
+  .millonaria-bonus__header {
+    font-size: 12px;
+    font-weight: 700;
+    color: #875A00;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
   }
 
   /* Komu bonus block */
@@ -876,3 +949,19 @@ const annualCheckoutUrl = FREE_TRIAL ? CHECKOUT_URLS.annual_trial : CHECKOUT_URL
 
   /* Force Astro CSS compiler reload */
 </style>
+
+<script is:inline define:vars={{ pmInicio: PROMO_MILLONARIA.inicioISO, pmFin: PROMO_MILLONARIA.finISO }}>
+  // Oferta Millonaria: dentro de la ventana muestra los elementos
+  // [data-promo-millonaria] y aplica los textos de [data-pm-swap]
+  // (trials de 14 días). Fuera de la ventana no toca nada.
+  (function () {
+    var ahora = Date.now();
+    if (ahora < Date.parse(pmInicio) || ahora >= Date.parse(pmFin)) return;
+    document.querySelectorAll('[data-promo-millonaria]').forEach(function (el) {
+      el.hidden = false;
+    });
+    document.querySelectorAll('[data-pm-swap]').forEach(function (el) {
+      el.textContent = el.getAttribute('data-pm-swap');
+    });
+  })();
+</script>

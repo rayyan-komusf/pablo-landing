@@ -28,26 +28,25 @@ const siguiente = SESIONES[index + 1] ?? null;
         <h1>{sesion.label}: {sesion.nombre}</h1>
       </header>
 
-      <div class="clase-video">
+      <!-- Oculto hasta confirmar el acceso con la edge function; el player se
+           controla con la IFrame API (progreso + bloqueo de adelantar). -->
+      <div class="clase-video" id="clase-video-wrap" hidden>
         <iframe
-          src={`https://www.youtube.com/embed/${sesion.videoId}?rel=0`}
+          id="clase-player"
+          src={`https://www.youtube.com/embed/${sesion.videoId}?rel=0&enablejsapi=1&disablekb=1`}
           title={`${sesion.label}: ${sesion.nombre} — ${CURSO.title}`}
           allow="autoplay; encrypted-media; picture-in-picture"
           allowfullscreen
           loading="lazy"
         ></iframe>
       </div>
+      <p class="clase-progreso" id="clase-progreso" hidden></p>
 
       <div class="clase-desc">
         {sesion.parrafos.map((p) => <p>{p}</p>)}
       </div>
 
       <div class="clase-cta-wrap">
-        <a
-          href="/#planes"
-          class="clase-cta"
-          onclick="try{window.posthog?.capture('landing_cta_clicked',{cta:'cursos_desbloquea',location:'curso_sesion'})}catch(e){};if(typeof fbq!=='undefined')fbq('trackCustom','Ver_Planes');if(typeof ttq!=='undefined')ttq.track('ClickButton',{content_name:'Ver_Planes'});"
-        >Desbloquea a Pablo gratis hoy</a>
         {siguiente ? (
           <a href={`/cursos/${CURSO.slug}/${siguiente.slug}`} class="clase-siguiente">
             Ir al siguiente video: {siguiente.label} — {siguiente.nombre} →
@@ -123,6 +122,33 @@ const siguiente = SESIONES[index + 1] ?? null;
     height: 100%;
     border: none;
     display: block;
+  }
+
+  .clase-video[hidden] {
+    display: none;
+  }
+
+  /* Estado del avance bajo el video (se guarda solo / completada) */
+  .clase-progreso {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    margin: -32px 0 48px;
+    font-size: 0.88rem;
+    font-weight: 700;
+    color: var(--color-secondary);
+    background: #f1effb;
+    padding: 6px 16px;
+    border-radius: 100px;
+  }
+
+  .clase-progreso.completada {
+    color: #2a7a52;
+    background: #ebf9f0;
+  }
+
+  .clase-progreso[hidden] {
+    display: none;
   }
 
   /* La carta de rodrigo */
@@ -205,15 +231,152 @@ const siguiente = SESIONES[index + 1] ?? null;
 </style>
 
 <script>
-  import { CURSO_LEAD_KEY, CURSO } from "../../../lib/cursos";
+  import { CURSO } from "../../../lib/cursos";
+  import {
+    haySesionCurso,
+    verificarAccesoCurso,
+    reportarProgresoCurso,
+  } from "../../../lib/cursoAcceso";
 
-  // Gate estilo Anthropic: las clases requieren inscripción. Si no la hay,
-  // volvemos a la página del curso con el modal de inscripción abierto.
-  try {
-    if (!localStorage.getItem(CURSO_LEAD_KEY)) {
-      window.location.replace(`/cursos/${CURSO.slug}?inscribete=1`);
+  // ── Gate: las clases requieren cuenta con suscripción activa ────────────
+  const sesionSlug = window.location.pathname.split("/").filter(Boolean).pop() ?? "";
+  const alLogin = () => window.location.replace(`/cursos/${CURSO.slug}?login=1`);
+
+  const capture = (evento: string, props?: Record<string, unknown>) => {
+    try {
+      (window as any).posthog?.capture(evento, props);
+    } catch {
+      /* PostHog puede no estar cargado */
     }
-  } catch {
-    /* localStorage bloqueado: dejamos ver la clase */
+  };
+
+  if (!haySesionCurso()) {
+    alLogin();
+  } else {
+    verificarAccesoCurso(CURSO.slug).then((acceso) => {
+      if (!acceso?.acceso) {
+        alLogin();
+        return;
+      }
+      const previo = acceso.progreso.find((p) => p.sesion === sesionSlug);
+      iniciarClase(acceso.plan, previo?.segundos_vistos ?? 0, Boolean(previo?.completado));
+    });
+  }
+
+  // ── Player con progreso y anti-skip (YouTube IFrame API) ────────────────
+  // Mientras la sesión no esté completada no se puede adelantar más allá de
+  // lo ya visto (Rodrigo: nada de skipear los videos); completada la sesión,
+  // el seek queda libre para repasar. El avance se reporta a curso-acceso
+  // cada 15 s y al pausar/salir; completado = 90% del video visto o ended.
+  function cargarYouTubeAPI(): Promise<any> {
+    return new Promise((resolve) => {
+      const w = window as any;
+      if (w.YT?.Player) return resolve(w.YT);
+      const previa = w.onYouTubeIframeAPIReady;
+      w.onYouTubeIframeAPIReady = () => {
+        previa?.();
+        resolve(w.YT);
+      };
+      const tag = document.createElement("script");
+      tag.src = "https://www.youtube.com/iframe_api";
+      document.head.appendChild(tag);
+    });
+  }
+
+  async function iniciarClase(plan: string | null, segundosPrevios: number, yaCompletada: boolean) {
+    const wrap = document.getElementById("clase-video-wrap");
+    const estadoEl = document.getElementById("clase-progreso");
+    if (wrap) wrap.hidden = false;
+
+    const pintarEstado = (completada: boolean) => {
+      if (!estadoEl) return;
+      estadoEl.hidden = false;
+      estadoEl.classList.toggle("completada", completada);
+      estadoEl.textContent = completada
+        ? "✓ Sesión completada"
+        : "▶ Tu avance se guarda solo — no se puede adelantar el video";
+    };
+    pintarEstado(yaCompletada);
+
+    const YT = await cargarYouTubeAPI();
+
+    let maxVisto = Math.max(0, segundosPrevios);
+    let completada = yaCompletada;
+    let ultimoReporte = maxVisto;
+    let ultimoEnvio = 0;
+
+    const enviar = (marcarCompletada: boolean) => {
+      if (!marcarCompletada && Math.floor(maxVisto) <= Math.floor(ultimoReporte)) return;
+      ultimoReporte = maxVisto;
+      reportarProgresoCurso(CURSO.slug, sesionSlug, maxVisto, marcarCompletada).then((r) => {
+        if (!r) return;
+        if (r.curso_completado && marcarCompletada) {
+          capture("curso_completado", {
+            curso: CURSO.slug,
+            plan,
+            $set: { curso_finanzas_completado: true },
+          });
+        }
+      });
+    };
+
+    const completar = (player: any) => {
+      if (completada) return;
+      completada = true;
+      pintarEstado(true);
+      enviar(true);
+      capture("curso_sesion_completada", {
+        curso: CURSO.slug,
+        sesion: sesionSlug,
+        plan,
+        duracion_video: Math.floor(player?.getDuration?.() ?? 0),
+      });
+    };
+
+    const player = new YT.Player("clase-player", {
+      events: {
+        onStateChange: (e: any) => {
+          // 0 = ended, 2 = paused
+          if (e.data === 0) {
+            maxVisto = Math.max(maxVisto, Math.floor(player.getDuration() || maxVisto));
+            completar(player);
+          }
+          if (e.data === 2) enviar(false);
+        },
+      },
+    });
+
+    // Poll de 1 s: acumula lo visto, frena los saltos hacia adelante y
+    // reporta cada 15 s.
+    setInterval(() => {
+      if (typeof player.getPlayerState !== "function") return;
+      if (player.getPlayerState() !== 1) return; // solo mientras reproduce
+
+      const t = player.getCurrentTime() || 0;
+      const duracion = player.getDuration() || 0;
+
+      if (!completada && t > maxVisto + 2.5) {
+        // Salto hacia adelante: de vuelta a donde iba.
+        player.seekTo(maxVisto, true);
+        return;
+      }
+      if (t > maxVisto) maxVisto = t;
+
+      if (!completada && duracion > 0 && maxVisto >= duracion * 0.9) completar(player);
+
+      const ahora = Date.now();
+      if (ahora - ultimoEnvio >= 15_000) {
+        ultimoEnvio = ahora;
+        enviar(false);
+      }
+    }, 1000);
+
+    // Último reporte al salir de la página (fetch keepalive en la lib).
+    document.addEventListener("visibilitychange", () => {
+      if (document.visibilityState === "hidden") enviar(false);
+    });
+    window.addEventListener("pagehide", () => enviar(false));
+
+    capture("curso_sesion_iniciada", { curso: CURSO.slug, sesion: sesionSlug, plan });
   }
 </script>

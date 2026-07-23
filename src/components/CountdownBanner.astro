@@ -1,16 +1,20 @@
 ---
 // CountdownBanner.astro
-// Deadline: April 30, 2026 at 8:00 PM Peru time (UTC-5) = May 1, 2026 01:00:00 UTC
+// Oferta Millonaria: visible solo del 23 al 29 de julio de 2026 (hora Perú).
+// La ventana vive en siteConfig.PROMO_MILLONARIA; aquí va inline en el script.
+import { PROMO_MILLONARIA } from '../siteConfig';
 ---
 
-<a href="#planes" class="countdown-banner" id="countdown-banner">
+<a href="/#planes" class="countdown-banner expired" id="countdown-banner">
   <div class="countdown-banner__inner">
     <span class="countdown-banner__fire">🔥</span>
     <p class="countdown-banner__text">
-      <strong>ÚLTIMAS 24 HORAS</strong> — Oferta
-      <span class="countdown-banner__highlight">70% OFF</span>
+      <strong>OFERTA MILLONARIA</strong> — 14 días gratis
+      <span class="countdown-banner__highlight">+ 5 bonos en el anual</span>
     </p>
     <div class="countdown-banner__timer" id="countdown-timer" aria-live="polite">
+      <span class="countdown-number" id="cd-days" hidden>0d</span>
+      <span class="countdown-sep" id="cd-days-sep" hidden>:</span>
       <span class="countdown-number" id="cd-hours">00</span>
       <span class="countdown-sep">:</span>
       <span class="countdown-number" id="cd-minutes">00</span>
@@ -159,11 +163,13 @@
   }
 </style>
 
-<script is:inline>
+<script is:inline define:vars={{ pmInicio: PROMO_MILLONARIA.inicioISO, pmFin: PROMO_MILLONARIA.finISO }}>
   (function () {
-    // April 30, 2026 at 20:00:00 Peru time (UTC-5) = May 1, 2026 01:00:00 UTC
-    var deadline = new Date('2026-05-01T01:00:00Z').getTime();
+    var inicio   = Date.parse(pmInicio);
+    var deadline = Date.parse(pmFin);
 
+    var daysEl    = document.getElementById('cd-days');
+    var daysSepEl = document.getElementById('cd-days-sep');
     var hoursEl   = document.getElementById('cd-hours');
     var minutesEl = document.getElementById('cd-minutes');
     var secondsEl = document.getElementById('cd-seconds');
@@ -185,18 +191,24 @@
       var now  = Date.now();
       var diff = deadline - now;
 
-      if (diff <= 0) {
+      if (now < inicio || diff <= 0) {
         banner && banner.classList.add('expired');
         clearInterval(timer);
         return;
       }
+      banner && banner.classList.remove('expired');
 
       var totalSec = Math.floor(diff / 1000);
-      var h  = Math.floor(totalSec / 3600);
-      var m  = Math.floor((totalSec % 3600) / 60);
-      var s  = totalSec % 60;
+      var d = Math.floor(totalSec / 86400);
+      var h = Math.floor((totalSec % 86400) / 3600);
+      var m = Math.floor((totalSec % 3600) / 60);
+      var s = totalSec % 60;
 
-      tick(hoursEl,   h);
+      var conDias = d > 0;
+      daysEl.hidden = !conDias;
+      daysSepEl.hidden = !conDias;
+      if (conDias) daysEl.textContent = d + 'd';
+      tick(hoursEl, conDias ? h : Math.floor(totalSec / 3600));
       tick(minutesEl, m);
       tick(secondsEl, s);
     }

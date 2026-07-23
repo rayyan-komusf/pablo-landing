@@ -1,18 +1,17 @@
 ---
-// Inscripción al curso Camino al Millón (estilo Anthropic Academy): el
-// contenido del curso se desbloquea dejando nombre + correo. Los datos van
-// a la edge function inscribir-curso (Brevo: lista del curso + correo de
-// bienvenida) y quedan en localStorage para no volver a pedir el gate.
-// Abrir con window.abrirCursoModal(destinoOpcional).
+// Login del curso para suscriptores: el visitante entra con su cuenta de la
+// app de Pablo (Supabase Auth) y solo con plan pago se desbloquean las
+// sesiones. Reemplaza al viejo CursoLeadModal (nombre + correo a Brevo).
+// Abrir con window.abrirCursoLoginModal(destinoOpcional).
 ---
 
 <div
-  id="curso-modal"
+  id="curso-login-modal"
   class="cl-overlay"
   aria-hidden="true"
   role="dialog"
   aria-modal="true"
-  aria-label="Inscríbete gratis al curso"
+  aria-label="Inicia sesión para ver el curso"
 >
   <div class="cl-card">
     <button class="cl-close" id="cl-close" aria-label="Cerrar">
@@ -22,8 +21,8 @@
       </svg>
     </button>
 
-    <!-- ── Paso 1: formulario ── -->
-    <div class="cl-paso" id="cl-paso-form">
+    <!-- ── Paso 1: login con la cuenta de Pablo ── -->
+    <div class="cl-paso" id="cl-paso-login">
       <img
         class="cl-mascota"
         src="/onboarding/images/pablo/pablo-anotando.webp"
@@ -32,24 +31,13 @@
         height="110"
         loading="lazy"
       />
-      <h3 class="cl-titulo">Inscríbete gratis al curso</h3>
+      <h3 class="cl-titulo">Inicia sesión para ver el curso</h3>
       <p class="cl-sub">
-        Déjanos tu nombre y tu correo para desbloquear gratis las 4 sesiones
-        de <strong>Camino al Millón</strong>.
+        <strong>Finanzas de un Futuro Millonario</strong> está incluido con tu
+        suscripción de Pablo. Entra con la misma cuenta que usas en la app.
       </p>
 
       <form id="cl-form" novalidate>
-        <label class="cl-label" for="cl-nombre">Tu nombre</label>
-        <input
-          class="cl-input"
-          id="cl-nombre"
-          name="nombre"
-          type="text"
-          placeholder="¿Cómo te llamas?"
-          autocomplete="name"
-          maxlength="80"
-          required
-        />
         <label class="cl-label" for="cl-email">Tu correo</label>
         <input
           class="cl-input"
@@ -61,28 +49,41 @@
           maxlength="120"
           required
         />
+        <label class="cl-label" for="cl-password">Tu contraseña</label>
+        <input
+          class="cl-input"
+          id="cl-password"
+          name="password"
+          type="password"
+          placeholder="Tu contraseña de Pablo"
+          autocomplete="current-password"
+          maxlength="72"
+          required
+        />
         <p class="cl-error" id="cl-error" hidden></p>
-        <button class="cl-cta" id="cl-enviar" type="submit">¡Inscribirme gratis!</button>
+        <button class="cl-cta" id="cl-enviar" type="submit">Entrar al curso</button>
       </form>
-      <p class="cl-legal">Solo te enviaremos el curso y tips de Pablo. Cero spam.</p>
+      <p class="cl-legal">
+        ¿Aún no tienes Pablo? <a href="/#planes">Elige tu plan</a> y desbloquea el curso.
+      </p>
     </div>
 
-    <!-- ── Paso 2: curso desbloqueado ── -->
-    <div class="cl-paso" id="cl-paso-exito" hidden>
+    <!-- ── Paso 2: cuenta sin suscripción ── -->
+    <div class="cl-paso" id="cl-paso-sinsub" hidden>
       <img
         class="cl-mascota"
-        src="/onboarding/images/pablo/emotions/pablo-emocionado.png"
+        src="/onboarding/images/pablo/pablo-logo.png"
         alt=""
         width="110"
-        height="96"
+        height="110"
         loading="lazy"
       />
-      <h3 class="cl-titulo">¡Estás dentro!</h3>
+      <h3 class="cl-titulo">Te falta desbloquear a Pablo</h3>
       <p class="cl-sub cl-sub--exito">
-        Curso desbloqueado. Te enviamos la bienvenida a
-        <strong id="cl-email-confirmado"></strong>. ¡Disfruta las 4 sesiones!
+        Tu cuenta <strong id="cl-email-sinsub"></strong> todavía no tiene una
+        suscripción activa. Elige un plan y el curso se desbloquea solito.
       </p>
-      <a class="cl-cta cl-cta--link" id="cl-ir-clase" href="#">Empezar la clase →</a>
+      <a class="cl-cta cl-cta--link" href="/#planes">Ver los planes →</a>
     </div>
   </div>
 </div>
@@ -168,6 +169,7 @@
     width: 110px;
     height: auto;
     margin-bottom: 6px;
+    border-radius: 18px;
   }
 
   .cl-titulo {
@@ -282,6 +284,13 @@
     margin-top: 14px;
   }
 
+  .cl-legal a {
+    color: var(--color-heading);
+    font-weight: 700;
+    text-decoration: underline;
+    text-underline-offset: 2px;
+  }
+
   @media (max-width: 480px) {
     .cl-card {
       padding: 28px 20px 22px;
@@ -291,25 +300,22 @@
 </style>
 
 <script>
-  import { CURSO_LEAD_KEY, SESIONES, CURSO } from "../lib/cursos";
+  import { CURSO, SESIONES } from "../lib/cursos";
+  import { loginCurso, verificarAccesoCurso, emailSesionCurso } from "../lib/cursoAcceso";
 
-  const ENDPOINT =
-    "https://mezpfnagkubumzbromsh.supabase.co/functions/v1/inscribir-curso";
-
-  const overlay = document.getElementById("curso-modal");
+  const overlay = document.getElementById("curso-login-modal");
   const closeBtn = document.getElementById("cl-close");
   const form = document.getElementById("cl-form") as HTMLFormElement | null;
-  const inputNombre = document.getElementById("cl-nombre") as HTMLInputElement | null;
   const inputEmail = document.getElementById("cl-email") as HTMLInputElement | null;
+  const inputPassword = document.getElementById("cl-password") as HTMLInputElement | null;
   const errorEl = document.getElementById("cl-error");
   const btnEnviar = document.getElementById("cl-enviar") as HTMLButtonElement | null;
-  const pasoForm = document.getElementById("cl-paso-form");
-  const pasoExito = document.getElementById("cl-paso-exito");
-  const emailConfirmado = document.getElementById("cl-email-confirmado");
-  const irClase = document.getElementById("cl-ir-clase") as HTMLAnchorElement | null;
+  const pasoLogin = document.getElementById("cl-paso-login");
+  const pasoSinSub = document.getElementById("cl-paso-sinsub");
+  const emailSinSub = document.getElementById("cl-email-sinsub");
 
   const primeraSesion = `/cursos/${CURSO.slug}/${SESIONES[0].slug}`;
-  // A dónde seguir tras inscribirse (la sesión que intentó abrir).
+  // A dónde seguir tras iniciar sesión (la sesión que intentó abrir).
   let destino = primeraSesion;
 
   const capture = (evento: string, props?: Record<string, unknown>) => {
@@ -322,11 +328,10 @@
 
   function abrir(destinoDeseado?: string) {
     if (destinoDeseado) destino = destinoDeseado;
-    if (irClase) irClase.href = destino;
     overlay?.classList.add("is-open");
     overlay?.setAttribute("aria-hidden", "false");
     document.body.style.overflow = "hidden";
-    capture("curso_modal_abierto", { curso: CURSO.slug });
+    capture("curso_login_abierto", { curso: CURSO.slug });
   }
 
   function cerrar() {
@@ -335,7 +340,7 @@
     document.body.style.overflow = "";
   }
 
-  (window as any).abrirCursoModal = abrir;
+  (window as any).abrirCursoLoginModal = abrir;
 
   closeBtn?.addEventListener("click", cerrar);
   overlay?.addEventListener("click", (e) => {
@@ -345,16 +350,9 @@
     if (e.key === "Escape" && overlay?.classList.contains("is-open")) cerrar();
   });
 
-  // Reusar los datos del lead de la plantilla si existen.
-  try {
-    const previo =
-      JSON.parse(localStorage.getItem(CURSO_LEAD_KEY) ?? "null") ??
-      JSON.parse(localStorage.getItem("pablo_plantilla_lead") ?? "null");
-    if (previo?.nombre && inputNombre) inputNombre.value = previo.nombre;
-    if (previo?.email && inputEmail) inputEmail.value = previo.email;
-  } catch {
-    /* datos corruptos: se ignoran */
-  }
+  // Prefill del correo si hay una sesión previa (aunque haya expirado).
+  const previo = emailSesionCurso();
+  if (previo && inputEmail) inputEmail.value = previo;
 
   function mostrarError(msg: string) {
     if (!errorEl) return;
@@ -366,52 +364,45 @@
     e.preventDefault();
     if (errorEl) errorEl.hidden = true;
 
-    const nombre = inputNombre?.value.trim() ?? "";
     const email = inputEmail?.value.trim() ?? "";
-    if (!nombre) return mostrarError("Cuéntanos tu nombre para tu inscripción.");
+    const password = inputPassword?.value ?? "";
     if (!/^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(email))
       return mostrarError("Ese correo no se ve bien, ¿lo revisas?");
+    if (!password) return mostrarError("Escribe tu contraseña de Pablo.");
 
     if (btnEnviar) {
       btnEnviar.disabled = true;
-      btnEnviar.textContent = "Inscribiendo…";
+      btnEnviar.textContent = "Entrando…";
     }
 
     try {
-      const res = await fetch(ENDPOINT, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ nombre, email, curso: CURSO.slug }),
-      });
-      if (!res.ok) {
-        const data = await res.json().catch(() => null);
-        throw new Error(data?.error ?? "No pudimos inscribirte, intenta de nuevo.");
+      const login = await loginCurso(email, password);
+      if (!login.ok) return mostrarError(login.error ?? "No pudimos iniciar sesión.");
+
+      const acceso = await verificarAccesoCurso(CURSO.slug);
+      if (!acceso) return mostrarError("No pudimos verificar tu cuenta, intenta de nuevo.");
+
+      if (!acceso.acceso) {
+        // Cuenta válida pero sin plan pago: invitación a los planes.
+        if (emailSinSub) emailSinSub.textContent = email;
+        if (pasoLogin) pasoLogin.hidden = true;
+        if (pasoSinSub) pasoSinSub.hidden = false;
+        capture("curso_login_sin_sub", { curso: CURSO.slug, plan: acceso.plan });
+        return;
       }
 
-      try {
-        localStorage.setItem(CURSO_LEAD_KEY, JSON.stringify({ nombre, email }));
-      } catch {
-        /* almacenamiento lleno o bloqueado */
-      }
-
-      if (emailConfirmado) emailConfirmado.textContent = email;
-      if (pasoForm) pasoForm.hidden = true;
-      if (pasoExito) pasoExito.hidden = false;
-      capture("curso_inscripcion_enviada", {
+      capture("curso_login_exitoso", {
         curso: CURSO.slug,
-        email,
-        $set: { curso_camino_inscrito: true },
+        plan: acceso.plan,
+        $set: { curso_finanzas_acceso: true },
       });
-    } catch (err) {
-      mostrarError(
-        err instanceof Error && err.message
-          ? err.message
-          : "Algo falló, intenta de nuevo en un ratito.",
-      );
+      window.location.href = destino;
+    } catch {
+      mostrarError("Algo falló, intenta de nuevo en un ratito.");
     } finally {
       if (btnEnviar) {
         btnEnviar.disabled = false;
-        btnEnviar.textContent = "¡Inscribirme gratis!";
+        btnEnviar.textContent = "Entrar al curso";
       }
     }
   });

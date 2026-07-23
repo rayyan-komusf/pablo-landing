@@ -7,14 +7,14 @@ import { CURSO, SESIONES } from "../../lib/cursos";
 
 <Layout
   title="Cursos — Pablo"
-  description="Camino al Millón: el programa gratuito de finanzas de Pablo. Ahorro, presupuesto, metas y deudas explicados de forma simple."
+  description="Finanzas de un Futuro Millonario: el curso de finanzas de Pablo, incluido con tu suscripción. Ahorro, presupuesto, metas y deudas explicados de forma simple."
 >
   <Navbar />
   <main class="cursos-page">
     <div class="container">
 
       <div class="page-header">
-        <div class="page-badge">🎓 Cursos gratuitos</div>
+        <div class="page-badge">🎓 Cursos de Pablo</div>
         <h1>Aprende con Pablo</h1>
         <p>Finanzas personales explicadas de forma simple, para que puedas tomar el control de tu dinero hoy.</p>
       </div>
@@ -31,11 +31,11 @@ import { CURSO, SESIONES } from "../../lib/cursos";
               loading="lazy"
               decoding="async"
             />
-            <span class="curso-card__gratis">Gratis</span>
+            <span class="curso-card__gratis">Incluido con Pablo</span>
           </div>
           <div class="curso-card__panel">
-            <h2 class="curso-card__title">{CURSO.subtitle}</h2>
-            <p class="curso-card__subtitle">{CURSO.title}</p>
+            <h2 class="curso-card__title">{CURSO.title}</h2>
+            <p class="curso-card__subtitle">{CURSO.subtitle}</p>
             <div class="curso-card__chips">
               {SESIONES.map((sesion, i) => (
                 <span class="curso-card__chip">
@@ -44,7 +44,7 @@ import { CURSO, SESIONES } from "../../lib/cursos";
                 </span>
               ))}
             </div>
-            <span class="curso-card__btn">Empezar gratis →</span>
+            <span class="curso-card__btn">Ver el curso →</span>
           </div>
         </a>
       </div>

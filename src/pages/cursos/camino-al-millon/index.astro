@@ -2,12 +2,12 @@
 import Layout from "../../../layouts/Layout.astro";
 import Navbar from "../../../components/Navbar.astro";
 import Footer from "../../../components/Footer.astro";
-import CursoLeadModal from "../../../components/CursoLeadModal.astro";
+import CursoLoginModal from "../../../components/CursoLoginModal.astro";
 import { CURSO, SESIONES } from "../../../lib/cursos";
 
-// Página del curso estilo Anthropic Academy: portada + descripción + botón
-// de inscripción gratis + currículum visible (sesiones y certificado). Las
-// clases se desbloquean dejando nombre + correo en el modal de inscripción.
+// Página del curso estilo Anthropic Academy: portada + descripción + login
+// + currículum visible. Las clases son EXCLUSIVAS para cuentas con
+// suscripción de Pablo: el gate lo valida la edge function curso-acceso.
 ---
 
 <Layout
@@ -19,7 +19,7 @@ import { CURSO, SESIONES } from "../../../lib/cursos";
     <div class="container">
 
       <header class="curso-header">
-        <a href="/cursos" class="curso-badge">🎓 Curso gratuito</a>
+        <a href="/cursos" class="curso-badge">🎓 Curso exclusivo para usuarios de Pablo</a>
         <h1>{CURSO.title}</h1>
         <p class="curso-subtitle">{CURSO.subtitle}</p>
       </header>
@@ -39,9 +39,10 @@ import { CURSO, SESIONES } from "../../../lib/cursos";
           class="curso-cta"
           id="curso-cta-inscribir"
           data-inscrito-label="Continuar el curso →"
-        >Inscríbete gratis</button>
+        >Inicia sesión para ver el curso</button>
         <p class="curso-cta-nota" id="curso-cta-nota">
-          Con tu inscripción desbloqueas las 4 sesiones del curso, gratis.
+          El curso está incluido con tu suscripción de Pablo. Entra con la
+          misma cuenta que usas en la app.
         </p>
       </div>
 
@@ -75,6 +76,7 @@ import { CURSO, SESIONES } from "../../../lib/cursos";
             <div class="sesion-card__body">
               <div class="sesion-card__meta">
                 <span class="sesion-card__label">{sesion.label}</span>
+                <span class="sesion-card__done" data-done={sesion.slug} hidden>✓ Completada</span>
               </div>
               <h3 class="sesion-card__title">{sesion.nombre}</h3>
             </div>
@@ -88,7 +90,7 @@ import { CURSO, SESIONES } from "../../../lib/cursos";
 
     </div>
   </main>
-  <CursoLeadModal />
+  <CursoLoginModal />
   <Footer />
 </Layout>
 
@@ -302,6 +304,19 @@ import { CURSO, SESIONES } from "../../../lib/cursos";
     text-transform: uppercase;
   }
 
+  .sesion-card__done {
+    font-size: 0.72rem;
+    font-weight: 800;
+    color: #2a7a52;
+    background: #ebf9f0;
+    padding: 2px 10px;
+    border-radius: 100px;
+  }
+
+  .sesion-card__done[hidden] {
+    display: none;
+  }
+
   .sesion-card__title {
     font-family: var(--font-heading);
     font-size: 1.25rem;
@@ -338,48 +353,64 @@ import { CURSO, SESIONES } from "../../../lib/cursos";
 </style>
 
 <script>
-  import { CURSO_LEAD_KEY, CURSO, SESIONES } from "../../../lib/cursos";
+  import { CURSO, SESIONES } from "../../../lib/cursos";
+  import { haySesionCurso, verificarAccesoCurso } from "../../../lib/cursoAcceso";
 
-  const inscrito = () => {
-    try {
-      return !!localStorage.getItem(CURSO_LEAD_KEY);
-    } catch {
-      return false;
-    }
-  };
+  // Estado del gate: se resuelve async contra la edge function curso-acceso.
+  let desbloqueado = false;
 
   const abrirModal = (destino?: string) =>
-    (window as any).abrirCursoModal?.(destino);
-
-  // Las clases se desbloquean con la inscripción (gate estilo Anthropic).
-  document.querySelectorAll<HTMLAnchorElement>("a[data-sesion-link]").forEach((link) => {
-    link.addEventListener("click", (e) => {
-      if (inscrito()) return;
-      e.preventDefault();
-      abrirModal(link.href);
-    });
-  });
+    (window as any).abrirCursoLoginModal?.(destino);
 
   const cta = document.getElementById("curso-cta-inscribir");
   const nota = document.getElementById("curso-cta-nota");
   const primeraSesion = `/cursos/${CURSO.slug}/${SESIONES[0].slug}`;
 
-  if (cta) {
-    if (inscrito()) {
-      cta.textContent = cta.dataset.inscritoLabel || "Continuar el curso →";
-      if (nota) nota.textContent = "Ya estás inscrito: tus 4 sesiones están desbloqueadas.";
+  // Las clases requieren sesión con suscripción activa.
+  document.querySelectorAll<HTMLAnchorElement>("a[data-sesion-link]").forEach((link) => {
+    link.addEventListener("click", (e) => {
+      if (desbloqueado) return;
+      e.preventDefault();
+      abrirModal(link.href);
+    });
+  });
+
+  cta?.addEventListener("click", () => {
+    if (desbloqueado) {
+      window.location.href = primeraSesion;
+    } else {
+      abrirModal(primeraSesion);
     }
-    cta.addEventListener("click", () => {
-      if (inscrito()) {
-        window.location.href = primeraSesion;
-      } else {
-        abrirModal(primeraSesion);
+  });
+
+  // Con sesión guardada, verificar el acceso y pintar el progreso.
+  if (haySesionCurso()) {
+    verificarAccesoCurso(CURSO.slug).then((acceso) => {
+      if (!acceso) return; // sesión vencida o error: se queda el gate
+      if (!acceso.acceso) {
+        if (nota)
+          nota.textContent =
+            "Tu cuenta todavía no tiene una suscripción activa. Elige un plan para desbloquear el curso.";
+        return;
       }
+      desbloqueado = true;
+      if (cta) cta.textContent = cta.dataset.inscritoLabel || "Continuar el curso →";
+      if (nota)
+        nota.textContent = acceso.curso_completado
+          ? "¡Curso completado! Puedes volver a ver las sesiones cuando quieras."
+          : "Tu curso está desbloqueado. Tu avance se guarda solo.";
+      acceso.progreso.forEach((p) => {
+        if (!p.completado) return;
+        const badge = document.querySelector<HTMLElement>(`[data-done="${p.sesion}"]`);
+        if (badge) badge.hidden = false;
+      });
     });
   }
 
-  // Deep link (p. ej. redirigido desde una clase sin inscripción).
-  if (new URLSearchParams(window.location.search).has("inscribete") && !inscrito()) {
+  // Deep link (p. ej. redirigido desde una clase sin sesión). Se acepta el
+  // viejo ?inscribete=1 por los correos ya enviados.
+  const params = new URLSearchParams(window.location.search);
+  if (params.has("login") || params.has("inscribete")) {
     abrirModal(primeraSesion);
   }
 </script>

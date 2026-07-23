@@ -20,6 +20,19 @@ export const OFFER_AVAILABLE = true;
 export const FREE_TRIAL = true;
 
 // ============================================================
+//  OFERTA MILLONARIA (webinar 23-jul-2026) — ventana 23 al 29 de julio,
+//  hora Perú. La landing la evalúa EN EL CLIENTE (scripts inline con estas
+//  fechas): countdown, trials de 14 días y bonos del plan anual aparecen
+//  solos el 23 y desaparecen solos el 30, sin redeploy. Mantener en sync
+//  con la edge function `stripe-suscripcion` y `src/lib/promoMillonaria.ts`
+//  de la app, que usan la misma ventana.
+// ============================================================
+export const PROMO_MILLONARIA = {
+  inicioISO: '2026-07-23T00:00:00-05:00',
+  finISO: '2026-07-30T00:00:00-05:00',
+} as const;
+
+// ============================================================
 //  KOMU PROMO MODE — activa el modo evento "Los 4 Pecados de Pablo"
 //  true  → muestra el diseño especial de La Komu en la sección de planes
 //  false → muestra el diseño normal de precios
