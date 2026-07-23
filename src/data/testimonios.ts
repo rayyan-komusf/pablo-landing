@@ -10,7 +10,7 @@ export interface Testimonio {
 export const TESTIMONIOS: Testimonio[] = [
   {
     texto:
-      'Antes me sentía como un niño que no tenía autocontrol de su dinero. Usando a Pablo, no solo me ahorré el 30-40% en gastos hormigas, sino que ahora me siento una persona más responsable, tranquila y ya no estoy estresado todos los días por dinero.',
+      'Usando a Pablo me ahorré el 30-40% en gastos hormigas, y ahora me siento más responsable, tranquilo y ya no estoy estresado todos los días por dinero.',
     nombre: 'Eduardo S.',
     detalle: '21 años',
   },
@@ -21,7 +21,7 @@ export const TESTIMONIOS: Testimonio[] = [
   },
   {
     texto:
-      'Es muy fácil usarlo. Antes de que me olvide el gasto, puedo mandar un audio o escribir en la noche y lo registra. Me ayuda a ver dónde va cada sol, ordenar mis finanzas y ponerle límites a mis gastos hormigas.',
+      'Es muy fácil: antes de que me olvide el gasto, mando un audio y lo registra. Me ayuda a ver dónde va cada sol y ponerle límites a mis gastos hormigas.',
     nombre: 'Gabriela C.',
     detalle: '28 años',
   },

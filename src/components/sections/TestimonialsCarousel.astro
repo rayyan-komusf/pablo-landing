@@ -1,5 +1,7 @@
 ---
 // Carrusel infinito de testimonios (marquee CSS puro, sin librerías).
+// Efecto foco: la tarjeta al centro del viewport se agranda; las de los
+// costados se encogen y desvanecen (script de abajo, distancia al centro).
 // Se usa en la landing principal (sección Testimonials) y en /webinar.
 // Los testimonios viven en src/data/testimonios.ts.
 import { TESTIMONIOS } from '../../data/testimonios';
@@ -12,7 +14,7 @@ import { TESTIMONIOS } from '../../data/testimonios';
         <div class="carrusel__grupo" aria-hidden={copia === 1 ? 'true' : undefined}>
           {TESTIMONIOS.map((t) => (
             <article class="tc-card">
-              <svg class="tc-quote" width="30" height="30" viewBox="0 0 24 24" fill="#D4D0F0">
+              <svg class="tc-quote" width="22" height="22" viewBox="0 0 24 24" fill="#D4D0F0">
                 <path d="M3 21c3 0 7-1 7-8V5c0-1.25-.756-2.017-2-2H4c-1.25 0-2 .75-2 1.972V11c0 1.25.75 2 2 2 1 0 1 0 1 1v1c0 1-1 2-2 2s-1 .008-1 1.031V20c0 1 0 1 1 1z" />
                 <path d="M15 21c3 0 7-1 7-8V5c0-1.25-.757-2.017-2-2h-4c-1.25 0-2 .75-2 1.972V11c0 1.25.75 2 2 2h.75c0 2.25.25 4-2.75 4v3c0 1 0 1 1 1z" />
               </svg>
@@ -33,15 +35,15 @@ import { TESTIMONIOS } from '../../data/testimonios';
   .carrusel {
     width: 100%;
     overflow: hidden;
-    -webkit-mask-image: linear-gradient(to right, transparent, #000 8%, #000 92%, transparent);
-    mask-image: linear-gradient(to right, transparent, #000 8%, #000 92%, transparent);
+    -webkit-mask-image: linear-gradient(to right, transparent, #000 5%, #000 95%, transparent);
+    mask-image: linear-gradient(to right, transparent, #000 5%, #000 95%, transparent);
   }
 
   .carrusel__track {
     display: flex;
     width: max-content;
-    padding: 10px 0 32px; /* aire para que la sombra de las cards no se recorte */
-    animation: carrusel-scroll 75s linear infinite;
+    padding: 26px 0 38px; /* aire para la tarjeta agrandada del centro y su sombra */
+    animation: carrusel-scroll 60s linear infinite;
   }
 
   .carrusel:hover .carrusel__track {
@@ -50,19 +52,22 @@ import { TESTIMONIOS } from '../../data/testimonios';
 
   .carrusel__grupo {
     display: flex;
+    align-items: center; /* cada tarjeta con la altura de SU texto: sin espacio blanco de relleno */
   }
 
   .tc-card {
-    width: min(340px, 80vw);
+    width: min(240px, 66vw);
     flex-shrink: 0;
-    margin-right: 24px;
+    margin-right: 18px;
     background: white;
-    border-radius: var(--radius-lg);
-    padding: 28px 26px;
+    border-radius: var(--radius-md);
+    padding: 18px 20px;
     display: flex;
     flex-direction: column;
-    gap: 12px;
+    gap: 8px;
     box-shadow: var(--card-shadow);
+    transform-origin: center;
+    will-change: transform, opacity;
   }
 
   .tc-quote {
@@ -71,28 +76,27 @@ import { TESTIMONIOS } from '../../data/testimonios';
   }
 
   .tc-text {
-    font-size: 15px;
-    line-height: 1.65;
+    font-size: 13.5px;
+    line-height: 1.55;
     color: var(--color-heading);
-    flex: 1;
   }
 
   .tc-author {
     display: flex;
     flex-direction: column;
-    gap: 2px;
+    gap: 1px;
     align-items: flex-end;
     text-align: right;
   }
 
   .tc-name {
     font-weight: 700;
-    font-size: 14px;
+    font-size: 12.5px;
     color: var(--color-heading);
   }
 
   .tc-detalle {
-    font-size: 12px;
+    font-size: 11px;
     color: var(--color-secondary);
   }
 
@@ -106,7 +110,7 @@ import { TESTIMONIOS } from '../../data/testimonios';
 
   @media (max-width: 768px) {
     .carrusel__track {
-      animation-duration: 55s;
+      animation-duration: 45s;
     }
   }
 
@@ -127,3 +131,34 @@ import { TESTIMONIOS } from '../../data/testimonios';
     }
   }
 </style>
+
+<script>
+  // Foco central: escala y opacidad de cada tarjeta según su distancia al
+  // centro del viewport, actualizado por frame mientras el marquee avanza.
+  const reducirMovimiento = window.matchMedia('(prefers-reduced-motion: reduce)');
+
+  document.querySelectorAll<HTMLElement>('.carrusel').forEach((carrusel) => {
+    const cards = carrusel.querySelectorAll<HTMLElement>('.tc-card');
+    let visible = false;
+
+    new IntersectionObserver((entradas) => {
+      visible = entradas.some((e) => e.isIntersecting);
+    }).observe(carrusel);
+
+    const actualizar = () => {
+      if (visible) {
+        const centro = window.innerWidth / 2;
+        const alcance = Math.max(1, carrusel.clientWidth / 2);
+        cards.forEach((card) => {
+          const r = card.getBoundingClientRect();
+          const d = Math.min(1, Math.abs(r.left + r.width / 2 - centro) / alcance);
+          card.style.transform = `scale(${(1.12 - 0.34 * d).toFixed(3)})`;
+          card.style.opacity = (1 - 0.62 * d).toFixed(3);
+        });
+      }
+      requestAnimationFrame(actualizar);
+    };
+
+    if (!reducirMovimiento.matches) requestAnimationFrame(actualizar);
+  });
+</script>
