@@ -1,20 +1,22 @@
 ---
-// Carrusel infinito de testimonios (marquee CSS puro, sin librerías).
-// Efecto foco: la tarjeta al centro del viewport se agranda; las de los
-// costados se encogen y desvanecen (script de abajo, distancia al centro).
+// Carrusel infinito de testimonios con foco central: avanza POR PASOS y
+// siempre hay una tarjeta clavada en el centro del viewport, agrandada;
+// las demás se ven chicas y desvanecidas (sketch de Rodrigo, jul-2026).
 // Se usa en la landing principal (sección Testimonials) y en /webinar.
 // Los testimonios viven en src/data/testimonios.ts.
+// El grupo se renderiza 3 veces para que el salto de reinicio sea invisible
+// incluso en pantallas muy anchas.
 import { TESTIMONIOS } from '../../data/testimonios';
 ---
 
 <div class="carrusel" role="region" aria-label="Testimonios de usuarios de Pablo">
   <div class="carrusel__track">
     {
-      [0, 1].map((copia) => (
-        <div class="carrusel__grupo" aria-hidden={copia === 1 ? 'true' : undefined}>
+      [0, 1, 2].map((copia) => (
+        <div class="carrusel__grupo" aria-hidden={copia > 0 ? 'true' : undefined}>
           {TESTIMONIOS.map((t) => (
             <article class="tc-card">
-              <svg class="tc-quote" width="22" height="22" viewBox="0 0 24 24" fill="#D4D0F0">
+              <svg class="tc-quote" width="20" height="20" viewBox="0 0 24 24" fill="#D4D0F0">
                 <path d="M3 21c3 0 7-1 7-8V5c0-1.25-.756-2.017-2-2H4c-1.25 0-2 .75-2 1.972V11c0 1.25.75 2 2 2 1 0 1 0 1 1v1c0 1-1 2-2 2s-1 .008-1 1.031V20c0 1 0 1 1 1z" />
                 <path d="M15 21c3 0 7-1 7-8V5c0-1.25-.757-2.017-2-2h-4c-1.25 0-2 .75-2 1.972V11c0 1.25.75 2 2 2h.75c0 2.25.25 4-2.75 4v3c0 1 0 1 1 1z" />
               </svg>
@@ -35,19 +37,14 @@ import { TESTIMONIOS } from '../../data/testimonios';
   .carrusel {
     width: 100%;
     overflow: hidden;
-    -webkit-mask-image: linear-gradient(to right, transparent, #000 5%, #000 95%, transparent);
-    mask-image: linear-gradient(to right, transparent, #000 5%, #000 95%, transparent);
+    -webkit-mask-image: linear-gradient(to right, transparent, #000 6%, #000 94%, transparent);
+    mask-image: linear-gradient(to right, transparent, #000 6%, #000 94%, transparent);
   }
 
   .carrusel__track {
     display: flex;
     width: max-content;
-    padding: 26px 0 38px; /* aire para la tarjeta agrandada del centro y su sombra */
-    animation: carrusel-scroll 60s linear infinite;
-  }
-
-  .carrusel:hover .carrusel__track {
-    animation-play-state: paused;
+    padding: 22px 0 34px; /* aire para la tarjeta agrandada del centro y su sombra */
   }
 
   .carrusel__grupo {
@@ -56,15 +53,15 @@ import { TESTIMONIOS } from '../../data/testimonios';
   }
 
   .tc-card {
-    width: min(240px, 66vw);
+    width: min(210px, 62vw);
     flex-shrink: 0;
-    margin-right: 18px;
+    margin-right: 16px;
     background: white;
     border-radius: var(--radius-md);
-    padding: 18px 20px;
+    padding: 16px 18px;
     display: flex;
     flex-direction: column;
-    gap: 8px;
+    gap: 7px;
     box-shadow: var(--card-shadow);
     transform-origin: center;
     will-change: transform, opacity;
@@ -76,8 +73,8 @@ import { TESTIMONIOS } from '../../data/testimonios';
   }
 
   .tc-text {
-    font-size: 13.5px;
-    line-height: 1.55;
+    font-size: 13px;
+    line-height: 1.5;
     color: var(--color-heading);
   }
 
@@ -91,39 +88,21 @@ import { TESTIMONIOS } from '../../data/testimonios';
 
   .tc-name {
     font-weight: 700;
-    font-size: 12.5px;
+    font-size: 12px;
     color: var(--color-heading);
   }
 
   .tc-detalle {
-    font-size: 11px;
+    font-size: 10.5px;
     color: var(--color-secondary);
   }
 
-  /* La pista se duplica para el loop: cada mitad mide lo mismo,
-     así que al llegar a -50% el salto al inicio es invisible. */
-  @keyframes carrusel-scroll {
-    to {
-      transform: translateX(-50%);
-    }
-  }
-
-  @media (max-width: 768px) {
-    .carrusel__track {
-      animation-duration: 45s;
-    }
-  }
-
-  /* Sin animación: scroll horizontal manual y sin copia duplicada */
+  /* Sin animación: scroll horizontal manual y sin copias duplicadas */
   @media (prefers-reduced-motion: reduce) {
     .carrusel {
       overflow-x: auto;
       -webkit-mask-image: none;
       mask-image: none;
-    }
-
-    .carrusel__track {
-      animation: none;
     }
 
     .carrusel__grupo[aria-hidden='true'] {
@@ -133,32 +112,89 @@ import { TESTIMONIOS } from '../../data/testimonios';
 </style>
 
 <script>
-  // Foco central: escala y opacidad de cada tarjeta según su distancia al
-  // centro del viewport, actualizado por frame mientras el marquee avanza.
+  // Avance por pasos: cada tick la siguiente tarjeta queda EXACTAMENTE en el
+  // centro del viewport. El efecto foco (escala + opacidad por distancia al
+  // centro, normalizada a un paso) corre por frame, así las tarjetas crecen y
+  // se desvanecen suavemente mientras la pista se mueve.
   const reducirMovimiento = window.matchMedia('(prefers-reduced-motion: reduce)');
 
   document.querySelectorAll<HTMLElement>('.carrusel').forEach((carrusel) => {
-    const cards = carrusel.querySelectorAll<HTMLElement>('.tc-card');
+    const track = carrusel.querySelector<HTMLElement>('.carrusel__track');
+    const grupo = carrusel.querySelector<HTMLElement>('.carrusel__grupo');
+    const cards = Array.from(carrusel.querySelectorAll<HTMLElement>('.tc-card'));
+    if (!track || !grupo || cards.length < 2 || reducirMovimiento.matches) return;
+
+    const porGrupo = grupo.childElementCount;
     let visible = false;
+    let pausado = false;
+    let offset = 0; // desplazamiento actual de la pista (px, positivo hacia la izquierda)
+    let indice = 0; // nº de tarjeta centrada
+    let espaciado = 0; // ancho de tarjeta + separación
+    let base = 0; // offset que deja la tarjeta 0 centrada
+    let anchoGrupo = 0;
+
+    const aplicar = (conTransicion: boolean) => {
+      track.style.transition = conTransicion
+        ? 'transform 0.7s cubic-bezier(0.45, 0, 0.25, 1)'
+        : 'none';
+      track.style.transform = `translateX(${-offset}px)`;
+    };
+
+    const medir = () => {
+      const r0 = cards[0].getBoundingClientRect();
+      const r1 = cards[1].getBoundingClientRect();
+      espaciado = r1.left - r0.left;
+      anchoGrupo = espaciado * porGrupo;
+      // centro de la tarjeta 0 si la pista estuviera en offset 0:
+      base = r0.left + offset + r0.width / 2 - window.innerWidth / 2;
+    };
+
+    medir();
+    indice = Math.max(0, Math.ceil(-base / espaciado));
+    offset = base + indice * espaciado;
+    aplicar(false);
 
     new IntersectionObserver((entradas) => {
       visible = entradas.some((e) => e.isIntersecting);
     }).observe(carrusel);
 
+    carrusel.addEventListener('mouseenter', () => (pausado = true));
+    carrusel.addEventListener('mouseleave', () => (pausado = false));
+
+    window.addEventListener('resize', () => {
+      medir();
+      offset = base + indice * espaciado;
+      aplicar(false);
+    });
+
+    setInterval(() => {
+      if (!visible || pausado) return;
+      indice += 1;
+      offset = base + indice * espaciado;
+      aplicar(true);
+      // Tras el paso, si ya se recorrió un grupo completo, salto invisible
+      // hacia atrás (el contenido duplicado es idéntico).
+      window.setTimeout(() => {
+        if (offset - anchoGrupo >= 0) {
+          indice -= porGrupo;
+          offset = base + indice * espaciado;
+          aplicar(false);
+        }
+      }, 750);
+    }, 2600);
+
     const actualizar = () => {
       if (visible) {
         const centro = window.innerWidth / 2;
-        const alcance = Math.max(1, carrusel.clientWidth / 2);
-        cards.forEach((card) => {
+        for (const card of cards) {
           const r = card.getBoundingClientRect();
-          const d = Math.min(1, Math.abs(r.left + r.width / 2 - centro) / alcance);
+          const d = Math.min(1, Math.abs(r.left + r.width / 2 - centro) / espaciado);
           card.style.transform = `scale(${(1.12 - 0.34 * d).toFixed(3)})`;
-          card.style.opacity = (1 - 0.62 * d).toFixed(3);
-        });
+          card.style.opacity = (1 - 0.65 * d).toFixed(3);
+        }
       }
       requestAnimationFrame(actualizar);
     };
-
-    if (!reducirMovimiento.matches) requestAnimationFrame(actualizar);
+    requestAnimationFrame(actualizar);
   });
 </script>
