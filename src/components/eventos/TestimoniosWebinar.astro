@@ -1,0 +1,82 @@
+---
+// Prueba social bajo el formulario del webinar: carrusel infinito de
+// testimonios + un CTA simple que regresa al formulario de registro.
+import TestimonialsCarousel from '../sections/TestimonialsCarousel.astro';
+---
+
+<section class="testi-web">
+  <div class="container testi-web__header">
+    <h2 class="testi-web__title">
+      Gente real, <span class="highlight">resultados reales</span>
+    </h2>
+    <p class="testi-web__sub">Esto dicen los que ya ordenan su plata con Pablo.</p>
+  </div>
+
+  <TestimonialsCarousel />
+
+  <div class="container testi-web__cta">
+    <p class="testi-web__cta-texto">¿Quieres empezar a ordenar tu plata como ellos?</p>
+    <a
+      href="#registro"
+      class="btn-primary"
+      onclick="try{window.posthog?.capture('webinar_cta_clicked',{webinar:'4_mandamientos',location:'testimonios'})}catch(e){};if(typeof fbq!=='undefined')fbq('trackCustom','Webinar_Testimonios_CTA');"
+    >
+      Regístrate gratis al webinar
+      <span class="btn-arrow">→</span>
+    </a>
+  </div>
+</section>
+
+<style>
+  .testi-web {
+    background: var(--bg-testimonials);
+    padding: 0 0 var(--section-py);
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 40px;
+  }
+
+  .testi-web__header {
+    text-align: center;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 12px;
+  }
+
+  .testi-web__title {
+    font-family: var(--font-heading);
+    font-weight: 700;
+    font-size: 34px;
+    line-height: 1.15;
+    color: var(--color-heading);
+  }
+
+  .testi-web__sub {
+    font-size: 15px;
+    color: var(--color-body);
+    max-width: 440px;
+  }
+
+  .testi-web__cta {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 16px;
+    text-align: center;
+  }
+
+  .testi-web__cta-texto {
+    font-size: 16px;
+    font-weight: 600;
+    color: var(--color-heading);
+  }
+
+  @media (max-width: 768px) {
+    .testi-web__title {
+      font-size: 26px;
+    }
+  }
+</style>

@@ -1,0 +1,129 @@
+---
+// Carrusel infinito de testimonios (marquee CSS puro, sin librerías).
+// Se usa en la landing principal (sección Testimonials) y en /webinar.
+// Los testimonios viven en src/data/testimonios.ts.
+import { TESTIMONIOS } from '../../data/testimonios';
+---
+
+<div class="carrusel" role="region" aria-label="Testimonios de usuarios de Pablo">
+  <div class="carrusel__track">
+    {
+      [0, 1].map((copia) => (
+        <div class="carrusel__grupo" aria-hidden={copia === 1 ? 'true' : undefined}>
+          {TESTIMONIOS.map((t) => (
+            <article class="tc-card">
+              <svg class="tc-quote" width="30" height="30" viewBox="0 0 24 24" fill="#D4D0F0">
+                <path d="M3 21c3 0 7-1 7-8V5c0-1.25-.756-2.017-2-2H4c-1.25 0-2 .75-2 1.972V11c0 1.25.75 2 2 2 1 0 1 0 1 1v1c0 1-1 2-2 2s-1 .008-1 1.031V20c0 1 0 1 1 1z" />
+                <path d="M15 21c3 0 7-1 7-8V5c0-1.25-.757-2.017-2-2h-4c-1.25 0-2 .75-2 1.972V11c0 1.25.75 2 2 2h.75c0 2.25.25 4-2.75 4v3c0 1 0 1 1 1z" />
+              </svg>
+              <p class="tc-text">{t.texto}</p>
+              <div class="tc-author">
+                <span class="tc-name">{t.nombre}</span>
+                {t.detalle && <span class="tc-detalle">{t.detalle}</span>}
+              </div>
+            </article>
+          ))}
+        </div>
+      ))
+    }
+  </div>
+</div>
+
+<style>
+  .carrusel {
+    width: 100%;
+    overflow: hidden;
+    -webkit-mask-image: linear-gradient(to right, transparent, #000 8%, #000 92%, transparent);
+    mask-image: linear-gradient(to right, transparent, #000 8%, #000 92%, transparent);
+  }
+
+  .carrusel__track {
+    display: flex;
+    width: max-content;
+    padding: 10px 0 32px; /* aire para que la sombra de las cards no se recorte */
+    animation: carrusel-scroll 75s linear infinite;
+  }
+
+  .carrusel:hover .carrusel__track {
+    animation-play-state: paused;
+  }
+
+  .carrusel__grupo {
+    display: flex;
+  }
+
+  .tc-card {
+    width: min(340px, 80vw);
+    flex-shrink: 0;
+    margin-right: 24px;
+    background: white;
+    border-radius: var(--radius-lg);
+    padding: 28px 26px;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    box-shadow: var(--card-shadow);
+  }
+
+  .tc-quote {
+    opacity: 0.6;
+    flex-shrink: 0;
+  }
+
+  .tc-text {
+    font-size: 15px;
+    line-height: 1.65;
+    color: var(--color-heading);
+    flex: 1;
+  }
+
+  .tc-author {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    align-items: flex-end;
+    text-align: right;
+  }
+
+  .tc-name {
+    font-weight: 700;
+    font-size: 14px;
+    color: var(--color-heading);
+  }
+
+  .tc-detalle {
+    font-size: 12px;
+    color: var(--color-secondary);
+  }
+
+  /* La pista se duplica para el loop: cada mitad mide lo mismo,
+     así que al llegar a -50% el salto al inicio es invisible. */
+  @keyframes carrusel-scroll {
+    to {
+      transform: translateX(-50%);
+    }
+  }
+
+  @media (max-width: 768px) {
+    .carrusel__track {
+      animation-duration: 55s;
+    }
+  }
+
+  /* Sin animación: scroll horizontal manual y sin copia duplicada */
+  @media (prefers-reduced-motion: reduce) {
+    .carrusel {
+      overflow-x: auto;
+      -webkit-mask-image: none;
+      mask-image: none;
+    }
+
+    .carrusel__track {
+      animation: none;
+    }
+
+    .carrusel__grupo[aria-hidden='true'] {
+      display: none;
+    }
+  }
+</style>

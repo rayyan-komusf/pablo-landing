@@ -1,10 +1,12 @@
 ---
 // src/components/sections/Testimonials.astro
+// Carrusel infinito de testimonios (antes: grid estático de 3 cards).
+import TestimonialsCarousel from './TestimonialsCarousel.astro';
 ---
 
 <section class="testimonials">
-  <div class="container test__inner">
-    <div class="test__header">
+  <div class="test__inner">
+    <div class="container test__header">
       <h2 class="section-title test__title">
         Gente real, <span class="highlight">resultados reales</span>
       </h2>
@@ -13,55 +15,7 @@
       </p>
     </div>
 
-    <div class="test__grid">
-      <!-- Testimonial 1: Lady A. -->
-      <div class="test-card">
-        <div class="test-quote">
-          <svg width="36" height="36" viewBox="0 0 24 24" fill="#D4D0F0"><path d="M3 21c3 0 7-1 7-8V5c0-1.25-.756-2.017-2-2H4c-1.25 0-2 .75-2 1.972V11c0 1.25.75 2 2 2 1 0 1 0 1 1v1c0 1-1 2-2 2s-1 .008-1 1.031V20c0 1 0 1 1 1z"/><path d="M15 21c3 0 7-1 7-8V5c0-1.25-.757-2.017-2-2h-4c-1.25 0-2 .75-2 1.972V11c0 1.25.75 2 2 2h.75c0 2.25.25 4-2.75 4v3c0 1 0 1 1 1z"/></svg>
-        </div>
-        <p class="test-text">
-          "¡Qué gran ayuda está siendo Pablo! Creo que nos quita un peso de encima para no llegar tan ajustados a fin de mes.."
-        </p>
-        <div class="test-author">
-          <div class="test-info test-info--right">
-            <span class="test-name">Lady A.</span>
-            <span class="test-age">27 años</span>
-          </div>
-        </div>
-      </div>
-
-      <!-- Testimonial 2: Eduardo S. -->
-      <div class="test-card">
-        <div class="test-quote">
-          <svg width="36" height="36" viewBox="0 0 24 24" fill="#D4D0F0"><path d="M3 21c3 0 7-1 7-8V5c0-1.25-.756-2.017-2-2H4c-1.25 0-2 .75-2 1.972V11c0 1.25.75 2 2 2 1 0 1 0 1 1v1c0 1-1 2-2 2s-1 .008-1 1.031V20c0 1 0 1 1 1z"/><path d="M15 21c3 0 7-1 7-8V5c0-1.25-.757-2.017-2-2h-4c-1.25 0-2 .75-2 1.972V11c0 1.25.75 2 2 2h.75c0 2.25.25 4-2.75 4v3c0 1 0 1 1 1z"/></svg>
-        </div>
-        <p class="test-text">
-          Antes, me sentía como un niño que no tenía autocontrol de su dinero. Usando a Pablo, no solo me ahorré el 30-40% en gastos hormigas, sino ahora me siento como una persona más responsable, tranquila y ya no estoy estresado todos los días por dinero.
-        </p>
-        <div class="test-author">
-          <div class="test-info test-info--right">
-            <span class="test-name">Eduardo S.</span>
-            <span class="test-age">21 años</span>
-          </div>
-        </div>
-      </div>
-
-      <!-- Testimonial 3: Gabriela C. -->
-      <div class="test-card">
-        <div class="test-quote">
-          <svg width="36" height="36" viewBox="0 0 24 24" fill="#D4D0F0"><path d="M3 21c3 0 7-1 7-8V5c0-1.25-.756-2.017-2-2H4c-1.25 0-2 .75-2 1.972V11c0 1.25.75 2 2 2 1 0 1 0 1 1v1c0 1-1 2-2 2s-1 .008-1 1.031V20c0 1 0 1 1 1z"/><path d="M15 21c3 0 7-1 7-8V5c0-1.25-.757-2.017-2-2h-4c-1.25 0-2 .75-2 1.972V11c0 1.25.75 2 2 2h.75c0 2.25.25 4-2.75 4v3c0 1 0 1 1 1z"/></svg>
-        </div>
-        <p class="test-text">
-          Es muy fácil usarlo. Antes de que me olvidé el gasto, puedo mandar un audio o escribir en la noche y lo registra. Me ayuda a ver donde va cada sol, ordenar mis finanzas, ponerle límites a mis gastos hormigas y hasta si fuera el caso, ahorrar.
-        </p>
-        <div class="test-author">
-          <div class="test-info test-info--right">
-            <span class="test-name">Gabriela C.</span>
-            <span class="test-age">28 años</span>
-          </div>
-        </div>
-      </div>
-    </div>
+    <TestimonialsCarousel />
   </div>
 </section>
 
@@ -69,13 +23,14 @@
   .testimonials {
     background: var(--bg-testimonials);
     padding: var(--section-py) 0;
+    overflow: hidden;
   }
 
   .test__inner {
     display: flex;
     flex-direction: column;
     align-items: center;
-    gap: 48px;
+    gap: 40px;
   }
 
   .test__header {
@@ -97,99 +52,9 @@
     max-width: 480px;
   }
 
-  .test__grid {
-    display: grid;
-    grid-template-columns: 1fr;
-    gap: 24px;
-    width: 100%;
-    max-width: 640px;
-  }
-
-  .test-card {
-    background: white;
-    border-radius: var(--radius-lg);
-    padding: 36px 32px;
-    display: flex;
-    flex-direction: column;
-    gap: 16px;
-    box-shadow: var(--card-shadow);
-    transition: box-shadow 0.25s, transform 0.25s;
-  }
-
-  .test-card:hover {
-    box-shadow: var(--card-shadow-hover);
-    transform: translateY(-3px);
-  }
-
-  .test-quote svg {
-    opacity: 0.6;
-  }
-
-  .test-text {
-    font-size: 16px;
-    line-height: 1.7;
-    color: var(--color-heading);
-    flex: 1;
-  }
-
-  .test-author {
-    display: flex;
-    align-items: center;
-    justify-content: flex-end;
-    margin-top: 4px;
-  }
-
-  .test-info--right {
-    text-align: right;
-  }
-
-  .test-avatar {
-    width: 40px;
-    height: 40px;
-    border-radius: 50%;
-    background: #B8BADE;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-weight: 700;
-    font-size: 16px;
-    color: white;
-    flex-shrink: 0;
-  }
-
-  .test-avatar--blue {
-    background: #8B89D0;
-  }
-
-  .test-info {
-    display: flex;
-    flex-direction: column;
-    gap: 2px;
-  }
-
-  .test-name {
-    font-weight: 700;
-    font-size: 14px;
-    color: var(--color-heading);
-  }
-
-  .test-age {
-    font-size: 12px;
-    color: var(--color-secondary);
-  }
-
   @media (max-width: 768px) {
-    .test__grid {
-      grid-template-columns: 1fr;
-      max-width: 480px;
-    }
-
     .test__title {
       font-size: 28px;
-    }
-
-    .test-card {
-      padding: 28px 24px;
     }
   }
 </style>
