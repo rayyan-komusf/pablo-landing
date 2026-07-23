@@ -28,8 +28,15 @@ export const FREE_TRIAL = true;
 //  de la app, que usan la misma ventana.
 // ============================================================
 export const PROMO_MILLONARIA = {
-  inicioISO: '2026-07-23T00:00:00-05:00',
-  finISO: '2026-07-30T00:00:00-05:00',
+  // FLASH en el HOME (banner + bonos en Pricing) y bonus 1-a-1: SOLO la noche
+  // del webinar — aparece a las 8:40 PM y desaparece a medianoche del 23. El
+  // resto del tiempo el home se ve normal (la oferta sigue viva en /webinar).
+  nocheInicioISO: '2026-07-23T20:40:00-05:00',
+  nocheFinISO: '2026-07-24T00:00:00-05:00',
+  // OFERTA activa (checkout: anual sin trial, mensual 14d; página de ventas):
+  // del fin del webinar (8:40 PM del 23) al 29 de julio.
+  ofertaInicioISO: '2026-07-23T20:40:00-05:00',
+  ofertaFinISO: '2026-07-30T00:00:00-05:00',
 } as const;
 
 // ============================================================

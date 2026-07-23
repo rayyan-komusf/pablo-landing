@@ -208,7 +208,7 @@ const annualCheckoutUrl = FREE_TRIAL ? CHECKOUT_URLS.annual_trial : CHECKOUT_URL
             Pasos simples, resultados reales
           </div>
           <div class="millonaria-pill" data-promo-millonaria hidden>
-            🔥 Oferta Millonaria — solo del 23 al 29 de julio
+            🔥 Oferta Millonaria — solo esta noche
           </div>
           <h2 class="pricing__title section-title">
             Da el primer paso hacia tu <span class="highlight">bienestar financiero</span>
@@ -365,11 +365,15 @@ const annualCheckoutUrl = FREE_TRIAL ? CHECKOUT_URLS.annual_trial : CHECKOUT_URL
                   Todo lo incluido en el plan Mensual.
                 </li>
                 {FREE_TRIAL && (
-                  <li>
+                  <li data-pm-hide>
                     <svg class="check check--amber" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#F5A623" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>
-                    <span data-pm-swap="14 días gratis de prueba.">7 días gratis de prueba.</span>
+                    <span>7 días gratis de prueba.</span>
                   </li>
                 )}
+                <li data-promo-millonaria hidden>
+                  <svg class="check check--amber" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#F5A623" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>
+                  <strong>Sin prueba: acceso inmediato a todo por un año.</strong>
+                </li>
                 <li>
                   <svg class="check check--amber" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#F5A623" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>
                   16% de descuento exclusivo por temporada.
@@ -950,10 +954,12 @@ const annualCheckoutUrl = FREE_TRIAL ? CHECKOUT_URLS.annual_trial : CHECKOUT_URL
   /* Force Astro CSS compiler reload */
 </style>
 
-<script is:inline define:vars={{ pmInicio: PROMO_MILLONARIA.inicioISO, pmFin: PROMO_MILLONARIA.finISO }}>
-  // Oferta Millonaria: dentro de la ventana muestra los elementos
-  // [data-promo-millonaria] y aplica los textos de [data-pm-swap]
-  // (trials de 14 días). Fuera de la ventana no toca nada.
+<script is:inline define:vars={{ pmInicio: PROMO_MILLONARIA.nocheInicioISO, pmFin: PROMO_MILLONARIA.nocheFinISO }}>
+  // Flash de la Oferta Millonaria en el home: SOLO la noche del webinar
+  // (8:40 PM → medianoche del 23). Muestra [data-promo-millonaria], aplica los
+  // textos de [data-pm-swap] (mensual a 14 días) y oculta [data-pm-hide] (el
+  // trial del anual, que en la oferta es cobro directo). Fuera de la ventana no
+  // toca nada: el home se ve normal.
   (function () {
     var ahora = Date.now();
     if (ahora < Date.parse(pmInicio) || ahora >= Date.parse(pmFin)) return;
@@ -962,6 +968,9 @@ const annualCheckoutUrl = FREE_TRIAL ? CHECKOUT_URLS.annual_trial : CHECKOUT_URL
     });
     document.querySelectorAll('[data-pm-swap]').forEach(function (el) {
       el.textContent = el.getAttribute('data-pm-swap');
+    });
+    document.querySelectorAll('[data-pm-hide]').forEach(function (el) {
+      el.hidden = true;
     });
   })();
 </script>

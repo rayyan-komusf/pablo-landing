@@ -1,7 +1,8 @@
 ---
 // CountdownBanner.astro
-// Oferta Millonaria: visible solo del 23 al 29 de julio de 2026 (hora Perú).
-// La ventana vive en siteConfig.PROMO_MILLONARIA; aquí va inline en el script.
+// Oferta Millonaria (flash del home): visible SOLO la noche del webinar —
+// aparece a las 8:40 PM y desaparece a medianoche del 23-jul (hora Perú).
+// La ventana vive en siteConfig.PROMO_MILLONARIA (nocheInicioISO/nocheFinISO).
 import { PROMO_MILLONARIA } from '../siteConfig';
 ---
 
@@ -9,8 +10,8 @@ import { PROMO_MILLONARIA } from '../siteConfig';
   <div class="countdown-banner__inner">
     <span class="countdown-banner__fire">🔥</span>
     <p class="countdown-banner__text">
-      <strong>OFERTA MILLONARIA</strong> — 14 días gratis
-      <span class="countdown-banner__highlight">+ 5 bonos en el anual</span>
+      <strong>OFERTA MILLONARIA</strong> — solo esta noche
+      <span class="countdown-banner__highlight">Plan anual + 5 bonos y asesoría 1-a-1</span>
     </p>
     <div class="countdown-banner__timer" id="countdown-timer" aria-live="polite">
       <span class="countdown-number" id="cd-days" hidden>0d</span>
@@ -30,7 +31,8 @@ import { PROMO_MILLONARIA } from '../siteConfig';
     position: sticky;
     top: 0;
     z-index: 200;
-    background: linear-gradient(90deg, #ffb72b 0%, #ff9a3c 50%, #ff7c50 100%);
+    /* Mismo navy del footer (--bg-footer #2B2C64) */
+    background: #2B2C64;
     padding: 0;
     overflow: hidden;
     display: block;
@@ -163,7 +165,7 @@ import { PROMO_MILLONARIA } from '../siteConfig';
   }
 </style>
 
-<script is:inline define:vars={{ pmInicio: PROMO_MILLONARIA.inicioISO, pmFin: PROMO_MILLONARIA.finISO }}>
+<script is:inline define:vars={{ pmInicio: PROMO_MILLONARIA.nocheInicioISO, pmFin: PROMO_MILLONARIA.nocheFinISO }}>
   (function () {
     var inicio   = Date.parse(pmInicio);
     var deadline = Date.parse(pmFin);
