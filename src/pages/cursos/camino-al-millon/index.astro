@@ -50,11 +50,13 @@ import { CURSO, SESIONES } from "../../../lib/cursos";
 
       <!-- Sesiones estilo blog: tarjeta con la miniatura y el título abajo -->
       <div class="sesiones-grid">
-        {SESIONES.map((sesion) => (
+        {SESIONES.map((sesion, i) => (
           <a
             href={`/cursos/${CURSO.slug}/${sesion.slug}`}
             class="sesion-card"
             data-sesion-link
+            data-sesion={sesion.slug}
+            data-index={i}
           >
             <div class="sesion-card__cover">
               <img
@@ -71,12 +73,19 @@ import { CURSO, SESIONES } from "../../../lib/cursos";
                     <path d="M8 5v14l11-7z"/>
                   </svg>
                 </div>
+                <div class="sesion-card__lock" data-lock-icon hidden>
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="24" height="24">
+                    <rect x="3" y="11" width="18" height="11" rx="2"/>
+                    <path d="M7 11V7a5 5 0 0 1 10 0v4"/>
+                  </svg>
+                </div>
               </div>
             </div>
             <div class="sesion-card__body">
               <div class="sesion-card__meta">
                 <span class="sesion-card__label">{sesion.label}</span>
                 <span class="sesion-card__done" data-done={sesion.slug} hidden>✓ Completada</span>
+                <span class="sesion-card__pend" data-pend={sesion.slug} hidden>🔒 Completa la anterior</span>
               </div>
               <h3 class="sesion-card__title">{sesion.nombre}</h3>
             </div>
@@ -284,6 +293,41 @@ import { CURSO, SESIONES } from "../../../lib/cursos";
     background: var(--color-amber);
   }
 
+  /* Candado de las sesiones bloqueadas (orden estricto) */
+  .sesion-card__lock {
+    width: 52px;
+    height: 52px;
+    border-radius: 50%;
+    background: rgba(43, 44, 100, 0.85);
+    color: #fff;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.25);
+  }
+
+  .sesion-card__lock[hidden] {
+    display: none;
+  }
+
+  /* Tarjeta bloqueada: no navega, se ve apagada, oculta el play */
+  .sesion-card.locked {
+    cursor: not-allowed;
+    pointer-events: none;
+  }
+
+  .sesion-card.locked .sesion-card__cover img {
+    filter: grayscale(0.7) brightness(0.85);
+  }
+
+  .sesion-card.locked .sesion-card__overlay {
+    background: rgba(20, 20, 60, 0.45);
+  }
+
+  .sesion-card.locked .sesion-card__play {
+    display: none;
+  }
+
   .sesion-card__body {
     display: flex;
     flex-direction: column;
@@ -314,6 +358,19 @@ import { CURSO, SESIONES } from "../../../lib/cursos";
   }
 
   .sesion-card__done[hidden] {
+    display: none;
+  }
+
+  .sesion-card__pend {
+    font-size: 0.72rem;
+    font-weight: 800;
+    color: #875a00;
+    background: #fef3da;
+    padding: 2px 10px;
+    border-radius: 100px;
+  }
+
+  .sesion-card__pend[hidden] {
     display: none;
   }
 
@@ -357,33 +414,41 @@ import { CURSO, SESIONES } from "../../../lib/cursos";
   import { haySesionCurso, verificarAccesoCurso } from "../../../lib/cursoAcceso";
 
   // Estado del gate: se resuelve async contra la edge function curso-acceso.
-  let desbloqueado = false;
+  let desbloqueado = false; // hay suscripción activa
+  // Sesiones abiertas por el orden estricto (completaste todas las anteriores).
+  const permitidas = new Set<string>();
 
   const abrirModal = (destino?: string) =>
     (window as any).abrirCursoLoginModal?.(destino);
 
   const cta = document.getElementById("curso-cta-inscribir");
   const nota = document.getElementById("curso-cta-nota");
-  const primeraSesion = `/cursos/${CURSO.slug}/${SESIONES[0].slug}`;
+  // A dónde lleva "continuar": la primera sesión sin completar.
+  let destinoContinuar = `/cursos/${CURSO.slug}/${SESIONES[0].slug}`;
 
-  // Las clases requieren sesión con suscripción activa.
   document.querySelectorAll<HTMLAnchorElement>("a[data-sesion-link]").forEach((link) => {
     link.addEventListener("click", (e) => {
-      if (desbloqueado) return;
-      e.preventDefault();
-      abrirModal(link.href);
+      const slug = link.dataset.sesion ?? "";
+      // Sin suscripción: pedir login. Con suscripción pero sesión bloqueada
+      // por el orden: no navegar (además la card tiene pointer-events:none).
+      if (!desbloqueado) {
+        e.preventDefault();
+        abrirModal(link.href);
+      } else if (!permitidas.has(slug)) {
+        e.preventDefault();
+      }
     });
   });
 
   cta?.addEventListener("click", () => {
     if (desbloqueado) {
-      window.location.href = primeraSesion;
+      window.location.href = destinoContinuar;
     } else {
-      abrirModal(primeraSesion);
+      abrirModal(destinoContinuar);
     }
   });
 
-  // Con sesión guardada, verificar el acceso y pintar el progreso.
+  // Con sesión guardada, verificar el acceso y pintar progreso + candados.
   if (haySesionCurso()) {
     verificarAccesoCurso(CURSO.slug).then((acceso) => {
       if (!acceso) return; // sesión vencida o error: se queda el gate
@@ -394,15 +459,40 @@ import { CURSO, SESIONES } from "../../../lib/cursos";
         return;
       }
       desbloqueado = true;
+
+      const completadas = new Set(
+        acceso.progreso.filter((p) => p.completado).map((p) => p.sesion),
+      );
+      // Índice de la primera sesión sin completar (= hasta dónde puede llegar);
+      // si están todas, el curso está completo.
+      let idxPrimeraIncompleta = SESIONES.findIndex((s) => !completadas.has(s.slug));
+      if (idxPrimeraIncompleta === -1) idxPrimeraIncompleta = SESIONES.length;
+      destinoContinuar = `/cursos/${CURSO.slug}/${
+        SESIONES[Math.min(idxPrimeraIncompleta, SESIONES.length - 1)].slug
+      }`;
+
       if (cta) cta.textContent = cta.dataset.inscritoLabel || "Continuar el curso →";
       if (nota)
         nota.textContent = acceso.curso_completado
           ? "¡Curso completado! Puedes volver a ver las sesiones cuando quieras."
-          : "Tu curso está desbloqueado. Tu avance se guarda solo.";
-      acceso.progreso.forEach((p) => {
-        if (!p.completado) return;
-        const badge = document.querySelector<HTMLElement>(`[data-done="${p.sesion}"]`);
-        if (badge) badge.hidden = false;
+          : "Las sesiones se desbloquean en orden. Tu avance se guarda solo.";
+
+      SESIONES.forEach((s, i) => {
+        const card = document.querySelector<HTMLElement>(`.sesion-card[data-sesion="${s.slug}"]`);
+        const done = document.querySelector<HTMLElement>(`[data-done="${s.slug}"]`);
+        const pend = document.querySelector<HTMLElement>(`[data-pend="${s.slug}"]`);
+        const lock = card?.querySelector<HTMLElement>("[data-lock-icon]");
+        if (completadas.has(s.slug) && done) done.hidden = false;
+
+        // Desbloqueada si todas las anteriores están completas (i <= primera
+        // incompleta). El resto queda con candado.
+        if (i <= idxPrimeraIncompleta) {
+          permitidas.add(s.slug);
+        } else {
+          card?.classList.add("locked");
+          if (lock) lock.hidden = false;
+          if (pend) pend.hidden = false;
+        }
       });
     });
   }
@@ -411,6 +501,6 @@ import { CURSO, SESIONES } from "../../../lib/cursos";
   // viejo ?inscribete=1 por los correos ya enviados.
   const params = new URLSearchParams(window.location.search);
   if (params.has("login") || params.has("inscribete")) {
-    abrirModal(primeraSesion);
+    abrirModal(destinoContinuar);
   }
 </script>

@@ -277,6 +277,22 @@ const siguiente = SESIONES[index + 1] ?? null;
         alLogin();
         return;
       }
+
+      // Orden estricto: esta sesión solo se abre si TODAS las anteriores están
+      // completas (aunque entren por URL directa). Si no, se les manda a la
+      // primera sesión sin completar.
+      const completadas = new Set(
+        acceso.progreso.filter((p) => p.completado).map((p) => p.sesion),
+      );
+      const idxActual = SESIONES.findIndex((s) => s.slug === sesionSlug);
+      let idxPrimeraIncompleta = SESIONES.findIndex((s) => !completadas.has(s.slug));
+      if (idxPrimeraIncompleta === -1) idxPrimeraIncompleta = SESIONES.length;
+      if (idxActual > idxPrimeraIncompleta) {
+        const destino = SESIONES[Math.min(idxPrimeraIncompleta, SESIONES.length - 1)].slug;
+        window.location.replace(`/cursos/${CURSO.slug}/${destino}`);
+        return;
+      }
+
       const previo = acceso.progreso.find((p) => p.sesion === sesionSlug);
       iniciarClase(acceso.plan, previo?.segundos_vistos ?? 0, Boolean(previo?.completado));
     });
