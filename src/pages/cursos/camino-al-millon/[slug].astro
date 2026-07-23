@@ -28,17 +28,11 @@ const siguiente = SESIONES[index + 1] ?? null;
         <h1>{sesion.label}: {sesion.nombre}</h1>
       </header>
 
-      <!-- Oculto hasta confirmar el acceso con la edge function; el player se
-           controla con la IFrame API (progreso + bloqueo de adelantar). -->
+      <!-- Oculto hasta confirmar el acceso con la edge function. El player lo
+           CONSTRUYE la IFrame API sobre este div (no un iframe propio): así el
+           comando seekTo se acepta y el bloqueo de adelantar funciona. -->
       <div class="clase-video" id="clase-video-wrap" hidden>
-        <iframe
-          id="clase-player"
-          src={`https://www.youtube.com/embed/${sesion.videoId}?rel=0&enablejsapi=1&disablekb=1`}
-          title={`${sesion.label}: ${sesion.nombre} — ${CURSO.title}`}
-          allow="autoplay; encrypted-media; picture-in-picture"
-          allowfullscreen
-          loading="lazy"
-        ></iframe>
+        <div id="clase-player" data-video-id={sesion.videoId}></div>
       </div>
       <p class="clase-progreso" id="clase-progreso" hidden></p>
 
@@ -48,11 +42,27 @@ const siguiente = SESIONES[index + 1] ?? null;
 
       <div class="clase-cta-wrap">
         {siguiente ? (
-          <a href={`/cursos/${CURSO.slug}/${siguiente.slug}`} class="clase-siguiente">
-            Ir al siguiente video: {siguiente.label} — {siguiente.nombre} →
+          <a
+            href={`/cursos/${CURSO.slug}/${siguiente.slug}`}
+            class="clase-siguiente"
+            id="clase-siguiente"
+            data-locked-label="Termina este video para continuar 🔒"
+            data-unlocked-label={`Ir al siguiente video: ${siguiente.label} — ${siguiente.nombre} →`}
+            aria-disabled="true"
+          >
+            Termina este video para continuar 🔒
           </a>
         ) : (
-          <a href={`/cursos/${CURSO.slug}`} class="clase-siguiente">← Volver al curso</a>
+          <a
+            href={`/cursos/${CURSO.slug}`}
+            class="clase-siguiente"
+            id="clase-siguiente"
+            data-locked-label="Termina este video para completar el curso 🔒"
+            data-unlocked-label="← Volver al curso"
+            aria-disabled="true"
+          >
+            Termina este video para completar el curso 🔒
+          </a>
         )}
       </div>
 
@@ -206,11 +216,20 @@ const siguiente = SESIONES[index + 1] ?? null;
     color: var(--color-body);
     text-decoration: underline;
     text-underline-offset: 3px;
-    transition: color 0.15s;
+    transition: color 0.15s, opacity 0.15s;
   }
 
   .clase-siguiente:hover {
     color: var(--color-heading);
+  }
+
+  /* Bloqueado hasta completar el video: no navega y se ve apagado. */
+  .clase-siguiente[aria-disabled="true"] {
+    color: var(--color-secondary);
+    text-decoration: none;
+    opacity: 0.6;
+    cursor: not-allowed;
+    pointer-events: none;
   }
 
   .clase-back {
@@ -286,6 +305,9 @@ const siguiente = SESIONES[index + 1] ?? null;
   async function iniciarClase(plan: string | null, segundosPrevios: number, yaCompletada: boolean) {
     const wrap = document.getElementById("clase-video-wrap");
     const estadoEl = document.getElementById("clase-progreso");
+    const divPlayer = document.getElementById("clase-player");
+    const siguienteEl = document.getElementById("clase-siguiente");
+    const videoId = divPlayer?.getAttribute("data-video-id") ?? "";
     if (wrap) wrap.hidden = false;
 
     const pintarEstado = (completada: boolean) => {
@@ -296,7 +318,17 @@ const siguiente = SESIONES[index + 1] ?? null;
         ? "✓ Sesión completada"
         : "▶ Tu avance se guarda solo — no se puede adelantar el video";
     };
+
+    // El enlace al siguiente video se desbloquea SOLO al completar la sesión.
+    const desbloquearSiguiente = () => {
+      if (!siguienteEl) return;
+      siguienteEl.setAttribute("aria-disabled", "false");
+      const label = siguienteEl.getAttribute("data-unlocked-label");
+      if (label) siguienteEl.textContent = label;
+    };
+
     pintarEstado(yaCompletada);
+    if (yaCompletada) desbloquearSiguiente();
 
     const YT = await cargarYouTubeAPI();
 
@@ -304,6 +336,7 @@ const siguiente = SESIONES[index + 1] ?? null;
     let completada = yaCompletada;
     let ultimoReporte = maxVisto;
     let ultimoEnvio = 0;
+    let listo = false;
 
     const enviar = (marcarCompletada: boolean) => {
       if (!marcarCompletada && Math.floor(maxVisto) <= Math.floor(ultimoReporte)) return;
@@ -320,10 +353,11 @@ const siguiente = SESIONES[index + 1] ?? null;
       });
     };
 
-    const completar = (player: any) => {
+    const completar = () => {
       if (completada) return;
       completada = true;
       pintarEstado(true);
+      desbloquearSiguiente();
       enviar(true);
       capture("curso_sesion_completada", {
         curso: CURSO.slug,
@@ -333,36 +367,64 @@ const siguiente = SESIONES[index + 1] ?? null;
       });
     };
 
+    // Corrige un salto hacia adelante devolviendo el player a lo ya visto.
+    // Se llama desde el poll Y desde onStateChange (cubre el seek en pausa).
+    const frenarSalto = () => {
+      if (completada || !listo) return false;
+      const t = player.getCurrentTime?.() ?? 0;
+      if (t > maxVisto + 2) {
+        player.seekTo(maxVisto, true);
+        return true;
+      }
+      return false;
+    };
+
+    // El player lo CREA la API sobre el div, con origin correcto: solo así
+    // YouTube acepta el comando seekTo (con un iframe ajeno lo ignora, que era
+    // la causa de que el bloqueo de adelantar no funcionara).
     const player = new YT.Player("clase-player", {
+      videoId,
+      host: "https://www.youtube.com",
+      playerVars: {
+        rel: 0,
+        modestbranding: 1,
+        playsinline: 1,
+        disablekb: 1,
+        origin: window.location.origin,
+      },
       events: {
+        onReady: () => {
+          listo = true;
+          // Reanudar donde se quedó (permitido: nunca pasa de lo ya visto).
+          if (maxVisto > 5) player.seekTo(maxVisto, true);
+        },
         onStateChange: (e: any) => {
-          // 0 = ended, 2 = paused
+          // 1 = playing, 2 = paused, 0 = ended
+          if (e.data === 1) {
+            // Al reanudar tras arrastrar la barra (incluso en pausa): frenar.
+            frenarSalto();
+          }
           if (e.data === 0) {
             maxVisto = Math.max(maxVisto, Math.floor(player.getDuration() || maxVisto));
-            completar(player);
+            completar();
           }
           if (e.data === 2) enviar(false);
         },
       },
     });
 
-    // Poll de 1 s: acumula lo visto, frena los saltos hacia adelante y
-    // reporta cada 15 s.
+    // Poll de 1 s: frena saltos hacia adelante, acumula lo visto y reporta
+    // cada 15 s. Corre siempre que el player esté listo (no solo reproduciendo)
+    // para atrapar también el arrastre de la barra en pausa.
     setInterval(() => {
-      if (typeof player.getPlayerState !== "function") return;
-      if (player.getPlayerState() !== 1) return; // solo mientras reproduce
+      if (!listo || typeof player.getCurrentTime !== "function") return;
+      if (frenarSalto()) return;
 
       const t = player.getCurrentTime() || 0;
       const duracion = player.getDuration() || 0;
-
-      if (!completada && t > maxVisto + 2.5) {
-        // Salto hacia adelante: de vuelta a donde iba.
-        player.seekTo(maxVisto, true);
-        return;
-      }
       if (t > maxVisto) maxVisto = t;
 
-      if (!completada && duracion > 0 && maxVisto >= duracion * 0.9) completar(player);
+      if (!completada && duracion > 0 && maxVisto >= duracion * 0.9) completar();
 
       const ahora = Date.now();
       if (ahora - ultimoEnvio >= 15_000) {
