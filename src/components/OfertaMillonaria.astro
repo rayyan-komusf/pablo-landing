@@ -2470,11 +2470,14 @@ const faqs = [
 <script is:inline define:vars={{ nocheInicio: PROMO_MILLONARIA.nocheInicioISO, nocheFin: PROMO_MILLONARIA.nocheFinISO }}>
   // El bonus 1-a-1 con Rodrigo solo existe la NOCHE del webinar (8:40-11:59
   // del 23). Dentro de esa ventana se revelan los [data-noche]; fuera, quedan
-  // ocultos — así la misma página sirve para /webinar después de medianoche
-  // (sin 1-1) y para /webinardespues (preview evergreen).
+  // ocultos — así la misma página queda SIN 1-1 después de medianoche.
+  // Preview: agregar ?noche=1 a la URL fuerza a mostrarlo para revisarlo antes
+  // de las 8:40 (solo para el equipo).
   (function () {
     var ahora = Date.now();
-    if (ahora < Date.parse(nocheInicio) || ahora >= Date.parse(nocheFin)) return;
+    var forzar = new URLSearchParams(location.search).get('noche') === '1';
+    var enVentana = ahora >= Date.parse(nocheInicio) && ahora < Date.parse(nocheFin);
+    if (!forzar && !enVentana) return;
     document.querySelectorAll('[data-noche]').forEach(function (el) {
       el.hidden = false;
     });
