@@ -31,7 +31,7 @@ const stack = [
     tag: "Lo principal",
     titulo: "Plan Anual de Pablo",
     valorReal: "S/.240",
-    incluido: "Hoy S/.200 · te regalamos 2 meses",
+    incluido: "Hoy solo S/.200",
     cta: "Desbloquea a Pablo ahora",
     img: "/onboarding/images/pablo/pablo-wave.png",
     alt: "Pablo, tu asistente financiero",
@@ -53,7 +53,7 @@ const stack = [
     tag: "Bono 1",
     titulo: "Reto “Empieza tu Camino al Millón en 30 días”",
     valorReal: "S/.97",
-    incluido: "100% de reembolso si lo completas",
+    incluido: "100% de reembolso",
     cta: "Haz clic para empezar tu camino",
     img: "/onboarding/images/pablo/emotions/pablo-emocionado.png",
     alt: "Pablo emocionado con el reto",
@@ -69,7 +69,7 @@ const stack = [
     tag: "Bono 2",
     titulo: "Curso “Finanzas de un Futuro Millonario”",
     valorReal: "S/.300",
-    incluido: "Incluido con tu plan por tiempo limitado",
+    incluido: "Gratis con tu plan",
     cta: "Haz clic para empezar el curso",
     img: "/onboarding/images/pablo/pablo-pensando.png",
     alt: "Pablo tomando apuntes del curso",
@@ -85,9 +85,9 @@ const stack = [
     tag: "Bono 3",
     titulo: "Pase Mensual a La Komunidad de Futuros Millonarios",
     valorReal: "S/.80",
-    incluido: "Incluido con tu plan por tiempo limitado",
+    incluido: "Gratis con tu plan",
     cta: "Haz clic para ingresar a la comunidad",
-    img: "/onboarding/images/pablo/pablo-neutral.png",
+    img: "/onboarding/images/pablo/emotions/pablo-neutral.png",
     alt: "Pablo saludando a la comunidad",
     desc: "Un mes de clases EN VIVO con Rodrigo y la comunidad de futuros millonarios.",
     bullets: [],
@@ -96,7 +96,7 @@ const stack = [
     tag: "Bono 4",
     titulo: "Toolkit Komunitario",
     valorReal: "S/.50",
-    incluido: "Incluido con tu plan por tiempo limitado",
+    incluido: "Gratis con tu plan",
     cta: "Haz clic para llevarte el toolkit",
     img: "/onboarding/images/pablo/pablo-point.png",
     alt: "Pablo señalando los recursos",
@@ -107,7 +107,7 @@ const stack = [
     tag: "Bono 5",
     titulo: "Garantía de satisfacción de 14 días",
     valorReal: "",
-    incluido: "Incluida, sin costo",
+    incluido: "Incluida",
     cta: "Empieza sin riesgo hoy",
     img: "/onboarding/images/pablo/emotions/pablo-tierno.png",
     alt: "Pablo tranquilo",
@@ -2021,13 +2021,14 @@ const faqs = [
   .om-bono--flip .om-bono__tachado,
   .om-bono--noche .om-bono__tachado { color: rgba(255, 255, 255, 0.5); }
   .om-bono__incluido {
-    background: #fef3da;
-    color: #875a00;
-    border: 1px solid #f5c970;
+    background: #e7f7ea;
+    color: #2a7a52;
+    border: 1px solid #bfe6c9;
     font-weight: 700;
     font-size: 13px;
-    padding: 4px 12px;
+    padding: 5px 14px;
     border-radius: var(--radius-pill);
+    white-space: nowrap;
   }
   .om-bono__desc {
     font-size: clamp(15px, 2vw, 18px);
@@ -2101,22 +2102,25 @@ const faqs = [
   }
   .om-carta__quote {
     position: absolute;
-    top: 28px;
-    right: 36px;
+    top: 20px;
+    right: 28px;
     font-family: var(--font-heading);
-    font-size: 120px;
+    font-size: 88px;
     line-height: 0.6;
-    color: #F0EDE2;
+    color: #F1EEE4;
     pointer-events: none;
+    z-index: 0;
   }
   .om-carta__titulo {
+    position: relative;
+    z-index: 1;
     font-family: var(--font-heading);
     font-weight: 700;
-    font-size: clamp(28px, 4.5vw, 42px);
+    font-size: clamp(26px, 4vw, 40px);
     color: var(--color-heading);
-    line-height: 1.1;
+    line-height: 1.12;
     margin-bottom: 22px;
-    max-width: 80%;
+    max-width: 82%;
   }
   .om-carta__p {
     font-size: 16px;
@@ -2135,6 +2139,21 @@ const faqs = [
     font-size: 14px;
     font-weight: 700;
     color: var(--color-heading);
+  }
+
+  /* ── Transiciones de color SUAVES entre secciones: cada sección sube un poco
+     y se redondea arriba, así el corte no es una línea recta sino un borde
+     redondeado sobre la sección anterior. ── */
+  .om-social,
+  .om-bono,
+  .om-resumen,
+  .om-testimonios,
+  .om-carta-sec,
+  .om-final {
+    position: relative;
+    border-top-left-radius: 44px;
+    border-top-right-radius: 44px;
+    margin-top: -40px;
   }
 
   @media (max-width: 820px) {
@@ -2163,6 +2182,18 @@ const faqs = [
     .om-hero__resumen-list li,
     .om-bono__bullets li { text-align: left; }
     .om-carta__titulo { max-width: 100%; }
+    .om-carta__quote { font-size: 60px; top: 10px; right: 16px; }
+    /* En móvil las secciones suben menos para no comerse contenido */
+    .om-social,
+    .om-bono,
+    .om-resumen,
+    .om-testimonios,
+    .om-carta-sec,
+    .om-final {
+      border-top-left-radius: 32px;
+      border-top-right-radius: 32px;
+      margin-top: -28px;
+    }
   }
 </style>
 
