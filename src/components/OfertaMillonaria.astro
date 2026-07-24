@@ -1877,73 +1877,63 @@ const faqs = [
   .om { background: #16173a; }
 
   /* ── HERO oscuro, 2 columnas (teléfono + contenido) ── */
-  .om-hero {
-    background: radial-gradient(120% 120% at 50% 0%, #2b2c64 0%, #16173a 72%);
-    padding: 72px 0 88px;
-  }
+  /* ── HERO claro (nada de azul aquí), 2 columnas ── */
+  .om-hero { padding: 56px 0 64px; }
   .om-hero__inner {
     display: grid;
-    grid-template-columns: minmax(260px, 0.9fr) 1.1fr;
-    gap: 64px;
+    grid-template-columns: minmax(260px, 0.85fr) 1.1fr;
+    gap: 56px;
     align-items: center;
     text-align: left;
-    max-width: 1080px;
+    max-width: 1060px;
   }
   .om-hero__phone { display: flex; justify-content: center; }
   .om-hero__content {
     display: flex;
     flex-direction: column;
     align-items: flex-start;
-    gap: 22px;
+    gap: 20px;
     max-width: 560px;
   }
   .om-hero__title {
-    color: #fff;
     text-align: left;
-    font-size: clamp(28px, 3vw, 40px);
+    font-size: clamp(28px, 3vw, 42px);
     line-height: 1.14;
   }
-  .om-hero__sub { color: rgba(255, 255, 255, 0.82); }
-  .om-hero__trust { color: rgba(255, 255, 255, 0.6); }
-  .om-badge {
-    background: rgba(255, 255, 255, 0.10);
-    border-color: rgba(255, 255, 255, 0.22);
-    color: #fff;
-    box-shadow: none;
-  }
 
-  /* Cajita resumen del hero */
+  /* Cajita resumen del hero (clara) */
   .om-hero__resumen {
     width: 100%;
-    background: rgba(255, 255, 255, 0.06);
-    border: 1px solid rgba(255, 255, 255, 0.14);
+    background: #fff;
+    border: 1.5px solid #e6e3f2;
     border-radius: var(--radius-md);
-    padding: 16px 18px;
+    padding: 18px 20px;
+    box-shadow: var(--card-shadow);
   }
   .om-hero__resumen-title {
     font-family: var(--font-heading);
     font-weight: 700;
-    color: #fff;
+    color: var(--color-heading);
     font-size: 14px;
     margin-bottom: 10px;
   }
-  .om-hero__resumen-list { display: flex; flex-direction: column; gap: 7px; }
+  .om-hero__resumen-list { display: flex; flex-direction: column; gap: 8px; }
   .om-hero__resumen-list li {
     position: relative;
     padding-left: 24px;
-    font-size: 13.5px;
-    color: rgba(255, 255, 255, 0.85);
+    font-size: 14px;
+    color: var(--color-body);
     line-height: 1.4;
   }
   .om-hero__resumen-list li::before {
     content: "✓";
     position: absolute;
     left: 0;
-    color: var(--color-amber);
+    color: var(--color-green);
     font-weight: 800;
   }
-  .om-hero__resumen-list li[data-noche] { color: #ffd98a; }
-  .om-hero__resumen-list li[data-noche]::before { content: ""; }
+  .om-hero__resumen-list li[data-noche] { color: #875a00; font-weight: 600; }
+  .om-hero__resumen-list li[data-noche]::before { content: "🔥"; }
 
   /* ── Banda social ── */
   .om-social { background: #20214a; }
@@ -2141,6 +2131,7 @@ const faqs = [
     .om-bono__inner {
       grid-template-columns: 1fr;
       text-align: center;
+      gap: 32px;
     }
     .om-hero__content,
     .om-bono__body {
@@ -2148,6 +2139,13 @@ const faqs = [
       text-align: center;
       max-width: 100%;
     }
+    /* Móvil: la OFERTA primero (contenido), el teléfono debajo y más chico —
+       así la oferta se ve sin tener que scrollear. */
+    .om-hero__content { order: 1; }
+    .om-hero__phone { order: 2; }
+    .om-hero__phone .hphone { --w: 280px; }
+    .om-hero { padding: 32px 0 48px; }
+    .om-bono { min-height: 0; padding: 56px 0; }
     .om-bono--flip .om-bono__media { order: 0; }
     .om-hero__content .om-cta,
     .om-bono__cta { align-self: center; }
