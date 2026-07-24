@@ -6,6 +6,7 @@
 import { Image } from 'astro:assets';
 import logoImg from '../assets/Logo.png';
 import { PROMO_MILLONARIA } from '../siteConfig';
+import TestimonialsCarousel from './sections/TestimonialsCarousel.astro';
 
 // ============================================================
 //  OFERTA MILLONARIA — landing de ventas (framework $100M Offers)
@@ -36,6 +37,11 @@ const stack = [
       "Metas de ahorro para que tu plata tenga destino.",
       "Panel web para ver todo de un vistazo.",
     ],
+    proof: {
+      quote: "Antes agarraba papel y lapicero; ahora le tomo la foto por WhatsApp y me da el reporte al instante.",
+      nombre: "Daniel",
+      detalle: "25 años · ingeniero civil",
+    },
   },
   {
     tag: "Bono 1",
@@ -63,6 +69,11 @@ const stack = [
     alt: "Pablo tomando apuntes del curso",
     desc: "Para entender tu plata sin palabreo de banco ni fórmulas raras.",
     bullets: [],
+    proof: {
+      quote: "Lo que más me gusta es la visibilidad de todo — por fin entiendo a dónde se va mi plata.",
+      nombre: "Mirella",
+      detalle: "trabaja en aduanas",
+    },
   },
   {
     tag: "Bono 4",
@@ -252,6 +263,18 @@ const faqs = [
       </div>
     </section>
 
+    <!-- ════════════════ PRUEBA SOCIAL (banda navy) ════════════════ -->
+    <section class="om-social">
+      <div class="container om-social__inner">
+        <p class="om-social__lead">Gente real que ya ordena su plata con Pablo</p>
+        <div class="om-social__chips">
+          <span class="om-social__chip"><span class="om-social__stars">★★★★★</span> “Pablo me cambia la vida, la verdad.” · Adrián, 19</span>
+          <span class="om-social__chip"><span class="om-social__stars">★★★★★</span> “Pasé de 2 horas a 30 min por semana.” · Daniel, 25</span>
+          <span class="om-social__chip"><span class="om-social__stars">★★★★★</span> “Por fin veo a dónde se va mi plata.” · Mirella</span>
+        </div>
+      </div>
+    </section>
+
     <!-- ════════════════ 2. EL PACTO (el reto, arriba) ════════════════ -->
     <section class="om-reto" id="pacto">
       <div class="container om-reto__inner">
@@ -341,8 +364,8 @@ const faqs = [
               </p>
             </div>
           </article>
-          {stack.map((item) => (
-            <article class="om-item">
+          {stack.map((item, i) => (
+            <article class={`om-item${i % 2 === 1 ? ' om-item--dark' : ''}`}>
               <div class="om-item__media">
                 <img
                   src={item.img}
@@ -367,6 +390,13 @@ const faqs = [
                       </li>
                     ))}
                   </ul>
+                )}
+                {item.proof && (
+                  <div class="om-item__proof">
+                    <span class="om-item__proof-label">✔ Ya le funciona a gente real</span>
+                    <p class="om-item__proof-quote">“{item.proof.quote}”</p>
+                    <span class="om-item__proof-autor">— {item.proof.nombre}, {item.proof.detalle}</span>
+                  </div>
                 )}
               </div>
             </article>
@@ -469,30 +499,17 @@ const faqs = [
       </div>
     </section>
 
-    <!-- ════════════════ 5. TESTIMONIOS ════════════════ -->
+    <!-- ════════════════ 5. TESTIMONIOS (carrusel de la landing) ════════════════ -->
     <section class="om-testimonios">
       <div class="container om-testimonios__inner">
         <div class="om-sec-header">
           <h2 class="om-sec-title">
-            Gente real que ya <span class="highlight">ve su plata</span>
+            Gente real, <span class="highlight">resultados reales</span>
           </h2>
-          <p class="om-sec-sub">Palabras textuales de usuarios de Pablo.</p>
-        </div>
-
-        <div class="om-test__grid">
-          {testimonios.map((t) => (
-            <figure class="om-test-card">
-              <svg class="om-test-card__quote" width="30" height="30" viewBox="0 0 24 24" fill="#D4D0F0" aria-hidden="true"><path d="M3 21c3 0 7-1 7-8V5c0-1.25-.756-2.017-2-2H4c-1.25 0-2 .75-2 1.972V11c0 1.25.75 2 2 2 1 0 1 0 1 1v1c0 1-1 2-2 2s-1 .008-1 1.031V20c0 1 0 1 1 1z" /><path d="M15 21c3 0 7-1 7-8V5c0-1.25-.757-2.017-2-2h-4c-1.25 0-2 .75-2 1.972V11c0 1.25.75 2 2 2h.75c0 2.25.25 4-2.75 4v3c0 1 0 1 1 1z" /></svg>
-              <blockquote class="om-test-card__text">"{t.quote}"</blockquote>
-              {t.contexto && <p class="om-test-card__ctx">{t.contexto}</p>}
-              <figcaption class="om-test-card__author">
-                <span class="om-test-card__name">{t.nombre}</span>
-                <span class="om-test-card__detail">{t.detalle}</span>
-              </figcaption>
-            </figure>
-          ))}
+          <p class="om-sec-sub">Esto dicen los que ya ordenan su plata con Pablo.</p>
         </div>
       </div>
+      <TestimonialsCarousel />
     </section>
 
     <!-- ════════════════ 6. GARANTÍA DOBLE ════════════════ -->
@@ -1142,6 +1159,123 @@ const faqs = [
   .om-check {
     flex-shrink: 0;
     margin-top: 2px;
+  }
+
+  /* ════════════════ PRUEBA SOCIAL (banda navy) ════════════════ */
+  .om-social {
+    background: #2B2C64;
+    padding: 40px 0;
+  }
+
+  .om-social__inner {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 18px;
+    text-align: center;
+  }
+
+  .om-social__lead {
+    font-family: var(--font-heading);
+    font-weight: 700;
+    font-size: clamp(18px, 3.5vw, 24px);
+    color: #fff;
+  }
+
+  .om-social__chips {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 10px;
+  }
+
+  .om-social__chip {
+    background: rgba(255, 255, 255, 0.10);
+    border: 1px solid rgba(255, 255, 255, 0.18);
+    border-radius: var(--radius-pill);
+    padding: 8px 16px;
+    font-size: 13px;
+    color: #fff;
+    line-height: 1.4;
+  }
+
+  .om-social__stars {
+    color: var(--color-amber);
+    margin-right: 6px;
+    letter-spacing: 1px;
+  }
+
+  /* ════════════════ MÓDULOS-PILAR: alternan lado e claro/navy ════════════════ */
+  .om-item--dark {
+    background: #2B2C64;
+    border-color: #2B2C64;
+    flex-direction: row-reverse;
+  }
+
+  .om-item--dark .om-item__title { color: #fff; }
+
+  .om-item--dark .om-item__desc,
+  .om-item--dark .om-item__bullets li {
+    color: rgba(255, 255, 255, 0.82);
+  }
+
+  .om-item--dark .om-item__tag {
+    background: rgba(255, 255, 255, 0.14);
+    color: #fff;
+  }
+
+  .om-item--dark .om-item__media {
+    background: rgba(255, 255, 255, 0.06);
+    border-color: rgba(255, 255, 255, 0.14);
+  }
+
+  .om-item--dark .om-check { stroke: #7BE495; }
+
+  /* Bloque de prueba dentro de un módulo ("Proof This Works") */
+  .om-item__proof {
+    margin-top: 8px;
+    padding: 14px 16px;
+    border-left: 3px solid var(--color-amber);
+    background: #faf7ff;
+    border-radius: 0 12px 12px 0;
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+  }
+
+  .om-item__proof-label {
+    font-size: 11px;
+    font-weight: 700;
+    color: var(--color-green);
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+  }
+
+  .om-item__proof-quote {
+    font-size: 14px;
+    font-style: italic;
+    line-height: 1.5;
+    color: var(--color-heading);
+  }
+
+  .om-item__proof-autor {
+    font-size: 12px;
+    color: var(--color-secondary);
+  }
+
+  .om-item--dark .om-item__proof {
+    background: rgba(255, 255, 255, 0.07);
+  }
+
+  .om-item--dark .om-item__proof-quote { color: #fff; }
+  .om-item--dark .om-item__proof-autor { color: rgba(255, 255, 255, 0.6); }
+
+  /* Módulos un poco más anchos para que respiren */
+  .om-stack__list { max-width: 860px; }
+
+  @media (max-width: 700px) {
+    .om-item,
+    .om-item--dark { flex-direction: column; }
   }
 
   /* Recap */
