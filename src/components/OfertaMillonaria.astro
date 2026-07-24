@@ -680,6 +680,31 @@ const faqs = [
         </p>
       </div>
     </section>
+
+    <!-- ════════════════ Downsell: plan mensual (secundario) ════════════════ -->
+    <section class="om-downsell">
+      <div class="container om-downsell__inner">
+        <p class="om-downsell__lead">¿Todavía no te animas al año completo?</p>
+        <div class="om-downsell__card">
+          <div class="om-downsell__texto">
+            <h3 class="om-downsell__titulo">Prueba Pablo gratis 14 días — Plan Mensual</h3>
+            <p class="om-downsell__precio">S/.20 al mes · empiezas sin pagar hoy</p>
+            <p class="om-downsell__nota">
+              Incluye acceso al reto. <strong>No</strong> incluye los bonos
+              (curso S/.300, comunidad S/.80, toolkit S/.50) ni el reembolso del
+              100%. Y al año te sale S/.240, no S/.200.
+            </p>
+          </div>
+          <a
+            href="https://usapablo.app/pricing?plan=mensual"
+            class="om-downsell__btn"
+            onclick="try{window.posthog?.capture('millonaria_downsell_mensual')}catch(e){}"
+          >
+            Probar gratis 14 días
+          </a>
+        </div>
+      </div>
+    </section>
   </main>
 
   <!-- ════════════════ Crear cuenta + pagar (como el onboarding) ════════════════ -->
@@ -2416,6 +2441,71 @@ const faqs = [
   #om-cuenta-enviar { margin-top: 4px; }
   .om-cuenta-legal { font-size: 0.75rem; color: var(--color-secondary); margin-top: 14px; }
   .om-cuenta-legal a { color: var(--color-heading); font-weight: 700; text-decoration: underline; }
+
+  /* ── Downsell mensual (secundario, no compite con el anual) ── */
+  .om-downsell { background: var(--bg-page); padding: 44px 0 72px; }
+  .om-downsell__inner {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 14px;
+  }
+  .om-downsell__lead {
+    font-size: 15px;
+    font-weight: 600;
+    color: var(--color-secondary);
+    text-align: center;
+  }
+  .om-downsell__card {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 24px;
+    width: 100%;
+    max-width: 720px;
+    background: #fff;
+    border: 1.5px solid #e6e3f2;
+    border-radius: var(--radius-lg);
+    padding: 22px 26px;
+    box-shadow: var(--card-shadow);
+  }
+  .om-downsell__texto { display: flex; flex-direction: column; gap: 4px; }
+  .om-downsell__titulo {
+    font-family: var(--font-heading);
+    font-weight: 700;
+    font-size: 17px;
+    color: var(--color-heading);
+  }
+  .om-downsell__precio { font-size: 14px; font-weight: 600; color: var(--color-heading); }
+  .om-downsell__nota { font-size: 13px; color: var(--color-secondary); line-height: 1.5; }
+  .om-downsell__nota strong { color: var(--color-body); }
+  .om-downsell__btn {
+    flex-shrink: 0;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding: 12px 22px;
+    border-radius: var(--radius-pill);
+    border: 2px solid var(--color-heading);
+    color: var(--color-heading);
+    font-weight: 700;
+    font-size: 14px;
+    background: transparent;
+    transition: background 0.15s, color 0.15s;
+    white-space: nowrap;
+  }
+  .om-downsell__btn:hover { background: var(--color-heading); color: #fff; }
+
+  @media (max-width: 640px) {
+    .om-downsell__card {
+      flex-direction: column;
+      align-items: stretch;
+      text-align: center;
+      padding: 22px 20px;
+    }
+    .om-downsell__texto { align-items: center; }
+    .om-downsell__btn { width: 100%; }
+  }
 </style>
 
 <script>
