@@ -8,6 +8,7 @@ import logoImg from '../assets/Logo.png';
 import { PROMO_MILLONARIA } from '../siteConfig';
 import TestimonialsCarousel from './sections/TestimonialsCarousel.astro';
 import HeroPhone from './sections/HeroPhone.astro';
+import CuentaModal from './CuentaModal.astro';
 
 // ============================================================
 //  OFERTA MILLONARIA — landing de ventas (framework $100M Offers)
@@ -707,166 +708,17 @@ const faqs = [
     </section>
   </main>
 
-  <!-- ════════════════ Crear cuenta + pagar (como el onboarding) ════════════════ -->
-  <div id="om-cuenta-modal" class="om-cuenta-overlay" aria-hidden="true" role="dialog" aria-modal="true" aria-label="Crea tu cuenta">
-    <div class="om-cuenta-card">
-      <button class="om-cuenta-close" id="om-cuenta-close" aria-label="Cerrar">✕</button>
-      <img class="om-cuenta-mascota" src="/onboarding/images/pablo/pablo-wave.png" alt="" width="88" height="88" loading="lazy" />
-      <h3 class="om-cuenta-titulo">Crea tu cuenta y activa la oferta</h3>
-      <p class="om-cuenta-sub">
-        En 1 minuto creas tu cuenta y pasas directo a pagar tu Plan Anual
-        (S/.200) de forma segura con Stripe.
-      </p>
-      <form id="om-cuenta-formulario" novalidate>
-        <input id="om-cuenta-nombre" class="om-cuenta-input" type="text" placeholder="Tu nombre" autocomplete="name" maxlength="80" required />
-        <input id="om-cuenta-correo" class="om-cuenta-input" type="email" placeholder="Tu correo" autocomplete="email" maxlength="120" required />
-        <input id="om-cuenta-password" class="om-cuenta-input" type="password" placeholder="Crea una contraseña (mín. 6)" autocomplete="new-password" maxlength="72" required />
-        <p class="om-cuenta-error" id="om-cuenta-error" hidden></p>
-        <button class="om-cta om-cta--full" id="om-cuenta-enviar" type="submit">Crear cuenta y pagar S/.200</button>
-      </form>
-      <p class="om-cuenta-legal">
-        Pago seguro con Stripe. ¿Ya tienes cuenta?
-        <a href="https://usapablo.app/pricing?plan=anual">Inicia sesión</a>.
-      </p>
-    </div>
-  </div>
+  <!-- Modal reutilizable: crear cuenta → pagar → app logueada -->
+  <CuentaModal />
 
   <script is:inline>
-    (function () {
-      var SUPA = "https://mezpfnagkubumzbromsh.supabase.co";
-      var ANON = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im1lenBmbmFna3VidW16YnJvbXNoIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjM0NDM3NDMsImV4cCI6MjA3OTAxOTc0M30.HsTSJqkzslq4HWxLlIvuFwudrFzkemHELgsi54vIJDw";
-      var overlay = document.getElementById("om-cuenta-modal");
-      var form = document.getElementById("om-cuenta-formulario");
-      var btn = document.getElementById("om-cuenta-enviar");
-      var errorEl = document.getElementById("om-cuenta-error");
-      var tituloEl = document.querySelector(".om-cuenta-titulo");
-      var subEl = document.querySelector(".om-cuenta-sub");
-      // El modal sirve para ambos planes: los CTA del anual lo abren en modo
-      // "anual" (cobro directo S/.200); el downsell lo abre en "mensual"
-      // (prueba gratis de 14 días).
-      var PLANES = {
-        anual: {
-          nombre: "Plan Anual",
-          slug: "anual",
-          titulo: "Crea tu cuenta y activa la oferta",
-          sub: "En 1 minuto creas tu cuenta y pasas directo a pagar tu Plan Anual (S/.200) de forma segura con Stripe.",
-          label: "Crear cuenta y pagar S/.200",
-        },
-        mensual: {
-          nombre: "Plan Mensual",
-          slug: "mensual",
-          titulo: "Crea tu cuenta y empieza gratis",
-          sub: "En 1 minuto creas tu cuenta y empiezas tu prueba gratis de 14 días del Plan Mensual (S/.20/mes). No pagas nada hoy.",
-          label: "Crear cuenta y empezar prueba gratis",
-        },
-      };
-      var planActual = "anual";
-
-      function abrir(plan) {
-        planActual = plan === "mensual" ? "mensual" : "anual";
-        var cfg = PLANES[planActual];
-        if (tituloEl) tituloEl.textContent = cfg.titulo;
-        if (subEl) subEl.textContent = cfg.sub;
-        btn.textContent = cfg.label;
-        overlay.classList.add("is-open");
-        overlay.setAttribute("aria-hidden", "false");
-        document.body.style.overflow = "hidden";
-        setTimeout(function () { document.getElementById("om-cuenta-nombre").focus(); }, 60);
-        try { window.posthog && window.posthog.capture("millonaria_cuenta_abierta", { plan: planActual }); } catch (e) {}
-      }
-      function cerrar() {
-        overlay.classList.remove("is-open");
-        overlay.setAttribute("aria-hidden", "true");
-        document.body.style.overflow = "";
-      }
-      window.abrirCuentaMillonaria = abrir;
-
-      document.getElementById("om-cuenta-close").addEventListener("click", cerrar);
-      overlay.addEventListener("click", function (e) { if (e.target === overlay) cerrar(); });
-      document.addEventListener("keydown", function (e) { if (e.key === "Escape") cerrar(); });
-
-      // Los CTA del anual abren el modal en modo anual (href = respaldo sin-JS).
-      document.querySelectorAll("a.om-cta").forEach(function (a) {
-        a.addEventListener("click", function (e) { e.preventDefault(); abrir("anual"); });
-      });
-
-      function phDid(url) {
-        try {
-          var did = window.posthog && window.posthog.get_distinct_id && window.posthog.get_distinct_id();
-          if (!did) return url;
-          var u = new URL(url); u.searchParams.set("ph_did", did); return u.toString();
-        } catch (e) { return url; }
-      }
-      function mostrarError(msg) { errorEl.textContent = msg; errorEl.hidden = false; }
-      async function authFetch(path, body) {
-        var res = await fetch(SUPA + path, {
-          method: "POST",
-          headers: { "Content-Type": "application/json", apikey: ANON },
-          body: JSON.stringify(body),
-        });
-        var data = {}; try { data = await res.json(); } catch (e) {}
-        return { ok: res.ok, data: data };
-      }
-
-      form.addEventListener("submit", async function (e) {
+    // Los CTA del anual abren el modal en modo anual (href = respaldo sin-JS).
+    document.querySelectorAll("a.om-cta").forEach(function (a) {
+      a.addEventListener("click", function (e) {
         e.preventDefault();
-        errorEl.hidden = true;
-        var nombre = (document.getElementById("om-cuenta-nombre").value || "").trim();
-        var correo = (document.getElementById("om-cuenta-correo").value || "").trim();
-        var pass = document.getElementById("om-cuenta-password").value || "";
-        if (!nombre) return mostrarError("Escribe tu nombre.");
-        if (!/^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(correo)) return mostrarError("Ese correo no se ve bien, ¿lo revisas?");
-        if (pass.length < 6) return mostrarError("La contraseña necesita al menos 6 caracteres.");
-
-        btn.disabled = true; btn.textContent = "Creando tu cuenta…";
-        try {
-          var r = await authFetch("/auth/v1/signup", { email: correo, password: pass, data: { nombre: nombre, apellido: "" } });
-          var yaExiste = !r.ok && (r.data.error_code === "user_already_exists" ||
-            /already|registrad/i.test(r.data.msg || r.data.message || r.data.error_description || ""));
-          if (yaExiste) {
-            r = await authFetch("/auth/v1/token?grant_type=password", { email: correo, password: pass });
-            if (!r.ok) {
-              mostrarError("Ese correo ya tiene una cuenta y la contraseña no coincide. Usa “Inicia sesión”.");
-              btn.disabled = false; btn.textContent = PLANES[planActual].label; return;
-            }
-          } else if (!r.ok) {
-            mostrarError(r.data.msg || r.data.message || r.data.error_description || "No pudimos crear tu cuenta, intenta de nuevo.");
-            btn.disabled = false; btn.textContent = PLANES[planActual].label; return;
-          }
-          try { window.posthog && window.posthog.capture("millonaria_cuenta_creada", { ya_existia: !!yaExiste, plan: planActual }); } catch (e) {}
-          if (window.fbq) fbq("trackCustom", "CuentaCreada", { plan: planActual, promo: "fiestas-patrias" });
-
-          var token = r.data.access_token;
-          if (!token) {
-            // Confirmación por correo activada: al checkout del plan en la app.
-            window.location.href = phDid("https://usapablo.app/pricing?plan=" + PLANES[planActual].slug + "&continuar=1");
-            return;
-          }
-          btn.textContent = "¡Listo! Un momento…";
-          // Checkout de Stripe del plan elegido (anual = cobro directo;
-          // mensual = prueba gratis de 14 días — el trial lo define la pasarela).
-          var cres = await fetch(SUPA + "/functions/v1/stripe-suscripcion", {
-            method: "POST",
-            headers: { "Content-Type": "application/json", apikey: ANON, Authorization: "Bearer " + token },
-            body: JSON.stringify({
-              accion: "checkout",
-              plan: PLANES[planActual].nombre,
-              success_url: "https://usapablo.app/?pago=exito",
-              cancel_url: "https://www.usapablo.com/fiestas-patrias?pago=cancelado",
-            }),
-          });
-          var cdata = {}; try { cdata = await cres.json(); } catch (e) {}
-          if (cres.ok && cdata.url) { window.location.href = cdata.url; return; }
-          // Respaldo: puente de sesión a la app (ya logueado) para pagar allá.
-          var refresh = r.data.refresh_token || "";
-          window.location.href = phDid("https://usapablo.app/auth/sesion?plan=" + PLANES[planActual].slug) +
-            "#access_token=" + encodeURIComponent(token) + "&refresh_token=" + encodeURIComponent(refresh);
-        } catch (err) {
-          mostrarError("No pudimos conectar con el servidor. Revisa tu internet e intenta de nuevo.");
-          btn.disabled = false; btn.textContent = PLANES[planActual].label;
-        }
+        if (window.abrirCuentaPablo) window.abrirCuentaPablo("anual");
       });
-    })();
+    });
   </script>
 
 <style>
@@ -2383,91 +2235,6 @@ const faqs = [
     }
   }
 
-  /* ── Modal: crear cuenta y pagar ── */
-  .om-cuenta-overlay {
-    position: fixed;
-    inset: 0;
-    z-index: 1000;
-    background: rgba(22, 23, 58, 0.6);
-    backdrop-filter: blur(6px);
-    -webkit-backdrop-filter: blur(6px);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    padding: 20px;
-    opacity: 0;
-    pointer-events: none;
-    transition: opacity 0.25s ease;
-  }
-  .om-cuenta-overlay.is-open { opacity: 1; pointer-events: all; }
-  .om-cuenta-card {
-    position: relative;
-    background: #fff;
-    border-radius: 24px;
-    width: 100%;
-    max-width: 420px;
-    padding: 32px 28px 26px;
-    box-shadow: 0 24px 80px rgba(0, 0, 0, 0.4);
-    transform: translateY(14px) scale(0.98);
-    opacity: 0;
-    transition: transform 0.28s cubic-bezier(0.22, 1, 0.36, 1), opacity 0.25s ease;
-    text-align: center;
-  }
-  .om-cuenta-overlay.is-open .om-cuenta-card { transform: none; opacity: 1; }
-  .om-cuenta-close {
-    position: absolute;
-    top: 12px;
-    right: 12px;
-    width: 34px;
-    height: 34px;
-    border-radius: 50%;
-    background: #eee9f7;
-    border: none;
-    cursor: pointer;
-    color: var(--color-heading);
-    font-size: 15px;
-  }
-  .om-cuenta-mascota { display: block; margin: 0 auto 4px; }
-  .om-cuenta-titulo {
-    font-family: var(--font-heading);
-    font-weight: 700;
-    font-size: 1.45rem;
-    color: var(--color-heading);
-    margin-bottom: 6px;
-  }
-  .om-cuenta-sub {
-    font-size: 0.95rem;
-    color: var(--color-body);
-    line-height: 1.5;
-    margin-bottom: 18px;
-  }
-  #om-cuenta-formulario { display: flex; flex-direction: column; gap: 12px; }
-  .om-cuenta-input {
-    width: 100%;
-    font-family: var(--font-body);
-    font-size: 1rem;
-    color: var(--color-heading);
-    background: #fff;
-    border: 2px solid #e5e5e5;
-    border-radius: 14px;
-    padding: 13px 16px;
-    outline: none;
-    transition: border-color 0.15s, box-shadow 0.15s;
-  }
-  .om-cuenta-input:focus {
-    border-color: var(--color-amber);
-    box-shadow: 0 0 0 3px rgba(245, 166, 35, 0.18);
-  }
-  .om-cuenta-error {
-    color: #d64545;
-    font-size: 0.85rem;
-    font-weight: 600;
-    text-align: left;
-    margin: -2px 2px 0;
-  }
-  #om-cuenta-enviar { margin-top: 4px; }
-  .om-cuenta-legal { font-size: 0.75rem; color: var(--color-secondary); margin-top: 14px; }
-  .om-cuenta-legal a { color: var(--color-heading); font-weight: 700; text-decoration: underline; }
 
   /* ── Downsell mensual (secundario, no compite con el anual) ── */
   .om-downsell { background: var(--bg-page); padding: 44px 0 72px; }

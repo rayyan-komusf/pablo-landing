@@ -1,0 +1,289 @@
+---
+// Modal reutilizable de "crear cuenta y pagar". Crea la cuenta contra Supabase
+// Auth (anon key) y lleva DIRECTO al checkout de Stripe del plan elegido; al
+// pagar, /pago hace el puente de sesión a la app (usapablo.app) con la cuenta
+// ya logueada. El trial/precio de cada plan lo define la edge function
+// stripe-suscripcion. Se monta en el home (Pricing) y en la oferta.
+// Abrir con: window.abrirCuentaPablo('semanal'|'mensual'|'anual').
+---
+
+<div
+  id="cuenta-modal"
+  class="cuenta-overlay"
+  aria-hidden="true"
+  role="dialog"
+  aria-modal="true"
+  aria-label="Crea tu cuenta"
+>
+  <div class="cuenta-card">
+    <button class="cuenta-close" id="cuenta-close" aria-label="Cerrar">✕</button>
+    <img class="cuenta-mascota" src="/onboarding/images/pablo/pablo-wave.png" alt="" width="80" height="80" loading="lazy" />
+    <h3 class="cuenta-titulo" id="cuenta-titulo">Crea tu cuenta</h3>
+    <p class="cuenta-sub" id="cuenta-sub">Creas tu cuenta y continúas al pago de forma segura con Stripe.</p>
+    <form id="cuenta-form" novalidate>
+      <input id="cuenta-nombre" class="cuenta-input" type="text" placeholder="Tu nombre" autocomplete="name" maxlength="80" required />
+      <input id="cuenta-correo" class="cuenta-input" type="email" placeholder="Tu correo" autocomplete="email" maxlength="120" required />
+      <input id="cuenta-password" class="cuenta-input" type="password" placeholder="Crea una contraseña (mín. 6)" autocomplete="new-password" maxlength="72" required />
+      <p class="cuenta-error" id="cuenta-error" hidden></p>
+      <button class="cuenta-btn" id="cuenta-enviar" type="submit">Crear cuenta y continuar</button>
+    </form>
+    <p class="cuenta-legal">
+      Al crear tu cuenta aceptas los
+      <a href="/terminos" target="_blank" rel="noopener">Términos</a> y la
+      <a href="/privacidad" target="_blank" rel="noopener">Privacidad</a>.
+      Pago seguro con Stripe.
+    </p>
+    <p class="cuenta-legal">
+      ¿Ya tienes cuenta?
+      <a id="cuenta-login" href="https://usapablo.app/pricing?plan=anual">Inicia sesión</a>.
+    </p>
+  </div>
+</div>
+
+<script is:inline>
+  (function () {
+    var SUPA = "https://mezpfnagkubumzbromsh.supabase.co";
+    var ANON = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im1lenBmbmFna3VidW16YnJvbXNoIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjM0NDM3NDMsImV4cCI6MjA3OTAxOTc0M30.HsTSJqkzslq4HWxLlIvuFwudrFzkemHELgsi54vIJDw";
+
+    var overlay = document.getElementById("cuenta-modal");
+    if (!overlay) return;
+    var form = document.getElementById("cuenta-form");
+    var btn = document.getElementById("cuenta-enviar");
+    var errorEl = document.getElementById("cuenta-error");
+    var tituloEl = document.getElementById("cuenta-titulo");
+    var subEl = document.getElementById("cuenta-sub");
+    var loginEl = document.getElementById("cuenta-login");
+
+    var PLANES = {
+      semanal: {
+        nombre: "Plan Semanal", slug: "semanal",
+        titulo: "Crea tu cuenta y empieza",
+        sub: "Creas tu cuenta y continúas al pago del Plan Semanal (S/.7/semana) de forma segura con Stripe.",
+        label: "Crear cuenta y continuar",
+      },
+      mensual: {
+        nombre: "Plan Mensual", slug: "mensual",
+        titulo: "Crea tu cuenta y empieza gratis",
+        sub: "Creas tu cuenta y empiezas tu prueba gratis del Plan Mensual (S/.20/mes). No pagas nada hoy.",
+        label: "Crear cuenta y empezar prueba gratis",
+      },
+      anual: {
+        nombre: "Plan Anual", slug: "anual",
+        titulo: "Crea tu cuenta y activa tu plan",
+        sub: "Creas tu cuenta y continúas al pago del Plan Anual (S/.200/año) de forma segura con Stripe.",
+        label: "Crear cuenta y continuar al pago",
+      },
+    };
+    var planActual = "anual";
+
+    function abrir(plan) {
+      planActual = PLANES[plan] ? plan : "anual";
+      var cfg = PLANES[planActual];
+      if (tituloEl) tituloEl.textContent = cfg.titulo;
+      if (subEl) subEl.textContent = cfg.sub;
+      if (btn) btn.textContent = cfg.label;
+      if (loginEl) loginEl.href = "https://usapablo.app/pricing?plan=" + cfg.slug;
+      overlay.classList.add("is-open");
+      overlay.setAttribute("aria-hidden", "false");
+      document.body.style.overflow = "hidden";
+      setTimeout(function () { var n = document.getElementById("cuenta-nombre"); if (n) n.focus(); }, 60);
+      try { window.posthog && window.posthog.capture("cuenta_modal_abierta", { plan: planActual }); } catch (e) {}
+    }
+    function cerrar() {
+      overlay.classList.remove("is-open");
+      overlay.setAttribute("aria-hidden", "true");
+      document.body.style.overflow = "";
+    }
+    window.abrirCuentaPablo = abrir;
+    // Compatibilidad con la oferta millonaria (nombre anterior).
+    window.abrirCuentaMillonaria = abrir;
+
+    document.getElementById("cuenta-close").addEventListener("click", cerrar);
+    overlay.addEventListener("click", function (e) { if (e.target === overlay) cerrar(); });
+    document.addEventListener("keydown", function (e) { if (e.key === "Escape") cerrar(); });
+
+    function phDid(url) {
+      try {
+        var did = window.posthog && window.posthog.get_distinct_id && window.posthog.get_distinct_id();
+        if (!did) return url;
+        var u = new URL(url); u.searchParams.set("ph_did", did); return u.toString();
+      } catch (e) { return url; }
+    }
+    function mostrarError(msg) { if (errorEl) { errorEl.textContent = msg; errorEl.hidden = false; } }
+    async function authFetch(path, body) {
+      var res = await fetch(SUPA + path, {
+        method: "POST",
+        headers: { "Content-Type": "application/json", apikey: ANON },
+        body: JSON.stringify(body),
+      });
+      var data = {}; try { data = await res.json(); } catch (e) {}
+      return { ok: res.ok, data: data };
+    }
+
+    form.addEventListener("submit", async function (e) {
+      e.preventDefault();
+      if (errorEl) errorEl.hidden = true;
+      var cfg = PLANES[planActual];
+      var nombre = (document.getElementById("cuenta-nombre").value || "").trim();
+      var correo = (document.getElementById("cuenta-correo").value || "").trim();
+      var pass = document.getElementById("cuenta-password").value || "";
+      if (!nombre) return mostrarError("Escribe tu nombre.");
+      if (!/^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(correo)) return mostrarError("Ese correo no se ve bien, ¿lo revisas?");
+      if (pass.length < 6) return mostrarError("La contraseña necesita al menos 6 caracteres.");
+
+      btn.disabled = true; btn.textContent = "Creando tu cuenta…";
+      try {
+        var r = await authFetch("/auth/v1/signup", { email: correo, password: pass, data: { nombre: nombre, apellido: "" } });
+        var yaExiste = !r.ok && (r.data.error_code === "user_already_exists" ||
+          /already|registrad/i.test(r.data.msg || r.data.message || r.data.error_description || ""));
+        if (yaExiste) {
+          r = await authFetch("/auth/v1/token?grant_type=password", { email: correo, password: pass });
+          if (!r.ok) {
+            mostrarError("Ese correo ya tiene una cuenta y la contraseña no coincide. Usa “Inicia sesión”.");
+            btn.disabled = false; btn.textContent = cfg.label; return;
+          }
+        } else if (!r.ok) {
+          mostrarError(r.data.msg || r.data.message || r.data.error_description || "No pudimos crear tu cuenta, intenta de nuevo.");
+          btn.disabled = false; btn.textContent = cfg.label; return;
+        }
+        try { window.posthog && window.posthog.capture("cuenta_creada", { ya_existia: !!yaExiste, plan: planActual }); } catch (e) {}
+        if (window.fbq) fbq("trackCustom", "CuentaCreada", { plan: planActual });
+
+        var token = r.data.access_token;
+        var refresh = r.data.refresh_token || "";
+        if (!token) {
+          // Confirmación por correo activada: al checkout del plan en la app.
+          window.location.href = phDid("https://usapablo.app/pricing?plan=" + cfg.slug + "&continuar=1");
+          return;
+        }
+        // Guardar la sesión para el retorno del pago: /pago la usa para llevar
+        // al usuario a la app ya logueado (mismo patrón que el onboarding).
+        try {
+          sessionStorage.setItem("pablo_sesion_tokens", JSON.stringify({ access_token: token, refresh_token: refresh }));
+        } catch (e) {}
+
+        btn.textContent = "¡Listo! Un momento…";
+        // Checkout de Stripe del plan elegido. Al terminar, Stripe vuelve a
+        // /pago (misma pestaña, mismo dominio) que hace el puente a la app.
+        var cres = await fetch(SUPA + "/functions/v1/stripe-suscripcion", {
+          method: "POST",
+          headers: { "Content-Type": "application/json", apikey: ANON, Authorization: "Bearer " + token },
+          body: JSON.stringify({
+            accion: "checkout",
+            plan: cfg.nombre,
+            success_url: location.origin + "/pago?estado=exito&plan=" + cfg.slug,
+            cancel_url: location.origin + "/pago?estado=cancelado&plan=" + cfg.slug,
+          }),
+        });
+        var cdata = {}; try { cdata = await cres.json(); } catch (e) {}
+        if (cres.ok && cdata.url) { window.location.href = cdata.url; return; }
+        // Respaldo: puente de sesión directo a la app (para pagar allá).
+        window.location.href = phDid("https://usapablo.app/auth/sesion?plan=" + cfg.slug) +
+          "#access_token=" + encodeURIComponent(token) + "&refresh_token=" + encodeURIComponent(refresh);
+      } catch (err) {
+        mostrarError("No pudimos conectar con el servidor. Revisa tu internet e intenta de nuevo.");
+        btn.disabled = false; btn.textContent = cfg.label;
+      }
+    });
+  })();
+</script>
+
+<style>
+  .cuenta-overlay {
+    position: fixed;
+    inset: 0;
+    z-index: 1000;
+    background: rgba(22, 23, 58, 0.6);
+    backdrop-filter: blur(6px);
+    -webkit-backdrop-filter: blur(6px);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 20px;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.25s ease;
+  }
+  .cuenta-overlay.is-open { opacity: 1; pointer-events: all; }
+  .cuenta-card {
+    position: relative;
+    background: #fff;
+    border-radius: 24px;
+    width: 100%;
+    max-width: 420px;
+    padding: 32px 28px 26px;
+    box-shadow: 0 24px 80px rgba(0, 0, 0, 0.4);
+    transform: translateY(14px) scale(0.98);
+    opacity: 0;
+    transition: transform 0.28s cubic-bezier(0.22, 1, 0.36, 1), opacity 0.25s ease;
+    text-align: center;
+    max-height: 92vh;
+    overflow-y: auto;
+  }
+  .cuenta-overlay.is-open .cuenta-card { transform: none; opacity: 1; }
+  .cuenta-close {
+    position: absolute;
+    top: 12px;
+    right: 12px;
+    width: 34px;
+    height: 34px;
+    border-radius: 50%;
+    background: #eee9f7;
+    border: none;
+    cursor: pointer;
+    color: var(--color-heading);
+    font-size: 15px;
+  }
+  .cuenta-mascota { display: block; margin: 0 auto 4px; }
+  .cuenta-titulo {
+    font-family: var(--font-heading);
+    font-weight: 700;
+    font-size: 1.4rem;
+    color: var(--color-heading);
+    margin-bottom: 6px;
+  }
+  .cuenta-sub {
+    font-size: 0.95rem;
+    color: var(--color-body);
+    line-height: 1.5;
+    margin-bottom: 18px;
+  }
+  #cuenta-form { display: flex; flex-direction: column; gap: 12px; }
+  .cuenta-input {
+    width: 100%;
+    font-family: var(--font-body);
+    font-size: 1rem;
+    color: var(--color-heading);
+    background: #fff;
+    border: 2px solid #e5e5e5;
+    border-radius: 14px;
+    padding: 13px 16px;
+    outline: none;
+    transition: border-color 0.15s, box-shadow 0.15s;
+  }
+  .cuenta-input:focus {
+    border-color: var(--color-amber);
+    box-shadow: 0 0 0 3px rgba(245, 166, 35, 0.18);
+  }
+  .cuenta-error { color: #d64545; font-size: 0.85rem; font-weight: 600; text-align: left; margin: -2px 2px 0; }
+  .cuenta-btn {
+    width: 100%;
+    border: none;
+    cursor: pointer;
+    border-radius: var(--radius-pill, 999px);
+    padding: 14px 20px;
+    margin-top: 4px;
+    font-family: var(--font-body);
+    font-weight: 800;
+    font-size: 15px;
+    background: var(--gradient-cta, linear-gradient(135deg, #F6B72B, #FEA41B));
+    color: #2b2c64;
+    box-shadow: 0 4px 0 0 #c9820a;
+    transition: transform 0.12s ease, box-shadow 0.12s ease, opacity 0.15s;
+  }
+  .cuenta-btn:hover { transform: translateY(-1px); box-shadow: 0 5px 0 0 #c9820a; }
+  .cuenta-btn:active { transform: translateY(3px); box-shadow: 0 1px 0 0 #c9820a; }
+  .cuenta-btn:disabled { opacity: 0.65; cursor: wait; transform: none; }
+  .cuenta-legal { font-size: 0.75rem; color: var(--color-secondary); margin-top: 12px; line-height: 1.5; }
+  .cuenta-legal a { color: var(--color-heading); font-weight: 700; text-decoration: underline; }
+</style>
