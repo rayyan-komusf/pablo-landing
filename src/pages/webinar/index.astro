@@ -1,8 +1,11 @@
 ---
-// /webinar: ANTES del fin del webinar muestra el registro del evento; DESPUÉS
-// (a partir de las 8:40 PM del 23-jul, hora Perú) muestra la página de ventas
-// Oferta Millonaria (mismo componente que /webinardespues). El cambio ocurre
-// en el cliente por fecha, así la página se transforma sola sin redeploy.
+// /webinar transforma su contenido por fecha (todo en el cliente, sin redeploy):
+//   • Antes de las 8:00 PM del 23 (inicio del webinar): registro ABIERTO.
+//   • 8:00 – 8:40 PM: registro CERRADO (el webinar ya empezó).
+//   • Desde las 8:40 PM (fin del webinar → inicio de la oferta): página de
+//     ventas Oferta Millonaria. El bonus 1-a-1 dentro de ella solo se ve hasta
+//     las 11:59 (lo gatea el propio componente); después, la misma oferta pero
+//     sin 1-1 — igual que /webinardespues.
 import Layout from '../../layouts/Layout.astro';
 import Navbar from '../../components/Navbar.astro';
 import Footer from '../../components/Footer.astro';
@@ -10,46 +13,124 @@ import EventoMandamientos from '../../components/eventos/EventoMandamientos.astr
 import RegistroWebinar from '../../components/eventos/RegistroWebinar.astro';
 import TestimoniosWebinar from '../../components/eventos/TestimoniosWebinar.astro';
 import OfertaMillonaria from '../../components/OfertaMillonaria.astro';
-import { PROMO_MILLONARIA } from '../../siteConfig';
+import { PROMO_MILLONARIA, WEBINAR_MANDAMIENTOS } from '../../siteConfig';
 // src/pages/webinar/index.astro
 ---
 
 <Layout
   title="Los 4 Mandamientos Financieros — Webinar gratis"
-  description="Webinar en vivo y gratis: las 4 reglas simples para ordenar tu plata de una vez por todas. Jueves 23 de julio por YouTube. Reserva tu lugar."
+  description="Webinar en vivo y gratis: las 4 reglas simples para ordenar tu plata de una vez por todas. Jueves 23 de julio por YouTube."
   hideBanner
   hideMoneda
   noindex
 >
-  <!-- Registro del webinar (visible antes de que termine) -->
-  <div id="wb-registro">
+  <!-- Estados del evento (registro / cerrado). Comparten navbar. -->
+  <div id="wb-evento">
     <Navbar />
     <main>
-      <EventoMandamientos />
-      <RegistroWebinar />
-      <TestimoniosWebinar />
+      <div id="wb-registro">
+        <EventoMandamientos />
+        <RegistroWebinar />
+        <TestimoniosWebinar />
+      </div>
+
+      <div id="wb-cerrado" hidden>
+        <section class="wb-cerrado">
+          <div class="container wb-cerrado__inner">
+            <span class="wb-cerrado__pill">🔴 En vivo ahora</span>
+            <h1 class="wb-cerrado__title">El webinar ya empezó</h1>
+            <p class="wb-cerrado__sub">
+              El registro está cerrado. Si te inscribiste, revisa tu correo y
+              tu WhatsApp: ahí está tu acceso.
+            </p>
+            <p class="wb-cerrado__nota">
+              Al terminar, aquí mismo aparecerá una oferta especial solo para
+              quienes estuvieron en vivo. No cierres esta página.
+            </p>
+          </div>
+        </section>
+      </div>
     </main>
   </div>
 
-  <!-- Página de ventas (visible cuando el webinar termina) -->
+  <!-- Página de ventas (aparece cuando el webinar termina, 8:40 PM) -->
   <div id="wb-oferta" hidden>
     <OfertaMillonaria />
   </div>
 
   <Footer />
 
-  <script is:inline define:vars={{ finWebinarISO: PROMO_MILLONARIA.ofertaInicioISO }}>
-    // Al terminar el webinar (fin = inicio de la oferta, 8:40 PM del 23) /webinar
-    // pasa de "registro" a "oferta". Antes de esa hora se queda en el registro.
+  <style>
+    /* Blindaje: los estados nacen ocultos con [hidden]; sin esto algún display
+       de clase podría ganarle a la regla del navegador. */
+    #wb-evento[hidden], #wb-registro[hidden], #wb-cerrado[hidden], #wb-oferta[hidden] {
+      display: none !important;
+    }
+    .wb-cerrado {
+      min-height: 60vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+      padding: 64px 0;
+      background: var(--bg-hero, #f4f2fb);
+    }
+    .wb-cerrado__inner {
+      max-width: 560px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 16px;
+    }
+    .wb-cerrado__pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      background: #FFF0F0;
+      color: #C0392B;
+      font-weight: 700;
+      font-size: 14px;
+      padding: 6px 16px;
+      border-radius: 100px;
+      border: 1.5px solid #F5C6C6;
+    }
+    .wb-cerrado__title {
+      font-family: var(--font-heading, 'Outfit', sans-serif);
+      font-size: clamp(1.8rem, 5vw, 2.6rem);
+      color: var(--color-heading, #2B2C64);
+    }
+    .wb-cerrado__sub {
+      font-size: 1.05rem;
+      color: var(--color-body, #4a4a68);
+      line-height: 1.6;
+    }
+    .wb-cerrado__nota {
+      font-size: 0.95rem;
+      color: var(--color-secondary, #7a7a95);
+      line-height: 1.55;
+    }
+  </style>
+
+  <script is:inline define:vars={{ webinarInicioISO: WEBINAR_MANDAMIENTOS.fechaISO, ofertaInicioISO: PROMO_MILLONARIA.ofertaInicioISO }}>
     (function () {
       try {
-        if (Date.now() < Date.parse(finWebinarISO)) return;
-        var reg = document.getElementById('wb-registro');
-        var of = document.getElementById('wb-oferta');
-        if (reg) reg.hidden = true;
-        if (of) of.hidden = false;
+        var ahora = Date.now();
+        var evento = document.getElementById('wb-evento');
+        var registro = document.getElementById('wb-registro');
+        var cerrado = document.getElementById('wb-cerrado');
+        var oferta = document.getElementById('wb-oferta');
+        if (ahora >= Date.parse(ofertaInicioISO)) {
+          // Fin del webinar: se muestra la oferta.
+          if (evento) evento.hidden = true;
+          if (oferta) oferta.hidden = false;
+        } else if (ahora >= Date.parse(webinarInicioISO)) {
+          // Webinar en vivo: registro cerrado.
+          if (registro) registro.hidden = true;
+          if (cerrado) cerrado.hidden = false;
+        }
+        // Antes del inicio: se queda el registro abierto (estado por defecto).
       } catch (e) {
-        /* ante cualquier error, se queda en el registro */
+        /* ante cualquier error, se queda el registro abierto */
       }
     })();
   </script>

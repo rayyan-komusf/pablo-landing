@@ -5,6 +5,7 @@
 // <Footer>: los pone la página que lo monta.
 import { Image } from 'astro:assets';
 import logoImg from '../assets/Logo.png';
+import { PROMO_MILLONARIA } from '../siteConfig';
 
 // ============================================================
 //  OFERTA MILLONARIA — landing de ventas (framework $100M Offers)
@@ -315,6 +316,31 @@ const faqs = [
         </div>
 
         <div class="om-stack__list">
+          <!-- Bonus SOLO la noche del webinar (8:40-11:59): asesoría 1-a-1 con
+               Rodrigo. Después de medianoche desaparece (lo revela el script
+               [data-noche] de abajo). -->
+          <article class="om-item om-item--noche" data-noche hidden>
+            <div class="om-item__media">
+              <img
+                src="/onboarding/images/pablo/pablo-wave.png"
+                alt="Rodrigo, papá de Pablo"
+                width="140"
+                height="140"
+                loading="lazy"
+                decoding="async"
+              />
+            </div>
+            <div class="om-item__body">
+              <span class="om-item__tag">🔥 Solo esta noche</span>
+              <h3 class="om-item__title">Asesoría 1-a-1 con Rodrigo</h3>
+              <span class="om-item__valor">valor $80 USD</span>
+              <p class="om-item__desc">
+                Una sesión personal con Rodrigo para armar tu plan a la medida.
+                Exclusiva para quienes se llevan el Plan Anual esta noche —
+                mañana este bono ya no está.
+              </p>
+            </div>
+          </article>
           {stack.map((item) => (
             <article class="om-item">
               <div class="om-item__media">
@@ -351,6 +377,10 @@ const faqs = [
         <div class="om-recap">
           <h3 class="om-recap__title">Hagamos los números</h3>
           <ul class="om-recap__list">
+            <li data-noche hidden>
+              <span>Asesoría 1-a-1 con Rodrigo <strong>(solo esta noche)</strong></span>
+              <span class="om-recap__val">valor $80 USD</span>
+            </li>
             <li>
               <span>Plan Anual de Pablo (12 meses)</span>
               <span class="om-recap__val"><s>S/.240</s> mes a mes</span>
@@ -610,6 +640,10 @@ const faqs = [
   </main>
 
 <style>
+  /* Bonus 1-a-1: nace oculto y se revela solo la noche del webinar. El
+     !important gana al display de .om-item / .om-recap li. */
+  [data-noche][hidden] { display: none !important; }
+
   /* ════════════════ HEADER MÍNIMO ════════════════ */
   .om-header {
     background: var(--bg-hero);
@@ -1714,4 +1748,18 @@ const faqs = [
       }
     });
   });
+</script>
+
+<script is:inline define:vars={{ nocheInicio: PROMO_MILLONARIA.nocheInicioISO, nocheFin: PROMO_MILLONARIA.nocheFinISO }}>
+  // El bonus 1-a-1 con Rodrigo solo existe la NOCHE del webinar (8:40-11:59
+  // del 23). Dentro de esa ventana se revelan los [data-noche]; fuera, quedan
+  // ocultos — así la misma página sirve para /webinar después de medianoche
+  // (sin 1-1) y para /webinardespues (preview evergreen).
+  (function () {
+    var ahora = Date.now();
+    if (ahora < Date.parse(nocheInicio) || ahora >= Date.parse(nocheFin)) return;
+    document.querySelectorAll('[data-noche]').forEach(function (el) {
+      el.hidden = false;
+    });
+  })();
 </script>
