@@ -698,7 +698,7 @@ const faqs = [
           <a
             href="https://usapablo.app/pricing?plan=mensual"
             class="om-downsell__btn"
-            onclick="try{window.posthog?.capture('millonaria_downsell_mensual')}catch(e){}"
+            onclick="event.preventDefault();try{window.posthog?.capture('millonaria_downsell_mensual')}catch(e){};window.abrirCuentaMillonaria&&window.abrirCuentaMillonaria('mensual')"
           >
             Probar gratis 14 días
           </a>
@@ -739,14 +739,40 @@ const faqs = [
       var form = document.getElementById("om-cuenta-formulario");
       var btn = document.getElementById("om-cuenta-enviar");
       var errorEl = document.getElementById("om-cuenta-error");
-      var LABEL = "Crear cuenta y pagar S/.200";
+      var tituloEl = document.querySelector(".om-cuenta-titulo");
+      var subEl = document.querySelector(".om-cuenta-sub");
+      // El modal sirve para ambos planes: los CTA del anual lo abren en modo
+      // "anual" (cobro directo S/.200); el downsell lo abre en "mensual"
+      // (prueba gratis de 14 días).
+      var PLANES = {
+        anual: {
+          nombre: "Plan Anual",
+          slug: "anual",
+          titulo: "Crea tu cuenta y activa la oferta",
+          sub: "En 1 minuto creas tu cuenta y pasas directo a pagar tu Plan Anual (S/.200) de forma segura con Stripe.",
+          label: "Crear cuenta y pagar S/.200",
+        },
+        mensual: {
+          nombre: "Plan Mensual",
+          slug: "mensual",
+          titulo: "Crea tu cuenta y empieza gratis",
+          sub: "En 1 minuto creas tu cuenta y empiezas tu prueba gratis de 14 días del Plan Mensual (S/.20/mes). No pagas nada hoy.",
+          label: "Crear cuenta y empezar prueba gratis",
+        },
+      };
+      var planActual = "anual";
 
-      function abrir() {
+      function abrir(plan) {
+        planActual = plan === "mensual" ? "mensual" : "anual";
+        var cfg = PLANES[planActual];
+        if (tituloEl) tituloEl.textContent = cfg.titulo;
+        if (subEl) subEl.textContent = cfg.sub;
+        btn.textContent = cfg.label;
         overlay.classList.add("is-open");
         overlay.setAttribute("aria-hidden", "false");
         document.body.style.overflow = "hidden";
         setTimeout(function () { document.getElementById("om-cuenta-nombre").focus(); }, 60);
-        try { window.posthog && window.posthog.capture("millonaria_cuenta_abierta"); } catch (e) {}
+        try { window.posthog && window.posthog.capture("millonaria_cuenta_abierta", { plan: planActual }); } catch (e) {}
       }
       function cerrar() {
         overlay.classList.remove("is-open");
@@ -759,9 +785,9 @@ const faqs = [
       overlay.addEventListener("click", function (e) { if (e.target === overlay) cerrar(); });
       document.addEventListener("keydown", function (e) { if (e.key === "Escape") cerrar(); });
 
-      // TODOS los CTA abren el modal de cuenta (el href queda de respaldo si falla el JS).
+      // Los CTA del anual abren el modal en modo anual (href = respaldo sin-JS).
       document.querySelectorAll("a.om-cta").forEach(function (a) {
-        a.addEventListener("click", function (e) { e.preventDefault(); abrir(); });
+        a.addEventListener("click", function (e) { e.preventDefault(); abrir("anual"); });
       });
 
       function phDid(url) {
@@ -801,29 +827,30 @@ const faqs = [
             r = await authFetch("/auth/v1/token?grant_type=password", { email: correo, password: pass });
             if (!r.ok) {
               mostrarError("Ese correo ya tiene una cuenta y la contraseña no coincide. Usa “Inicia sesión”.");
-              btn.disabled = false; btn.textContent = LABEL; return;
+              btn.disabled = false; btn.textContent = PLANES[planActual].label; return;
             }
           } else if (!r.ok) {
             mostrarError(r.data.msg || r.data.message || r.data.error_description || "No pudimos crear tu cuenta, intenta de nuevo.");
-            btn.disabled = false; btn.textContent = LABEL; return;
+            btn.disabled = false; btn.textContent = PLANES[planActual].label; return;
           }
-          try { window.posthog && window.posthog.capture("millonaria_cuenta_creada", { ya_existia: !!yaExiste }); } catch (e) {}
-          if (window.fbq) fbq("trackCustom", "CuentaCreada", { plan: "anual", promo: "fiestas-patrias" });
+          try { window.posthog && window.posthog.capture("millonaria_cuenta_creada", { ya_existia: !!yaExiste, plan: planActual }); } catch (e) {}
+          if (window.fbq) fbq("trackCustom", "CuentaCreada", { plan: planActual, promo: "fiestas-patrias" });
 
           var token = r.data.access_token;
           if (!token) {
-            // Confirmación por correo activada: al checkout del anual en la app.
-            window.location.href = phDid("https://usapablo.app/pricing?plan=anual&continuar=1");
+            // Confirmación por correo activada: al checkout del plan en la app.
+            window.location.href = phDid("https://usapablo.app/pricing?plan=" + PLANES[planActual].slug + "&continuar=1");
             return;
           }
-          btn.textContent = "¡Listo! Llevándote al pago seguro…";
-          // Checkout de Stripe: Plan Anual (cobro directo por la oferta).
+          btn.textContent = "¡Listo! Un momento…";
+          // Checkout de Stripe del plan elegido (anual = cobro directo;
+          // mensual = prueba gratis de 14 días — el trial lo define la pasarela).
           var cres = await fetch(SUPA + "/functions/v1/stripe-suscripcion", {
             method: "POST",
             headers: { "Content-Type": "application/json", apikey: ANON, Authorization: "Bearer " + token },
             body: JSON.stringify({
               accion: "checkout",
-              plan: "Plan Anual",
+              plan: PLANES[planActual].nombre,
               success_url: "https://usapablo.app/?pago=exito",
               cancel_url: "https://www.usapablo.com/fiestas-patrias?pago=cancelado",
             }),
@@ -832,11 +859,11 @@ const faqs = [
           if (cres.ok && cdata.url) { window.location.href = cdata.url; return; }
           // Respaldo: puente de sesión a la app (ya logueado) para pagar allá.
           var refresh = r.data.refresh_token || "";
-          window.location.href = phDid("https://usapablo.app/auth/sesion?plan=anual") +
+          window.location.href = phDid("https://usapablo.app/auth/sesion?plan=" + PLANES[planActual].slug) +
             "#access_token=" + encodeURIComponent(token) + "&refresh_token=" + encodeURIComponent(refresh);
         } catch (err) {
           mostrarError("No pudimos conectar con el servidor. Revisa tu internet e intenta de nuevo.");
-          btn.disabled = false; btn.textContent = LABEL;
+          btn.disabled = false; btn.textContent = PLANES[planActual].label;
         }
       });
     })();
