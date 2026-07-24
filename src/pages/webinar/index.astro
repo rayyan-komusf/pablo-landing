@@ -65,6 +65,13 @@ import { PROMO_MILLONARIA, WEBINAR_MANDAMIENTOS } from '../../siteConfig';
     /* En /webinar la oferta usa el Navbar completo: ocultamos el header mínimo
        propio de la oferta para no duplicar. */
     #wb-oferta :global(.om-header) { display: none; }
+    /* El Navbar nace transparente (se vuelve sólido al scrollear vía JS); en la
+       oferta lo forzamos sólido siempre para que el contenido no se transparente
+       detrás. */
+    #wb-oferta :global(.navbar) {
+      background: #f2f0ff;
+      border-bottom: 1px solid rgba(43, 44, 100, 0.08);
+    }
     .wb-cerrado {
       min-height: 60vh;
       display: flex;
