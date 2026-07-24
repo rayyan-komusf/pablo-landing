@@ -12,7 +12,7 @@ export default defineConfig({
   integrations: [
     sitemap({
       // Landings escondidas de campaña: fuera del sitemap
-      filter: (page) => !page.includes('/webinardespues'),
+      filter: (page) => !page.includes('/fiestas-patrias'),
       changefreq: 'weekly',
       priority: 0.7,
       lastmod: new Date('2026-03-25'),
