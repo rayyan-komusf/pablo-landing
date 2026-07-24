@@ -71,7 +71,7 @@ const stack = [
     valorReal: "S/.300",
     incluido: "Incluido con tu plan por tiempo limitado",
     cta: "Haz clic para empezar el curso",
-    img: "/onboarding/images/pablo/pablo-anotando.webp",
+    img: "/onboarding/images/pablo/pablo-pensando.png",
     alt: "Pablo tomando apuntes del curso",
     desc: "El curso de finanzas personales para entender tu plata sin palabreo de banco ni fórmulas raras.",
     bullets: [],
@@ -87,7 +87,7 @@ const stack = [
     valorReal: "S/.80",
     incluido: "Incluido con tu plan por tiempo limitado",
     cta: "Haz clic para ingresar a la comunidad",
-    img: "/onboarding/images/pablo/pablo-saludando.webp",
+    img: "/onboarding/images/pablo/pablo-neutral.png",
     alt: "Pablo saludando a la comunidad",
     desc: "Un mes de clases EN VIVO con Rodrigo y la comunidad de futuros millonarios.",
     bullets: [],
@@ -415,41 +415,39 @@ const faqs = [
       <div class="container">
         <div class="om-sec-header">
           <h2 class="om-sec-title">
-            Esto es <span class="highlight">todo lo que te llevas</span>
+            Esto es <span class="highlight">todo lo que te llevas hoy</span>
           </h2>
-          <p class="om-sec-sub">Una sola compra. Un año entero. Y un plan para que te salga gratis.</p>
         </div>
 
         <div class="om-recap">
-          <h3 class="om-recap__title">Hagamos los números</h3>
           <ul class="om-recap__list">
             <li data-noche hidden>
-              <span>🔥 Asesoría 1-a-1 con Rodrigo <strong>(solo esta noche)</strong></span>
-              <span class="om-recap__val"><s>S/.200</s> incluida</span>
+              <span class="om-recap__nombre">🔥 Asesoría 1-a-1 con Rodrigo <em>(solo esta noche)</em></span>
+              <span class="om-recap__val"><s>S/.200</s> <strong>incluida</strong></span>
             </li>
             <li>
-              <span>Plan Anual de Pablo (12 meses)</span>
-              <span class="om-recap__val"><s>S/.240</s> hoy S/.200</span>
+              <span class="om-recap__nombre">Plan Anual de Pablo (12 meses)</span>
+              <span class="om-recap__val"><s>S/.240</s> <strong>hoy S/.200</strong></span>
             </li>
             <li>
-              <span>Reto “Camino al Millón en 30 días”</span>
-              <span class="om-recap__val"><s>S/.97</s> 100% reembolso</span>
+              <span class="om-recap__nombre">Reto “Camino al Millón en 30 días”</span>
+              <span class="om-recap__val"><s>S/.97</s> <strong>100% reembolso</strong></span>
             </li>
             <li>
-              <span>Curso “Finanzas de un Futuro Millonario”</span>
-              <span class="om-recap__val"><s>S/.300</s> gratis</span>
+              <span class="om-recap__nombre">Curso “Finanzas de un Futuro Millonario”</span>
+              <span class="om-recap__val"><s>S/.300</s> <strong>gratis</strong></span>
             </li>
             <li>
-              <span>Pase Mensual a La Komunidad</span>
-              <span class="om-recap__val"><s>S/.80</s> gratis</span>
+              <span class="om-recap__nombre">Pase Mensual a La Komunidad</span>
+              <span class="om-recap__val"><s>S/.80</s> <strong>gratis</strong></span>
             </li>
             <li>
-              <span>Toolkit Komunitario (+10 recursos)</span>
-              <span class="om-recap__val"><s>S/.50</s> gratis</span>
+              <span class="om-recap__nombre">Toolkit Komunitario (+10 recursos)</span>
+              <span class="om-recap__val"><s>S/.50</s> <strong>gratis</strong></span>
             </li>
             <li>
-              <span>Garantía de satisfacción de 14 días</span>
-              <span class="om-recap__val">incluida</span>
+              <span class="om-recap__nombre">Garantía de satisfacción de 14 días</span>
+              <span class="om-recap__val"><strong>incluida</strong></span>
             </li>
           </ul>
           <div class="om-recap__compare">
@@ -1362,10 +1360,23 @@ const faqs = [
     text-align: right;
     white-space: nowrap;
     font-size: 13px;
+    display: inline-flex;
+    align-items: baseline;
+    gap: 6px;
   }
 
   .om-recap__val s {
     color: var(--color-secondary);
+    opacity: 0.7;
+  }
+
+  .om-recap__val strong {
+    color: var(--color-green);
+    font-weight: 700;
+  }
+
+  .om-recap__nombre {
+    font-weight: 600;
   }
 
   /* Comparación: S/.240 → hoy S/.200 → S/.0 */
