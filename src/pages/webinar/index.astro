@@ -1,46 +1,65 @@
 ---
-// /webinar: registro del webinar. A las 8:00 PM del 23 (inicio del webinar)
-// el registro se CIERRA (nadie más se inscribe). La oferta NO vive aquí: está
-// en /fiestas-patrias. El cambio ocurre en el cliente por fecha, sin redeploy.
+// /webinar transforma su contenido por fecha (todo en el cliente, sin redeploy):
+//   • Antes de las 8:00 PM del 23 (inicio del webinar): registro ABIERTO.
+//   • 8:00 – 8:40 PM: registro CERRADO (el webinar ya empezó).
+//   • 8:40 PM – medianoche del 23: salta a la OFERTA (Oferta Millonaria, con el
+//     bono 1-a-1 de la noche).
+//   • Desde mañana (medianoche en adelante): la oferta vive en /fiestas-patrias;
+//     quien caiga en /webinar es redirigido ahí.
 import Layout from '../../layouts/Layout.astro';
 import Navbar from '../../components/Navbar.astro';
 import Footer from '../../components/Footer.astro';
 import EventoMandamientos from '../../components/eventos/EventoMandamientos.astro';
 import RegistroWebinar from '../../components/eventos/RegistroWebinar.astro';
 import TestimoniosWebinar from '../../components/eventos/TestimoniosWebinar.astro';
-import { WEBINAR_MANDAMIENTOS } from '../../siteConfig';
+import OfertaMillonaria from '../../components/OfertaMillonaria.astro';
+import { PROMO_MILLONARIA, WEBINAR_MANDAMIENTOS } from '../../siteConfig';
 // src/pages/webinar/index.astro
 ---
 
 <Layout
   title="Los 4 Mandamientos Financieros — Webinar gratis"
   description="Webinar en vivo y gratis: las 4 reglas simples para ordenar tu plata de una vez por todas. Jueves 23 de julio por YouTube."
+  hideBanner
+  hideMoneda
+  noindex
 >
-  <Navbar />
-  <main>
-    <div id="wb-registro">
-      <EventoMandamientos />
-      <RegistroWebinar />
-      <TestimoniosWebinar />
-    </div>
+  <!-- Estados del evento (registro / cerrado); comparten navbar. -->
+  <div id="wb-evento">
+    <Navbar />
+    <main>
+      <div id="wb-registro">
+        <EventoMandamientos />
+        <RegistroWebinar />
+        <TestimoniosWebinar />
+      </div>
 
-    <div id="wb-cerrado" hidden>
-      <section class="wb-cerrado">
-        <div class="container wb-cerrado__inner">
-          <span class="wb-cerrado__pill">🔴 En vivo ahora</span>
-          <h1 class="wb-cerrado__title">El webinar ya empezó</h1>
-          <p class="wb-cerrado__sub">
-            El registro está cerrado. Si te inscribiste, revisa tu correo y tu
-            WhatsApp: ahí está tu acceso al webinar.
-          </p>
-        </div>
-      </section>
-    </div>
-  </main>
+      <div id="wb-cerrado" hidden>
+        <section class="wb-cerrado">
+          <div class="container wb-cerrado__inner">
+            <span class="wb-cerrado__pill">🔴 En vivo ahora</span>
+            <h1 class="wb-cerrado__title">El webinar ya empezó</h1>
+            <p class="wb-cerrado__sub">
+              El registro está cerrado. Si te inscribiste, revisa tu correo y
+              tu WhatsApp: ahí está tu acceso al webinar.
+            </p>
+          </div>
+        </section>
+      </div>
+    </main>
+  </div>
+
+  <!-- Oferta (aparece a las 8:40 PM del 23 y se queda hasta medianoche). -->
+  <div id="wb-oferta" hidden>
+    <OfertaMillonaria />
+  </div>
+
   <Footer />
 
   <style>
-    #wb-registro[hidden], #wb-cerrado[hidden] { display: none !important; }
+    #wb-evento[hidden], #wb-registro[hidden], #wb-cerrado[hidden], #wb-oferta[hidden] {
+      display: none !important;
+    }
     .wb-cerrado {
       min-height: 60vh;
       display: flex;
@@ -81,15 +100,33 @@ import { WEBINAR_MANDAMIENTOS } from '../../siteConfig';
     }
   </style>
 
-  <script is:inline define:vars={{ webinarInicioISO: WEBINAR_MANDAMIENTOS.fechaISO }}>
-    // A las 8:00 PM del 23 (inicio del webinar) se cierra el registro.
+  <script is:inline define:vars={{
+    webinarInicioISO: WEBINAR_MANDAMIENTOS.fechaISO,
+    ofertaInicioISO: PROMO_MILLONARIA.ofertaInicioISO,
+    nocheFinISO: PROMO_MILLONARIA.nocheFinISO,
+  }}>
     (function () {
       try {
-        if (Date.now() < Date.parse(webinarInicioISO)) return;
-        var reg = document.getElementById('wb-registro');
+        var ahora = Date.now();
+        // Desde mañana (medianoche): la oferta vive en /fiestas-patrias.
+        if (ahora >= Date.parse(nocheFinISO)) {
+          window.location.replace('/fiestas-patrias');
+          return;
+        }
+        var evento = document.getElementById('wb-evento');
+        var registro = document.getElementById('wb-registro');
         var cerrado = document.getElementById('wb-cerrado');
-        if (reg) reg.hidden = true;
-        if (cerrado) cerrado.hidden = false;
+        var oferta = document.getElementById('wb-oferta');
+        if (ahora >= Date.parse(ofertaInicioISO)) {
+          // 8:40 PM → medianoche: salta a la oferta.
+          if (evento) evento.hidden = true;
+          if (oferta) oferta.hidden = false;
+        } else if (ahora >= Date.parse(webinarInicioISO)) {
+          // 8:00 – 8:40 PM: registro cerrado.
+          if (registro) registro.hidden = true;
+          if (cerrado) cerrado.hidden = false;
+        }
+        // Antes de las 8:00: registro abierto (estado por defecto).
       } catch (e) {
         /* ante cualquier error, se queda el registro abierto */
       }
