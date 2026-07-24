@@ -1,0 +1,71 @@
+---
+// PREVIEW: así se verá /webinar una vez empezado el webinar (desde las 8:00 PM
+// del 23). Es la pantalla de "registro cerrado" — la misma que aparece sola en
+// /webinar tras esa hora. Página escondida (noindex, fuera del sitemap) solo
+// para revisar. La oferta NO vive aquí: está en /fiestas-patrias.
+import Layout from '../layouts/Layout.astro';
+import Navbar from '../components/Navbar.astro';
+import Footer from '../components/Footer.astro';
+---
+
+<Layout
+  title="Webinar en vivo — Pablo (preview)"
+  description="Preview del estado del webinar en vivo."
+  noindex
+>
+  <Navbar />
+  <main>
+    <section class="wb-cerrado">
+      <div class="container wb-cerrado__inner">
+        <span class="wb-cerrado__pill">🔴 En vivo ahora</span>
+        <h1 class="wb-cerrado__title">El webinar ya empezó</h1>
+        <p class="wb-cerrado__sub">
+          El registro está cerrado. Si te inscribiste, revisa tu correo y tu
+          WhatsApp: ahí está tu acceso al webinar.
+        </p>
+      </div>
+    </section>
+  </main>
+  <Footer />
+
+  <style>
+    .wb-cerrado {
+      min-height: 60vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+      padding: 64px 0;
+      background: var(--bg-hero, #f4f2fb);
+    }
+    .wb-cerrado__inner {
+      max-width: 560px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 16px;
+    }
+    .wb-cerrado__pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      background: #FFF0F0;
+      color: #C0392B;
+      font-weight: 700;
+      font-size: 14px;
+      padding: 6px 16px;
+      border-radius: 100px;
+      border: 1.5px solid #F5C6C6;
+    }
+    .wb-cerrado__title {
+      font-family: var(--font-heading, 'Outfit', sans-serif);
+      font-size: clamp(1.8rem, 5vw, 2.6rem);
+      color: var(--color-heading, #2B2C64);
+    }
+    .wb-cerrado__sub {
+      font-size: 1.05rem;
+      color: var(--color-body, #4a4a68);
+      line-height: 1.6;
+    }
+  </style>
+</Layout>
