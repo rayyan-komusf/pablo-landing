@@ -2022,7 +2022,10 @@ const faqs = [
     text-align: left;
     max-width: 1060px;
   }
-  .om-hero__phone { display: flex; justify-content: center; }
+  /* El teléfono es decorativo (loop automático de chat). pointer-events:none
+     evita que su chat interno atrape el scroll táctil en móvil: así el dedo
+     scrollea la página, no el mock. El auto-scroll del chat (por JS) sigue. */
+  .om-hero__phone { display: flex; justify-content: center; pointer-events: none; }
   .om-hero__content {
     display: flex;
     flex-direction: column;
