@@ -10,6 +10,14 @@ import TestimonialsCarousel from './sections/TestimonialsCarousel.astro';
 import HeroPhone from './sections/HeroPhone.astro';
 import CuentaModal from './CuentaModal.astro';
 
+// Si se pasa `heroVideoId`, el hero muestra la grabación del webinar (embed de
+// YouTube) en vez del teléfono decorativo. Lo usa /fiestas-patrias; /webinar
+// lo deja vacío y conserva el <HeroPhone />.
+interface Props {
+  heroVideoId?: string;
+}
+const { heroVideoId } = Astro.props;
+
 // ============================================================
 //  OFERTA MILLONARIA — landing de ventas (framework $100M Offers)
 //  Ruta: /millonaria
@@ -246,9 +254,32 @@ const faqs = [
       <div class="om-hero__blob om-hero__blob--1" aria-hidden="true"></div>
       <div class="om-hero__blob om-hero__blob--2" aria-hidden="true"></div>
 
-      <div class="container om-hero__inner">
+      <div class={`container om-hero__inner${heroVideoId ? ' om-hero__inner--video' : ''}`}>
         <div class="om-hero__phone">
-          <HeroPhone />
+          {heroVideoId ? (
+            <div class="om-hero__video">
+              <div class="om-hero__video-badge">
+                <span class="om-hero__video-dot"></span>
+                Grabación del webinar · solo hasta el {DEADLINE_TEXTO}
+              </div>
+              <div class="om-hero__video-frame">
+                <iframe
+                  src={`https://www.youtube-nocookie.com/embed/${heroVideoId}?rel=0`}
+                  title="Grabación del webinar — Los 4 Mandamientos Financieros"
+                  frameborder="0"
+                  allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+                  referrerpolicy="strict-origin-when-cross-origin"
+                  allowfullscreen
+                  loading="lazy"
+                ></iframe>
+              </div>
+              <p class="om-hero__video-nota">
+                Disponible hasta el {DEADLINE_TEXTO}. Después baja del aire.
+              </p>
+            </div>
+          ) : (
+            <HeroPhone />
+          )}
         </div>
         <div class="om-hero__content">
         <div class="om-badge">
@@ -1930,6 +1961,94 @@ const faqs = [
      evita que su chat interno atrape el scroll táctil en móvil: así el dedo
      scrollea la página, no el mock. El auto-scroll del chat (por JS) sigue. */
   .om-hero__phone { display: flex; justify-content: center; pointer-events: none; }
+
+  /* Grabación del webinar (reemplaza el teléfono en /fiestas-patrias) */
+  .om-hero__video {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 12px;
+    width: 100%;
+    max-width: 520px;
+    pointer-events: auto;
+  }
+  .om-hero__video-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    background: #fff;
+    border: 1.5px solid rgba(43, 44, 100, 0.12);
+    border-radius: var(--radius-pill);
+    padding: 6px 15px;
+    font-size: 12.5px;
+    font-weight: 700;
+    color: var(--color-heading);
+    box-shadow: 0 2px 12px rgba(43, 44, 100, 0.08);
+  }
+  .om-hero__video-dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: #e04545;
+    box-shadow: 0 0 0 3px rgba(224, 69, 69, 0.2);
+    animation: om-pulse 1.8s ease-in-out infinite;
+  }
+  .om-hero__video-frame {
+    position: relative;
+    width: 100%;
+    aspect-ratio: 16 / 9;
+    border-radius: 18px;
+    overflow: hidden;
+    background: #000;
+    box-shadow: 0 18px 48px rgba(0, 0, 0, 0.28);
+    border: 3px solid #fff;
+  }
+  .om-hero__video-frame iframe {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    border: 0;
+    display: block;
+  }
+  .om-hero__video-nota {
+    font-size: 12.5px;
+    font-weight: 500;
+    color: var(--color-secondary);
+    text-align: center;
+  }
+
+  /* Layout VSL: con grabación, el video es el protagonista — columna única
+     centrada, video grande arriba y la oferta debajo. */
+  .om-hero__inner--video {
+    grid-template-columns: 1fr;
+    justify-items: center;
+    text-align: center;
+    max-width: 940px;
+    gap: 32px;
+  }
+  .om-hero__inner--video .om-hero__phone {
+    width: 100%;
+    pointer-events: auto;
+  }
+  .om-hero__inner--video .om-hero__video {
+    max-width: 860px;
+    gap: 14px;
+  }
+  .om-hero__inner--video .om-hero__video-badge { font-size: 13.5px; }
+  .om-hero__inner--video .om-hero__content {
+    align-items: center;
+    text-align: center;
+    max-width: 660px;
+  }
+  .om-hero__inner--video .om-hero__content .om-cta { align-self: center; }
+  .om-hero__inner--video .om-hero__resumen-list li { text-align: left; }
+
+  /* Móvil: el video sigue arriba (es lo principal), la oferta debajo. */
+  @media (max-width: 820px) {
+    .om-hero__inner--video .om-hero__phone { order: 1; }
+    .om-hero__inner--video .om-hero__content { order: 2; }
+  }
   .om-hero__content {
     display: flex;
     flex-direction: column;
