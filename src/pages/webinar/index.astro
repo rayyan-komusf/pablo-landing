@@ -49,8 +49,10 @@ import { PROMO_MILLONARIA, WEBINAR_MANDAMIENTOS } from '../../siteConfig';
     </main>
   </div>
 
-  <!-- Oferta (aparece a las 8:40 PM del 23 y se queda hasta medianoche). -->
+  <!-- Oferta (aparece a las 8:40 PM del 23 y se queda hasta medianoche).
+       Con el header completo (Navbar) en vez del header mínimo de la oferta. -->
   <div id="wb-oferta" hidden>
+    <Navbar />
     <OfertaMillonaria />
   </div>
 
@@ -60,6 +62,9 @@ import { PROMO_MILLONARIA, WEBINAR_MANDAMIENTOS } from '../../siteConfig';
     #wb-evento[hidden], #wb-registro[hidden], #wb-cerrado[hidden], #wb-oferta[hidden] {
       display: none !important;
     }
+    /* En /webinar la oferta usa el Navbar completo: ocultamos el header mínimo
+       propio de la oferta para no duplicar. */
+    #wb-oferta :global(.om-header) { display: none; }
     .wb-cerrado {
       min-height: 60vh;
       display: flex;
