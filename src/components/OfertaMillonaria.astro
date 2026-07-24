@@ -308,17 +308,6 @@ const faqs = [
       </div>
     </section>
 
-    <!-- ════════════════ PRUEBA SOCIAL (banda navy) ════════════════ -->
-    <section class="om-social">
-      <div class="container om-social__inner">
-        <p class="om-social__lead">Gente real que ya ordena su plata con Pablo</p>
-        <div class="om-social__chips">
-          <span class="om-social__chip"><span class="om-social__stars">★★★★★</span> “Pablo me cambia la vida, la verdad.” · Adrián, 19</span>
-          <span class="om-social__chip"><span class="om-social__stars">★★★★★</span> “Pasé de 2 horas a 30 min por semana.” · Daniel, 25</span>
-          <span class="om-social__chip"><span class="om-social__stars">★★★★★</span> “Por fin veo a dónde se va mi plata.” · Mirella</span>
-        </div>
-      </div>
-    </section>
 
     <!-- ════════════════ BONOS: cada uno su propia hoja ════════════════ -->
     {stack.map((item, i) => (
@@ -2215,8 +2204,16 @@ const faqs = [
 
   /* ── Resumen (claro) ── */
   .om-resumen { background: var(--bg-how); padding: var(--section-py) 0; }
+  .om-resumen .container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 24px;
+  }
+  .om-resumen .om-sec-header { margin-bottom: 0; }
   .om-resumen .om-sec-title { color: var(--color-heading); }
   .om-resumen .om-sec-sub { color: var(--color-body); }
+  .om-recap { margin: 0 auto; }
 
   /* ── Testimonios (claro, como en la landing) ── */
   .om-testimonios { background: var(--bg-testimonials); }
