@@ -367,9 +367,12 @@
   /* Paywall con la Oferta Millonaria. CSS propio (no utilidades de Tailwind):
      el bundle de Tailwind del onboarding es un artefacto precompilado, así que
      clases nuevas de utilidad no existirían en base.css. */
+  /* display:block a propósito, no flex: como flex-item en fila el inner se
+     estiraba a la altura del contenedor y su padding-bottom quedaba POR ENCIMA
+     del contenido desbordado, dejando el link gris pegado al borde. */
   .om-paywall {
-    display: flex;
-    flex: 1;
+    display: block;
+    flex: 1 1 auto;
     width: 100%;
     overflow-y: auto;
     scrollbar-width: none;
@@ -387,7 +390,9 @@
     width: 100%;
     max-width: 380px;
     margin: 0 auto;
-    padding: 18px 20px 34px;
+    /* Fondo generoso: el link gris del downsell es lo último y no debe quedar
+       pegado al borde (en móvil real la barra del navegador se come espacio). */
+    padding: 18px 20px 56px;
   }
 
   .om-paywall__logo {
