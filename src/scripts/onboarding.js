@@ -120,6 +120,11 @@ class OnboardingEngine {
   skipBtn = null;
 
   init() {
+    // Plan y oferta que llegan por URL (/onboarding?plan=anual&oferta=millonaria,
+    // desde la landing de la Oferta Millonaria). Se guardan antes de todo para
+    // que el paywall (step-18) ya sepa qué mostrar y con qué plan preseleccionado.
+    this.leerParametrosDeOferta();
+
     this.steps = document.querySelectorAll(".step");
     this.topbar = document.getElementById("topbar");
     this.progressFill = document.getElementById("progressFill");
@@ -577,6 +582,26 @@ class OnboardingEngine {
     first.forEach((v, i) => setTimeout(() => check(v), i * stepMs));
     const offset = first.length * stepMs + pauseMs;
     rest.forEach((v, i) => setTimeout(() => check(v), offset + i * stepMs));
+  }
+
+  /**
+   * Lee ?plan= y ?oferta= de la URL y los deja en sessionStorage.
+   *   plan=semanal|mensual|anual → "pablo_plan_elegido" (lo usa el registro y
+   *     el checkout; step-18 lo respeta como selección por defecto).
+   *   oferta=millonaria → "pablo_oferta_millonaria" = "1", que hace que el
+   *     paywall final muestre el recap de la Oferta Millonaria completa.
+   */
+  leerParametrosDeOferta() {
+    try {
+      const params = new URLSearchParams(window.location.search);
+      const plan = params.get("plan");
+      if (plan && ["semanal", "mensual", "anual"].includes(plan)) {
+        sessionStorage.setItem("pablo_plan_elegido", plan);
+      }
+      if (params.get("oferta") === "millonaria") {
+        sessionStorage.setItem("pablo_oferta_millonaria", "1");
+      }
+    } catch {}
   }
 
   getCurrentStep() {

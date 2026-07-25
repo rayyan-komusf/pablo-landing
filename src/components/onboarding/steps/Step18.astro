@@ -1,6 +1,115 @@
 <!-- Paywall: prueba gratuita + modal de planes (checkout con Flow en la app) -->
 <section class="step !pb-0" data-step="step-18" aria-label="Empieza tu prueba gratuita" aria-hidden="true">
-  <div class="flex flex-col flex-1 w-full max-w-[340px] mx-auto px-5 pt-6 pb-8 max-md:pb-[40px] overflow-y-auto [scrollbar-width:none] [&::-webkit-scrollbar]:hidden vcenter">
+  <!-- ══════════ Variante OFERTA MILLONARIA ══════════
+       Cuando el usuario llegó desde la landing (/onboarding?oferta=millonaria)
+       o estamos dentro de la ventana de la oferta, el paywall NO muestra la
+       prueba gratuita: le vuelve a presentar la Oferta Millonaria completa,
+       con cada bono, su valor real y lo que paga hoy. Abajo, en gris, el
+       downsell del mensual. Se revela por JS (ver script al final). -->
+  <div class="om-paywall" data-om-oferta hidden>
+    <div class="om-paywall__inner">
+      <img
+        src="/onboarding/images/pablo/pablo-logo.png"
+        alt="Pablo"
+        class="om-paywall__logo"
+        width="64"
+        height="64"
+      />
+
+      <div class="om-paywall__head">
+        <span class="om-paywall__eyebrow">La Oferta Millonaria</span>
+        <h2 class="om-paywall__titulo">Esto es todo lo que te llevas hoy</h2>
+        <p class="om-paywall__sub">
+          Cierra el martes 29 de julio a las 11:59 p.m. Después, esta
+          combinación de bonos ya no existe.
+        </p>
+      </div>
+
+      <ul class="om-paywall__lista">
+        <li>
+          <span class="om-paywall__nombre">
+            Plan Anual de Pablo
+            <em>12 meses · tu asistente en WhatsApp</em>
+          </span>
+          <span class="om-paywall__precio">
+            <s>S/.240</s>
+            <strong>hoy S/.200</strong>
+          </span>
+        </li>
+        <li>
+          <span class="om-paywall__nombre">
+            <b>Bono 1</b> · Reto “Camino al Millón en 30 días”
+            <em>Cúmplelo y te devolvemos todo</em>
+          </span>
+          <span class="om-paywall__precio">
+            <s>S/.97</s>
+            <strong>100% reembolso</strong>
+          </span>
+        </li>
+        <li>
+          <span class="om-paywall__nombre">
+            <b>Bono 2</b> · Curso “Finanzas de un Futuro Millonario”
+            <em>Finanzas personales sin palabreo de banco</em>
+          </span>
+          <span class="om-paywall__precio">
+            <s>S/.300</s>
+            <strong>gratis</strong>
+          </span>
+        </li>
+        <li>
+          <span class="om-paywall__nombre">
+            <b>Bono 3</b> · Pase Mensual a La Komunidad
+            <em>Un mes de clases EN VIVO con Rodrigo</em>
+          </span>
+          <span class="om-paywall__precio">
+            <s>S/.80</s>
+            <strong>gratis</strong>
+          </span>
+        </li>
+        <li>
+          <span class="om-paywall__nombre">
+            <b>Bono 4</b> · Toolkit Komunitario
+            <em>+10 plantillas y guías listas para usar</em>
+          </span>
+          <span class="om-paywall__precio">
+            <s>S/.50</s>
+            <strong>gratis</strong>
+          </span>
+        </li>
+        <li>
+          <span class="om-paywall__nombre">
+            <b>Bono 5</b> · Garantía de satisfacción de 14 días
+            <em>Si no es para ti, te devolvemos tu plata</em>
+          </span>
+          <span class="om-paywall__precio">
+            <strong>incluida</strong>
+          </span>
+        </li>
+      </ul>
+
+      <div class="om-paywall__total">
+        <p class="om-paywall__tachado">S/.527 en bonos</p>
+        <p class="om-paywall__monto">S/. 200 <span>/año</span></p>
+        <p class="om-paywall__gratis">S/. 0 si completas el reto de 30 días</p>
+      </div>
+
+      <button
+        class="btn-primary w-full text-[16px] py-[14px]"
+        style="box-shadow: none"
+        onclick="pabloStartTrial('anual')"
+      >
+        <span>Quiero el Plan Anual + todos los bonos</span>
+        <span class="arrow" aria-hidden="true">→</span>
+      </button>
+
+      <!-- Downsell en gris, deliberadamente secundario -->
+      <button class="om-paywall__downsell" onclick="pabloStartTrial('mensual')">
+        o empieza gratis por 14 días — tiempo limitado
+      </button>
+    </div>
+  </div>
+
+  <div class="flex flex-col flex-1 w-full max-w-[340px] mx-auto px-5 pt-6 pb-8 max-md:pb-[40px] overflow-y-auto [scrollbar-width:none] [&::-webkit-scrollbar]:hidden vcenter" data-om-default>
     <!-- Top Block -->
     <div class="flex flex-col gap-3">
       <!-- Pablo logo -->
@@ -168,6 +277,34 @@
       ahora < Date.parse("2026-07-30T00:00:00-05:00")
     );
   })();
+
+  // ¿Mostramos el paywall con la Oferta Millonaria completa en vez de la
+  // prueba gratuita? Sí si el usuario entró desde la landing de la oferta
+  // (?oferta=millonaria, guardado por onboarding.js) o si estamos dentro de la
+  // ventana de la oferta. Fuera de eso, el paywall queda como siempre.
+  // Se lee de la URL Y de sessionStorage: este script corre antes que
+  // onboarding.js (está más arriba en el documento), así que en la primera
+  // carga la URL es la única fuente; en recargas posteriores, sessionStorage.
+  const llegoDesdeLaOferta = (() => {
+    try {
+      if (new URLSearchParams(location.search).get("oferta") === "millonaria") return true;
+      return sessionStorage.getItem("pablo_oferta_millonaria") === "1";
+    } catch {
+      return false;
+    }
+  })();
+  if (enPromoMillonaria || llegoDesdeLaOferta) {
+    const bloqueOferta = document.querySelector("[data-om-oferta]");
+    const bloqueDefault = document.querySelector("[data-om-default]");
+    if (bloqueOferta && bloqueDefault) {
+      bloqueOferta.hidden = false;
+      bloqueDefault.hidden = true;
+      window.pabloTrack?.("onboarding_paywall_millonaria_visto", {
+        desde_landing: llegoDesdeLaOferta,
+      });
+    }
+  }
+
   if (enPromoMillonaria) {
     planes.mensual.trialDays = 14;
     planes.mensual.ctaLabel = "Empieza tu prueba gratuita de 14 días";
@@ -225,3 +362,172 @@
   window.pabloSelectPlan = seleccionarPlan;
   window.pabloStartTrial = iniciarPrueba;
 </script>
+
+<style>
+  /* Paywall con la Oferta Millonaria. CSS propio (no utilidades de Tailwind):
+     el bundle de Tailwind del onboarding es un artefacto precompilado, así que
+     clases nuevas de utilidad no existirían en base.css. */
+  .om-paywall {
+    display: flex;
+    flex: 1;
+    width: 100%;
+    overflow-y: auto;
+    scrollbar-width: none;
+  }
+  /* !important porque la utilidad `flex` de Tailwind del bloque por defecto
+     le gana al display:none del atributo [hidden] del navegador. */
+  .om-paywall[hidden],
+  [data-om-default][hidden] { display: none !important; }
+  .om-paywall::-webkit-scrollbar { display: none; }
+
+  .om-paywall__inner {
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+    width: 100%;
+    max-width: 380px;
+    margin: 0 auto;
+    padding: 18px 20px 34px;
+  }
+
+  .om-paywall__logo {
+    width: 60px;
+    height: 60px;
+    border-radius: 16px;
+    object-fit: cover;
+    margin: 0 auto;
+    filter: drop-shadow(0 6px 16px rgba(43, 44, 100, 0.18));
+  }
+
+  .om-paywall__head {
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+    text-align: center;
+  }
+
+  .om-paywall__eyebrow {
+    font-size: 10.5px;
+    font-weight: 800;
+    text-transform: uppercase;
+    letter-spacing: 0.14em;
+    color: #f5a623;
+  }
+
+  .om-paywall__titulo {
+    font-family: var(--font-display, "Outfit", sans-serif);
+    font-weight: 700;
+    font-size: 23px;
+    line-height: 1.15;
+    letter-spacing: -0.01em;
+    color: #2b2c64;
+  }
+
+  .om-paywall__sub {
+    font-size: 12.5px;
+    line-height: 1.5;
+    color: #4d4f88;
+  }
+
+  /* Lista: cada bono en su propia fila, con su valor real tachado */
+  .om-paywall__lista {
+    display: flex;
+    flex-direction: column;
+    background: #fff;
+    border-radius: 20px;
+    padding: 6px 16px;
+    list-style: none;
+  }
+  .om-paywall__lista li {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 12px;
+    padding: 11px 0;
+    border-bottom: 1px solid #efedf7;
+  }
+  .om-paywall__lista li:last-child { border-bottom: 0; }
+
+  .om-paywall__nombre {
+    font-size: 12.5px;
+    font-weight: 600;
+    line-height: 1.35;
+    color: #2b2c64;
+  }
+  .om-paywall__nombre b {
+    font-weight: 800;
+    color: #f5a623;
+  }
+  .om-paywall__nombre em {
+    display: block;
+    font-style: normal;
+    font-weight: 400;
+    font-size: 11px;
+    line-height: 1.4;
+    color: #4d4f88;
+    margin-top: 2px;
+  }
+
+  .om-paywall__precio {
+    flex-shrink: 0;
+    text-align: right;
+  }
+  .om-paywall__precio s {
+    display: block;
+    font-size: 11px;
+    color: #8b8db3;
+  }
+  .om-paywall__precio strong {
+    display: block;
+    font-size: 12.5px;
+    font-weight: 800;
+    color: #2a7a52;
+    white-space: nowrap;
+  }
+
+  .om-paywall__total {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 2px;
+    background: #fff;
+    border-radius: 20px;
+    padding: 18px 20px;
+    text-align: center;
+  }
+  .om-paywall__tachado {
+    font-size: 12px;
+    color: #8b8db3;
+    text-decoration: line-through;
+  }
+  .om-paywall__monto {
+    font-family: var(--font-display, "Outfit", sans-serif);
+    font-weight: 700;
+    font-size: 30px;
+    line-height: 1.1;
+    color: #2b2c64;
+  }
+  .om-paywall__monto span { font-size: 16px; font-weight: 700; }
+  .om-paywall__gratis {
+    font-size: 11.5px;
+    font-weight: 700;
+    color: #3fa643;
+  }
+
+  /* Downsell en gris: existe, pero no compite con el CTA principal. */
+  .om-paywall__downsell {
+    display: block;
+    width: 100%;
+    background: none;
+    border: 0;
+    cursor: pointer;
+    padding: 4px 0 0;
+    font-size: 12.5px;
+    font-weight: 500;
+    color: #8b8db3;
+    text-decoration: underline;
+    text-underline-offset: 3px;
+    transition: color 0.15s;
+  }
+  .om-paywall__downsell:hover { color: #4d4f88; }
+</style>
