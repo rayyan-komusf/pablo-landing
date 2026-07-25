@@ -34,7 +34,10 @@ const CHECKOUT_URL_MENSUAL = "/onboarding?plan=mensual&oferta=millonaria";
 const DEADLINE_ISO = "2026-07-29T23:59:59-05:00";
 const DEADLINE_TEXTO = "martes 29 de julio";
 // Nombre del taller: es el título del hero, va ARRIBA del video.
-const TALLER_TITULO = "Ordena tu plata en 30 días";
+const TALLER_TITULO = "Crece tus ahorros en 30 días";
+const TALLER_SUBTITULO =
+  "Empieza tu camino a la libertad financiera tomando el control de tus " +
+  "gastos, sin tener que sacrificar tus gustos.";
 
 // El stack de la oferta. `valorReal` = precio tachado (valor de mercado);
 // `incluido` = qué recibes hoy; `cta` = call-to-action propio de cada bono
@@ -287,11 +290,10 @@ const faqs = [
 
         <div class="container om-hero__vsl">
           <div class="om-hero__titulo-wrap">
-            <h1 class="om-hero__title om-hero__title--taller">{TALLER_TITULO}</h1>
-            <p class="om-hero__kicker">
-              El taller completo, gratis. Y si cumples el reto, Pablo te sale
-              <span class="om-gratis">GRATIS</span> todo el año.
-            </p>
+            <h1 class="om-hero__title om-hero__title--taller">
+              Crece tus ahorros en <span class="highlight">30 días</span>
+            </h1>
+            <p class="om-hero__kicker">{TALLER_SUBTITULO}</p>
           </div>
 
           <div class="om-hero__video">
@@ -313,7 +315,7 @@ const faqs = [
             id="om-cta-hero"
             onclick="try{window.posthog?.capture('millonaria_cta_clicked',{location:'hero'})}catch(e){};if(typeof fbq!=='undefined')fbq('trackCustom','Millonaria_CTA',{location:'hero'});"
           >
-            Quiero ordenar mi plata y empezar el reto
+            Quiero crecer mis ahorros
           </a>
 
           <div class="om-hero__cierre">
@@ -327,9 +329,15 @@ const faqs = [
               <div class="om-cd__unit"><span class="om-cd__num" data-cd="s">--</span><span class="om-cd__label">seg</span></div>
             </div>
             <p class="om-hero__deadline">
-              La oferta cierra el {DEADLINE_TEXTO} a las 11:59 p.m. (hora Perú).
-              Pago único de S/.200 por 12 meses.
+              Cierra el {DEADLINE_TEXTO} a las 11:59 p.m. — pago único de S/.200 por 12 meses.
             </p>
+            <!-- Reversión de riesgo arriba del pliegue: es la objeción más
+                 grande (S/.200 de golpe) y se responde antes de pedir el clic. -->
+            <ul class="om-hero__trust-row">
+              <li>Garantía de 14 días</li>
+              <li>100% de reembolso si cumples el reto</li>
+              <li>Cancelas cuando quieras</li>
+            </ul>
           </div>
 
           <span class="om-hero__scroll" aria-hidden="true">
@@ -372,7 +380,7 @@ const faqs = [
               <li>Curso “Finanzas de un Futuro Millonario”</li>
               <li>Pase a La Komunidad + Toolkit</li>
               <li>Garantía de satisfacción de 14 días</li>
-              <li data-noche hidden>🔥 Asesoría 1-a-1 con Rodrigo — solo esta noche</li>
+              <li data-noche hidden>Asesoría 1-a-1 con Rodrigo — solo esta noche</li>
             </ul>
           </div>
 
@@ -462,7 +470,7 @@ const faqs = [
 
             <article class="om-card om-card--noche" data-noche hidden>
               <header class="om-card__top">
-                <span class="om-card__tag om-card__tag--fire">🔥 Solo esta noche</span>
+                <span class="om-card__tag om-card__tag--fire">Solo esta noche</span>
                 <span class="om-card__num" aria-hidden="true">+</span>
               </header>
               <div class="om-card__media">
@@ -511,6 +519,27 @@ const faqs = [
           >
             Quiero mi Plan Anual + todos los bonos
           </a>
+        </div>
+      </section>
+    )}
+
+    <!-- ════════════════ 3. PRUEBA SOCIAL ════════════════
+         Va acá a propósito: justo después de ver el precio y antes de recorrer
+         los bonos. El orden es promesa → precio → "y no soy el único". -->
+    {heroVideoId && (
+      <section class="om-social">
+        <div class="container om-social__inner">
+          <p class="om-social__label">Ya le funciona a gente real</p>
+          <div class="om-social__pills">
+            {testimonios.slice(0, 3).map((t) => (
+              <blockquote class="om-social__pill">
+                <p class="om-social__quote">“{t.quote}”</p>
+                <footer class="om-social__autor">
+                  {t.nombre} <span>· {t.detalle}</span>
+                </footer>
+              </blockquote>
+            ))}
+          </div>
         </div>
       </section>
     )}
@@ -564,7 +593,7 @@ const faqs = [
               )}
               {item.proof && (
                 <div class="om-bono__proof">
-                  <span class="om-bono__proof-label">✔ Ya le funciona a gente real</span>
+                  <span class="om-bono__proof-label">Ya le funciona a gente real</span>
                   <p class="om-bono__proof-quote">“{item.proof.quote}”</p>
                   <span class="om-bono__proof-autor">— {item.proof.nombre}, {item.proof.detalle}</span>
                 </div>
@@ -594,7 +623,7 @@ const faqs = [
                 />
               </div>
               <div class="om-bono__body">
-                <span class="om-bono__tag om-bono__tag--fire">🔥 Bono EN VIVO · solo esta noche</span>
+                <span class="om-bono__tag om-bono__tag--fire">Bono EN VIVO · solo esta noche</span>
                 <h2 class="om-bono__title">Asesoría 1-a-1 con Rodrigo</h2>
                 <div class="om-bono__valor">
                   <s class="om-bono__tachado">S/.200</s>
@@ -631,7 +660,7 @@ const faqs = [
         <div class="om-recap">
           <ul class="om-recap__list">
             <li data-noche hidden>
-              <span class="om-recap__nombre">🔥 Asesoría 1-a-1 con Rodrigo <em>(solo esta noche)</em></span>
+              <span class="om-recap__nombre">Asesoría 1-a-1 con Rodrigo <em>(solo esta noche)</em></span>
               <span class="om-recap__val"><s>S/.200</s> <strong>incluida</strong></span>
             </li>
             <li>
@@ -926,6 +955,34 @@ const faqs = [
       </div>
     </section>
   </main>
+
+  <!-- ════════════════ BARRA FIJA DE CTA ════════════════
+       En una página de ventas larga el clic se pierde entre pantalla y
+       pantalla. La barra aparece cuando el hero sale de vista y se esconde
+       cuando el CTA final ya está en pantalla (para no competir con él). -->
+  {heroVideoId && (
+    <div class="om-sticky" id="om-sticky" aria-hidden="true">
+      <div class="container om-sticky__inner">
+        <div class="om-sticky__precio">
+          <span class="om-sticky__tachado">{VALOR_BONOS} en valor</span>
+          <strong class="om-sticky__monto">S/.200 <span>el año</span></strong>
+        </div>
+        <span class="om-countdown om-countdown--mini om-sticky__cd" data-deadline={DEADLINE_ISO}>
+          <span class="om-cd__mini"><b data-cd="d">--</b>d</span>
+          <span class="om-cd__mini"><b data-cd="h">--</b>h</span>
+          <span class="om-cd__mini"><b data-cd="m">--</b>m</span>
+          <span class="om-cd__mini om-cd__mini--seg"><b data-cd="s">--</b>s</span>
+        </span>
+        <a
+          href={CHECKOUT_URL}
+          class="om-sticky__cta"
+          onclick="try{window.posthog?.capture('millonaria_cta_clicked',{location:'sticky'})}catch(e){};if(typeof fbq!=='undefined')fbq('trackCustom','Millonaria_CTA',{location:'sticky'});"
+        >
+          Quiero mi plan
+        </a>
+      </div>
+    </div>
+  )}
 
   <!-- Los CTA ya NO abren el modal de "crea tu cuenta": son links directos al
        onboarding (/onboarding?plan=anual&oferta=millonaria). El usuario nuevo
@@ -2390,7 +2447,47 @@ const faqs = [
     font-weight: 500;
     line-height: 1.45;
     color: var(--color-secondary);
-    max-width: 420px;
+    /* Ancho suficiente para que quepa en una línea en desktop y no deje
+       "meses." solo en la segunda. */
+    max-width: 560px;
+  }
+
+  /* Tres micro-pruebas de riesgo cero, en una línea */
+  .om-hero__trust-row {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-wrap: wrap;
+    gap: 6px 14px;
+    list-style: none;
+  }
+  .om-hero__trust-row li {
+    position: relative;
+    padding-left: 15px;
+    font-size: 11.5px;
+    font-weight: 600;
+    color: var(--color-heading);
+    opacity: 0.72;
+    white-space: nowrap;
+  }
+  .om-hero__trust-row li::before {
+    content: "";
+    position: absolute;
+    left: 0;
+    top: 50%;
+    width: 8px;
+    height: 4px;
+    border-left: 2px solid var(--color-green);
+    border-bottom: 2px solid var(--color-green);
+    transform: translateY(-70%) rotate(-45deg);
+  }
+
+  /* El resaltador del hero: en un título de 52px el trazo por defecto (40%)
+     queda como una banda gruesa. Se sube y se adelgaza para que se lea como
+     un plumón sobre la línea base, no como un bloque detrás del texto. */
+  .om-hero__title--taller .highlight::after {
+    bottom: 5px;
+    height: 26%;
   }
 
   .om-hero__scroll {
@@ -2415,6 +2512,20 @@ const faqs = [
     .om-hero__scroll { display: none; }
     .om-countdown--hero .om-cd__unit { min-width: 44px; padding: 4px 8px; }
     .om-countdown--hero .om-cd__num { font-size: 17px; }
+  }
+
+  /* Móviles chicos (360×640 y parecidos): el video puede encoger más y el
+     texto de apoyo baja un punto, para que la fila de garantías siga entrando
+     en la primera pantalla. */
+  @media (max-height: 680px) {
+    .om-hero--vsl { min-height: 0; padding: 10px 0 14px; }
+    .om-hero__vsl { gap: 8px; }
+    .om-hero__vsl .om-hero__video { min-height: 104px; }
+    .om-hero__kicker { font-size: 12.5px; }
+    .om-hero__deadline { font-size: 11.5px; }
+    .om-hero__trust-row { gap: 4px 10px; }
+    .om-hero__trust-row li { font-size: 10.5px; }
+    .om-hero__cta { padding: 12px 20px; font-size: 14px; }
   }
   .om-hero__content {
     display: flex;
@@ -2461,10 +2572,52 @@ const faqs = [
     font-weight: 800;
   }
   .om-hero__resumen-list li[data-noche] { color: #875a00; font-weight: 600; }
-  .om-hero__resumen-list li[data-noche]::before { content: "🔥"; }
+  .om-hero__resumen-list li[data-noche]::before { content: "★"; color: var(--color-amber); }
 
-  /* ── Banda social ── */
-  .om-social { background: #20214a; }
+  /* ── Banda de prueba social (navy, entre el precio y los bonos) ── */
+  .om-social { background: #20214a; padding: 56px 0 64px; }
+  .om-social__inner {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 26px;
+  }
+  .om-social__label {
+    font-size: 11.5px;
+    font-weight: 800;
+    text-transform: uppercase;
+    letter-spacing: 0.14em;
+    color: #7BE495;
+  }
+  .om-social__pills {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+    gap: 16px;
+    width: 100%;
+    max-width: 1040px;
+  }
+  .om-social__pill {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    background: rgba(255, 255, 255, 0.06);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: var(--radius-md);
+    padding: 20px 22px;
+  }
+  .om-social__quote {
+    font-size: 14.5px;
+    line-height: 1.6;
+    color: #fff;
+    font-style: italic;
+    flex: 1;
+  }
+  .om-social__autor {
+    font-size: 12.5px;
+    font-weight: 700;
+    color: var(--color-amber);
+  }
+  .om-social__autor span { font-weight: 500; color: rgba(255, 255, 255, 0.6); }
 
   /* ════════════════ SEGUNDA PANTALLA: TODO LO QUE INCLUYE ════════════════
      Un inventario donde cada bono es visiblemente SU bono: tarjeta propia,
@@ -2658,10 +2811,83 @@ const faqs = [
     .om-incluye__grid { gap: 14px; }
   }
 
+  /* ════════════════ BARRA FIJA DE CTA ════════════════ */
+  .om-sticky {
+    position: fixed;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    z-index: 60;
+    background: rgba(27, 28, 64, 0.96);
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+    border-top: 1px solid rgba(255, 255, 255, 0.1);
+    box-shadow: 0 -8px 30px rgba(0, 0, 0, 0.22);
+    padding: 10px 0 calc(10px + env(safe-area-inset-bottom));
+    transform: translateY(110%);
+    transition: transform 0.28s cubic-bezier(0.22, 1, 0.36, 1);
+  }
+  .om-sticky.is-visible { transform: none; }
+
+  .om-sticky__inner {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 18px;
+  }
+  .om-sticky__precio { display: flex; flex-direction: column; gap: 1px; }
+  .om-sticky__tachado {
+    font-size: 11px;
+    color: rgba(255, 255, 255, 0.5);
+    text-decoration: line-through;
+    white-space: nowrap;
+  }
+  .om-sticky__monto {
+    font-family: var(--font-heading);
+    font-weight: 700;
+    font-size: 19px;
+    line-height: 1.1;
+    color: #fff;
+    white-space: nowrap;
+  }
+  .om-sticky__monto span {
+    font-family: var(--font-body);
+    font-size: 11.5px;
+    font-weight: 500;
+    color: rgba(255, 255, 255, 0.6);
+  }
+  .om-sticky__cd { margin-right: auto; }
+  .om-sticky__cta {
+    flex-shrink: 0;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding: 12px 26px;
+    border-radius: 14px;
+    background: var(--gradient-cta);
+    color: #2b2c64;
+    font-family: var(--font-body);
+    font-weight: 800;
+    font-size: 14px;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    box-shadow: 0 3px 0 0 #c9820a;
+    transition: transform 0.12s ease, box-shadow 0.12s ease;
+  }
+  .om-sticky__cta:hover { transform: translateY(-1px); box-shadow: 0 4px 0 0 #c9820a; }
+  .om-sticky__cta:active { transform: translateY(2px); box-shadow: 0 1px 0 0 #c9820a; }
+
+  @media (max-width: 560px) {
+    .om-sticky__inner { gap: 12px; }
+    .om-sticky__cd { display: none; }
+    .om-sticky__precio { margin-right: auto; }
+    .om-sticky__cta { padding: 12px 18px; font-size: 13px; }
+  }
+
   /* ── BONOS: cada uno a pantalla completa; ALTERNAN blanco / navy ── */
   .om-bono {
     position: relative;
-    min-height: 100vh;
+    min-height: 82vh;
     display: flex;
     align-items: center;
     padding: 72px 0;
@@ -3085,6 +3311,45 @@ const faqs = [
     };
     medirChrome();
     window.addEventListener('resize', medirChrome);
+  }
+
+  // ── Barra fija de CTA ──
+  // Aparece cuando el hero sale de vista y se esconde cuando el CTA final ya
+  // está en pantalla: dos botones grandes compitiendo confunden más que ayudan.
+  const sticky = document.getElementById('om-sticky');
+  const heroSection = document.querySelector<HTMLElement>('.om-hero--vsl');
+  // El cierre = CTA final + downsell. Con cualquiera de los dos en pantalla la
+  // barra se esconde: dos botones grandes compitiendo confunden más que ayudan.
+  const cierres = document.querySelectorAll<HTMLElement>('.om-final, .om-downsell');
+  if (sticky && heroSection) {
+    let heroFuera = false;
+    const cierresALaVista = new Set<Element>();
+
+    const pintar = () => {
+      const mostrar = heroFuera && cierresALaVista.size === 0;
+      sticky.classList.toggle('is-visible', mostrar);
+      sticky.setAttribute('aria-hidden', mostrar ? 'false' : 'true');
+    };
+
+    new IntersectionObserver(
+      ([e]) => {
+        heroFuera = !e.isIntersecting;
+        pintar();
+      },
+      { rootMargin: '-80px 0px 0px 0px' },
+    ).observe(heroSection);
+
+    const observadorCierre = new IntersectionObserver(
+      (entradas) => {
+        entradas.forEach((e) => {
+          if (e.isIntersecting) cierresALaVista.add(e.target);
+          else cierresALaVista.delete(e.target);
+        });
+        pintar();
+      },
+      { threshold: 0.12 },
+    );
+    cierres.forEach((c) => observadorCierre.observe(c));
   }
 
   // ── FAQ acordeón (mismo patrón que FAQ.astro) ──

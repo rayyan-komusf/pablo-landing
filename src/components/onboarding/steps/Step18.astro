@@ -6,6 +6,13 @@
        prueba gratuita: le vuelve a presentar la Oferta Millonaria completa,
        con cada bono, su valor real y lo que paga hoy. Abajo, en gris, el
        downsell del mensual. Se revela por JS (ver script al final). -->
+  <!-- Caveat: la letra manuscrita de la nota (mismo recurso que usa la carta
+       de Rodrigo en la landing de la oferta). -->
+  <link
+    rel="stylesheet"
+    href="https://fonts.googleapis.com/css2?family=Caveat:wght@500;600&display=swap"
+  />
+
   <div class="om-paywall" data-om-oferta hidden>
     <div class="om-paywall__inner">
       <img
@@ -18,7 +25,25 @@
 
       <div class="om-paywall__head">
         <span class="om-paywall__eyebrow">La Oferta Millonaria</span>
-        <h2 class="om-paywall__titulo">Esto es todo lo que te llevas hoy</h2>
+        <h2 class="om-paywall__titulo">Crece tus ahorros en 30 días</h2>
+      </div>
+
+      <!-- Nuestra nota, de puño y letra: va ANTES de los precios a propósito.
+           Primero la promesa humana, después la oferta. -->
+      <div class="om-nota">
+        <p class="om-nota__p">
+          Solo nos importa que sigas usando a Pablo si en verdad cambia tu vida
+          financiera.
+        </p>
+        <p class="om-nota__p">
+          Si sientes que Pablo no es para ti, te devolveremos el
+          <strong>100% de tu dinero</strong>. Sin preguntas.
+        </p>
+        <p class="om-nota__firma">— El equipo de Pablo 💛</p>
+      </div>
+
+      <div class="om-paywall__divisor">
+        <span class="om-paywall__divisor-tag">Bonos por tiempo limitado</span>
         <p class="om-paywall__sub">
           Cierra el martes 29 de julio a las 11:59 p.m. Después, esta
           combinación de bonos ya no existe.
@@ -432,6 +457,52 @@
     font-size: 12.5px;
     line-height: 1.5;
     color: #4d4f88;
+  }
+
+  /* ── Nota manuscrita ── */
+  .om-nota {
+    background: #fffdf5;
+    border: 1px solid #f2e6c9;
+    border-radius: 20px;
+    padding: 20px 22px 18px;
+    box-shadow: 0 6px 20px rgba(43, 44, 100, 0.06);
+  }
+  .om-nota__p {
+    font-family: "Caveat", cursive;
+    font-weight: 500;
+    font-size: 20px;
+    line-height: 1.45;
+    color: #3a3a5c;
+  }
+  .om-nota__p + .om-nota__p { margin-top: 10px; }
+  .om-nota__p strong { font-weight: 600; color: #2b2c64; }
+  .om-nota__firma {
+    font-family: "Caveat", cursive;
+    font-weight: 600;
+    font-size: 21px;
+    color: #d99413;
+    margin-top: 14px;
+    text-align: right;
+  }
+
+  /* ── Divisor: acá arranca la oferta ── */
+  .om-paywall__divisor {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 6px;
+    text-align: center;
+    margin-top: 4px;
+  }
+  .om-paywall__divisor-tag {
+    background: #2b2c64;
+    color: #fff;
+    font-size: 10px;
+    font-weight: 800;
+    text-transform: uppercase;
+    letter-spacing: 0.12em;
+    padding: 6px 14px;
+    border-radius: 999px;
   }
 
   /* Lista: cada bono en su propia fila, con su valor real tachado */
