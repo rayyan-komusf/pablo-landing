@@ -520,6 +520,28 @@ const faqs = [
         <div class="om-hero__blob om-hero__blob--2" aria-hidden="true"></div>
 
         <div class="container om-hero__promo">
+          <!-- ── Cabecera a lo ancho: sello, headline y kicker centrados ── -->
+          <div class="om-hero__cabecera">
+            <span class="om-hero__eyebrow">Pablo Promo · Fiestas Patrias</span>
+
+            <!-- El headline volvió a la versión del 26-jul (pedido de Rodrigo
+                 27-jul: "el headline regrese a como estaba antes"). "Si haces
+                 tu parte, te sale gratis" = su promesa de los correos ("Pablo
+                 te sale gratis todo un año... depende 100% de ti", C82). -->
+            <h1 class="om-hero__title om-hero__title--promo">
+              Este año sí. Y si haces tu parte, <span class="highlight">te sale gratis</span>.
+            </h1>
+
+            <p class="om-hero__kicker">
+              Un año entero de Pablo, tu asistente financiero en WhatsApp, por
+              S/.200. 12 meses al precio de 10.
+            </p>
+          </div>
+
+          <!-- ── El reparto (boceto de Rodrigo 27-jul): carrusel en una caja
+               alta a la izquierda; a la derecha la lista de lo que entra con
+               el precio debajo. CTA y countdown centrados, a lo ancho. ── -->
+          <div class="om-hero__split">
           <!-- ── El carrusel vertical ── -->
           <div class="om-loop" data-loop>
             <!-- aria-hidden: el contenido de las 7 imágenes ya está en texto en
@@ -553,23 +575,8 @@ const faqs = [
             </div>
           </div>
 
-          <!-- ── La oferta ── -->
-          <div class="om-hero__promo-content">
-            <span class="om-hero__eyebrow">Pablo Promo · Fiestas Patrias</span>
-
-            <!-- El headline volvió a la versión del 26-jul (pedido de Rodrigo
-                 27-jul: "el headline regrese a como estaba antes"). "Si haces
-                 tu parte, te sale gratis" = su promesa de los correos ("Pablo
-                 te sale gratis todo un año... depende 100% de ti", C82). -->
-            <h1 class="om-hero__title om-hero__title--promo">
-              Este año sí. Y si haces tu parte, <span class="highlight">te sale gratis</span>.
-            </h1>
-
-            <p class="om-hero__kicker">
-              Un año entero de Pablo, tu asistente financiero en WhatsApp, por
-              S/.200. 12 meses al precio de 10.
-            </p>
-
+          <!-- ── La oferta: lista + precio, columna derecha del reparto ── -->
+          <div class="om-hero__derecha">
             <!-- El primer frame del loop es Pablo solo (no es un bono), así que
                  la lista arranca en el segundo: 6 ítems en cajas doradas, y el
                  que está en pantalla se enciende. La garantía lleva escudo. -->
@@ -592,36 +599,37 @@ const faqs = [
               <strong class="om-precio__ahora">S/.200</strong>
               <span class="om-precio__nota">por el año entero · tiempo limitado</span>
             </div>
+          </div>
+          </div>
 
-            <a
-              href={CHECKOUT_URL}
-              class="om-cta om-hero__cta"
-              id="om-cta-hero"
-              onclick="try{window.posthog?.capture('millonaria_cta_clicked',{location:'hero'})}catch(e){};if(typeof fbq!=='undefined')fbq('trackCustom','Millonaria_CTA',{location:'hero'});"
-            >
-              Desbloquea a Pablo
-            </a>
+          <a
+            href={CHECKOUT_URL}
+            class="om-cta om-hero__cta"
+            id="om-cta-hero"
+            onclick="try{window.posthog?.capture('millonaria_cta_clicked',{location:'hero'})}catch(e){};if(typeof fbq!=='undefined')fbq('trackCustom','Millonaria_CTA',{location:'hero'});"
+          >
+            Desbloquea a Pablo
+          </a>
 
-            <div class="om-hero__cierre">
-              <div class="om-countdown om-countdown--hero" data-deadline={DEADLINE_ISO}>
-                <div class="om-cd__unit"><span class="om-cd__num" data-cd="d">--</span><span class="om-cd__label">días</span></div>
-                <span class="om-cd__sep">:</span>
-                <div class="om-cd__unit"><span class="om-cd__num" data-cd="h">--</span><span class="om-cd__label">horas</span></div>
-                <span class="om-cd__sep">:</span>
-                <div class="om-cd__unit"><span class="om-cd__num" data-cd="m">--</span><span class="om-cd__label">min</span></div>
-                <span class="om-cd__sep">:</span>
-                <div class="om-cd__unit"><span class="om-cd__num" data-cd="s">--</span><span class="om-cd__label">seg</span></div>
-              </div>
-              <p class="om-hero__deadline">
-                La promo cierra el {DEADLINE_TEXTO} a las 11:59 p.m. (hora Perú)
-              </p>
-              <!-- Reversión de riesgo arriba del pliegue: la objeción más
-                   grande es S/.200 de golpe, y se responde antes del clic. -->
-              <ul class="om-hero__trust-row">
-                <li>Garantía de 14 días</li>
-                <li>Cancelas cuando quieras</li>
-              </ul>
+          <div class="om-hero__cierre">
+            <div class="om-countdown om-countdown--hero" data-deadline={DEADLINE_ISO}>
+              <div class="om-cd__unit"><span class="om-cd__num" data-cd="d">--</span><span class="om-cd__label">días</span></div>
+              <span class="om-cd__sep">:</span>
+              <div class="om-cd__unit"><span class="om-cd__num" data-cd="h">--</span><span class="om-cd__label">horas</span></div>
+              <span class="om-cd__sep">:</span>
+              <div class="om-cd__unit"><span class="om-cd__num" data-cd="m">--</span><span class="om-cd__label">min</span></div>
+              <span class="om-cd__sep">:</span>
+              <div class="om-cd__unit"><span class="om-cd__num" data-cd="s">--</span><span class="om-cd__label">seg</span></div>
             </div>
+            <p class="om-hero__deadline">
+              La promo cierra el {DEADLINE_TEXTO} a las 11:59 p.m. (hora Perú)
+            </p>
+            <!-- Reversión de riesgo arriba del pliegue: la objeción más
+                 grande es S/.200 de golpe, y se responde antes del clic. -->
+            <ul class="om-hero__trust-row">
+              <li>Garantía de 14 días</li>
+              <li>Cancelas cuando quieras</li>
+            </ul>
           </div>
         </div>
       </section>
@@ -2973,17 +2981,36 @@ const faqs = [
     padding: 26px 0 30px;
   }
 
+  /* Reparto del boceto de Rodrigo (27-jul): cabecera centrada a lo ancho,
+     debajo el carrusel a la izquierda con la lista + precio a la derecha, y
+     el CTA con el countdown centrados al final. */
   .om-hero__promo {
-    display: grid;
-    grid-template-columns: minmax(0, 0.82fr) minmax(0, 1fr);
-    align-items: center;
-    gap: 46px;
-  }
-
-  .om-hero__promo-content {
     display: flex;
     flex-direction: column;
-    align-items: flex-start;
+    align-items: center;
+    gap: 18px;
+  }
+
+  .om-hero__cabecera {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 12px;
+    text-align: center;
+  }
+
+  .om-hero__split {
+    display: grid;
+    grid-template-columns: minmax(0, 0.85fr) minmax(0, 1fr);
+    align-items: center;
+    gap: 44px;
+    width: 100%;
+    max-width: 980px;
+  }
+
+  .om-hero__derecha {
+    display: flex;
+    flex-direction: column;
     gap: 14px;
     min-width: 0;
   }
@@ -3005,14 +3032,14 @@ const faqs = [
   }
 
   .om-hero__title--promo {
-    font-size: clamp(30px, 4vw, 46px);
+    font-size: clamp(28px, 3.4vw, 42px);
     line-height: 1.12;
-    text-align: left;
+    text-align: center;
   }
 
   .om-hero--promo .om-hero__kicker {
-    text-align: left;
-    max-width: 46ch;
+    text-align: center;
+    max-width: 52ch;
   }
 
   /* ── El carrusel vertical ── */
@@ -3170,11 +3197,9 @@ const faqs = [
     margin-right: -4px;
   }
 
-  /* Precio dentro del hero: alineado a la izquierda con el resto de la columna */
+  /* Precio al pie de la columna derecha, centrado bajo la lista */
   .om-precio--hero {
-    align-items: flex-start;
-    text-align: left;
-    margin-top: 2px;
+    margin-top: 6px;
   }
 
   .om-precio--hero .om-precio__ahora {
@@ -3187,31 +3212,40 @@ const faqs = [
   }
 
   .om-hero--promo .om-hero__cierre {
-    align-items: flex-start;
+    align-items: center;
     width: 100%;
   }
 
   .om-hero--promo .om-hero__deadline,
   .om-hero--promo .om-hero__trust-row {
-    text-align: left;
-    justify-content: flex-start;
+    text-align: center;
+    justify-content: center;
   }
 
-  /* ── Móvil: una columna, el loop arriba y todo lo demás centrado ── */
-  @media (max-width: 900px) {
+  /* ── Móvil (<760px; de ahí para arriba ya entra el reparto en dos
+     columnas): una columna, el carrusel arriba y todo centrado ── */
+  @media (max-width: 760px) {
     .om-hero--promo {
       padding: 14px 0 24px;
     }
 
     .om-hero__promo {
-      grid-template-columns: 1fr;
       gap: 12px;
-      justify-items: center;
     }
 
-    .om-hero__promo-content {
+    .om-hero__cabecera {
+      gap: 8px;
+    }
+
+    /* El reparto vuelve a una sola columna: carrusel arriba, lista debajo. */
+    .om-hero__split {
+      grid-template-columns: 1fr;
+      justify-items: center;
+      gap: 12px;
+    }
+
+    .om-hero__derecha {
       align-items: center;
-      text-align: center;
       gap: 8px;
     }
 
@@ -3232,7 +3266,6 @@ const faqs = [
     }
 
     .om-hero__title--promo {
-      text-align: center;
       font-size: clamp(25px, 7vw, 32px);
     }
 
@@ -3240,7 +3273,6 @@ const faqs = [
        pliegue que dice que Pablo vive en WhatsApp, y la mitad de la gente que
        llega del correo no sabe qué es Pablo. */
     .om-hero--promo .om-hero__kicker {
-      text-align: center;
       font-size: 13.5px;
     }
 
@@ -3275,23 +3307,11 @@ const faqs = [
       font-size: 17px;
     }
 
-    .om-precio--hero {
-      align-items: center;
-      text-align: center;
-    }
-
-    .om-hero--promo .om-hero__cierre,
-    .om-hero--promo .om-hero__deadline,
-    .om-hero--promo .om-hero__trust-row {
-      align-items: center;
-      text-align: center;
-      justify-content: center;
-    }
   }
 
   /* Pantallas cortas de verdad (iPhone SE y similares): acá sí sobra el kicker,
      porque si no el botón cae bajo el pliegue. */
-  @media (max-width: 900px) and (max-height: 700px) {
+  @media (max-width: 760px) and (max-height: 700px) {
     .om-hero--promo .om-hero__kicker {
       display: none;
     }
