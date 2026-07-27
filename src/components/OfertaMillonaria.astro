@@ -9,13 +9,16 @@ import { PROMO_MILLONARIA } from '../siteConfig';
 import TestimonialsCarousel from './sections/TestimonialsCarousel.astro';
 import HeroPhone from './sections/HeroPhone.astro';
 
-// Si se pasa `heroVideoId`, el hero muestra la grabación del webinar (embed de
-// YouTube) en vez del teléfono decorativo. Lo usa /fiestas-patrias; /webinar
-// lo deja vacío y conserva el <HeroPhone />.
+// `promo` = modo Pablo Promo (Fiestas Patrias): hero con el loop de Pablo y los
+// bonos, barra fija de CTA y sección "todo lo que incluye". Lo usa
+// /fiestas-patrias. /webinar lo monta sin la prop y conserva el <HeroPhone />.
+// Antes esta prop era `heroVideoId` y metía la grabación del taller en el hero;
+// el taller terminó el 23-jul, así que ese embed salió (se llevaba a la gente
+// a YouTube, fuera del sitio, con una miniatura ilegible).
 interface Props {
-  heroVideoId?: string;
+  promo?: boolean;
 }
-const { heroVideoId } = Astro.props;
+const { promo } = Astro.props;
 
 // ============================================================
 //  OFERTA MILLONARIA — landing de ventas (framework $100M Offers)
@@ -30,19 +33,21 @@ const { heroVideoId } = Astro.props;
 const CHECKOUT_URL = "/onboarding?plan=anual&oferta=millonaria";
 const CHECKOUT_URL_MENSUAL = "/onboarding?plan=mensual&oferta=millonaria";
 
-// Martes 29 de julio de 2026, 11:59 p.m. hora Perú (UTC-5)
+// Miércoles 29 de julio de 2026, 11:59 p.m. hora Perú (UTC-5).
+// OJO: el 29-jul-2026 cae MIÉRCOLES (el taller fue el jueves 23). Hasta el
+// 26-jul esto decía "martes 29" en toda la página y en los correos de Brevo.
 const DEADLINE_ISO = "2026-07-29T23:59:59-05:00";
-const DEADLINE_TEXTO = "martes 29 de julio";
+const DEADLINE_TEXTO = "miércoles 29 de julio";
 // Nombre del taller: es el título del hero, va ARRIBA del video.
 const TALLER_TITULO = "Crece tus ahorros en 30 días";
 const TALLER_SUBTITULO =
   "Empieza tu camino a la libertad financiera tomando el control de tus " +
   "gastos, sin tener que sacrificar tus gustos.";
 
-// El stack de la oferta. `valorReal` = precio tachado (valor de mercado);
-// `incluido` = qué recibes hoy; `cta` = call-to-action propio de cada bono
-// (todos llevan al checkout del anual). ⚠️ PRECIOS PENDIENTES de Rodrigo:
-// los valorReal marcados con "" hay que llenarlos con lo que él quiera poner.
+// El stack de la oferta, con las descripciones VERBATIM de los correos de la
+// promo (Brevo C82/C93/C103 — corpus en repos/pablo-landing-research/07).
+// Regla del 27-jul: solo copy que Rodrigo escribió en sus correos, Notion,
+// carruseles o ads. `valorReal` = tachado; `incluido` = qué recibes hoy.
 const stack = [
   {
     tag: "Lo principal",
@@ -50,16 +55,17 @@ const stack = [
     valorReal: "S/.240",
     // Sin "Hoy" adelante: el label de la tarjeta de valor ya dice "Hoy".
     incluido: "Solo S/.200",
-    cta: "Desbloquea a Pablo ahora",
+    cta: "Reclamar mi Pablo Promo",
     img: "/onboarding/images/pablo/pablo-wave.png",
     alt: "Pablo, tu asistente financiero",
-    desc: "Tu asistente financiero en WhatsApp, todo un año. 12 meses al precio de 10.",
+    // C103: "ver tu plata sea tan fácil como mandar un mensaje por whatsapp"
+    // + C82: "(2 meses de regalo)"
+    desc: "Tu asistente financiero por WhatsApp, todo un año — con 2 meses de regalo.",
     bullets: [
-      "Registra tus gastos por texto, audio o foto del yape — en lo que tardas en mandar un WhatsApp.",
-      "Sin excel, sin app nueva: solo chats que ya haces todos los días.",
-      "Presupuesto de 3 cajones: lo esencial, tu futuro y tus gustos.",
-      "Metas de ahorro para que tu plata tenga destino.",
-      "Panel web para ver todo de un vistazo.",
+      "Le dices por audio o texto “Taxi S/.18” o mandas la foto del Yape o el voucher.",
+      "Pablo lo registra, lo clasifica y actualiza tu presupuesto en tiempo real.",
+      "Cada semana te muestra exactamente en qué se te fueron esos taxis, delivery y antojitos…",
+      "…y cuánto podrías estar ahorrando sin dejar tus gustos.",
     ],
     proof: {
       quote: "Antes agarraba papel y lapicero; ahora le tomo la foto por WhatsApp y me da el reporte al instante.",
@@ -70,28 +76,37 @@ const stack = [
   {
     tag: "Bono 1",
     titulo: "Reto “Empieza tu Camino al Millón en 30 días”",
-    valorReal: "S/.97",
+    // Sin precio tachado: el reto es el reversor de riesgo (decisión 26-jul).
+    valorReal: "",
     incluido: "100% de reembolso",
-    cta: "Haz clic para empezar tu camino",
+    cta: "Reclamar mi Pablo Promo",
     img: "/onboarding/images/pablo/emotions/pablo-emocionado.png",
-    alt: "Pablo emocionado con el reto",
-    desc: "El plan paso a paso para que empieces fuerte y, si cumples, recuperes cada sol.",
+    alt: "Pablo celebrando el reto de 30 días",
+    // C93 verbatim: "el problema nunca fue que te falten ganas..."
+    desc:
+      "El problema nunca fue que te falten ganas: es que nadie te acompaña en " +
+      "los primeros 30 días — justo los que deciden si el hábito se queda o se " +
+      "cae. Completa las 4 partes del reto y te devolvemos el 100% de tu plata.",
     bullets: [
       "Racha de 30 días con Pablo.",
-      "Presupuesto mensual definido.",
-      "Primer aporte a una meta financiera.",
-      "Completar el curso “Finanzas de un Futuro Millonario”.",
+      "Tu presupuesto mensual definido.",
+      "Tu primer aporte a una meta financiera.",
+      "Terminar el curso “Finanzas de un Futuro Millonario”.",
     ],
   },
   {
     tag: "Bono 2",
     titulo: "Curso “Finanzas de un Futuro Millonario”",
+    // ⏳ PENDIENTE (después de la promo): listar el curso a S/.300 en /cursos
+    // para quien no es suscriptor (decisión de Rodrigo 26-jul).
     valorReal: "S/.300",
     incluido: "Gratis con tu plan",
-    cta: "Haz clic para empezar el curso",
+    cta: "Reclamar mi Pablo Promo",
     img: "/onboarding/images/pablo/pablo-pensando.png",
-    alt: "Pablo tomando apuntes del curso",
-    desc: "El curso de finanzas personales para entender tu plata sin palabreo de banco ni fórmulas raras.",
+    alt: "Pablo estudiando el curso",
+    // C82/C93 verbatim: "(ahorros, tarjetas, presupuestos — todo lo que
+    // necesitas para empezar tu camino)"
+    desc: "El curso completo: ahorros, tarjetas, presupuestos — todo lo que necesitas para empezar tu camino.",
     bullets: [],
     proof: {
       quote: "Lo que más me gusta es la visibilidad de todo — por fin entiendo a dónde se va mi plata.",
@@ -102,23 +117,31 @@ const stack = [
   {
     tag: "Bono 3",
     titulo: "Pase Mensual a La Komunidad de Futuros Millonarios",
-    valorReal: "S/.80",
+    // $60 USD es el valor que Rodrigo le puso en SUS correos (C82/C93). La
+    // página dice lo mismo que los correos para que nadie encuentre dos
+    // versiones distintas de la misma oferta.
+    valorReal: "$60 USD",
     incluido: "Gratis con tu plan",
-    cta: "Haz clic para ingresar a la comunidad",
+    cta: "Reclamar mi Pablo Promo",
     img: "/onboarding/images/pablo/emotions/pablo-neutral.png",
-    alt: "Pablo saludando a la comunidad",
-    desc: "Un mes de clases EN VIVO con Rodrigo y la comunidad de futuros millonarios.",
+    alt: "Pablo con la comunidad de futuros millonarios",
+    // C82/C93 verbatim: "clases de negocios e inversión en vivo, comunidad y
+    // el camino al millón"
+    desc: "Un mes de clases de negocios e inversión en vivo, comunidad y el camino al millón.",
     bullets: [],
   },
   {
     tag: "Bono 4",
     titulo: "Toolkit Komunitario",
-    valorReal: "S/.50",
-    incluido: "Gratis con tu plan",
-    cta: "Haz clic para llevarte el toolkit",
+    // Sin precio propio: el toolkit vive DENTRO de La Komunidad, así que
+    // cobrarlo aparte sería contar el mismo acceso dos veces.
+    valorReal: "",
+    incluido: "Dentro de La Komunidad",
+    cta: "Reclamar mi Pablo Promo",
     img: "/onboarding/images/pablo/pablo-point.png",
     alt: "Pablo señalando los recursos",
-    desc: "Más de 10 recursos listos para usar: plantillas y guías de finanzas e inversiones.",
+    // C82/C93 verbatim: "+10 recursos de finanzas e inversiones"
+    desc: "+10 recursos de finanzas e inversiones, listos para usar.",
     bullets: [],
   },
   {
@@ -126,19 +149,232 @@ const stack = [
     titulo: "Garantía de satisfacción de 14 días",
     valorReal: "",
     incluido: "Incluida",
-    cta: "Empieza sin riesgo hoy",
+    cta: "Reclamar mi Pablo Promo",
     img: "/onboarding/images/pablo/emotions/pablo-tierno.png",
     alt: "Pablo tranquilo",
-    desc: "Si en las primeras 2 semanas sientes que Pablo no es para ti, te devolvemos tu plata. Sin preguntas, sin letra chica.",
+    // C82/C93 verbatim: "si no es para ti, te devuelvo tu plata sin preguntas"
+    desc: "Si no es para ti, te devolvemos tu plata sin preguntas.",
     bullets: [],
   },
 ];
 
-// Total de valor de los bonos (para el resumen). El 1-a-1 (S/.200) solo la
-// noche del webinar, así que va aparte.
-const VALOR_BONOS = "S/.527";        // 97 + 300 + 80 + 50
-const VALOR_BONOS_NOCHE = "S/.727";  // + 200 (asesoría 1-a-1)
+// El ancla de precio de los CORREOS: S/.240 es lo que pagas al año en el plan
+// mensual (S/.20 × 12); el anual queda en S/.200 = "2 meses de regalo" (C82).
+// El "S/.615 por separado" del 26-jul salió: era aritmética nuestra, no copy
+// de Rodrigo, y la regla del 27-jul es que la página diga lo de los correos.
+const VALOR_ANUAL_SIN_PROMO = "S/.240";
 const VALOR_UNO_A_UNO = "S/.200";
+
+// ── CARRUSEL VERTICAL DEL HERO ───────────────────────────────
+// Desliza hacia arriba entre Pablo y cada cosa que entra en la promo, con el
+// ítem correspondiente del stack encendido en dorado. Así en ~18 segundos la
+// persona ve el paquete completo sin scrollear.
+//
+// Los visuales definitivos van en public/promo/00-hero/ (medidas y qué debe
+// mostrar cada uno: public/promo/_LEEME.md). Mientras no estén, se usan los
+// PNG de Pablo que ya viven en el repo. Cuando los 7 archivos estén subidos,
+// basta con poner HERO_ART_LISTO en true.
+const HERO_ART_LISTO = false;
+
+const LOOP = [
+  {
+    nombre: "Pablo, tu asistente financiero en WhatsApp",
+    final: "/promo/00-hero/00-pablo.png",
+    provisional: "/onboarding/images/pablo/pablo-saludando.webp",
+    alt: "Pablo saludando",
+  },
+  {
+    nombre: "Plan Anual de Pablo — 12 meses",
+    final: "/promo/00-hero/01-plan-anual.png",
+    provisional: "/onboarding/images/pablo/pablo-wave.png",
+    alt: "Pablo, tu asistente financiero todo el año",
+  },
+  {
+    // "reto de 30 días que te devuelve el 100% de tu plata" (C103)
+    nombre: "Reto de 30 días que te devuelve el 100%",
+    final: "/promo/00-hero/02-reto.png",
+    // Ilustración Higgsfield 27-jul (editada sobre el render oficial)
+    provisional: "/promo/02-reto/principal.webp",
+    alt: "Pablo celebrando el reto de 30 días",
+  },
+  {
+    nombre: "Curso “Finanzas de un Futuro Millonario”",
+    final: "/promo/00-hero/03-curso.png",
+    provisional: "/promo/03-curso/principal.webp",
+    alt: "Pablo estudiando el curso",
+  },
+  {
+    nombre: "Pase Mensual a La Komunidad",
+    final: "/promo/00-hero/04-komunidad.png",
+    provisional: "/promo/04-komunidad/principal.webp",
+    alt: "Pablo con la comunidad de futuros millonarios",
+  },
+  {
+    nombre: "Toolkit Komunitario",
+    final: "/promo/00-hero/05-toolkit.png",
+    provisional: "/onboarding/images/pablo/pablo-point.png",
+    alt: "Pablo señalando los recursos del toolkit",
+  },
+  {
+    nombre: "Garantía de satisfacción de 14 días",
+    final: "/promo/00-hero/06-garantia.png",
+    provisional: "/onboarding/images/pablo/emotions/pablo-tierno.png",
+    alt: "Pablo tranquilo",
+  },
+].map((f) => ({ ...f, img: HERO_ART_LISTO ? f.final : f.provisional }));
+
+// (Las citas verbatim de las entrevistas salieron de la página el 27-jul:
+// el lenguaje de la página responde a esos dolores, pero no se muestran.
+// El corpus completo vive en repos/pablo-landing-research/01.)
+
+// ── LAS 5 HOJAS DE BONO (27-jul, pedido de Rodrigo) ──────────────
+// Cada bono tiene DOS tarjetas verticales: A = buildup (sin precio ni botón)
+// y B = qué incluye + valor + CTA. Todo el copy sale de fuentes verificadas:
+// correos de Brevo (C82/C93/C103), el brief de agencia (abr-2026) y, para el
+// toolkit, el contenido REAL del Skool documentado en Drive
+// (La Komu → Toolkit Komunitario + README_PENDIENTES.md).
+// Arte: `img`/`video` = Higgsfield sobre renders oficiales; `detalle` = Gemini
+// (nanobanana). Si un archivo falta, el markup cae al que sí exista.
+const bonosHoja = [
+  {
+    titulo: "Reto “Empieza tu Camino al Millón en 30 días”",
+    valorReal: "",
+    incluido: "100% de reembolso",
+    arte: {
+      img: "/promo/02-reto/principal.webp",
+      video: "/promo/02-reto/loop.mp4",
+      detalle: "/promo/02-reto/detalle.webp",
+    },
+    altA: "Pablo celebrando el reto de 30 días",
+    altB: "La racha de 30 días con Pablo",
+    // C93 verbatim
+    buildup: [
+      "El problema nunca fue que te falten ganas: es que nadie te acompaña en los primeros 30 días — justo los que deciden si el hábito se queda o se cae.",
+      "Por eso armamos algo que nunca habíamos probado: una oportunidad de ganarte de vuelta el 100% de tu dinero. ¿Y lo mejor? Depende 100% de ti.",
+    ],
+    fichasTitulo: "Las 4 partes del reto",
+    fichas: [
+      "Racha de 30 días con Pablo.",
+      "Tu presupuesto mensual definido.",
+      "Tu primer aporte a una meta financiera.",
+      "Terminar el curso “Finanzas de un Futuro Millonario”.",
+    ],
+    // C82 verbatim: "te devuelvo el 100% de tu plata... Pablo te sale gratis
+    // todo un año"
+    remate: "Completas las 4 y te devolvemos cada sol: Pablo te sale gratis todo un año.",
+    proof: null,
+  },
+  {
+    titulo: "Curso “Finanzas de un Futuro Millonario”",
+    valorReal: "S/.300",
+    incluido: "Gratis con tu plan",
+    arte: {
+      img: "/promo/03-curso/principal.webp",
+      video: "/promo/03-curso/loop.mp4",
+      detalle: "/promo/03-curso/detalle.webp",
+    },
+    altA: "Pablo estudiando el curso",
+    altB: "Los temas del curso",
+    // C82/C93 verbatim ("todo lo que necesitas para empezar tu camino")
+    buildup: [
+      "Saber registrar tus gastos es la mitad del camino. La otra mitad es saber qué hacer con lo que ves.",
+      "El curso completo, en cristiano y sin palabreo de banco: todo lo que necesitas para empezar tu camino.",
+    ],
+    fichasTitulo: "Qué aprendes",
+    fichas: [
+      "Ahorros: dónde y cómo guardar tu plata.",
+      "Tarjetas: cómo usarlas sin que te usen.",
+      "Presupuestos: el sistema para no volver a perderte.",
+    ],
+    remate: "Es el mismo curso que forma parte del reto: lo terminas y estás un paso más cerca de tu reembolso del 100%.",
+    proof: {
+      quote: "Lo que más me gusta es la visibilidad de todo — por fin entiendo a dónde se va mi plata.",
+      nombre: "Mirella",
+      detalle: "trabaja en aduanas",
+    },
+  },
+  {
+    titulo: "Pase Mensual a La Komunidad de Futuros Millonarios",
+    valorReal: "$60 USD",
+    incluido: "Gratis con tu plan",
+    arte: {
+      img: "/promo/04-komunidad/principal.webp",
+      video: "/promo/04-komunidad/loop.mp4",
+      detalle: "/promo/04-komunidad/detalle.webp",
+    },
+    altA: "Pablo con la comunidad de futuros millonarios",
+    altB: "Las clases en vivo de La Komunidad",
+    // Brief agencia (abr-2026) verbatim: "Por primera vez no vas a manejar tu
+    // plata sola. Pablo responde al toque. La Komu camina contigo."
+    buildup: [
+      "Por primera vez no vas a manejar tu plata a solas: Pablo responde al toque, y La Komu camina contigo.",
+      "Un mes entero dentro de la comunidad privada de futuros millonarios.",
+    ],
+    fichasTitulo: "Qué encuentras adentro",
+    fichas: [
+      "Clases de negocios e inversión EN VIVO.",
+      "La comunidad de futuros millonarios.",
+      "El programa Camino al Millón.",
+    ],
+    remate: "Aprende todo lo necesario para tener éxito en el juego del dinero, empezar a invertir desde cero y generar ingresos extra.",
+    proof: null,
+  },
+  {
+    titulo: "Toolkit Komunitario",
+    valorReal: "",
+    incluido: "Dentro de La Komunidad",
+    arte: {
+      img: "/promo/05-toolkit/principal.webp",
+      video: null,
+      detalle: "/promo/05-toolkit/detalle.webp",
+    },
+    altA: "El toolkit de recursos de Pablo",
+    altB: "Las plantillas y guías del toolkit",
+    // Skool (About de La Komu, verbatim): "cuentas top, plantillas de
+    // presupuesto y checklists" + C82: "+10 recursos"
+    buildup: [
+      "+10 recursos de finanzas e inversiones listos para usar: cuentas top, plantillas de presupuesto y checklists.",
+      "No es teoría: son las herramientas que la comunidad ya usa todos los días.",
+    ],
+    fichasTitulo: "Qué hay adentro",
+    // Contenido REAL del Toolkit en Skool (captura + README en Drive)
+    fichas: [
+      "Plantilla de un Futuro Millonario (tu presupuesto).",
+      "Checklist Anti-Gastos Hormiga.",
+      "Ranking de las mejores cuentas de ahorro.",
+      "Guía de cero a inversionista.",
+      "Tablas comparativas de tarjetas.",
+      "Prompts de emprendimiento con IA.",
+    ],
+    remate: "Todo vive dentro de La Komunidad: entras con tu pase mensual y te lo llevas.",
+    proof: null,
+  },
+  {
+    titulo: "Garantía de satisfacción de 14 días",
+    valorReal: "",
+    incluido: "Incluida",
+    arte: {
+      img: "/promo/06-garantia/principal.webp",
+      video: null,
+      detalle: null,
+    },
+    altA: "Pablo con el escudo de la garantía",
+    altB: "La garantía de 14 días",
+    // C82/C93 verbatim
+    buildup: [
+      "Y por último: si no es para ti, te devolvemos tu plata sin preguntas.",
+      "Tienes 14 días completos para probarlo todo — Pablo, el curso, La Komunidad, el toolkit — y decidir con calma.",
+    ],
+    fichasTitulo: "Cómo funciona",
+    fichas: [
+      "14 días para probarlo todo.",
+      "Reembolso del 100%, sin preguntas.",
+      "Cancelas cuando quieras desde tu perfil.",
+    ],
+    remate: "El riesgo lo asumimos nosotros. Tú decides.",
+    proof: null,
+  },
+];
 
 // El Pacto — las 4 cosas que hacemos juntos en los primeros 30 días
 const pasosPacto = [
@@ -197,46 +433,56 @@ const testimonios = [
 ];
 
 // FAQ — redactada desde el Messaging Framework (objeciones → respuestas)
+// FAQ reconstruido el 27-jul con las preguntas que los usuarios hicieron DE
+// VERDAD por correo (corpus 08-preguntas-reales-gmail.md: top 8 de ~15 hilos
+// reales mar–jul 2026) + las respuestas que el propio equipo dio y
+// funcionaron. Nada inventado: cada respuesta sale de un correo del equipo o
+// de los correos de la promo.
 const faqs = [
   {
-    q: "Ya tengo mi Excel y me funciona.",
-    a: "Pablo ES tu Excel, pero por WhatsApp y sin fórmulas: le mandas un mensaje y listo. Te ahorras el tiempo de anotar a mano y ganas reportes claros, presupuesto de 3 cajones y una comunidad que te acompaña. Daniel pasó de 2 horas a 30 minutos por semana.",
+    // Pregunta real #6 del corpus (Cristian, Shadia) + la duda más común
+    // del tráfico frío según el brief.
+    q: "¿Cómo funciona Pablo exactamente?",
+    a: "Le escribes por WhatsApp como a un amigo: le dices por audio o texto “Taxi S/.18” o le mandas la foto del Yape o el voucher. Pablo lo registra, lo clasifica y actualiza tu presupuesto en tiempo real. Y si tienes un gasto fijo (como un seguro), puedes crear una transacción recurrente para que se registre solo todos los meses.",
   },
   {
-    q: "¿Y si no me hago el hábito?",
-    a: "Para eso existe el reto de 30 días: registrar toma lo que tardas en mandar un WhatsApp, y la racha te da una razón concreta para no soltarlo (te devolvemos el 100% si lo completas). Un día a la vez, sin presión. No hay excel, no hay app nueva — solo chats que ya haces todos los días.",
+    // Pregunta real #7 (Stefanie lo buscó en Play Store y no lo encontró).
+    q: "¿Tengo que descargar una app?",
+    a: "No: Pablo vive en WhatsApp, puedes empezar solo con el chat. También tienes la app (en el App Store) y el panel web para ver tus reportes con calma, pero ninguno es obligatorio.",
   },
   {
-    q: "Me da roche escribirle a un bot.",
-    a: "Pablo no te juzga, te ordena. Nunca te va a regañar por un gustito ni a decirte “deberías”. Y como dice Tracy (22): “me gusta que sea por WhatsApp, se siente más humano”. Empiezas hoy, sin vergüenza.",
+    // La promesa central de la promo (C82/C93) — la duda que más se repite
+    // sobre el reto.
+    q: "¿De verdad me devuelven el 100% si completo el reto?",
+    a: "Sí. Las 4 partes del reto son: racha de 30 días con Pablo, tu presupuesto mensual definido, tu primer aporte a una meta financiera y terminar el curso. Completas las 4 en tus primeros 30 días y te devolvemos los S/.200 completos. La racha se sigue desde la función de rachas de Pablo, así que todo queda registrado — nada de letra chica.",
   },
   {
-    q: "S/.200 de golpe es un montón para mí.",
-    a: "Son menos de 55 céntimos por día — y es el año completo, 12 meses al precio de 10. Además, si completas el reto de 30 días te devolvemos todo: bien hecho, este año Pablo te puede salir gratis.",
+    // Pregunta real #1 (5 personas: Rebecca, Renato, Maritza, Josselin,
+    // Gabriela). Respuesta = copy de Rodrigo (campaña 22-jun) + su correo a
+    // Maritza ("team@usapablo.com — Ahí te ayudarán al toque!").
+    q: "¿Y si quiero cancelar? ¿Es complicado?",
+    a: "Para nada: gestionas tu suscripción desde el perfil, debajo de tu nombre — cambias de plan o cancelas directo, de inmediato. Y si algo se te complica, escribes a team@usapablo.com y te ayudan al toque. Además tienes 14 días de garantía: si no es para ti, te devolvemos tu plata sin preguntas.",
   },
   {
-    q: "¿Funciona si gano poquito?",
-    a: "Pablo no es para gente con “un montón de plata”. Es para que, con lo que ya ganas, dejes de sentir que se evapora. El presupuesto de 3 cajones se arma con TU sueldo real, sea el que sea.",
+    // Pregunta real #2 (4 menciones, incl. "Me robaron mi dinero" de
+    // Gabriela). Respuesta basada en la de Rodrigo: "Komu es solo la empresa".
+    q: "¿Por qué el cobro sale como “Komu AI”?",
+    a: "Komu AI Software Development es la empresa detrás de Pablo — es nuestro nombre legal y así aparece en tu estado de cuenta. Si algún día ves ese cobro, somos nosotros, no un desconocido.",
   },
   {
-    q: "¿De verdad me devuelven la plata?",
-    a: "Sí. Las condiciones del reto son 4 y están escritas arriba, sin letra chica: racha de 30 días registrando, presupuesto mensual definido, primer aporte a una meta y curso completado. Si cumples las 4, te reembolsamos el 100% de lo pagado.",
+    // Pregunta real #4 (Josselin y Gabriela: S/22.35 en vez de S/20).
+    q: "¿Son S/.200 exactos? ¿Me van a cobrar de nuevo?",
+    a: "Es un solo pago de S/.200 por los 12 meses (según tu banco, la tarjeta puede sumar una pequeña comisión por procesamiento — eso lo cobra tu banco, no nosotros). La renovación del siguiente año la puedes apagar cuando quieras desde tu perfil, y sigues usando Pablo hasta que termine tu año.",
   },
   {
-    q: "¿Pablo se renueva solo el próximo año?",
-    a: "Tu plan es anual: pagas S/.200 una vez y te cubre 12 meses completos. Puedes desactivar la renovación cuando quieras desde tu cuenta, sin trámites ni letra chica, y sigues usando Pablo hasta que termine tu año.",
+    // Bonus del corpus: Albert preguntó "¿Aún hay tiempo de participar?"
+    q: "¿Hasta cuándo tengo para entrar?",
+    a: "Hasta el miércoles 29 de julio a las 11:59 p.m. (hora Perú). Después el anual vuelve a ser solo el anual: sin reto, sin curso, sin Komunidad.",
   },
   {
-    q: "Ya me quemé con otras suscripciones, ¿qué pasa si quiero salir?",
-    a: "Tienes 14 días para probarlo todo y pedir tu reembolso total si no es para ti. Y aunque te quedes, puedes cancelar la renovación en cualquier momento para que el siguiente año no se cobre.",
-  },
-  {
-    q: "¿Cómo accedo a los bonos?",
-    a: "Apenas compras, te llegan por correo los accesos a todo: el reto, el curso, La Komunidad y el toolkit. Revisa tu bandeja (y el spam, por si acaso).",
-  },
-  {
-    q: "¿Mi información está segura?",
-    a: "Tu data es tuya y es privada. Está protegida con encriptación y no la compartimos con terceros. Punto.",
+    // Confirmado por el template transaccional 81 de la promo.
+    q: "¿Cómo accedo a los bonos después de pagar?",
+    a: "Apenas desbloqueas tu plan, te llega un correo con los accesos a todo: el reto, el curso, La Komunidad y el toolkit. Revisa tu bandeja (y el spam, por si acaso).",
   },
 ];
 ---
@@ -247,26 +493,9 @@ const faqs = [
     href="https://fonts.googleapis.com/css2?family=Caveat:wght@500;600&display=swap"
   />
 
-  <!-- Banner delgado (~½ pulgada) con la caducidad de la grabación + countdown
-       chiquito. Peso tipográfico por debajo del wordmark "Pablo" del header,
-       a propósito: avisa sin competir con la marca. Solo cuando hay grabación. -->
-  {heroVideoId && (
-    <div class="om-topbar">
-      <div class="container om-topbar__inner">
-        <span class="om-topbar__dot" aria-hidden="true"></span>
-        <span class="om-topbar__texto">
-          <span class="om-topbar__larga">Última grabación disponible hasta el {DEADLINE_TEXTO}</span>
-          <span class="om-topbar__corta">Grabación hasta el 29 de julio</span>
-        </span>
-        <span class="om-countdown om-countdown--mini" data-deadline={DEADLINE_ISO}>
-          <span class="om-cd__mini"><b data-cd="d">--</b>d</span>
-          <span class="om-cd__mini"><b data-cd="h">--</b>h</span>
-          <span class="om-cd__mini"><b data-cd="m">--</b>m</span>
-          <span class="om-cd__mini om-cd__mini--seg"><b data-cd="s">--</b>s</span>
-        </span>
-      </div>
-    </div>
-  )}
+  <!-- La barra de "Última grabación disponible hasta el…" salió: el taller
+       terminó y a quien no fue le decía nada. El único reloj de la página vive
+       ahora en el hero, para que la urgencia se lea una vez y se crea. -->
 
   <!-- Header mínimo: solo el logo, sin links (cada link del menú es una fuga) -->
   <header class="om-header">
@@ -280,69 +509,120 @@ const faqs = [
 
   <main class="om">
     <!-- ════════════════ 1. HERO ════════════════ -->
-    {heroVideoId ? (
-      <!-- Hero VSL: TODO en la primera pantalla, en este orden y sin scroll —
-           título del taller · video · CTA · countdown/cierre. Lo que incluye la
-           oferta vive en la segunda pantalla (los bonos), no acá. -->
-      <section class="om-hero om-hero--vsl">
+    {promo ? (
+      <!-- Hero de la Pablo Promo: carrusel vertical con los visuales de Pablo y
+           de las 6 cosas que entran (uno por beneficio) deslizando hacia arriba,
+           con el stack al costado y el ítem activo en dorado. Todo lo que
+           necesita ver alguien que llega de un correo, en una pantalla:
+           qué es, qué se lleva, cuánto cuesta y hasta cuándo. -->
+      <section class="om-hero om-hero--promo">
         <div class="om-hero__blob om-hero__blob--1" aria-hidden="true"></div>
         <div class="om-hero__blob om-hero__blob--2" aria-hidden="true"></div>
 
-        <div class="container om-hero__vsl">
-          <div class="om-hero__titulo-wrap">
-            <h1 class="om-hero__title om-hero__title--taller">
-              Crece tus ahorros en <span class="highlight">30 días</span>
+        <div class="container om-hero__promo">
+          <!-- ── El carrusel vertical ── -->
+          <div class="om-loop" data-loop>
+            <!-- aria-hidden: el contenido de las 7 imágenes ya está en texto en
+                 la lista de al lado; un lector de pantalla no necesita oírlo
+                 siete veces. Solo el primer slide trae src: los demás se
+                 cargan cuando el navegador está libre (data-src). El nombre va
+                 DENTRO de cada slide: así imagen y etiqueta viajan juntas y no
+                 pueden desincronizarse. -->
+            <div class="om-loop__ventana" aria-hidden="true">
+              <div class="om-loop__track" data-loop-track>
+                {LOOP.map((f, i) => (
+                  <figure class="om-loop__slide">
+                    <img
+                      class="om-loop__img"
+                      src={i === 0 ? f.img : undefined}
+                      data-src={i === 0 ? undefined : f.img}
+                      alt=""
+                      width="600"
+                      height="600"
+                      decoding="async"
+                    />
+                    {i > 0 && <figcaption class="om-loop__chip">{f.nombre}</figcaption>}
+                  </figure>
+                ))}
+              </div>
+              <div class="om-loop__dots">
+                {LOOP.map((_f, i) => (
+                  <span class:list={['om-loop__dot', i === 0 && 'is-active']} data-loop-dot={i}></span>
+                ))}
+              </div>
+            </div>
+          </div>
+
+          <!-- ── La oferta ── -->
+          <div class="om-hero__promo-content">
+            <span class="om-hero__eyebrow">Pablo Promo · Fiestas Patrias</span>
+
+            <!-- El headline volvió a la versión del 26-jul (pedido de Rodrigo
+                 27-jul: "el headline regrese a como estaba antes"). "Si haces
+                 tu parte, te sale gratis" = su promesa de los correos ("Pablo
+                 te sale gratis todo un año... depende 100% de ti", C82). -->
+            <h1 class="om-hero__title om-hero__title--promo">
+              Este año sí. Y si haces tu parte, <span class="highlight">te sale gratis</span>.
             </h1>
-            <p class="om-hero__kicker">{TALLER_SUBTITULO}</p>
-          </div>
 
-          <div class="om-hero__video">
-            <div class="om-hero__video-frame">
-              <iframe
-                src={`https://www.youtube-nocookie.com/embed/${heroVideoId}?rel=0`}
-                title={`Grabación del taller — ${TALLER_TITULO}`}
-                frameborder="0"
-                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
-                referrerpolicy="strict-origin-when-cross-origin"
-                allowfullscreen
-              ></iframe>
-            </div>
-          </div>
-
-          <a
-            href={CHECKOUT_URL}
-            class="om-cta om-hero__cta"
-            id="om-cta-hero"
-            onclick="try{window.posthog?.capture('millonaria_cta_clicked',{location:'hero'})}catch(e){};if(typeof fbq!=='undefined')fbq('trackCustom','Millonaria_CTA',{location:'hero'});"
-          >
-            Quiero crecer mis ahorros
-          </a>
-
-          <div class="om-hero__cierre">
-            <div class="om-countdown om-countdown--hero" data-deadline={DEADLINE_ISO}>
-              <div class="om-cd__unit"><span class="om-cd__num" data-cd="d">--</span><span class="om-cd__label">días</span></div>
-              <span class="om-cd__sep">:</span>
-              <div class="om-cd__unit"><span class="om-cd__num" data-cd="h">--</span><span class="om-cd__label">horas</span></div>
-              <span class="om-cd__sep">:</span>
-              <div class="om-cd__unit"><span class="om-cd__num" data-cd="m">--</span><span class="om-cd__label">min</span></div>
-              <span class="om-cd__sep">:</span>
-              <div class="om-cd__unit"><span class="om-cd__num" data-cd="s">--</span><span class="om-cd__label">seg</span></div>
-            </div>
-            <p class="om-hero__deadline">
-              Cierra el {DEADLINE_TEXTO} a las 11:59 p.m. — pago único de S/.200 por 12 meses.
+            <p class="om-hero__kicker">
+              Un año entero de Pablo, tu asistente financiero en WhatsApp, por
+              S/.200. 12 meses al precio de 10.
             </p>
-            <!-- Reversión de riesgo arriba del pliegue: es la objeción más
-                 grande (S/.200 de golpe) y se responde antes de pedir el clic. -->
-            <ul class="om-hero__trust-row">
-              <li>Garantía de 14 días</li>
-              <li>100% de reembolso si cumples el reto</li>
-              <li>Cancelas cuando quieras</li>
-            </ul>
-          </div>
 
-          <span class="om-hero__scroll" aria-hidden="true">
-            Mira todo lo que incluye ↓
-          </span>
+            <!-- El primer frame del loop es Pablo solo (no es un bono), así que
+                 la lista arranca en el segundo: 6 ítems en cajas doradas, y el
+                 que está en pantalla se enciende. La garantía lleva escudo. -->
+            <ul class="om-hero__stack">
+              {LOOP.slice(1).map((f, i) => (
+                <li class="om-hero__stack-item" data-loop-item={i + 1}>
+                  {f.nombre.startsWith('Garantía') && (
+                    <svg class="om-escudo" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" aria-hidden="true">
+                      <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" />
+                      <polyline points="9 12 11 14 15 10" />
+                    </svg>
+                  )}
+                  <span>{f.nombre}</span>
+                </li>
+              ))}
+            </ul>
+
+            <div class="om-precio om-precio--hero">
+              <s class="om-precio__antes">{VALOR_ANUAL_SIN_PROMO}</s>
+              <strong class="om-precio__ahora">S/.200</strong>
+              <span class="om-precio__nota">por el año entero · tiempo limitado</span>
+            </div>
+
+            <a
+              href={CHECKOUT_URL}
+              class="om-cta om-hero__cta"
+              id="om-cta-hero"
+              onclick="try{window.posthog?.capture('millonaria_cta_clicked',{location:'hero'})}catch(e){};if(typeof fbq!=='undefined')fbq('trackCustom','Millonaria_CTA',{location:'hero'});"
+            >
+              Desbloquea a Pablo
+            </a>
+
+            <div class="om-hero__cierre">
+              <div class="om-countdown om-countdown--hero" data-deadline={DEADLINE_ISO}>
+                <div class="om-cd__unit"><span class="om-cd__num" data-cd="d">--</span><span class="om-cd__label">días</span></div>
+                <span class="om-cd__sep">:</span>
+                <div class="om-cd__unit"><span class="om-cd__num" data-cd="h">--</span><span class="om-cd__label">horas</span></div>
+                <span class="om-cd__sep">:</span>
+                <div class="om-cd__unit"><span class="om-cd__num" data-cd="m">--</span><span class="om-cd__label">min</span></div>
+                <span class="om-cd__sep">:</span>
+                <div class="om-cd__unit"><span class="om-cd__num" data-cd="s">--</span><span class="om-cd__label">seg</span></div>
+              </div>
+              <p class="om-hero__deadline">
+                La promo cierra el {DEADLINE_TEXTO} a las 11:59 p.m. (hora Perú)
+              </p>
+              <!-- Reversión de riesgo arriba del pliegue: la objeción más
+                   grande es S/.200 de golpe, y se responde antes del clic. -->
+              <ul class="om-hero__trust-row">
+                <li>Garantía de 14 días</li>
+                <li>Cancelas cuando quieras</li>
+              </ul>
+            </div>
+          </div>
         </div>
       </section>
     ) : (
@@ -415,21 +695,99 @@ const faqs = [
     )}
 
 
-    <!-- ════════════════ 2. SEGUNDA PANTALLA: TODO LO QUE INCLUYE ════════════════
+    <!-- ════════════════ 2. EL PROBLEMA + PRUEBA SOCIAL ════════════════
+         El titular nombra el dolor (verbatim de la lección de los S/.15 000
+         de Rodrigo, C103) y justo debajo va el carrusel de usuarios ACTIVOS.
+         Las citas de las entrevistas salieron (pedido 27-jul): varias eran de
+         usuarios que se fueron, y ese lugar es del carrusel. El research de
+         entrevistas queda como guía del lenguaje, no como contenido visible. -->
+    {promo && (
+      <section class="om-dolor">
+        <div class="container om-dolor__inner">
+          <h2 class="om-sec-title om-dolor__title">
+            El problema nunca fue cuánto ganas. Es que
+            <span class="highlight">no ves tu plata</span>.
+          </h2>
+
+          <p class="om-dolor__sub">Y lo que no ves, no lo puedes controlar.</p>
+        </div>
+        <TestimonialsCarousel />
+      </section>
+    )}
+
+    <!-- ════════════════ 3. QUÉ ES PABLO ════════════════
+         El puente para quien llega del correo y no sabe qué es Pablo. El
+         teléfono es el mock de HeroPhone: HTML y CSS, no imagen, así que se ve
+         nítido en cualquier pantalla y muestra el producto funcionando. -->
+    {promo && (
+      <section class="om-quees">
+        <div class="container om-quees__inner">
+          <div class="om-quees__texto">
+            <!-- H2 verbatim de C103: "por eso construí a Pablo: para que ver
+                 tu plata sea tan fácil como mandar un mensaje por whatsapp".
+                 Los 4 pasos son el "Funciona así:" del ad pagado A1 (doc "Ads
+                 Estáticos", jul-2026), tal cual.
+                 El resaltador .highlight se rompe si cruza de línea: frase
+                 corta y con nowrap. -->
+            <h2 class="om-sec-title om-quees__title">
+              Ver tu plata, tan fácil como
+              <span class="highlight om-nowrap">mandar un WhatsApp</span>
+            </h2>
+
+            <p class="om-quees__sub">
+              Por eso construí a Pablo: tu asistente financiero por WhatsApp
+              24/7, para que veas a dónde se va tu plata sin que sea un dolor
+              de cabeza. Funciona así:
+            </p>
+
+            <ul class="om-quees__bullets">
+              <li>
+                Le dices por audio o texto “Taxi S/.18” o mandas la foto del
+                Yape o el voucher.
+              </li>
+              <li>
+                Pablo lo registra, lo clasifica y actualiza tu presupuesto en
+                tiempo real en la app.
+              </li>
+              <li>
+                Cada semana te muestra exactamente en qué se te fueron esos
+                taxis, delivery y antojitos…
+              </li>
+              <li>…y cuánto podrías estar ahorrando sin dejar tus gustos.</li>
+            </ul>
+
+            <blockquote class="om-quees__quote">
+              <p>
+                “Yo odio, detesto hacer Excels, lo detesto con mi alma. Entonces
+                dije: ya, por WhatsApp es muchísimo más rápido.”
+              </p>
+              <cite>Giovanna <span>· 25 años</span></cite>
+            </blockquote>
+          </div>
+
+          <div class="om-quees__phone">
+            <HeroPhone />
+          </div>
+        </div>
+      </section>
+    )}
+
+    <!-- ════════════════ 4. TODO LO QUE INCLUYE ════════════════
          Cada bono en su propia tarjeta, con su valor real tachado y lo que
          pagas hoy. Es el inventario completo de la oferta de un solo vistazo;
          más abajo cada bono tiene su hoja a pantalla completa. -->
-    {heroVideoId && (
+    {promo && (
       <section class="om-incluye" id="incluye">
         <div class="container om-incluye__inner">
           <div class="om-sec-header">
-            <span class="om-incluye__eyebrow">La Oferta Millonaria</span>
+            <span class="om-incluye__eyebrow">La Pablo Promo</span>
+            <!-- Estructura verbatim de C103: "junto con el plan anual a S/.200
+                 (S/.240), desbloqueas todo lo siguiente completamente GRATIS" -->
             <h2 class="om-sec-title">
-              Todo lo que <span class="highlight">te llevas hoy</span> por S/.200
+              Todo lo que <span class="highlight">desbloqueas hoy</span>
             </h2>
             <p class="om-sec-sub">
-              Son {stack.length} cosas distintas, cada una con su propio valor.
-              No es un paquete borroso: esto es exactamente lo que entra.
+              El Plan Anual a S/.200 — y todo lo demás, completamente gratis.
             </p>
           </div>
 
@@ -496,19 +854,10 @@ const faqs = [
           </div>
 
           <div class="om-incluye__total">
-            <div class="om-comp">
-              <span class="om-comp__precio"><s>{VALOR_BONOS}</s></span>
-              <span class="om-comp__label">en bonos<span data-noche hidden> ({VALOR_BONOS_NOCHE} esta noche)</span></span>
-            </div>
-            <span class="om-comp__flecha" aria-hidden="true">→</span>
-            <div class="om-comp om-comp--hoy">
-              <span class="om-comp__precio">hoy S/.200</span>
-              <span class="om-comp__label">por el año entero</span>
-            </div>
-            <span class="om-comp__flecha" aria-hidden="true">→</span>
-            <div class="om-comp om-comp--gratis">
-              <span class="om-comp__precio">S/.0</span>
-              <span class="om-comp__label">si completas el reto</span>
+            <div class="om-precio">
+              <s class="om-precio__antes">{VALOR_ANUAL_SIN_PROMO}</s>
+              <strong class="om-precio__ahora">S/.200</strong>
+              <span class="om-precio__nota">por el año entero · tiempo limitado</span>
             </div>
           </div>
 
@@ -517,95 +866,167 @@ const faqs = [
             class="om-cta om-cta--xl"
             onclick="try{window.posthog?.capture('millonaria_cta_clicked',{location:'incluye'})}catch(e){};if(typeof fbq!=='undefined')fbq('trackCustom','Millonaria_CTA',{location:'incluye'});"
           >
-            Quiero mi Plan Anual + todos los bonos
+            Reclamar mi Pablo Promo
           </a>
         </div>
       </section>
     )}
 
-    <!-- ════════════════ 3. PRUEBA SOCIAL ════════════════
-         Va acá a propósito: justo después de ver el precio y antes de recorrer
-         los bonos. El orden es promesa → precio → "y no soy el único". -->
-    {heroVideoId && (
-      <section class="om-social">
-        <div class="container om-social__inner">
-          <p class="om-social__label">Ya le funciona a gente real</p>
-          <div class="om-social__pills">
-            {testimonios.slice(0, 3).map((t) => (
-              <blockquote class="om-social__pill">
-                <p class="om-social__quote">“{t.quote}”</p>
-                <footer class="om-social__autor">
-                  {t.nombre} <span>· {t.detalle}</span>
-                </footer>
-              </blockquote>
-            ))}
-          </div>
+    <!-- ════════════════ 6. CARTA DEL CREADOR ════════════════
+         Va justo después del stack (pedido de Rodrigo 27-jul): primero ves QUÉ
+         te llevas, después QUIÉN te lo vende, y recién entonces el botón. -->
+    <section class="om-carta-sec">
+      <div class="container">
+        <div class="om-carta om-carta--papel">
+          <span class="om-carta__tape" aria-hidden="true"></span>
+          <span class="om-carta__eyebrow">Una nota del creador de Pablo</span>
+          <h2 class="om-carta__titulo">¿Por qué se llama Pablo?</h2>
+          <p class="om-carta__p">
+            cuando era niño, había un dibujito que siempre veía mientras
+            desayunaba, llamado “Los Backyardigans”
+          </p>
+          <p class="om-carta__p">
+            era de unos animalitos que se embarcaban en diferentes
+            experiencias — desde convertirse en agentes super espías
+            internacionales a ser piratas derrotando a un dragon para llegar al
+            tesoro
+          </p>
+          <p class="om-carta__p">
+            …todo desde el patio trasero de su casa y con un superpoder llamado:
+          </p>
+          <p class="om-carta__p">
+            la <strong>imaginación</strong>: la capacidad mental para concebir
+            ideas, imágenes o situaciones que (¿todavía?) no existen
+          </p>
+          <p class="om-carta__p">
+            aunque esas cosas solo pasen en dibujitos, yo creo que todos nacemos
+            con una llama interna que se alimenta de la convergencia entre la
+            imaginación, la curiosidad y la inocencia para lograr cosas que antes
+            creíamos imposibles
+          </p>
+          <p class="om-carta__p">
+            y a raíz de esta llama, se han forjado los avances científicos y
+            tecnológicos más revolucionarios que forman la sociedad en la que
+            vivimos hoy
+          </p>
+          <p class="om-carta__p">
+            pero aunque sea un poder con el que todos nacemos, el problema es
+            que si no lo practicas seguido — desaparece…
+          </p>
+          <p class="om-carta__p">
+            y en una sociedad donde la mayoría vive preocupada de cómo llegará a
+            fin de mes, ¿cómo se espera que tengamos tiempo para imaginar, mucho
+            menos construir, un mejor mañana para aquellos que amamos?
+          </p>
+          <p class="om-carta__p">
+            ¿si el tiempo destinado para eso se hunde cada vez más entre el
+            tsunami moderno de gastos hormigas y ansiedad financiera?
+          </p>
+          <p class="om-carta__p">¿nuestra respuesta?</p>
+          <p class="om-carta__p">
+            Pablito 💛<br />
+            (y no, no hablo del pingüino azul de los Backyardigans)
+          </p>
+          <p class="om-carta__firma">Rodrigo</p>
+          <p class="om-carta__firma-sub">Creador de Pablo · @rodrigo.al.millon</p>
         </div>
-      </section>
-    )}
 
-    <!-- ════════════════ BONOS: cada uno su propia hoja ════════════════ -->
-    {stack.map((item, i) => (
+        <!-- El CTA que sigue a la carta: después de leer quién está detrás,
+             el botón. Es el momento de mayor confianza de la página. -->
+        <div class="om-carta__cta-wrap">
+          <a
+            href={CHECKOUT_URL}
+            class="om-cta om-cta--xl"
+            id="om-cta-carta"
+            onclick="try{window.posthog?.capture('millonaria_cta_clicked',{location:'carta'})}catch(e){};if(typeof fbq!=='undefined')fbq('trackCustom','Millonaria_CTA',{location:'carta'});"
+          >
+            Reclamar mi Pablo Promo
+          </a>
+          <p class="om-carta__cta-trust">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" /><polyline points="9 12 11 14 15 10" /></svg>
+            Garantía de 14 días · Cancelas cuando quieras
+          </p>
+        </div>
+      </div>
+    </section>
+
+    <!-- ════════════════ BONOS: 5 hojas, cada una con buildup ════════════════
+         Pedido de Rodrigo 27-jul: los 5 bonos de vuelta (incluidos Toolkit y
+         Garantía), cada uno con AL MENOS dos secciones — tarjeta A (buildup:
+         historia, sin precio ni botón) y tarjeta B (qué incluye + valor +
+         CTA) — como tarjetas rectangulares verticales con el visual arriba. -->
+    {bonosHoja.map((b, i) => (
       <Fragment>
-        <section class={`om-bono${i % 2 === 1 ? ' om-bono--flip' : ''}`}>
-          <span class="om-bono__watermark" aria-hidden="true">{i === 0 ? '★' : i}</span>
-          <div class="container om-bono__inner">
-            <div class="om-bono__media">
-              <img
-                src={item.img}
-                alt={item.alt}
-                width="240"
-                height="240"
-                loading="lazy"
-                decoding="async"
-              />
-            </div>
-            <div class="om-bono__body">
-              <span class="om-bono__tag">
-                {i === 0 ? item.tag : `${item.tag} de ${stack.length - 1}`}
-              </span>
-              <h2 class="om-bono__title">{item.titulo}</h2>
-              <!-- Valor en tarjeta: valor real tachado → lo que pagas hoy. Así
-                   se lee que este bono tiene precio propio, no es relleno. -->
-              <div class="om-bono__valor">
-                {item.valorReal && (
-                  <span class="om-bono__valor-col">
-                    <span class="om-bono__valor-label">Valor real</span>
-                    <s class="om-bono__tachado">{item.valorReal}</s>
-                  </span>
+        <section class={`om-bono2${i % 2 === 1 ? ' om-bono2--alt' : ''}`}>
+          <div class="container om-bono2__inner">
+            <!-- Tarjeta A: el buildup -->
+            <article class="om-bono2__card">
+              <div class="om-bono2__media">
+                {b.arte.video ? (
+                  <video
+                    src={b.arte.video}
+                    poster={b.arte.img}
+                    autoplay
+                    muted
+                    loop
+                    playsinline
+                    width="480"
+                    height="360"
+                    aria-label={b.altA}
+                  ></video>
+                ) : (
+                  <img src={b.arte.img} alt={b.altA} width="480" height="360" loading="lazy" decoding="async" />
                 )}
-                {item.valorReal && <span class="om-bono__valor-flecha" aria-hidden="true">→</span>}
-                <span class="om-bono__valor-col">
-                  <span class="om-bono__valor-label">Hoy</span>
-                  <span class="om-bono__incluido">{item.incluido}</span>
-                </span>
               </div>
-              <p class="om-bono__desc">{item.desc}</p>
-              {item.bullets.length > 0 && (
-                <ul class="om-bono__bullets">
-                  {item.bullets.map((b) => (
-                    <li>
-                      <svg class="om-check" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#3FA643" stroke-width="2.5" aria-hidden="true"><polyline points="20 6 9 17 4 12" /></svg>
-                      {b}
-                    </li>
-                  ))}
-                </ul>
-              )}
-              {item.proof && (
-                <div class="om-bono__proof">
-                  <span class="om-bono__proof-label">Ya le funciona a gente real</span>
-                  <p class="om-bono__proof-quote">“{item.proof.quote}”</p>
-                  <span class="om-bono__proof-autor">— {item.proof.nombre}, {item.proof.detalle}</span>
+              <div class="om-bono2__body">
+                <span class="om-bono2__tag">Bono {i + 1} de {bonosHoja.length}</span>
+                <h2 class="om-bono2__title">{b.titulo}</h2>
+                {b.buildup.map((p) => (
+                  <p class="om-bono2__p">{p}</p>
+                ))}
+              </div>
+            </article>
+
+            <!-- Tarjeta B: qué incluye + valor + CTA -->
+            <article class="om-bono2__card om-bono2__card--venta">
+              {b.arte.detalle && (
+                <div class="om-bono2__media">
+                  <img src={b.arte.detalle} alt={b.altB} width="480" height="360" loading="lazy" decoding="async" />
                 </div>
               )}
-              <a
-                href={CHECKOUT_URL}
-                class="om-cta om-bono__cta"
-                onclick="try{window.posthog?.capture('millonaria_cta_clicked',{location:'bono'})}catch(e){};if(typeof fbq!=='undefined')fbq('trackCustom','Millonaria_CTA',{location:'bono'});"
-              >
-                {item.cta}
-              </a>
-            </div>
+              <div class="om-bono2__body">
+                <span class="om-bono2__mini">{b.fichasTitulo}</span>
+                <ol class="om-bono__fichas om-bono__fichas--v">
+                  {b.fichas.map((f, k) => (
+                    <li class="om-bono__ficha">
+                      <span class="om-bono__ficha-num" aria-hidden="true">{k + 1}</span>
+                      <span>{f}</span>
+                    </li>
+                  ))}
+                </ol>
+                <p class="om-bono2__remate">{b.remate}</p>
+                <div class="om-bono2__valor">
+                  {b.valorReal ? (
+                    <span class="om-bono2__tachado"><s>{b.valorReal}</s></span>
+                  ) : null}
+                  <strong class="om-bono2__incluido">{b.incluido}</strong>
+                </div>
+                {b.proof && (
+                  <div class="om-bono__proof">
+                    <span class="om-bono__proof-label">Ya le funciona a gente real</span>
+                    <p class="om-bono__proof-quote">“{b.proof.quote}”</p>
+                    <span class="om-bono__proof-autor">— {b.proof.nombre}, {b.proof.detalle}</span>
+                  </div>
+                )}
+                <a
+                  href={CHECKOUT_URL}
+                  class="om-cta om-bono2__cta"
+                  onclick="try{window.posthog?.capture('millonaria_cta_clicked',{location:'bono'})}catch(e){};if(typeof fbq!=='undefined')fbq('trackCustom','Millonaria_CTA',{location:'bono'});"
+                >
+                  Reclamar mi Pablo Promo
+                </a>
+              </div>
+            </article>
           </div>
         </section>
 
@@ -669,7 +1090,7 @@ const faqs = [
             </li>
             <li>
               <span class="om-recap__nombre">Reto “Camino al Millón en 30 días”</span>
-              <span class="om-recap__val"><s>S/.97</s> <strong>100% reembolso</strong></span>
+              <span class="om-recap__val"><strong>100% reembolso</strong></span>
             </li>
             <li>
               <span class="om-recap__nombre">Curso “Finanzas de un Futuro Millonario”</span>
@@ -677,11 +1098,11 @@ const faqs = [
             </li>
             <li>
               <span class="om-recap__nombre">Pase Mensual a La Komunidad</span>
-              <span class="om-recap__val"><s>S/.80</s> <strong>gratis</strong></span>
+              <span class="om-recap__val"><s>$60 USD</s> <strong>gratis</strong></span>
             </li>
             <li>
               <span class="om-recap__nombre">Toolkit Komunitario (+10 recursos)</span>
-              <span class="om-recap__val"><s>S/.50</s> <strong>gratis</strong></span>
+              <span class="om-recap__val"><strong>dentro de La Komunidad</strong></span>
             </li>
             <li>
               <span class="om-recap__nombre">Garantía de satisfacción de 14 días</span>
@@ -689,19 +1110,10 @@ const faqs = [
             </li>
           </ul>
           <div class="om-recap__compare">
-            <div class="om-comp">
-              <span class="om-comp__precio"><s>{VALOR_BONOS}</s></span>
-              <span class="om-comp__label">en bonos<span data-noche hidden> ({VALOR_BONOS_NOCHE} esta noche)</span></span>
-            </div>
-            <span class="om-comp__flecha" aria-hidden="true">→</span>
-            <div class="om-comp om-comp--hoy">
-              <span class="om-comp__precio">hoy S/.200</span>
-              <span class="om-comp__label">por el año entero</span>
-            </div>
-            <span class="om-comp__flecha" aria-hidden="true">→</span>
-            <div class="om-comp om-comp--gratis">
-              <span class="om-comp__precio">S/.0</span>
-              <span class="om-comp__label">si completas el reto</span>
+            <div class="om-precio">
+              <s class="om-precio__antes">{VALOR_ANUAL_SIN_PROMO}</s>
+              <strong class="om-precio__ahora">S/.200</strong>
+              <span class="om-precio__nota">por el año entero · tiempo limitado</span>
             </div>
           </div>
           <a
@@ -710,89 +1122,20 @@ const faqs = [
             id="om-cta-recap"
             onclick="try{window.posthog?.capture('millonaria_cta_clicked',{location:'recap'})}catch(e){};if(typeof fbq!=='undefined')fbq('trackCustom','Millonaria_CTA',{location:'recap'});"
           >
-            Quiero mi Plan Anual + todos los bonos
+            Reclamar mi Pablo Promo
           </a>
         </div>
       </div>
     </section>
 
-    <!-- ════════════════ 4. CARTA DEL CREADOR ════════════════ -->
-    <section class="om-carta-sec">
-      <div class="container">
-        <div class="om-carta">
-          <span class="om-carta__quote" aria-hidden="true">”</span>
-          <h2 class="om-carta__titulo">¿Por qué se llama Pablo?</h2>
-          <p class="om-carta__p">
-            cuando era niño, había un dibujito que siempre veía mientras
-            desayunaba, llamada “Los Backyardigans”
-          </p>
-          <p class="om-carta__p">
-            era de unos animalitos que desembarcaban en diversas diferentes
-            experiencias — desde convertirse en agentes super espías
-            internacionales a ser piratas derrotando a un dragon para llegar al
-            tesoro
-          </p>
-          <p class="om-carta__p">
-            …todo desde el patio trasero de su casa y con un superpoder llamado:
-          </p>
-          <p class="om-carta__p">
-            la <strong>imaginación</strong>: la capacidad mental para concebir
-            ideas, imágenes o situaciones que (¿todavía?) no existen
-          </p>
-          <p class="om-carta__p">
-            aunque esas cosas solo pasen en dibujitos, yo creo que todos nacemos
-            con una llama interna que se alimenta de la convergencia entre la
-            imaginación, la curiosidad y la inocencia para lograr cosas que antes
-            creíamos imposibles
-          </p>
-          <p class="om-carta__p">
-            y a raíz de esta llama, se han forjado los avances científicos y
-            técnologicos más revolucionarios que forman la sociedad en la que
-            vivimos hoy
-          </p>
-          <p class="om-carta__p">
-            pero aunque sea un poder con el que todos nacemos, el problemas es
-            que si no lo practicas seguido — desaparece…
-          </p>
-          <p class="om-carta__p">
-            y en una sociedad donde la mayoría vive preocupada de cómo llegará a
-            fin de mes, ¿cómo se espera que tengamos tiempo para imaginar, mucho
-            menos construir, un mejor mañana para aquellos que amamos?
-          </p>
-          <p class="om-carta__p">
-            ¿si el tiempo destinado para eso se hunde cada vez más entre el
-            tsunami moderno de gastos hormigas y ansiedad financiera?
-          </p>
-          <p class="om-carta__p">¿nuestra respuesta?</p>
-          <p class="om-carta__p">
-            Pablito 💛<br />
-            (y no, no hablo del pingüino azul de los Backyardigans)
-          </p>
-          <p class="om-carta__firma">Rodrigo</p>
-          <p class="om-carta__firma-sub">Papá de Pablo · @rodrigo.al.millon</p>
-        </div>
-      </div>
-    </section>
-
-    <!-- ════════════════ 5. TESTIMONIOS (carrusel de la landing) ════════════════ -->
-    <section class="om-testimonios">
-      <div class="container om-testimonios__inner">
-        <div class="om-sec-header">
-          <h2 class="om-sec-title">
-            Gente real, <span class="highlight">resultados reales</span>
-          </h2>
-          <p class="om-sec-sub">Esto dicen los que ya ordenan su plata con Pablo.</p>
-        </div>
-      </div>
-      <TestimonialsCarousel />
-    </section>
-
-    <!-- ════════════════ 6. GARANTÍA DOBLE ════════════════ -->
+    <!-- ════════════════ GARANTÍA DOBLE ════════════════ -->
     <section class="om-garantia">
       <div class="container om-garantia__inner">
         <div class="om-sec-header">
+          <!-- C82/C93 verbatim: "si no es para ti, te devuelvo tu plata sin
+               preguntas". Los títulos van "Número 1/2" (pedido 27-jul). -->
           <h2 class="om-sec-title">
-            Doble red de seguridad: <span class="highlight">el riesgo lo asumimos nosotros</span>
+            Si no es para ti, <span class="highlight">te devolvemos tu plata</span> sin preguntas
           </h2>
         </div>
 
@@ -804,10 +1147,10 @@ const faqs = [
                 <polyline points="9 12 11 14 15 10" />
               </svg>
             </div>
-            <h3 class="om-g-card__title">Red de seguridad #1: garantía de 14 días</h3>
+            <h3 class="om-g-card__title">#1: garantía de 14 días</h3>
             <p class="om-g-card__desc">
-              Pruébalo 2 semanas. Si sientes que no es para ti, te devolvemos
-              tu plata. Sin preguntas.
+              Pruébalo 2 semanas. Si no es para ti, te devolvemos tu plata sin
+              preguntas.
             </p>
           </div>
           <div class="om-g-card om-g-card--amber">
@@ -817,10 +1160,10 @@ const faqs = [
                 <path d="M8 12h8M12 8v8" />
               </svg>
             </div>
-            <h3 class="om-g-card__title">Red de seguridad #2: el reto con reembolso del 100%</h3>
+            <h3 class="om-g-card__title">#2: el reto con reembolso del 100%</h3>
             <p class="om-g-card__desc">
-              Haz tu parte durante 30 días y te devolvemos todo lo pagado.
-              Ganas el hábito y recuperas tu plata.
+              Completa el reto de 30 días y te devolvemos el 100% de tu plata.
+              ¿Y lo mejor? Depende 100% de ti.
             </p>
           </div>
         </div>
@@ -830,16 +1173,22 @@ const faqs = [
     <!-- ════════════════ 7. URGENCIA HONESTA ════════════════ -->
     <section class="om-urgencia">
       <div class="container om-urgencia__inner">
-        <h2 class="om-urgencia__title">
-          La oferta cierra el {DEADLINE_TEXTO} a las 11:59 p.m. (hora Perú)
-        </h2>
+        <!-- La fecha de cierre pasó de titular gigante a ceja sobre el timer
+             (pedido 27-jul): el reloj ya dice lo dramático, la ceja da el dato. -->
+        <span class="om-urgencia__eyebrow">
+          Cierra el {DEADLINE_TEXTO} · 11:59 p.m. (hora Perú)
+        </span>
+        <!-- Verbatim C82/C93: "esta es la semana en que entra tu sueldo y tu
+             grati — o se va todo en gastos hormiga, o la usas para ordenar tu
+             año completo. tú decides" + "después el anual vuelve a ser solo
+             el anual: sin reto, sin curso, sin Komunidad" -->
         <p class="om-urgencia__sub">
-          Esta es la semana en que entra tu sueldo y tu grati de Fiestas
-          Patrias. O se va en gastos hormiga, o la usas para ordenar tu año
-          completo.
+          Esta es la semana en que entra tu sueldo y tu grati — o se va todo en
+          gastos hormiga, o la usas para ordenar tu año completo. Tú decides.
         </p>
         <p class="om-urgencia__sub">
-          Sin cupos falsos ni relojes que se reinician.
+          Después, el anual vuelve a ser solo el anual: sin reto, sin curso,
+          sin Komunidad.
         </p>
 
         <div class="om-countdown om-countdown--big" data-deadline={DEADLINE_ISO}>
@@ -858,7 +1207,7 @@ const faqs = [
           id="om-cta-urgencia"
           onclick="try{window.posthog?.capture('millonaria_cta_clicked',{location:'urgencia'})}catch(e){};if(typeof fbq!=='undefined')fbq('trackCustom','Millonaria_CTA',{location:'urgencia'});"
         >
-          Quiero empezar mi camino al millón
+          Reclamar mi Pablo Promo
         </a>
       </div>
     </section>
@@ -904,16 +1253,19 @@ const faqs = [
           decoding="async"
           class="om-final__mascot"
         />
+        <!-- Cierre verbatim de C103: "no necesitas tocar fondo para recién
+             empezar - puedes empezar solo haciendo click para conocer todas
+             tus opciones" + la firma de todos sus correos. -->
         <h2 class="om-final__title">
-          Este año sí. Y si haces tu parte, te sale gratis.
+          No necesitas tocar fondo para recién empezar.
         </h2>
         <p class="om-final__sub">
           Un año de Pablo + el reto + el curso + La Komunidad + el toolkit, por
           S/.200. Solo hasta el {DEADLINE_TEXTO}.
         </p>
         <p class="om-final__cierre">
-          Después del martes 29 a las 11:59 p.m., esta oferta se cierra y esta
-          combinación de bonos ya no existe.
+          Después, el anual vuelve a ser solo el anual: sin reto, sin curso,
+          sin Komunidad.
         </p>
         <a
           href={CHECKOUT_URL}
@@ -921,52 +1273,32 @@ const faqs = [
           id="om-cta-final"
           onclick="try{window.posthog?.capture('millonaria_cta_clicked',{location:'final'})}catch(e){};if(typeof fbq!=='undefined')fbq('trackCustom','Millonaria_CTA',{location:'final'});"
         >
-          Quiero empezar mi camino al millón
+          Reclamar mi Pablo Promo
         </a>
         <p class="om-final__trust">
           <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" /></svg>
           Garantía de 14 días. Reto con reembolso del 100%. Tú decides.
         </p>
+        <p class="om-final__firma">ahí los veo, futuros millonarios — Rodrigo</p>
       </div>
     </section>
 
-    <!-- ════════════════ Downsell: plan mensual (secundario) ════════════════ -->
-    <!-- id: destino del link que Pablo manda por WhatsApp a los usuarios sin
-         plan activo, para que caigan en los 14 días gratis y no en el anual. -->
-    <section class="om-downsell" id="prueba-gratis">
-      <div class="container om-downsell__inner">
-        <p class="om-downsell__lead">¿Todavía no te animas al año completo?</p>
-        <div class="om-downsell__card">
-          <div class="om-downsell__texto">
-            <h3 class="om-downsell__titulo">Prueba Pablo gratis 14 días — Plan Mensual</h3>
-            <p class="om-downsell__precio">S/.20 al mes · empiezas sin pagar hoy</p>
-            <p class="om-downsell__nota">
-              Incluye acceso al reto. <strong>No</strong> incluye los bonos
-              (curso S/.300, comunidad S/.80, toolkit S/.50) ni el reembolso del
-              100%. Y al año te sale S/.240, no S/.200.
-            </p>
-          </div>
-          <a
-            href={CHECKOUT_URL_MENSUAL}
-            class="om-downsell__btn"
-            onclick="try{window.posthog?.capture('millonaria_downsell_mensual')}catch(e){}"
-          >
-            Probar gratis 14 días
-          </a>
-        </div>
-      </div>
-    </section>
+    <!-- El downsell del plan mensual salió (pedido de Rodrigo 27-jul): la
+         tarjeta de abajo competía con la decisión del anual justo al cierre.
+         OJO: acá vivía el ancla #prueba-gratis que Ryan puso como destino del
+         link que Pablo manda por WhatsApp a los usuarios sin plan activo. Ese
+         link quedó sin destino: hay que apuntarlo a otro lado (bot de Ryan). -->
   </main>
 
   <!-- ════════════════ BARRA FIJA DE CTA ════════════════
        En una página de ventas larga el clic se pierde entre pantalla y
        pantalla. La barra aparece cuando el hero sale de vista y se esconde
        cuando el CTA final ya está en pantalla (para no competir con él). -->
-  {heroVideoId && (
+  {promo && (
     <div class="om-sticky" id="om-sticky" aria-hidden="true">
       <div class="container om-sticky__inner">
         <div class="om-sticky__precio">
-          <span class="om-sticky__tachado">{VALOR_BONOS} en valor</span>
+          <span class="om-sticky__tachado">{VALOR_ANUAL_SIN_PROMO} al año</span>
           <strong class="om-sticky__monto">S/.200 <span>el año</span></strong>
         </div>
         <span class="om-countdown om-countdown--mini om-sticky__cd" data-deadline={DEADLINE_ISO}>
@@ -980,7 +1312,7 @@ const faqs = [
           class="om-sticky__cta"
           onclick="try{window.posthog?.capture('millonaria_cta_clicked',{location:'sticky'})}catch(e){};if(typeof fbq!=='undefined')fbq('trackCustom','Millonaria_CTA',{location:'sticky'});"
         >
-          Quiero mi plan
+          Reclamar mi promo
         </a>
       </div>
     </div>
@@ -1334,6 +1666,261 @@ const faqs = [
     font-size: 13px;
     color: var(--color-secondary);
     font-weight: 500;
+  }
+
+  /* ════════════════ EL PROBLEMA ════════════════
+     Fondo blanco para cortar con el lila del hero. Las citas NO se ven como
+     tarjetas de testimonio: van con una raya dorada al costado y en cursiva,
+     para que se lean como voces y no como resultados. El dolor va sobrio: la
+     idea es que la persona piense "a mí también", no asustarla. */
+  .om-dolor {
+    background: #ffffff;
+    padding: var(--section-py) 0;
+  }
+
+  .om-dolor__inner {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 14px;
+    text-align: center;
+  }
+
+  .om-dolor__eyebrow {
+    font-size: 11.5px;
+    font-weight: 700;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--color-secondary);
+  }
+
+  .om-dolor__title {
+    max-width: 20ch;
+  }
+
+  .om-dolor__sub {
+    font-size: 17px;
+    font-weight: 600;
+    color: var(--color-body);
+  }
+
+  .om-dolor__grid {
+    list-style: none;
+    margin: 18px 0 0;
+    padding: 0;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 18px 26px;
+    width: 100%;
+    max-width: 880px;
+    text-align: left;
+  }
+
+  .om-dolor__card {
+    border-left: 3px solid #f0d9a8;
+    padding: 2px 0 2px 18px;
+  }
+
+  .om-dolor__cita {
+    font-size: 16px;
+    line-height: 1.55;
+    font-style: italic;
+    color: var(--color-heading);
+  }
+
+  .om-dolor__autor {
+    margin-top: 7px;
+    font-size: 13px;
+    font-weight: 700;
+    color: var(--color-heading);
+  }
+
+  .om-dolor__autor span {
+    font-weight: 500;
+    color: var(--color-secondary);
+  }
+
+  .om-dolor__cierre {
+    margin-top: 22px;
+    max-width: 620px;
+  }
+
+  .om-dolor__cierre-cita {
+    font-family: var(--font-heading);
+    font-weight: 700;
+    font-size: clamp(19px, 2.4vw, 25px);
+    line-height: 1.35;
+    color: var(--color-heading);
+  }
+
+  .om-dolor__cierre .om-dolor__autor {
+    margin-top: 10px;
+  }
+
+  @media (max-width: 768px) {
+    .om-dolor__grid {
+      grid-template-columns: 1fr;
+      gap: 16px;
+    }
+
+    .om-dolor__title {
+      max-width: none;
+    }
+
+    .om-dolor__sub {
+      font-size: 15.5px;
+    }
+
+    .om-dolor__cita {
+      font-size: 15px;
+    }
+  }
+
+  /* ════════════════ QUÉ ES PABLO ════════════════
+     El puente para quien llega del correo sin saber qué es Pablo. El teléfono
+     es el mock de HeroPhone (HTML/CSS), así que se ve nítido en cualquier
+     pantalla y muestra el producto funcionando en vez de una ilustración. */
+  .om-quees {
+    background: var(--bg-how);
+    /* Menos aire abajo: la sección que sigue (om-incluye) trae su propio
+       padding arriba y entre las dos quedaba un hueco vacío de ~200px. */
+    padding: var(--section-py) 0 34px;
+  }
+
+  .om-quees__inner {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) minmax(0, 0.8fr);
+    align-items: center;
+    gap: 52px;
+  }
+
+  .om-quees__texto {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 14px;
+  }
+
+  .om-quees__title {
+    text-align: left;
+    max-width: 22ch;
+  }
+
+  .om-nowrap {
+    white-space: nowrap;
+  }
+
+  .om-quees__sub {
+    font-size: 16.5px;
+    line-height: 1.6;
+    color: var(--color-body);
+    max-width: 46ch;
+  }
+
+  .om-quees__bullets {
+    list-style: none;
+    margin: 4px 0 0;
+    padding: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+  }
+
+  .om-quees__bullets li {
+    position: relative;
+    padding-left: 26px;
+    font-size: 15.5px;
+    line-height: 1.5;
+    color: var(--color-heading);
+  }
+
+  /* Check dibujado en CSS: el mismo lenguaje de los bullets de los bonos */
+  .om-quees__bullets li::before {
+    content: '';
+    position: absolute;
+    left: 2px;
+    top: 6px;
+    width: 6px;
+    height: 11px;
+    border-right: 2.5px solid var(--color-green);
+    border-bottom: 2.5px solid var(--color-green);
+    transform: rotate(45deg);
+  }
+
+  .om-quees__quote {
+    margin: 10px 0 0;
+    border-left: 3px solid #f0d9a8;
+    padding-left: 18px;
+  }
+
+  .om-quees__quote p {
+    font-size: 15.5px;
+    line-height: 1.55;
+    font-style: italic;
+    color: var(--color-heading);
+  }
+
+  .om-quees__quote cite {
+    display: block;
+    margin-top: 7px;
+    font-size: 13px;
+    font-weight: 700;
+    font-style: normal;
+    color: var(--color-heading);
+  }
+
+  .om-quees__quote cite span {
+    font-weight: 500;
+    color: var(--color-secondary);
+  }
+
+  .om-quees__phone {
+    display: flex;
+    justify-content: center;
+  }
+
+  /* Misma fórmula de escalado que usa el hero del home: el interior del
+     teléfono se dimensiona con em sobre este font-size. */
+  .om-quees__phone :global(.hphone) {
+    --w: clamp(240px, 26vw, 320px);
+    font-size: calc(var(--w) * 0.0412);
+  }
+
+  @media (max-width: 900px) {
+    .om-quees__inner {
+      grid-template-columns: 1fr;
+      gap: 26px;
+      justify-items: center;
+    }
+
+    /* El teléfono va DESPUÉS del texto en móvil a propósito: HeroPhone llena
+       el chat por JS con retardos (el primer mensaje a los 900 ms y la
+       conversación completa recién a los ~20 s). Si fuera lo primero que se
+       ve, el primer golpe de vista sería un WhatsApp vacío. Leyendo el titular
+       y los bullets pasa el tiempo suficiente para que ya haya conversación. */
+    .om-quees__texto {
+      order: 1;
+      align-items: center;
+      text-align: center;
+    }
+
+    .om-quees__phone {
+      order: 2;
+    }
+
+    .om-quees__title {
+      text-align: center;
+      max-width: none;
+    }
+
+    .om-quees__bullets li,
+    .om-quees__quote {
+      text-align: left;
+    }
+
+    .om-quees__phone :global(.hphone) {
+      --w: clamp(230px, 62vw, 300px);
+    }
   }
 
   /* ════════════════ 2. EL PACTO ════════════════ */
@@ -1758,6 +2345,43 @@ const faqs = [
 
   .om-recap__nombre {
     font-weight: 600;
+  }
+
+  /* Etiqueta de precio, como un cartel de tienda: el precio de antes chiquito
+   * y tachado, el de hoy grande, y debajo la nota. Reemplazó al comparativo de
+   * tres columnas (527 → 200 → 0), que se leía como una hoja de cálculo. */
+  .om-precio {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 2px;
+    text-align: center;
+  }
+
+  .om-precio__antes {
+    font-family: var(--font-heading);
+    font-weight: 700;
+    font-size: 19px;
+    line-height: 1;
+    color: var(--color-secondary);
+    text-decoration-thickness: 2px;
+  }
+
+  .om-precio__ahora {
+    font-family: var(--font-heading);
+    font-weight: 700;
+    font-size: clamp(46px, 11vw, 64px);
+    line-height: 1;
+    color: var(--color-heading);
+    letter-spacing: -0.02em;
+  }
+
+  .om-precio__nota {
+    font-size: 12.5px;
+    font-weight: 600;
+    letter-spacing: 0.02em;
+    color: var(--color-amber);
+    text-transform: uppercase;
   }
 
   /* Comparación: S/.240 → hoy S/.200 → S/.0 */
@@ -2338,6 +2962,347 @@ const faqs = [
     font-weight: 500;
     color: var(--color-secondary);
     text-align: center;
+  }
+
+  /* ════════════════ HERO DE LA PABLO PROMO ════════════════
+     Dos columnas: el loop de Pablo rotando entre las 6 cosas que entran, y al
+     costado la oferta (titular · lista · precio · CTA · reloj). El ítem del
+     stack que está en pantalla se enciende en dorado: el dorado se usa SOLO
+     para eso, el precio y el botón, así dirige el ojo en vez de decorar. */
+  .om-hero--promo {
+    padding: 26px 0 30px;
+  }
+
+  .om-hero__promo {
+    display: grid;
+    grid-template-columns: minmax(0, 0.82fr) minmax(0, 1fr);
+    align-items: center;
+    gap: 46px;
+  }
+
+  .om-hero__promo-content {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 14px;
+    min-width: 0;
+  }
+
+  /* Pill dorado (pedido de Rodrigo 27-jul): el nombre de la campaña dentro de
+     un contenedor amarillo con letras blancas, para que se lea como sello de
+     evento y no como una línea más. */
+  .om-hero__eyebrow {
+    display: inline-block;
+    font-size: 11.5px;
+    font-weight: 800;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: #ffffff;
+    background: linear-gradient(135deg, #f2b84b, #e59b23);
+    padding: 7px 16px;
+    border-radius: var(--radius-pill);
+    box-shadow: 0 2px 8px rgba(229, 155, 35, 0.35);
+  }
+
+  .om-hero__title--promo {
+    font-size: clamp(30px, 4vw, 46px);
+    line-height: 1.12;
+    text-align: left;
+  }
+
+  .om-hero--promo .om-hero__kicker {
+    text-align: left;
+    max-width: 46ch;
+  }
+
+  /* ── El carrusel vertical ── */
+  .om-loop {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    width: 100%;
+  }
+
+  /* La ventana es una tarjeta: los visuales de los bonos traen su propio fondo
+     lila y los de Pablo son transparentes; el degradado de la tarjeta (del
+     mismo tono que ese fondo) hace que los 7 se lean como una sola pieza. */
+  .om-loop__ventana {
+    position: relative;
+    width: 100%;
+    max-width: 400px;
+    aspect-ratio: 1;
+    overflow: hidden;
+    border-radius: 26px;
+    background: linear-gradient(165deg, #f6f3fd 0%, #eae5f8 100%);
+    border: 1px solid rgba(122, 79, 171, 0.12);
+    box-shadow: 0 18px 40px -18px rgba(76, 46, 133, 0.28);
+  }
+
+  .om-loop__track {
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+    /* La curva frena suave al llegar: se siente carrusel, no salto. */
+    transition: transform 0.55s cubic-bezier(0.32, 0, 0.15, 1);
+    will-change: transform;
+  }
+
+  .om-loop__slide {
+    position: relative;
+    flex: 0 0 100%;
+    height: 100%;
+    margin: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .om-loop__img {
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+  }
+
+  /* Pablo solo (primer slide, transparente) respira mejor con un poco de aire. */
+  .om-loop__slide:first-child .om-loop__img {
+    padding: 26px;
+  }
+
+  /* Chip dorado con el nombre del beneficio, dentro del slide: viaja pegado a
+     su imagen, así nunca se ve la foto de una cosa con el nombre de otra. */
+  .om-loop__chip {
+    position: absolute;
+    left: 50%;
+    bottom: 14px;
+    transform: translateX(-50%);
+    font-family: var(--font-heading);
+    font-weight: 700;
+    font-size: 13px;
+    line-height: 1.3;
+    text-align: center;
+    white-space: nowrap;
+    color: #7a4f00;
+    background: rgba(253, 241, 216, 0.94);
+    border: 1px solid #f5d99a;
+    border-radius: var(--radius-pill);
+    padding: 7px 16px;
+    max-width: calc(100% - 28px);
+    overflow: hidden;
+    text-overflow: ellipsis;
+    box-shadow: 0 4px 12px rgba(76, 46, 133, 0.12);
+  }
+
+  /* Puntitos de progreso del carrusel, en columna sobre el borde derecho. */
+  .om-loop__dots {
+    position: absolute;
+    top: 50%;
+    right: 12px;
+    transform: translateY(-50%);
+    display: flex;
+    flex-direction: column;
+    gap: 7px;
+  }
+
+  .om-loop__dot {
+    width: 7px;
+    height: 7px;
+    border-radius: var(--radius-pill);
+    background: rgba(122, 79, 171, 0.22);
+    transition: height 0.3s ease, background 0.3s ease;
+  }
+
+  .om-loop__dot.is-active {
+    height: 20px;
+    background: linear-gradient(180deg, #f2b84b, #e59b23);
+  }
+
+  /* ── El stack: las 6 cosas que entran, cada una en su caja dorada ── */
+  .om-hero__stack {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    width: 100%;
+  }
+
+  .om-hero__stack-item {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-size: 14px;
+    line-height: 1.35;
+    color: var(--color-heading);
+    background: #ffffff;
+    border: 1.5px solid #f0d9a8;
+    border-radius: 12px;
+    padding: 9px 14px;
+    transition: border-color 0.3s ease, background 0.3s ease, box-shadow 0.3s ease;
+  }
+
+  .om-hero__stack-item::before {
+    content: '';
+    width: 7px;
+    height: 7px;
+    border-radius: 50%;
+    background: #e8d5a8;
+    flex-shrink: 0;
+    transition: background 0.3s ease, transform 0.3s ease;
+  }
+
+  .om-hero__stack-item.is-active {
+    font-weight: 700;
+    border-color: var(--color-amber);
+    background: #fdf6e7;
+    box-shadow: 0 2px 10px rgba(229, 155, 35, 0.18);
+  }
+
+  .om-hero__stack-item.is-active::before {
+    background: var(--color-amber);
+    transform: scale(1.5);
+  }
+
+  /* Escudo de la garantía (pedido de Rodrigo 27-jul) */
+  .om-escudo {
+    flex-shrink: 0;
+    color: #b98a1e;
+    margin-right: -4px;
+  }
+
+  /* Precio dentro del hero: alineado a la izquierda con el resto de la columna */
+  .om-precio--hero {
+    align-items: flex-start;
+    text-align: left;
+    margin-top: 2px;
+  }
+
+  .om-precio--hero .om-precio__ahora {
+    font-size: clamp(44px, 5.6vw, 60px);
+  }
+
+  .om-hero--promo .om-hero__cta {
+    width: 100%;
+    max-width: 380px;
+  }
+
+  .om-hero--promo .om-hero__cierre {
+    align-items: flex-start;
+    width: 100%;
+  }
+
+  .om-hero--promo .om-hero__deadline,
+  .om-hero--promo .om-hero__trust-row {
+    text-align: left;
+    justify-content: flex-start;
+  }
+
+  /* ── Móvil: una columna, el loop arriba y todo lo demás centrado ── */
+  @media (max-width: 900px) {
+    .om-hero--promo {
+      padding: 14px 0 24px;
+    }
+
+    .om-hero__promo {
+      grid-template-columns: 1fr;
+      gap: 12px;
+      justify-items: center;
+    }
+
+    .om-hero__promo-content {
+      align-items: center;
+      text-align: center;
+      gap: 8px;
+    }
+
+    .om-loop__ventana {
+      max-width: min(150px, 40vw);
+      border-radius: 18px;
+    }
+
+    /* El chip y los puntitos salen en móvil: en 150px no se leen, y el ítem
+       encendido de la lista ya dice qué está en pantalla. */
+    .om-loop__chip,
+    .om-loop__dots {
+      display: none;
+    }
+
+    .om-loop__slide:first-child .om-loop__img {
+      padding: 12px;
+    }
+
+    .om-hero__title--promo {
+      text-align: center;
+      font-size: clamp(25px, 7vw, 32px);
+    }
+
+    /* El kicker se queda en móvil aunque apriete: es lo único arriba del
+       pliegue que dice que Pablo vive en WhatsApp, y la mitad de la gente que
+       llega del correo no sabe qué es Pablo. */
+    .om-hero--promo .om-hero__kicker {
+      text-align: center;
+      font-size: 13.5px;
+    }
+
+    /* En móvil las cajas doradas van en 2 columnas compactas: 6 cajas en
+       columna empujaban el botón bajo el pliegue. */
+    .om-hero__stack {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      max-width: 360px;
+      gap: 5px;
+    }
+
+    .om-hero__stack-item {
+      font-size: 11.5px;
+      line-height: 1.3;
+      text-align: left;
+      padding: 7px 9px;
+      border-radius: 10px;
+      gap: 7px;
+    }
+
+    .om-hero__stack-item::before {
+      width: 6px;
+      height: 6px;
+    }
+
+    .om-precio--hero .om-precio__ahora {
+      font-size: 48px;
+    }
+
+    .om-precio--hero .om-precio__antes {
+      font-size: 17px;
+    }
+
+    .om-precio--hero {
+      align-items: center;
+      text-align: center;
+    }
+
+    .om-hero--promo .om-hero__cierre,
+    .om-hero--promo .om-hero__deadline,
+    .om-hero--promo .om-hero__trust-row {
+      align-items: center;
+      text-align: center;
+      justify-content: center;
+    }
+  }
+
+  /* Pantallas cortas de verdad (iPhone SE y similares): acá sí sobra el kicker,
+     porque si no el botón cae bajo el pliegue. */
+  @media (max-width: 900px) and (max-height: 700px) {
+    .om-hero--promo .om-hero__kicker {
+      display: none;
+    }
+
+    .om-loop__ventana {
+      max-width: min(120px, 34vw);
+    }
+
+    .om-precio--hero .om-precio__ahora {
+      font-size: 42px;
+    }
   }
 
   /* ════════════════ HERO VSL: TODO EN LA PRIMERA PANTALLA ════════════════
@@ -3266,6 +4231,428 @@ const faqs = [
     .om-downsell__texto { align-items: center; }
     .om-downsell__btn { width: 100%; }
   }
+  /* ════════════════ UI v2 (27-jul, pedido de Rodrigo) ════════════════
+     Va al final del <style> a propósito: a igual especificidad, la última
+     regla gana, así este bloque re-pinta secciones ya definidas arriba sin
+     tocar sus reglas base. Tres ideas: (1) transiciones de color en degradé
+     entre secciones, nada de cortes; (2) bonos en hojas claras alternadas con
+     fichas numeradas, no checks; (3) el carrusel de testimonios sube. */
+
+  /* ── Línea que presenta el stack del hero ── */
+  .om-hero__stack-lead {
+    font-size: 14px;
+    line-height: 1.45;
+    color: var(--color-body);
+    max-width: 46ch;
+  }
+
+  .om-hero__stack-lead strong {
+    color: #b98a1e;
+  }
+
+  @media (max-width: 900px) {
+    .om-hero__stack-lead {
+      font-size: 12.5px;
+      text-align: center;
+    }
+  }
+
+  /* ── Firma del cierre (la de todos sus correos) ── */
+  .om-final__firma {
+    margin-top: 14px;
+    font-family: 'Caveat', cursive;
+    font-size: 22px;
+    color: rgba(255, 255, 255, 0.85);
+  }
+
+  /* ── Carrusel arriba ── */
+  .om-carrusel {
+    padding: 34px 0 6px;
+  }
+
+  .om-carrusel__label {
+    text-align: center;
+    font-size: 11.5px;
+    font-weight: 700;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--color-secondary);
+    margin-bottom: 4px;
+  }
+
+  /* ── Fichas de bono (reemplazan la lista de checks) ── */
+  .om-bono__fichas {
+    list-style: none;
+    margin: 4px 0 0;
+    padding: 0;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 10px;
+  }
+
+  .om-bono__ficha {
+    display: flex;
+    align-items: flex-start;
+    gap: 10px;
+    background: #ffffff;
+    border: 1px solid #e9e4f6;
+    border-radius: 12px;
+    padding: 12px 14px;
+    font-size: 14px;
+    line-height: 1.45;
+    color: var(--color-heading);
+    box-shadow: 0 1px 4px rgba(43, 44, 100, 0.05);
+  }
+
+  .om-bono__ficha-num {
+    flex-shrink: 0;
+    width: 22px;
+    height: 22px;
+    display: grid;
+    place-items: center;
+    border-radius: 50%;
+    background: #fdf1d8;
+    border: 1px solid #f0d9a8;
+    color: #7a4f00;
+    font-family: var(--font-heading);
+    font-weight: 700;
+    font-size: 12px;
+  }
+
+  @media (max-width: 620px) {
+    .om-bono__fichas {
+      grid-template-columns: 1fr;
+      gap: 7px;
+    }
+  }
+
+  /* ── Bonos: hojas claras alternadas (adiós al bloque navy con checks) ── */
+  .om-bono {
+    min-height: 0;
+    padding: clamp(56px, 9vh, 88px) 0;
+  }
+
+  .om-bono--alt {
+    background: var(--bg-hero);
+  }
+
+  .om-bono--alt .om-bono__media {
+    order: 2;
+  }
+
+  .om-bono__media video,
+  .om-bono__media img {
+    width: 100%;
+    max-width: 480px;
+    height: auto;
+    border-radius: 20px;
+    box-shadow: 0 10px 34px rgba(43, 44, 100, 0.12);
+  }
+
+  /* ── CTA después de la carta ── */
+  .om-carta__cta-wrap {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 12px;
+    margin-top: 34px;
+  }
+
+  .om-carta__cta-trust {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--color-secondary);
+  }
+
+  /* ════════════════ UI v3 (27-jul, segunda ronda de Rodrigo) ════════════════ */
+
+  /* ── Bonos v2: tarjetas rectangulares verticales, visual arriba ── */
+  .om-bono2 {
+    padding: clamp(48px, 8vh, 80px) 0;
+  }
+
+  .om-bono2__inner {
+    display: grid;
+    grid-template-columns: minmax(0, 460px) minmax(0, 460px);
+    justify-content: center;
+    align-items: stretch;
+    gap: 26px;
+  }
+
+  .om-bono2__card {
+    background: #ffffff;
+    border: 1px solid #e9e4f6;
+    border-radius: 22px;
+    overflow: hidden;
+    box-shadow: 0 8px 28px rgba(43, 44, 100, 0.08);
+    display: flex;
+    flex-direction: column;
+  }
+
+  .om-bono2__media {
+    background: #f3f1fa;
+  }
+
+  /* contain (no cover): el arte trae su propio fondo lavanda #f3f1fa igual al
+     de la caja, así que el letterbox es invisible y ningún Pablo sale cortado
+     (el del toolkit salió vertical). */
+  .om-bono2__media img,
+  .om-bono2__media video {
+    display: block;
+    width: 100%;
+    height: 240px;
+    object-fit: contain;
+  }
+
+  .om-bono2__body {
+    padding: 22px 24px 26px;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 12px;
+    flex: 1;
+  }
+
+  .om-bono2__tag {
+    font-size: 11px;
+    font-weight: 800;
+    letter-spacing: 0.13em;
+    text-transform: uppercase;
+    color: #7a4f00;
+    background: #fdf1d8;
+    border: 1px solid #f0d9a8;
+    border-radius: var(--radius-pill);
+    padding: 5px 12px;
+  }
+
+  .om-bono2__title {
+    font-family: var(--font-heading);
+    font-weight: 700;
+    font-size: clamp(20px, 2.2vw, 25px);
+    line-height: 1.22;
+    color: var(--color-heading);
+  }
+
+  .om-bono2__p {
+    font-size: 15px;
+    line-height: 1.6;
+    color: var(--color-body);
+  }
+
+  .om-bono2__mini {
+    font-size: 11.5px;
+    font-weight: 700;
+    letter-spacing: 0.13em;
+    text-transform: uppercase;
+    color: var(--color-secondary);
+  }
+
+  .om-bono__fichas--v {
+    grid-template-columns: 1fr;
+    gap: 8px;
+    width: 100%;
+  }
+
+  .om-bono2__remate {
+    font-size: 14px;
+    line-height: 1.55;
+    font-weight: 600;
+    color: var(--color-heading);
+  }
+
+  .om-bono2__valor {
+    display: flex;
+    align-items: baseline;
+    gap: 10px;
+  }
+
+  .om-bono2__tachado {
+    font-size: 15px;
+    color: var(--color-secondary);
+  }
+
+  .om-bono2__incluido {
+    font-family: var(--font-heading);
+    font-size: 19px;
+    color: #1d7a3f;
+  }
+
+  .om-bono2__cta {
+    width: 100%;
+    margin-top: auto;
+  }
+
+  @media (max-width: 900px) {
+    .om-bono2__inner {
+      grid-template-columns: minmax(0, 480px);
+    }
+
+    .om-bono2__media img,
+    .om-bono2__media video {
+      height: 200px;
+    }
+  }
+
+  /* ── La carta como nota de cuaderno ── */
+  .om-carta--papel {
+    position: relative;
+    background:
+      repeating-linear-gradient(
+        180deg,
+        transparent 0,
+        transparent 31px,
+        #e4ddf0 31px,
+        #e4ddf0 32px
+      ),
+      #fffdf6;
+    border: 1px solid #efe8d8;
+    border-radius: 6px;
+    box-shadow: 0 14px 34px rgba(43, 44, 100, 0.12);
+    transform: rotate(-0.6deg);
+    padding: 40px 44px 36px;
+  }
+
+  /* La línea roja de margen del cuaderno */
+  .om-carta--papel::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    left: 26px;
+    width: 1.5px;
+    background: rgba(224, 106, 106, 0.35);
+  }
+
+  /* Cinta adhesiva arriba */
+  .om-carta__tape {
+    position: absolute;
+    top: -14px;
+    left: 50%;
+    transform: translateX(-50%) rotate(1.6deg);
+    width: 132px;
+    height: 30px;
+    background: rgba(240, 217, 168, 0.65);
+    border-left: 1px dashed rgba(185, 138, 30, 0.35);
+    border-right: 1px dashed rgba(185, 138, 30, 0.35);
+    box-shadow: 0 2px 5px rgba(43, 44, 100, 0.08);
+  }
+
+  .om-carta__eyebrow {
+    display: block;
+    font-size: 11.5px;
+    font-weight: 700;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--color-secondary);
+    margin-bottom: 8px;
+  }
+
+  /* El texto de la nota cae sobre las líneas del cuaderno */
+  .om-carta--papel .om-carta__p {
+    line-height: 32px;
+    margin: 0;
+  }
+
+  @media (max-width: 620px) {
+    .om-carta--papel {
+      padding: 32px 22px 28px 34px;
+      transform: rotate(-0.35deg);
+    }
+
+    .om-carta--papel::before {
+      left: 18px;
+    }
+  }
+
+  /* ── Qué es Pablo: subtexto en 2 filas y fichas más angostas ── */
+  .om-quees__sub {
+    font-size: 14px;
+    line-height: 1.55;
+    max-width: 52ch;
+  }
+
+  .om-quees__bullets {
+    max-width: 500px;
+    gap: 8px;
+  }
+
+  .om-quees__bullets li {
+    font-size: 13px;
+    padding: 11px 13px 11px 38px;
+  }
+
+  .om-quees__bullets li::before {
+    left: 13px;
+    top: 13px;
+    width: 5px;
+    height: 10px;
+  }
+
+  /* ── Urgencia: la fecha como ceja, el reloj manda ── */
+  .om-urgencia__eyebrow {
+    display: inline-block;
+    font-size: 12px;
+    font-weight: 800;
+    letter-spacing: 0.13em;
+    text-transform: uppercase;
+    color: #7a4f00;
+    background: #fdf1d8;
+    border: 1px solid #f0d9a8;
+    border-radius: var(--radius-pill);
+    padding: 7px 16px;
+  }
+
+  /* ── Transiciones de color entre secciones ──
+     Cada sección arranca con el color de la anterior y funde hacia el suyo en
+     los primeros ~170px. El orden real de la página vive en el HTML; si una
+     sección se mueve, hay que actualizar su "from" acá. Orden actual:
+     hero #EEEAFA → carrusel #F2EFFF → dolor #fff → quees #F8F7F9 →
+     incluye #F8F7F9 → carta #fff → bono1 #fff→ bono2(alt) #EEEAFA → bono3 #fff
+     → resumen #F8F7F9 → garantía #fff → urgencia #EEEAFA → faq #F9F9FB →
+     final #2B2C64. */
+  .om-dolor { background: linear-gradient(180deg, #eeeafa 0, #ffffff 170px) #ffffff; }
+  .om-quees { background: linear-gradient(180deg, #ffffff 0, #f8f7f9 170px) #f8f7f9; }
+  .om-carta-sec { background: linear-gradient(180deg, #f8f7f9 0, #f2efff 170px) #f2efff; }
+  .om-bono2 { background: linear-gradient(180deg, #f2efff 0, #ffffff 170px) #ffffff; }
+  .om-bono2--alt { background: linear-gradient(180deg, #ffffff 0, #eeeafa 170px) #eeeafa; }
+  .om-bono2 + .om-bono2:not(.om-bono2--alt) {
+    background: linear-gradient(180deg, #eeeafa 0, #ffffff 170px) #ffffff;
+  }
+  .om-resumen { background: linear-gradient(180deg, #ffffff 0, #f8f7f9 170px) #f8f7f9; }
+  .om-garantia { background: linear-gradient(180deg, #f8f7f9 0, #ffffff 170px) #ffffff; }
+  .om-urgencia { background: linear-gradient(180deg, #ffffff 0, #eeeafa 170px) #eeeafa; }
+  .om-faq { background: linear-gradient(180deg, #eeeafa 0, #f9f9fb 170px) #f9f9fb; }
+  .om-final { background: linear-gradient(180deg, #f9f9fb 0, #2b2c64 220px) #2b2c64; }
+
+  /* ── Qué es Pablo v2: los bullets pasan de checks a fichas con icono ── */
+  .om-quees__bullets {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 10px;
+  }
+
+  .om-quees__bullets li {
+    padding: 14px 16px 14px 46px;
+    background: #ffffff;
+    border: 1px solid #e9e4f6;
+    border-radius: 14px;
+    font-size: 14px;
+    box-shadow: 0 1px 4px rgba(43, 44, 100, 0.05);
+  }
+
+  .om-quees__bullets li::before {
+    left: 16px;
+    top: 16px;
+  }
+
+  @media (max-width: 620px) {
+    .om-quees__bullets {
+      grid-template-columns: 1fr;
+    }
+  }
 </style>
 
 <script>
@@ -3299,30 +4686,84 @@ const faqs = [
     setInterval(tick, 1000);
   }
 
-  // ── Altura real del chrome (banner + header) ──
-  // El hero VSL debe ocupar el resto EXACTO de la primera pantalla. En vez de
-  // asumir 46+72, se mide: si el banner se parte en dos líneas en un móvil
-  // angosto, el hero se ajusta y el CTA sigue sobre el pliegue.
-  const heroVsl = document.querySelector<HTMLElement>('.om-hero--vsl');
-  if (heroVsl) {
-    const medirChrome = () => {
-      const banner = document.querySelector<HTMLElement>('.om-topbar');
-      const header = document.querySelector<HTMLElement>('.om-header');
-      const alto = (banner?.offsetHeight ?? 0) + (header?.offsetHeight ?? 0);
-      heroVsl.style.setProperty('--om-chrome', `${alto}px`);
+  // ── Carrusel vertical del hero de la promo ──
+  // Desliza hacia arriba entre Pablo y las 6 cosas que entran en la oferta,
+  // encendiendo en dorado el ítem del stack y el puntito que corresponden.
+  // 2,6 s por slide: el deslizamiento come ~0,5 s, y con menos no se alcanza
+  // a leer el chip; con más no se nota que hay 7 cosas.
+  const loop = document.querySelector<HTMLElement>('[data-loop]');
+  if (loop) {
+    const track = loop.querySelector<HTMLElement>('[data-loop-track]');
+    const total = track ? track.children.length : 0;
+    const items = Array.from(document.querySelectorAll<HTMLElement>('[data-loop-item]'));
+    const dots = Array.from(loop.querySelectorAll<HTMLElement>('[data-loop-dot]'));
+    const quieto = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+    const pintar = (n: number) => {
+      items.forEach((li) =>
+        li.classList.toggle('is-active', Number(li.dataset.loopItem) === n),
+      );
+      dots.forEach((d) =>
+        d.classList.toggle('is-active', Number(d.dataset.loopDot) === n),
+      );
     };
-    medirChrome();
-    window.addEventListener('resize', medirChrome);
+
+    // Los slides 1..6 nacen sin src para no competir con el primero: se piden
+    // cuando el navegador ya terminó lo urgente.
+    const cargarResto = () => {
+      loop.querySelectorAll<HTMLImageElement>('.om-loop__img').forEach((f) => {
+        if (!f.getAttribute('src') && f.dataset.src) f.src = f.dataset.src;
+      });
+    };
+
+    if (track && total > 1 && !quieto) {
+      if ('requestIdleCallback' in window) {
+        (window as any).requestIdleCallback(cargarResto, { timeout: 1500 });
+      } else {
+        window.setTimeout(cargarResto, 500);
+      }
+
+      // Para que la vuelta (garantía → Pablo) también deslice hacia arriba en
+      // vez de rebobinar las 7, al final va una copia del primer slide: se
+      // desliza hacia ella y, ya quieta, se salta sin transición al de verdad.
+      const clon = track.children[0].cloneNode(true) as HTMLElement;
+      track.appendChild(clon);
+
+      // Sin gastar batería cuando el hero no está a la vista.
+      let aLaVista = true;
+      new IntersectionObserver(([e]) => {
+        aLaVista = e.isIntersecting;
+      }).observe(loop);
+
+      let n = 0;
+      window.setInterval(() => {
+        if (!aLaVista) return;
+        n += 1;
+        track.style.transition = '';
+        track.style.transform = `translateY(-${n * 100}%)`;
+        pintar(n % total);
+        if (n === total) {
+          // 0,55 s dura el deslizamiento; a los 0,65 s ya está quieto.
+          window.setTimeout(() => {
+            track.style.transition = 'none';
+            track.style.transform = 'translateY(0)';
+            void track.offsetHeight;
+            track.style.transition = '';
+            n = 0;
+          }, 650);
+        }
+      }, 2600);
+    }
   }
 
   // ── Barra fija de CTA ──
   // Aparece cuando el hero sale de vista y se esconde cuando el CTA final ya
   // está en pantalla: dos botones grandes compitiendo confunden más que ayudan.
   const sticky = document.getElementById('om-sticky');
-  const heroSection = document.querySelector<HTMLElement>('.om-hero--vsl');
-  // El cierre = CTA final + downsell. Con cualquiera de los dos en pantalla la
-  // barra se esconde: dos botones grandes compitiendo confunden más que ayudan.
-  const cierres = document.querySelectorAll<HTMLElement>('.om-final, .om-downsell');
+  const heroSection = document.querySelector<HTMLElement>('.om-hero--promo');
+  // El cierre = CTA final. Con él en pantalla la barra se esconde: dos botones
+  // grandes compitiendo confunden más que ayudan.
+  const cierres = document.querySelectorAll<HTMLElement>('.om-final');
   if (sticky && heroSection) {
     let heroFuera = false;
     const cierresALaVista = new Set<Element>();

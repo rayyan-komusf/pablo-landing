@@ -1,0 +1,49 @@
+---
+// /planes — esta ruta NO existía y devolvía 404. Estaba en el CTA de varios
+// correos de Brevo de la campaña (#87 y #80 ya enviados: 3.677 entregados,
+// 11 clics únicos) porque en su momento era el ancla /#planes del home.
+//
+// Ahora manda a los planes de la página principal, que es donde vive el
+// pricing. Los correos de la promo NO deben apuntar acá: van a la página del
+// evento (/fiestas-patrias).
+//
+// Redirección del lado del cliente en vez de `redirects` en astro.config.mjs
+// porque el destino lleva fragmento (#planes) y la config de Astro no lo
+// conserva. El <meta refresh> cubre el caso sin JavaScript.
+const DESTINO = '/#planes';
+---
+
+<!doctype html>
+<html lang="es">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="robots" content="noindex, nofollow" />
+    <meta http-equiv="refresh" content={`0; url=${DESTINO}`} />
+    <link rel="canonical" href="https://www.usapablo.com/" />
+    <title>Planes de Pablo</title>
+    <script is:inline define:vars={{ DESTINO }}>
+      window.location.replace(DESTINO);
+    </script>
+    <style>
+      body {
+        margin: 0;
+        min-height: 100vh;
+        display: grid;
+        place-items: center;
+        background: #f5f3ff;
+        color: #2b2c64;
+        font-family: system-ui, -apple-system, sans-serif;
+        text-align: center;
+        padding: 24px;
+      }
+      a {
+        color: #2b2c64;
+        font-weight: 700;
+      }
+    </style>
+  </head>
+  <body>
+    <p>Te estamos llevando a los planes de Pablo. <a href={DESTINO}>Entra acá</a> si no pasa nada.</p>
+  </body>
+</html>

@@ -135,7 +135,7 @@ import { TESTIMONIOS } from '../../data/testimonios';
 
     const aplicar = (conTransicion: boolean) => {
       track.style.transition = conTransicion
-        ? 'transform 0.7s cubic-bezier(0.45, 0, 0.25, 1)'
+        ? 'transform 0.5s cubic-bezier(0.45, 0, 0.25, 1)'
         : 'none';
       track.style.transform = `translateX(${-offset}px)`;
     };
@@ -180,8 +180,11 @@ import { TESTIMONIOS } from '../../data/testimonios';
           offset = base + indice * espaciado;
           aplicar(false);
         }
-      }, 750);
-    }, 2600);
+      }, 550);
+      // 1,5 s por testimonio (antes 2,6 s): el carrusel se siente vivo y la
+      // persona alcanza a leer una tarjeta por vez. El salto invisible de
+      // reinicio tiene que ocurrir DENTRO de este intervalo (550 ms).
+    }, 1500);
 
     const actualizar = () => {
       if (visible) {
