@@ -386,20 +386,36 @@ const pixelValue = plan === 'anual' ? 200 : (plan === 'mensual' ? 20 : 0);
   })();
 
   // ── Fire conversion pixels ──
+  // El plan se resuelve EN EL CLIENTE (fix 29-jul): el sitio es estático, así
+  // que `Astro.url.searchParams` está vacío en build y los valores horneados
+  // salían siempre "Suscripción Premium" / value 0 — o sea, cada compra
+  // reportaba una conversión de S/.0 a Meta y TikTok. Leer la query acá manda
+  // el valor real (200 anual / 20 mensual / 7 semanal).
   (function() {
+    var VALOR = { anual: 200, mensual: 20, semanal: 7 };
+    var NOMBRE = { anual: 'Plan Anual', mensual: 'Plan Mensual', semanal: 'Plan Semanal' };
+    var plan = '';
+    try {
+      plan = new URLSearchParams(location.search).get('plan') || '';
+    } catch (e) {
+      /* sin URLSearchParams */
+    }
+    var nombre = NOMBRE[plan] || pixelPlanName;
+    var valor = VALOR[plan] !== undefined ? VALOR[plan] : pixelValue;
+
     if (typeof fbq !== 'undefined') {
       fbq('track', 'Purchase', {
-        content_name: pixelPlanName,
+        content_name: nombre,
         currency: 'PEN',
-        value: pixelValue,
+        value: valor,
       });
     }
 
     if (typeof ttq !== 'undefined') {
       ttq.track('CompletePayment', {
-        content_name: pixelPlanName,
+        content_name: nombre,
         currency: 'PEN',
-        value: pixelValue,
+        value: valor,
       });
     }
   })();
