@@ -5,7 +5,7 @@
 // <Footer>: los pone la página que lo monta.
 import { Image } from 'astro:assets';
 import logoImg from '../assets/Logo.png';
-import { PROMO_MILLONARIA } from '../siteConfig';
+import { PROMO_MILLONARIA, CHECKOUT_URLS } from '../siteConfig';
 import TestimonialsCarousel from './sections/TestimonialsCarousel.astro';
 import HeroPhone from './sections/HeroPhone.astro';
 
@@ -26,12 +26,14 @@ const { promo } = Astro.props;
 //  Chrome de página: sin CountdownBanner global, sin MonedaPopup y con
 //  header mínimo (solo logo, sin links) — cada link del menú es una fuga.
 // ============================================================
-// Los CTA del anual entran al ONBOARDING (no al modal de "crea tu cuenta"): el
-// usuario nuevo hace el flujo completo y al final, en el paywall (Step18), se
-// le vuelve a presentar la Oferta Millonaria con todos sus bonos. El plan y la
-// oferta viajan por URL → sessionStorage (ver src/scripts/onboarding.js).
-const CHECKOUT_URL = "/onboarding?plan=anual&oferta=millonaria";
-const CHECKOUT_URL_MENSUAL = "/onboarding?plan=mensual&oferta=millonaria";
+// CAMBIO 28-jul (pedido de Rodrigo): los CTA ya NO pasan por el embudo de
+// onboarding — van DIRECTO al checkout de la app (usapablo.app/pricing con el
+// plan preseleccionado; la app pide registro/login y retoma el pago).
+// OJO: siteConfig dice que los trials reales los define la pasarela (mensual
+// 3 días / anual 7) — la página promete "14 días de prueba gratis" en el
+// mensual por pedido de Rodrigo: confirmar con Rayyan antes del deploy.
+const CHECKOUT_URL = CHECKOUT_URLS.annual_no_trial;
+const CHECKOUT_URL_MENSUAL = CHECKOUT_URLS.monthly;
 
 // Miércoles 29 de julio de 2026, 11:59 p.m. hora Perú (UTC-5).
 // OJO: el 29-jul-2026 cae MIÉRCOLES (el taller fue el jueves 23). Hasta el
@@ -102,8 +104,8 @@ const stack = [
     valorReal: "S/.300",
     incluido: "Gratis con tu plan",
     cta: "Reclamar mi Pablo Promo",
-    img: "/onboarding/images/pablo/pablo-pensando.png",
-    alt: "Pablo estudiando el curso",
+    img: "/promo/03-curso/boxset.webp",
+    alt: "El box set del curso Finanzas de un Futuro Millonario",
     // C82/C93 verbatim: "(ahorros, tarjetas, presupuestos — todo lo que
     // necesitas para empezar tu camino)"
     desc: "El curso completo: ahorros, tarjetas, presupuestos — todo lo que necesitas para empezar tu camino.",
@@ -123,8 +125,8 @@ const stack = [
     valorReal: "$60 USD",
     incluido: "Gratis con tu plan",
     cta: "Reclamar mi Pablo Promo",
-    img: "/onboarding/images/pablo/emotions/pablo-neutral.png",
-    alt: "Pablo con la comunidad de futuros millonarios",
+    img: "/promo/04-komunidad/pase.webp",
+    alt: "El Pase Mensual a La Komunidad",
     // C82/C93 verbatim: "clases de negocios e inversión en vivo, comunidad y
     // el camino al millón"
     desc: "Un mes de clases de negocios e inversión en vivo, comunidad y el camino al millón.",
@@ -211,7 +213,7 @@ const LOOP = [
     // Ilustración Higgsfield 27-jul (editada sobre el render oficial)
     provisional: "/promo/02-reto/principal.webp",
     alt: "Pablo celebrando el reto de 30 días",
-    ahora: "Gratis",
+    ahora: "Incluido",
   },
   {
     nombre: "Curso completo de finanzas",
@@ -221,7 +223,7 @@ const LOOP = [
     provisional: "/promo/03-curso/principal.webp",
     alt: "Pablo estudiando el curso",
     antes: "S/.300",
-    ahora: "Gratis",
+    ahora: "Incluido",
   },
   {
     nombre: "Pase Mensual a La Komu",
@@ -231,7 +233,7 @@ const LOOP = [
     provisional: "/promo/04-komunidad/principal.webp",
     alt: "Pablo con la comunidad de futuros millonarios",
     antes: "$60 USD",
-    ahora: "Gratis",
+    ahora: "Incluido",
   },
   {
     nombre: "Toolkit Komunitario",
@@ -240,7 +242,7 @@ const LOOP = [
     final: "/promo/00-hero/05-toolkit.png",
     provisional: "/onboarding/images/pablo/pablo-point.png",
     alt: "Pablo señalando los recursos del toolkit",
-    ahora: "Gratis",
+    ahora: "Incluido",
   },
   {
     nombre: "Garantía de 14 días",
@@ -470,7 +472,7 @@ const HABITOS = [
     dolores: [
       {
         kicker: "De los gastos hormiga…",
-        titulo: "Esos S/.8 del taxi no se sienten — hasta fin de mes",
+        titulo: "Esos S/.18 del taxi no se sienten — hasta fin de mes",
         parrafo:
           "Un cafecito por acá, un delivery por allá. Ninguno duele solo; juntos son la razón de que llegues a fin de mes preguntándote en qué se te fue.",
         bullets: [
@@ -490,8 +492,8 @@ const HABITOS = [
           "Cada semana te muestra <strong>exactamente en qué</strong> se te fueron esos taxis, delivery y antojitos…",
           "…y <strong>cuánto podrías estar ahorrando</strong> sin dejar tus gustos.",
         ],
-        mock: null,
-        img: { src: "/promo/02-reto/detalle.webp", alt: "La racha de 30 días con Pablo" },
+        mock: "lap-cuentas",
+        img: null,
       },
     ],
     sesion:
@@ -528,8 +530,8 @@ const HABITOS = [
           "Armas tu <strong>primer presupuesto mensual</strong> conversando con Pablo — la parte 2 del reto.",
           "Cada gasto que registras lo <strong>actualiza en tiempo real</strong> en la app.",
         ],
-        mock: null,
-        img: { src: "/promo/03-curso/detalle.webp", alt: "Los temas del curso de finanzas" },
+        mock: "lap-panel",
+        img: null,
       },
       {
         kicker: "…a límites que sí se respetan",
@@ -540,7 +542,7 @@ const HABITOS = [
           "Le pones <strong>límites a tus categorías</strong> — antojos incluidos — y Pablo te dice cómo vas.",
           "En la <strong>app y el panel web</strong> lo ves todo con calma cuando quieras.",
         ],
-        mock: "presupuesto",
+        mock: "limites",
         img: null,
       },
     ],
@@ -573,7 +575,7 @@ const HABITOS = [
         kicker: "De “ahorro lo que sobra”…",
         titulo: "La plata sin destino se va en lo urgente, nunca en lo importante",
         parrafo:
-          "Todos tenemos una meta flotando en la cabeza — el fondo de emergencia, el viaje, la mudanza. Flotando no se financia.",
+          "Todos tenemos un sueño flotando en la cabeza — el fondo de emergencia, el viaje, la mudanza. Pablo lo convierte en una meta alcanzable: con nombre, monto y fecha. Flotando no se financia.",
         bullets: [
           "Creas tu meta en Pablo con <strong>nombre y monto</strong> — y deja de ser una idea.",
           "Tu <strong>primer aporte</strong> es la parte 3 del reto: chiquito o grande, pero real.",
@@ -594,6 +596,9 @@ const HABITOS = [
         img: { src: "/promo/02-reto/principal.webp", alt: "Pablo celebrando su racha de 30 días" },
       },
     ],
+    // Estudio de Gail Matthews (Dominican University): escribir tus metas y
+    // reportar tu progreso seguido ≈ +76% de logro vs. solo pensarlas.
+    dato: "Ponerle nombre a tu meta y ver tu progreso seguido casi duplica tus probabilidades de lograrla.",
     sesion:
       "Y lo apuntas con la Sesión 3 del curso — Metas: convertir un “ya quisiera” en una meta casi inevitable.",
     proofs: [
@@ -629,8 +634,8 @@ const HABITOS = [
           "<strong>Sesión 3 · Metas:</strong> de “ya quisiera” a una meta casi inevitable.",
           "<strong>Sesión 4 · Deudas:</strong> usar la tarjeta sin que te use.",
         ],
-        mock: null,
-        img: { src: "/promo/03-curso/principal.webp", alt: "Pablo estudiando el curso" },
+        mock: "lap-clase",
+        img: null,
       },
       {
         kicker: "…a terminarlo en 30 días",
@@ -641,8 +646,8 @@ const HABITOS = [
           "Terminarlo es la <strong>parte 4 del reto</strong> — la última que te separa del reembolso del 100%.",
           "Vive dentro de <strong>La Komunidad</strong>: entras con el pase mensual que viene gratis con tu plan.",
         ],
-        mock: "curso",
-        img: null,
+        mock: null,
+        img: { src: "/promo/03-curso/boxset.webp", alt: "El box set del curso Finanzas de un Futuro Millonario: 4 sesiones" },
       },
     ],
     sesion: null,
@@ -718,9 +723,23 @@ const faqs = [
     a: "Le escribes por WhatsApp como a un amigo: le dices por audio o texto “Taxi S/.18” o le mandas la foto del Yape o el voucher. Pablo lo registra, lo clasifica y actualiza tu presupuesto en tiempo real. Y si tienes un gasto fijo (como un seguro), puedes crear una transacción recurrente para que se registre solo todos los meses.",
   },
   {
-    // Pregunta real #7 (Stefanie lo buscó en Play Store y no lo encontró).
+    // Pregunta real #7 (Stefanie lo buscó en Play Store y no lo encontró —
+    // es usuaria Android: el retoque del 28-jul le dice qué hace ella).
     q: "¿Tengo que descargar una app?",
-    a: "No: Pablo vive en WhatsApp, puedes empezar solo con el chat. También tienes la app (en el App Store) y el panel web para ver tus reportes con calma, pero ninguno es obligatorio.",
+    a: "No: Pablo vive en WhatsApp, puedes empezar solo con el chat. También tienes la app para iPhone (App Store) y el panel web para ver tus reportes con calma — y si estás en Android, con WhatsApp y el panel web tienes todo.",
+  },
+  {
+    // LA objeción #1 de las entrevistas (Raif, Gianella, Jackelyn; el
+    // sustituto más citado del churn es Excel/cuaderno, 6/10). Respuesta del
+    // Task 4 Messaging + dato real de la ficha de Daniel (1.5-2h → ~30 min).
+    q: "Ya tengo mi Excel (o mi cuaderno) y me funciona. ¿Para qué pagar?",
+    a: "Pablo ES tu Excel, pero por WhatsApp y sin fórmulas: le mandas un mensaje, un audio o la foto del Yape, y listo. Te ahorras el tiempo de anotar a mano y ganas reportes claros y tu presupuesto actualizado solo. Daniel (25, ingeniero) pasó de 1.5–2 horas por semana en papel a unos 30 minutos.",
+  },
+  {
+    // Churn #1 del research (9/10 churned = no formó hábito; Xiomara,
+    // Alejandro, Maritza por Gmail). La promo entera es un reto anti-churn.
+    q: "¿Y si no me hago el hábito y lo dejo de usar?",
+    a: "Es la razón #1 por la que la gente deja las apps de finanzas — nos lo han dicho de frente. Por eso esta promo gira alrededor del reto: registrar toma lo que tardas en mandar un WhatsApp, la racha de 30 días te da una razón concreta para no soltarlo, y si completas el reto te devolvemos los S/.200 completos. Y si aun así no es para ti, tienes la garantía de 14 días.",
   },
   {
     // La promesa central de la promo (C82/C93) — la duda que más se repite
@@ -747,14 +766,17 @@ const faqs = [
     a: "Es un solo pago de S/.200 por los 12 meses (según tu banco, la tarjeta puede sumar una pequeña comisión por procesamiento — eso lo cobra tu banco, no nosotros). La renovación del siguiente año la puedes apagar cuando quieras desde tu perfil, y sigues usando Pablo hasta que termine tu año.",
   },
   {
-    // Bonus del corpus: Albert preguntó "¿Aún hay tiempo de participar?"
-    q: "¿Hasta cuándo tengo para entrar?",
-    a: "Hasta el miércoles 29 de julio a las 11:59 p.m. (hora Perú). Después el anual vuelve a ser solo el anual: sin reto, sin curso, sin Komunidad.",
+    // 3 entrevistadas distintas lo preguntaron (Mirella, Sonia, Michel).
+    // Respuesta = copy ya aprobado del FAQ del home + link a la política
+    // (crítica 11: el claim de seguridad debe ir junto a la política).
+    q: "¿Mi información financiera está segura?",
+    a: "Tu data es tuya y es privada. Está protegida con encriptación y no la compartimos con terceros. Puedes leer la política completa en usapablo.com/privacidad.",
   },
   {
-    // Confirmado por el template transaccional 81 de la promo.
-    q: "¿Cómo accedo a los bonos después de pagar?",
-    a: "Apenas desbloqueas tu plan, te llega un correo con los accesos a todo: el reto, el curso, La Komunidad y el toolkit. Revisa tu bandeja (y el spam, por si acaso).",
+    // Albert por Gmail ("¿Aún hay tiempo?") + template transaccional 81
+    // (los accesos). Fusionadas el 28-jul para respetar el tope de 10.
+    q: "¿Hasta cuándo tengo para entrar?",
+    a: "Hasta el miércoles 29 de julio a las 11:59 p.m. (hora Perú). Después el anual vuelve a ser solo el anual: sin reto, sin curso, sin Komunidad. Apenas desbloqueas tu plan, te llega un correo con los accesos a todo — revisa tu bandeja (y el spam, por si acaso).",
   },
 ];
 ---
@@ -795,17 +817,21 @@ const faqs = [
           <div class="om-hero__cabecera">
             <span class="om-hero__eyebrow">Pablo Promo · Fiestas Patrias</span>
 
-            <!-- Headline del overhaul (Rodrigo, 28-jul, 3ra ronda): una sola
-                 oración. El kicker mantiene su salto fijo en desktop. -->
+            <!-- Headline del overhaul (Rodrigo 28-jul, 3ra ronda) + ajuste de
+                 la IA de Hormozi: el vehículo ("por WhatsApp") entra al H1
+                 para bajar el esfuerzo percibido. El kicker nombra los 4
+                 hábitos (suena realizable) y cambia "términos ocultos" por
+                 "cargos escondidos" — el miedo real de la ICP es el billing. -->
             <h1 class="om-hero__title om-hero__title--promo">
-              Ordena tu plata en <span class="highlight">30 días</span> y
-              Pablo te sale <span class="highlight">gratis</span>.
+              Ordena tu plata en <span class="highlight">30 días</span> por
+              WhatsApp — y si cumples el reto, Pablo te sale
+              <span class="highlight">gratis</span>.
             </h1>
 
             <p class="om-hero__kicker">
-              Paga S/.200 una sola vez, usa Pablo 12 meses y, si tomas el
-              control en 30 días,<br class="om-salto-desktop" /> te devolvemos
-              el 100%. Sin letra chica, sin términos ocultos.
+              Paga S/.200 una sola vez, usa Pablo 12 meses y, si completas los
+              4 hábitos en tus primeros 30 días,<br class="om-salto-desktop" />
+              te devolvemos el 100%. Sin letra chica, sin cargos escondidos.
             </p>
           </div>
 
@@ -861,7 +887,7 @@ const faqs = [
                 <span class="om-plan__badge">Todos los bonos incluidos</span>
                 <div class="om-plan__head">
                   <span class="om-plan__radio" aria-hidden="true"></span>
-                  <span class="om-plan__nombre">Pablo Promo <strong>Anual</strong></span>
+                  <span class="om-plan__nombre">Pablo Promo <strong>Anual</strong> <span class="om-plan__nota om-plan__nota--oro">2 meses de regalo</span></span>
                   <span class="om-plan__precio">
                     <s>S/.240</s>
                     <strong>S/.200</strong><em>/año</em>
@@ -971,28 +997,31 @@ const faqs = [
                 <span class="om-cd__sep">:</span>
                 <div class="om-cd__unit"><span class="om-cd__num" data-cd="s">--</span><span class="om-cd__label">seg</span></div>
               </div>
+              <!-- Ajuste Hormozi AI 28-jul: "cancela cuando quieras" junto a
+                   "pago único" sonaba a suscripción y confundía. El cierre
+                   ahora refuerza el risk reversal real (garantía + reto). -->
               <p class="om-hero__deadline">
-                Pago único por 1 año. Cancela cuando quieras
+                Pago único de S/.200 por tu año completo
               </p>
               <p class="om-hero__garantia-mini">
                 <svg class="om-escudo" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" aria-hidden="true">
                   <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" />
                   <polyline points="9 12 11 14 15 10" />
                 </svg>
-                Garantía de 14 días
+                Garantía de 14 días · Reto con reembolso del 100%
               </p>
             </div>
 
             <div class="om-hero__cierre" data-vista="mensual" hidden>
               <p class="om-hero__deadline">
-                Sin permanencia. Pruébalo 14 días gratis y decide con calma.
+                Sin permanencia. 14 días gratis y luego S/.20/mes.
               </p>
               <p class="om-hero__garantia-mini">
                 <svg class="om-escudo" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" aria-hidden="true">
                   <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" />
                   <polyline points="9 12 11 14 15 10" />
                 </svg>
-                Cancelas desde tu perfil, al toque
+                Cancelas tú mismo desde tu perfil, al toque
               </p>
             </div>
           </div>
@@ -1125,7 +1154,7 @@ const faqs = [
             reto, Pablo te sale <span class="om-noche__glow">gratis</span> todo el año.
           </h2>
           <p class="om-noche__sub">
-            El sistema perfecto para disminuir tus gastos hormigas sin
+            El sistema para bajar tus gastos hormiga sin vivir a punta de
             disciplina: <strong>ahorro, presupuesto, metas y educación</strong>.
           </p>
 
@@ -1264,6 +1293,23 @@ const faqs = [
             <HeroPhone />
           </div>
         </div>
+
+        <!-- Segundo CTA de la página (pedido 28-jul): justo después de
+             conocer a Pablo y su loop, antes de la carta. -->
+        <div class="om-quees__cta-wrap">
+          <a
+            href={CHECKOUT_URL}
+            class="om-cta om-cta--xl"
+            id="om-cta-quees"
+            onclick="try{window.posthog?.capture('millonaria_cta_clicked',{location:'quees'})}catch(e){};if(typeof fbq!=='undefined')fbq('trackCustom','Millonaria_CTA',{location:'quees'});"
+          >
+            Reclamar mi Pablo Promo
+          </a>
+          <p class="om-quees__cta-trust">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" /><polyline points="9 12 11 14 15 10" /></svg>
+            Garantía de 14 días · Reto con reembolso del 100%
+          </p>
+        </div>
       </section>
     )}
 
@@ -1279,7 +1325,7 @@ const faqs = [
       <div class="container">
         <div class="om-carta om-carta--papel">
           <span class="om-carta__tape" aria-hidden="true"></span>
-          <span class="om-carta__eyebrow">Una nota del creador de Pablo</span>
+          <span class="om-carta__eyebrow">Una nota del creador</span>
           <h2 class="om-carta__titulo">¿Por qué se llama Pablo?</h2>
           <p class="om-carta__p">
             cuando era niño, había un dibujito que siempre veía mientras
@@ -1396,64 +1442,173 @@ const faqs = [
                     <img src={d.img.src} alt={d.img.alt} width="480" height="360" loading="lazy" decoding="async" />
                   )}
                   {d.mock === 'chat' && (
+                    <!-- Chat fiel a WhatsApp (28-jul): voucher de Yape de
+                         verdad, nota de voz con ondas y Pablo respondiendo
+                         amigable — como responde el producto real. -->
                     <div class="om-mini om-mini--chat" aria-hidden="true">
                       <div class="om-mini__top">
                         <span class="om-mini__avatar"><img src="/onboarding/images/pablo/pablo-logo.png" alt="" width="26" height="26" loading="lazy" /></span>
                         <span class="om-mini__quien">Pablo <em>en línea</em></span>
                       </div>
                       <div class="om-mini__chat">
-                        <p class="om-mini__msg om-mini__msg--mio">Taxi S/.18 <span>8:42 a.m.</span></p>
-                        <p class="om-mini__msg">Listo ✓ Lo anoté en <strong>Transporte</strong>. Vas S/.62 de S/.120 esta semana. <span>8:42 a.m.</span></p>
-                        <p class="om-mini__msg om-mini__msg--mio om-mini__msg--foto">📷 Foto del Yape <span>1:15 p.m.</span></p>
-                        <p class="om-mini__msg">Anotado ✓ <strong>Almuerzo — S/.24</strong> en Comida fuera. <span>1:15 p.m.</span></p>
+                        <p class="om-mini__msg om-mini__msg--mio om-mini__msg--audio">
+                          <span class="om-mini__play"></span>
+                          <span class="om-mini__ondas"><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i></span>
+                          <span class="om-mini__dur">0:04</span>
+                          <span>8:42 a.m.</span>
+                        </p>
+                        <p class="om-mini__msg">¡Anotado! 🚕 <strong>Taxi — S/.18</strong> en Transporte. Vas S/.62 de S/.120 esta semana, sigue así 💪 <span>8:42 a.m.</span></p>
+                        <div class="om-mini__msg om-mini__msg--mio om-mini__msg--conyape">
+                          <span class="om-yape">
+                            <span class="om-yape__head">¡Yapeaste!</span>
+                            <span class="om-yape__monto">S/ 24.00</span>
+                            <span class="om-yape__quien">Menú Doña Carmen</span>
+                          </span>
+                          <span>1:15 p.m.</span>
+                        </div>
+                        <p class="om-mini__msg">¡Listo! 🍛 <strong>Almuerzo — S/.24</strong> en Comida fuera. Sigues dentro de tu presupuesto ✨ <span>1:15 p.m.</span></p>
                       </div>
                     </div>
                   )}
-                  {d.mock === 'presupuesto' && (
+                  {d.mock === 'limites' && (
+                    <!-- Fiel a Presupuestos → Por Categoría de la app real:
+                         ícono + Gastado/Límite + estado. Íconos del sistema
+                         2D oficial de Pablo. -->
                     <div class="om-mini om-mini--panel" aria-hidden="true">
-                      <p class="om-mini__titulo">Tu presupuesto de julio</p>
-                      <div class="om-mini__cat">
-                        <span class="om-mini__cat-nombre">Comida fuera</span>
-                        <span class="om-mini__cat-monto">S/.180 de S/.250</span>
-                        <span class="om-mini__barra"><i style="width:72%"></i></span>
+                      <p class="om-mini__titulo">Presupuestos · Por categoría</p>
+                      <div class="om-lim">
+                        <span class="om-lim__icono"><img src="/promo/09-categorias/delivery.webp" alt="" width="34" height="34" loading="lazy" /></span>
+                        <span class="om-lim__nombre">Delivery</span>
+                        <span class="om-lim__monto">S/ 140 de S/ 250</span>
+                        <span class="om-mini__barra"><i class="om-mini__ok" style="width:56%"></i></span>
                       </div>
-                      <div class="om-mini__cat">
-                        <span class="om-mini__cat-nombre">Taxis</span>
-                        <span class="om-mini__cat-monto">S/.95 de S/.120</span>
+                      <div class="om-lim">
+                        <span class="om-lim__icono"><img src="/promo/09-categorias/taxis.webp" alt="" width="34" height="34" loading="lazy" /></span>
+                        <span class="om-lim__nombre">Taxis</span>
+                        <span class="om-lim__monto">S/ 95 de S/ 120</span>
                         <span class="om-mini__barra"><i style="width:79%"></i></span>
                       </div>
-                      <div class="om-mini__cat">
-                        <span class="om-mini__cat-nombre">Antojos</span>
-                        <span class="om-mini__cat-monto">S/.40 de S/.80</span>
-                        <span class="om-mini__barra"><i class="om-mini__ok" style="width:50%"></i></span>
+                      <div class="om-lim">
+                        <span class="om-lim__icono"><img src="/promo/09-categorias/salidas.webp" alt="" width="34" height="34" loading="lazy" /></span>
+                        <span class="om-lim__nombre">Salidas</span>
+                        <span class="om-lim__monto">S/ 90 de S/ 200</span>
+                        <span class="om-mini__barra"><i class="om-mini__ok" style="width:45%"></i></span>
                       </div>
-                      <p class="om-mini__pie">Aún tienes S/.135 tranquilos este mes</p>
+                      <div class="om-lim">
+                        <span class="om-lim__icono"><img src="/promo/09-categorias/shopping.webp" alt="" width="34" height="34" loading="lazy" /></span>
+                        <span class="om-lim__nombre">Shopping</span>
+                        <span class="om-lim__monto">S/ 60 de S/ 200</span>
+                        <span class="om-mini__barra"><i class="om-mini__ok" style="width:30%"></i></span>
+                      </div>
+                      <p class="om-mini__pie">Te quedan S/ 385 tranquilos — solo Taxis va ajustado</p>
                     </div>
                   )}
                   {d.mock === 'meta' && (
-                    <div class="om-mini om-mini--panel" aria-hidden="true">
-                      <p class="om-mini__titulo">Meta: Fondo de emergencia</p>
-                      <p class="om-mini__grande">S/.350 <span>de S/.1,000</span></p>
-                      <span class="om-mini__barra om-mini__barra--meta"><i style="width:35%"></i></span>
-                      <p class="om-mini__pie">A este ritmo la completas en 5 meses</p>
+                    <!-- Fiel a la tarjeta de meta real de la app: chip Activa,
+                         anillo de %, Ahorrado/Objetivo/Restante, el mensaje
+                         de Pablo y el aporte mensual. -->
+                    <div class="om-mini om-mini--panel om-mini--meta" aria-hidden="true">
+                      <div class="om-meta__top">
+                        <p class="om-mini__titulo">Fondo de Emergencia</p>
+                        <span class="om-meta__chip">Activa</span>
+                      </div>
+                      <div class="om-meta__cuerpo">
+                        <span class="om-meta__anillo"><b>35%</b></span>
+                        <dl class="om-meta__datos">
+                          <div><dt>Ahorrado</dt><dd>S/ 350.00</dd></div>
+                          <div><dt>Objetivo</dt><dd>S/ 1,000.00</dd></div>
+                          <div><dt>Restante</dt><dd>S/ 650.00</dd></div>
+                        </dl>
+                      </div>
+                      <p class="om-meta__pablo">Pablo: ¡Gran inicio! Todo gran logro empieza con un primer paso.</p>
+                      <p class="om-mini__pie">Aporte mensual: S/ 250 · la completas en ~3 meses</p>
                     </div>
                   )}
-                  {d.mock === 'curso' && (
-                    <div class="om-mini om-mini--panel" aria-hidden="true">
-                      <p class="om-mini__titulo">Finanzas de un Futuro Millonario</p>
-                      <ul class="om-mini__sesiones">
-                        <li class="is-done">Sesión 1 · Ahorro</li>
-                        <li class="is-done">Sesión 2 · Presupuesto</li>
-                        <li class="is-done">Sesión 3 · Metas</li>
-                        <li>Sesión 4 · Deudas</li>
-                      </ul>
-                      <span class="om-mini__barra om-mini__barra--meta"><i style="width:75%"></i></span>
-                      <p class="om-mini__pie">3 de 4 sesiones — a una del reembolso</p>
+                  {d.mock === 'lap-cuentas' && (
+                    <!-- Laptop con la pestaña Cuentas, fiel al panel real
+                         (usapablo.app/cuentas), con datos ficticios. -->
+                    <div class="om-lap" aria-hidden="true">
+                      <div class="om-lap__pantalla">
+                        <div class="om-app">
+                          <aside class="om-app__side">
+                            <span class="om-app__logo"><img src="/onboarding/images/pablo/pablo-logo.png" alt="" width="18" height="18" loading="lazy" /></span>
+                            <span class="om-app__item">Panel</span>
+                            <span class="om-app__item is-active">Cuentas</span>
+                            <span class="om-app__item">Presupuestos</span>
+                            <span class="om-app__item">Metas</span>
+                            <span class="om-app__item">Transacciones</span>
+                          </aside>
+                          <div class="om-app__main">
+                            <p class="om-app__h">Cuentas <em>Todo tu dinero en un mismo lugar</em></p>
+                            <div class="om-app__kpis">
+                              <span class="om-app__kpi om-app__kpi--morado"><em>Cuenta Principal</em><b>S/ 1,240.50</b></span>
+                              <span class="om-app__kpi om-app__kpi--verde"><em>Saldo Disponible</em><b>S/ 2,720.50</b></span>
+                              <span class="om-app__kpi om-app__kpi--azul"><em>Cuentas</em><b>2 activas</b></span>
+                            </div>
+                            <div class="om-app__cuentas">
+                              <span class="om-app__cuenta"><b>Ahorros BCP</b><em>Banco</em><i>S/ 2,540.00</i><u>Activa</u></span>
+                              <span class="om-app__cuenta"><b>Efectivo</b><em>Efectivo</em><i>S/ 180.50</i><u>Activa</u></span>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                      <div class="om-lap__base"></div>
+                    </div>
+                  )}
+                  {d.mock === 'lap-panel' && (
+                    <!-- Laptop con el Panel de Control real, simple. -->
+                    <div class="om-lap" aria-hidden="true">
+                      <div class="om-lap__pantalla">
+                        <div class="om-app">
+                          <aside class="om-app__side">
+                            <span class="om-app__logo"><img src="/onboarding/images/pablo/pablo-logo.png" alt="" width="18" height="18" loading="lazy" /></span>
+                            <span class="om-app__item is-active">Panel</span>
+                            <span class="om-app__item">Cuentas</span>
+                            <span class="om-app__item">Presupuestos</span>
+                            <span class="om-app__item">Metas</span>
+                            <span class="om-app__item">Transacciones</span>
+                          </aside>
+                          <div class="om-app__main">
+                            <p class="om-app__h">Panel de Control</p>
+                            <div class="om-app__kpis">
+                              <span class="om-app__kpi om-app__kpi--morado"><em>Saldo total</em><b>S/ 3,120.70</b></span>
+                              <span class="om-app__kpi om-app__kpi--rojo"><em>Gastos de julio</em><b>S/ 1,240.00</b></span>
+                              <span class="om-app__kpi om-app__kpi--verde"><em>Ingresos</em><b>S/ 2,500.00</b></span>
+                            </div>
+                            <div class="om-app__dist">
+                              <span class="om-app__dona"></span>
+                              <span class="om-app__leyenda">
+                                <i class="om-app__dot om-app__dot--rojo"></i>Esenciales 50%
+                                <i class="om-app__dot om-app__dot--azul"></i>Futuro 30%
+                                <i class="om-app__dot om-app__dot--verde"></i>Estilo 20%
+                              </span>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                      <div class="om-lap__base"></div>
+                    </div>
+                  )}
+                  {d.mock === 'lap-clase' && (
+                    <!-- Laptop con un frame REAL de la Sesión 1 del curso
+                         (video de la clase en La Komu). -->
+                    <div class="om-lap" aria-hidden="true">
+                      <div class="om-lap__pantalla om-lap__pantalla--foto">
+                        <img src="/promo/03-curso/clase-real.webp" alt="Rodrigo dictando la Sesión 1 del curso en La Komu" width="640" height="360" loading="lazy" decoding="async" />
+                      </div>
+                      <div class="om-lap__base"></div>
                     </div>
                   )}
                 </div>
               </div>
             ))}
+
+            {h.dato && (
+              <p class="om-habito__dato">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><circle cx="12" cy="12" r="10" /><line x1="12" y1="16" x2="12" y2="12" /><line x1="12" y1="8" x2="12.01" y2="8" /></svg>
+                {h.dato}
+              </p>
+            )}
 
             {h.sesion && (
               <p class="om-habito__sesion">
@@ -1487,7 +1642,7 @@ const faqs = [
     {promo && (
       <section class="om-noche om-noche--ia" id="la-ia">
         <div class="container om-noche__inner">
-          <span class="om-noche__ceja">La IA detrás de Pablo</span>
+          <span class="om-noche__ceja">Pablo, tu compañero financiero en WhatsApp</span>
           <h2 class="om-noche__title">
             Gasté más de <span class="om-noche__glow">S/.100,000</span> construyendo
             esta IA financiera…
@@ -1497,61 +1652,76 @@ const faqs = [
             cumplir el reto.
           </p>
 
-          <div class="om-ia__devices">
-            <div class="om-laptop" aria-hidden="true">
-              <div class="om-laptop__pantalla">
-                <div class="om-panel">
-                  <div class="om-panel__sidebar">
-                    <span class="om-panel__logo"><img src="/onboarding/images/pablo/pablo-logo.png" alt="" width="22" height="22" loading="lazy" /></span>
-                    <span class="om-panel__dot is-active"></span>
-                    <span class="om-panel__dot"></span>
-                    <span class="om-panel__dot"></span>
-                    <span class="om-panel__dot"></span>
-                  </div>
-                  <div class="om-panel__main">
-                    <p class="om-panel__hola">Hola, Mariella</p>
-                    <div class="om-panel__cards">
-                      <div class="om-panel__card">
-                        <span class="om-panel__label">Gastado esta semana</span>
-                        <span class="om-panel__num">S/.212</span>
-                        <div class="om-panel__chart">
-                          <i style="height:40%"></i><i style="height:65%"></i><i style="height:30%"></i><i style="height:80%"></i><i style="height:55%"></i><i style="height:20%"></i><i class="is-hoy" style="height:45%"></i>
-                        </div>
-                      </div>
-                      <div class="om-panel__card">
-                        <span class="om-panel__label">Presupuesto de julio</span>
-                        <span class="om-panel__num">72%</span>
-                        <span class="om-mini__barra"><i style="width:72%"></i></span>
-                        <span class="om-panel__label">Racha: 23 días seguidos</span>
-                      </div>
+          <!-- Composición 28-jul (2da ronda): laptop con el panel real de
+               Presupuestos a la izquierda, el reporte semanal al centro (tan
+               importante como los dispositivos) y el celular con sus bullets
+               al lado derecho. Todo HTML: dimensiones de dispositivo real. -->
+          <div class="om-ia__row">
+            <div class="om-lap om-lap--ia" aria-hidden="true">
+              <div class="om-lap__pantalla">
+                <div class="om-app">
+                  <aside class="om-app__side">
+                    <span class="om-app__logo"><img src="/onboarding/images/pablo/pablo-logo.png" alt="" width="18" height="18" loading="lazy" /></span>
+                    <span class="om-app__item">Panel</span>
+                    <span class="om-app__item">Cuentas</span>
+                    <span class="om-app__item is-active">Presupuestos</span>
+                    <span class="om-app__item">Metas</span>
+                    <span class="om-app__item">Transacciones</span>
+                  </aside>
+                  <div class="om-app__main">
+                    <p class="om-app__h">Presupuestos <em>Julio 2026 · Por categoría</em></p>
+                    <div class="om-app__kpis">
+                      <span class="om-app__kpi om-app__kpi--oro"><em>Presupuestado</em><b>S/ 2,100</b></span>
+                      <span class="om-app__kpi om-app__kpi--rojo"><em>Gastado</em><b>S/ 1,240</b></span>
+                      <span class="om-app__kpi om-app__kpi--verde"><em>Disponible</em><b>S/ 860</b></span>
+                    </div>
+                    <div class="om-app__lims">
+                      <span class="om-app__lim"><img src="/promo/09-categorias/delivery.webp" alt="" width="22" height="22" loading="lazy" /><b>Delivery</b><span class="om-mini__barra"><i class="om-mini__ok" style="width:56%"></i></span></span>
+                      <span class="om-app__lim"><img src="/promo/09-categorias/taxis.webp" alt="" width="22" height="22" loading="lazy" /><b>Taxis</b><span class="om-mini__barra"><i style="width:79%"></i></span></span>
+                      <span class="om-app__lim"><img src="/promo/09-categorias/salidas.webp" alt="" width="22" height="22" loading="lazy" /><b>Salidas</b><span class="om-mini__barra"><i class="om-mini__ok" style="width:45%"></i></span></span>
                     </div>
                   </div>
                 </div>
               </div>
-              <div class="om-laptop__base"></div>
+              <div class="om-lap__base"></div>
             </div>
 
-            <div class="om-fono" aria-hidden="true">
-              <div class="om-mini om-mini--chat om-mini--enfono">
-                <div class="om-mini__top">
-                  <span class="om-mini__avatar"><img src="/onboarding/images/pablo/pablo-logo.png" alt="" width="26" height="26" loading="lazy" /></span>
-                  <span class="om-mini__quien">Pablo <em>en línea</em></span>
-                </div>
-                <div class="om-mini__chat">
-                  <p class="om-mini__msg om-mini__msg--mio">🎙 Audio: “gasté veinte en el mercado” <span>7:03 p.m.</span></p>
-                  <p class="om-mini__msg">Listo ✓ <strong>Mercado — S/.20</strong>. Esta semana llevas S/.148 en Comida. <span>7:03 p.m.</span></p>
-                  <p class="om-mini__msg om-mini__msg--mio">¿cuánto me queda para antojos? <span>7:04 p.m.</span></p>
-                  <p class="om-mini__msg">Te quedan <strong>S/.40 de S/.80</strong> — vas bien. <span>7:04 p.m.</span></p>
+            <div class="om-reporte" aria-hidden="true">
+              <span class="om-reporte__badge">Cada domingo</span>
+              <p class="om-reporte__titulo">Tu reporte semanal</p>
+              <div class="om-reporte__fila"><span>Gastaste</span><b>S/ 312</b></div>
+              <div class="om-reporte__fila"><span>Top: Delivery</span><b>S/ 98</b></div>
+              <div class="om-reporte__fila om-reporte__fila--verde"><span>Podrías ahorrar</span><b>S/ 55</b></div>
+              <p class="om-reporte__pie">…sin dejar tus gustos. Pablo te lo manda al chat, ya masticado.</p>
+            </div>
+
+            <div class="om-ia__celular">
+              <div class="om-fono" aria-hidden="true">
+                <div class="om-mini om-mini--chat om-mini--enfono">
+                  <div class="om-mini__top">
+                    <span class="om-mini__avatar"><img src="/onboarding/images/pablo/pablo-logo.png" alt="" width="26" height="26" loading="lazy" /></span>
+                    <span class="om-mini__quien">Pablo <em>en línea</em></span>
+                  </div>
+                  <div class="om-mini__chat">
+                    <p class="om-mini__msg om-mini__msg--mio om-mini__msg--audio">
+                      <span class="om-mini__play"></span>
+                      <span class="om-mini__ondas"><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i></span>
+                      <span class="om-mini__dur">0:03</span>
+                      <span>7:03 p.m.</span>
+                    </p>
+                    <p class="om-mini__msg">¡Anotado! 🛒 <strong>Mercado — S/.20</strong>. Esta semana llevas S/.148 en Comida. <span>7:03 p.m.</span></p>
+                    <p class="om-mini__msg om-mini__msg--mio">¿cuánto me queda para antojos? <span>7:04 p.m.</span></p>
+                    <p class="om-mini__msg">Te quedan <strong>S/.40 de S/.80</strong> — vas bien ✨ <span>7:04 p.m.</span></p>
+                  </div>
                 </div>
               </div>
+              <ul class="om-ia__bullets om-ia__bullets--lado">
+                {IA_BULLETS.map((b) => (
+                  <li set:html={b} />
+                ))}
+              </ul>
             </div>
           </div>
-
-          <ul class="om-ia__bullets">
-            {IA_BULLETS.map((b) => (
-              <li set:html={b} />
-            ))}
-          </ul>
 
           <a
             href={CHECKOUT_URL}
@@ -1584,12 +1754,14 @@ const faqs = [
           </div>
 
           <div class="om-komu__grid">
+            <!-- El pase como objeto físico (28-jul): tablet con un frame REAL
+                 de la Sesión 1 en pantalla + el ticket "Pase Mensual". -->
             <div class="om-komu__media">
               <img
-                src="/promo/04-komunidad/principal.webp"
-                alt="Pablo con la comunidad de futuros millonarios"
-                width="480"
-                height="360"
+                src="/promo/04-komunidad/pase.webp"
+                alt="El Pase Mensual a La Komunidad: la clase real en la tablet y tu ticket físico"
+                width="550"
+                height="410"
                 loading="lazy"
                 decoding="async"
               />
@@ -1606,11 +1778,25 @@ const faqs = [
             </ul>
           </div>
 
+          <!-- La comunidad en persona (pedido 28-jul): jóvenes peruanos
+               ambiciosos socializando, al estilo clay de Pablo. -->
+          <figure class="om-komu__banner">
+            <img
+              src="/promo/04-komunidad/jovenes.webp"
+              alt="Jóvenes de la comunidad conversando alrededor de una mesa, con Pablo entre ellos"
+              width="1100"
+              height="820"
+              loading="lazy"
+              decoding="async"
+            />
+            <figcaption>Las clases en vivo de La Komunidad — cada semana, con la comunidad entera.</figcaption>
+          </figure>
+
           <div class="om-habito__proof om-komu__proof">
             <span class="om-habito__proof-label">Lo que dicen de la comunidad</span>
             <div class="om-habito__proof-grid">
               <figure class="om-habito__quote">
-                <blockquote>“Lo que me gustó de la tuya era el plus de la comunidad, que te habla de inversiones; es un tema que me interesa.”</blockquote>
+                <blockquote>“Lo que me gustó [de Pablo] era el plus de la comunidad, que te habla de inversiones; es un tema que me interesa.”</blockquote>
                 <figcaption>— Giovanna <span>· 25 años · marketing</span></figcaption>
               </figure>
               <figure class="om-habito__quote">
@@ -1681,7 +1867,7 @@ const faqs = [
               <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" /><polyline points="9 12 11 14 15 10" /></svg>
               Pago único. Garantía de 14 días. Reto con reembolso del 100%.
             </p>
-            <p class="om-stackf__mensual">
+            <p class="om-stackf__mensual" id="prueba-gratis">
               ¿Prefieres ir mes a mes? <a href={CHECKOUT_URL_MENSUAL}>Prueba a Pablo por 14 días gratis</a> — S/.20/mes, sin los bonos de la promo.
             </p>
           </div>
@@ -2420,9 +2606,16 @@ const faqs = [
      con baja opacidad y en escala de grises; el color vuelve al hover. Los
      PNG traen fondo blanco propio — sobre blanco desaparece y solo se ve el
      logo. */
+  /* Bordes difusos (pedido 28-jul): la franja blanca entra y sale en
+     degradado, sin cortes duros contra el lila del hero. */
   .om-visto {
-    background: #ffffff;
-    padding: 34px 0 26px;
+    background: linear-gradient(
+      180deg,
+      rgba(255, 255, 255, 0) 0%,
+      #ffffff 42%,
+      #ffffff 100%
+    );
+    padding: 44px 0 26px;
   }
 
   .om-visto__inner {
@@ -6467,7 +6660,9 @@ const faqs = [
     border-top-right-radius: 3px;
   }
 
-  .om-mini__msg span {
+  /* Solo el timestamp (último span directo): un selector más ancho se
+     comía el voucher de Yape y las ondas del audio (bug 28-jul). */
+  .om-mini__msg > span:last-child {
     position: absolute;
     right: 9px;
     bottom: 3px;
@@ -7178,6 +7373,740 @@ const faqs = [
       grid-template-columns: 1fr;
     }
   }
+
+  /* ══════════════════════════════════════════════════════════════════
+     2DA RONDA DEL OVERHAUL (28-jul, tarde) — mockups fieles a la app,
+     objetos físicos, IA re-compuesta. También al final a propósito.
+     ══════════════════════════════════════════════════════════════════ */
+
+  /* ─── Nota dorada del plan anual ("2 meses de regalo") ─── */
+  .om-plan__nota--oro {
+    color: #9a6a00;
+    background: rgba(242, 192, 99, 0.22);
+  }
+
+  /* El mensual pesa menos que el anual (consejo Hormozi AI): es la salida
+     de emergencia, no la decisión principal. */
+  .om-plan[data-plan="mensual"]:not(.is-active) {
+    opacity: 0.78;
+    transform: scale(0.985);
+    transform-origin: top center;
+  }
+
+  /* ─── Chat WhatsApp: nota de voz ─── */
+  .om-mini__msg--audio {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    min-width: 190px;
+  }
+
+  .om-mini__play {
+    flex-shrink: 0;
+    width: 0;
+    height: 0;
+    border-top: 7px solid transparent;
+    border-bottom: 7px solid transparent;
+    border-left: 11px solid #57646c;
+  }
+
+  .om-mini__ondas {
+    display: flex;
+    align-items: center;
+    gap: 2.5px;
+    flex: 1;
+    height: 20px;
+  }
+
+  .om-mini__ondas i {
+    width: 2.5px;
+    border-radius: 2px;
+    background: #8e9ba3;
+  }
+
+  .om-mini__ondas i:nth-child(1) { height: 30%; }
+  .om-mini__ondas i:nth-child(2) { height: 65%; }
+  .om-mini__ondas i:nth-child(3) { height: 90%; }
+  .om-mini__ondas i:nth-child(4) { height: 55%; }
+  .om-mini__ondas i:nth-child(5) { height: 75%; }
+  .om-mini__ondas i:nth-child(6) { height: 40%; }
+  .om-mini__ondas i:nth-child(7) { height: 85%; }
+  .om-mini__ondas i:nth-child(8) { height: 60%; }
+  .om-mini__ondas i:nth-child(9) { height: 35%; }
+  .om-mini__ondas i:nth-child(10) { height: 70%; }
+  .om-mini__ondas i:nth-child(11) { height: 45%; }
+  .om-mini__ondas i:nth-child(12) { height: 25%; }
+
+  .om-mini__dur {
+    font-size: 10px;
+    color: #57646c;
+    flex-shrink: 0;
+  }
+
+  /* ─── Chat WhatsApp: voucher de Yape adjunto ─── */
+  .om-mini__msg--conyape {
+    padding: 5px 5px 15px;
+  }
+
+  .om-yape {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 2px;
+    background: #742284;
+    border-radius: 9px;
+    padding: 12px 22px 13px;
+    color: #ffffff;
+    min-width: 150px;
+  }
+
+  .om-yape__head {
+    font-family: var(--font-heading);
+    font-weight: 700;
+    font-size: 12.5px;
+    letter-spacing: 0.01em;
+  }
+
+  .om-yape__monto {
+    font-family: var(--font-heading);
+    font-weight: 700;
+    font-size: 21px;
+    line-height: 1.15;
+  }
+
+  .om-yape__quien {
+    font-size: 10px;
+    opacity: 0.85;
+  }
+
+  /* ─── Límites por categoría (fiel a Presupuestos → Por Categoría) ─── */
+  .om-lim {
+    display: grid;
+    grid-template-columns: auto 1fr auto;
+    align-items: center;
+    gap: 4px 10px;
+  }
+
+  .om-lim__icono {
+    grid-row: span 2;
+    width: 38px;
+    height: 38px;
+    border-radius: 11px;
+    overflow: hidden;
+    background: #fdf6e3;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .om-lim__icono img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+
+  .om-lim__nombre {
+    font-size: 13px;
+    font-weight: 700;
+    color: var(--color-heading);
+  }
+
+  .om-lim__monto {
+    font-size: 11.5px;
+    font-weight: 600;
+    color: var(--color-body);
+    font-variant-numeric: tabular-nums;
+  }
+
+  .om-lim .om-mini__barra {
+    grid-column: 2 / -1;
+  }
+
+  /* ─── Tarjeta de meta (fiel a Metas Financieras de la app) ─── */
+  .om-meta__top {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 10px;
+  }
+
+  .om-meta__chip {
+    font-size: 10px;
+    font-weight: 800;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: #2c7a4b;
+    background: #e3f5ea;
+    border-radius: 999px;
+    padding: 3px 10px;
+  }
+
+  .om-meta__cuerpo {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+  }
+
+  .om-meta__anillo {
+    flex-shrink: 0;
+    width: 74px;
+    height: 74px;
+    border-radius: 50%;
+    background: conic-gradient(#58bd77 0 35%, #eeeaf9 35% 100%);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .om-meta__anillo b {
+    width: 54px;
+    height: 54px;
+    border-radius: 50%;
+    background: #ffffff;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-family: var(--font-heading);
+    font-weight: 700;
+    font-size: 15px;
+    color: var(--color-heading);
+  }
+
+  .om-meta__datos {
+    flex: 1;
+    margin: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+  }
+
+  .om-meta__datos div {
+    display: flex;
+    justify-content: space-between;
+    gap: 10px;
+  }
+
+  .om-meta__datos dt {
+    font-size: 12px;
+    color: var(--color-body);
+  }
+
+  .om-meta__datos dd {
+    margin: 0;
+    font-size: 12.5px;
+    font-weight: 700;
+    color: var(--color-heading);
+    font-variant-numeric: tabular-nums;
+  }
+
+  .om-meta__pablo {
+    margin: 0;
+    font-size: 11.5px;
+    line-height: 1.45;
+    color: #7a4f00;
+    background: #fdf3dd;
+    border-radius: 9px;
+    padding: 8px 11px;
+  }
+
+  /* ─── Laptop genérica (dimensiones de dispositivo real, toque 3D) ─── */
+  .om-lap {
+    width: 100%;
+    max-width: 460px;
+    transform: perspective(1400px) rotateY(-4deg);
+  }
+
+  .om-habito__fila--flip .om-lap {
+    transform: perspective(1400px) rotateY(4deg);
+  }
+
+  .om-lap__pantalla {
+    background: #0e0f28;
+    border: 3px solid #2e2f5e;
+    border-bottom: 0;
+    border-radius: 16px 16px 0 0;
+    padding: 9px 9px 0;
+    aspect-ratio: 16 / 10;
+    overflow: hidden;
+  }
+
+  .om-lap__pantalla--foto {
+    padding: 9px;
+    display: flex;
+    align-items: center;
+  }
+
+  .om-lap__pantalla--foto img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    border-radius: 7px;
+  }
+
+  .om-lap__base {
+    height: 13px;
+    background: linear-gradient(180deg, #3a3b6e, #23244c);
+    border-radius: 0 0 15px 15px;
+    box-shadow: 0 24px 42px -18px rgba(0, 0, 0, 0.55);
+    position: relative;
+  }
+
+  .om-lap__base::after {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 16%;
+    height: 5px;
+    border-radius: 0 0 6px 6px;
+    background: rgba(255, 255, 255, 0.14);
+  }
+
+  /* ─── La app de Pablo dentro de la laptop (fiel a usapablo.app) ─── */
+  .om-app {
+    display: grid;
+    grid-template-columns: 88px 1fr;
+    background: #f4f2fb;
+    border-radius: 8px 8px 0 0;
+    height: 100%;
+    overflow: hidden;
+    text-align: left;
+  }
+
+  .om-app__side {
+    background: #f7f5ff;
+    border-right: 1px solid #e7e3f6;
+    display: flex;
+    flex-direction: column;
+    gap: 3px;
+    padding: 9px 7px;
+  }
+
+  .om-app__logo {
+    width: 24px;
+    height: 24px;
+    border-radius: 7px;
+    background: #fdf6e3;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-bottom: 5px;
+  }
+
+  .om-app__item {
+    font-size: 8.5px;
+    font-weight: 600;
+    color: var(--color-body);
+    padding: 4px 7px;
+    border-radius: 7px;
+    white-space: nowrap;
+  }
+
+  .om-app__item.is-active {
+    background: #fbe9bd;
+    color: #6b4a00;
+    font-weight: 700;
+  }
+
+  .om-app__main {
+    padding: 11px 13px;
+    display: flex;
+    flex-direction: column;
+    gap: 9px;
+    min-width: 0;
+  }
+
+  .om-app__h {
+    margin: 0;
+    font-family: var(--font-heading);
+    font-weight: 700;
+    font-size: 13px;
+    color: var(--color-heading);
+    display: flex;
+    align-items: baseline;
+    gap: 7px;
+  }
+
+  .om-app__h em {
+    font-style: normal;
+    font-size: 8.5px;
+    font-weight: 500;
+    color: var(--color-body);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  .om-app__kpis {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 7px;
+  }
+
+  .om-app__kpi {
+    border-radius: 9px;
+    padding: 7px 9px;
+    display: flex;
+    flex-direction: column;
+    gap: 1px;
+    color: #ffffff;
+  }
+
+  .om-app__kpi em {
+    font-style: normal;
+    font-size: 7.5px;
+    font-weight: 600;
+    opacity: 0.85;
+    white-space: nowrap;
+    overflow: hidden;
+  }
+
+  .om-app__kpi b {
+    font-family: var(--font-heading);
+    font-weight: 700;
+    font-size: 12px;
+    white-space: nowrap;
+  }
+
+  .om-app__kpi--morado { background: #8b83c9; }
+  .om-app__kpi--verde { background: #7cc59a; }
+  .om-app__kpi--azul { background: #85a9e0; }
+  .om-app__kpi--oro { background: #e8b64d; }
+  .om-app__kpi--rojo { background: #de8585; }
+
+  .om-app__cuentas {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 7px;
+  }
+
+  .om-app__cuenta {
+    background: #ffffff;
+    border: 1px solid #e7e3f6;
+    border-radius: 9px;
+    padding: 8px 10px;
+    display: grid;
+    grid-template-columns: 1fr auto;
+    gap: 1px 6px;
+    align-items: center;
+  }
+
+  .om-app__cuenta b {
+    font-size: 10px;
+    font-weight: 700;
+    color: var(--color-heading);
+  }
+
+  .om-app__cuenta em {
+    font-style: normal;
+    font-size: 8px;
+    color: var(--color-body);
+    grid-column: 1;
+  }
+
+  .om-app__cuenta i {
+    font-style: normal;
+    font-size: 10.5px;
+    font-weight: 700;
+    color: var(--color-heading);
+    grid-row: 1;
+    grid-column: 2;
+    font-variant-numeric: tabular-nums;
+  }
+
+  .om-app__cuenta u {
+    text-decoration: none;
+    font-size: 7px;
+    font-weight: 700;
+    color: #2c7a4b;
+    background: #e3f5ea;
+    border-radius: 999px;
+    padding: 1.5px 6px;
+    justify-self: end;
+  }
+
+  .om-app__dist {
+    display: flex;
+    align-items: center;
+    gap: 13px;
+    background: #ffffff;
+    border: 1px solid #e7e3f6;
+    border-radius: 9px;
+    padding: 9px 11px;
+  }
+
+  .om-app__dona {
+    flex-shrink: 0;
+    width: 52px;
+    height: 52px;
+    border-radius: 50%;
+    background: conic-gradient(#de8585 0 50%, #85a9e0 50% 80%, #7cc59a 80% 100%);
+    -webkit-mask: radial-gradient(circle at center, transparent 15px, #000 15.5px);
+    mask: radial-gradient(circle at center, transparent 15px, #000 15.5px);
+  }
+
+  .om-app__leyenda {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 4px 6px;
+    font-size: 8.5px;
+    font-weight: 600;
+    color: var(--color-body);
+  }
+
+  .om-app__dot {
+    width: 7px;
+    height: 7px;
+    border-radius: 50%;
+    display: inline-block;
+  }
+
+  .om-app__dot--rojo { background: #de8585; }
+  .om-app__dot--azul { background: #85a9e0; }
+  .om-app__dot--verde { background: #7cc59a; }
+
+  .om-app__lims {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+  }
+
+  .om-app__lim {
+    display: grid;
+    grid-template-columns: auto auto 1fr;
+    align-items: center;
+    gap: 8px;
+    background: #ffffff;
+    border: 1px solid #e7e3f6;
+    border-radius: 9px;
+    padding: 6px 9px;
+  }
+
+  .om-app__lim img {
+    width: 22px;
+    height: 22px;
+    border-radius: 6px;
+  }
+
+  .om-app__lim b {
+    font-size: 9.5px;
+    font-weight: 700;
+    color: var(--color-heading);
+  }
+
+  /* ─── La IA re-compuesta: laptop | reporte | celular+bullets ─── */
+  .om-ia__row {
+    display: grid;
+    grid-template-columns: minmax(0, 1.15fr) minmax(0, 0.7fr) minmax(0, 1fr);
+    gap: 26px;
+    align-items: center;
+    width: 100%;
+    margin-top: 14px;
+  }
+
+  .om-lap--ia {
+    max-width: none;
+    transform: perspective(1400px) rotateY(5deg);
+  }
+
+  .om-reporte {
+    background: rgba(255, 255, 255, 0.07);
+    border: 1px solid rgba(255, 255, 255, 0.16);
+    border-radius: 18px;
+    padding: 18px 18px 16px;
+    display: flex;
+    flex-direction: column;
+    gap: 9px;
+    text-align: left;
+    position: relative;
+  }
+
+  .om-reporte__badge {
+    position: absolute;
+    top: -10px;
+    left: 16px;
+    font-size: 9.5px;
+    font-weight: 800;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: #4a3000;
+    background: linear-gradient(135deg, #f6c454, #eb9d2a);
+    border-radius: 999px;
+    padding: 3px 10px;
+  }
+
+  .om-reporte__titulo {
+    margin: 4px 0 0;
+    font-family: var(--font-heading);
+    font-weight: 700;
+    font-size: 16px;
+    color: #ffffff;
+  }
+
+  .om-reporte__fila {
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+    gap: 10px;
+    font-size: 13px;
+    color: rgba(236, 233, 250, 0.8);
+    border-bottom: 1px dashed rgba(255, 255, 255, 0.14);
+    padding-bottom: 7px;
+  }
+
+  .om-reporte__fila b {
+    font-family: var(--font-heading);
+    font-weight: 700;
+    font-size: 15px;
+    color: #ffffff;
+    font-variant-numeric: tabular-nums;
+  }
+
+  .om-reporte__fila--verde b {
+    color: #7ee2a0;
+  }
+
+  .om-reporte__pie {
+    margin: 0;
+    font-size: 11.5px;
+    line-height: 1.5;
+    color: rgba(236, 233, 250, 0.65);
+  }
+
+  .om-ia__celular {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+    align-items: center;
+  }
+
+  .om-ia__celular .om-fono {
+    transform: perspective(1200px) rotateY(-5deg);
+  }
+
+  .om-ia__bullets--lado {
+    grid-template-columns: 1fr;
+    gap: 8px;
+    margin-top: 0;
+    max-width: 300px;
+  }
+
+  .om-ia__bullets--lado li {
+    font-size: 13px;
+    line-height: 1.5;
+  }
+
+  /* ─── Banner de la comunidad ─── */
+  .om-komu__banner {
+    margin: 0;
+    width: 100%;
+    max-width: 760px;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+  }
+
+  .om-komu__banner img {
+    width: 100%;
+    height: auto;
+    border-radius: 24px;
+    box-shadow: 0 26px 52px -28px rgba(43, 44, 100, 0.45);
+  }
+
+  .om-komu__banner figcaption {
+    text-align: center;
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--color-body);
+  }
+
+  /* ─── El dato de metas ─── */
+  .om-habito__dato {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    text-align: left;
+    font-size: 14.5px;
+    font-weight: 700;
+    line-height: 1.45;
+    color: var(--color-heading);
+    background: #f3f0fd;
+    border: 1px solid #ddd5f5;
+    border-radius: 16px;
+    padding: 14px 22px;
+    margin: -4px auto 0;
+    max-width: 620px;
+  }
+
+  .om-habito__dato svg {
+    flex-shrink: 0;
+    color: #6f63d8;
+  }
+
+  /* ─── CTA después del loop ─── */
+  .om-quees__cta-wrap {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 12px;
+    margin-top: 38px;
+  }
+
+  .om-quees__cta-trust {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--color-body);
+    margin: 0;
+  }
+
+  /* ─── Responsive de la 2da ronda ─── */
+  @media (max-width: 1020px) {
+    .om-ia__row {
+      grid-template-columns: 1fr 1fr;
+      gap: 22px;
+    }
+
+    .om-ia__row .om-reporte {
+      order: 3;
+    }
+
+    .om-ia__celular {
+      order: 2;
+    }
+  }
+
+  @media (max-width: 700px) {
+    .om-ia__row {
+      grid-template-columns: 1fr;
+    }
+
+    .om-lap {
+      transform: none;
+      max-width: 420px;
+      margin: 0 auto;
+    }
+
+    .om-lap--ia,
+    .om-habito__fila--flip .om-lap,
+    .om-ia__celular .om-fono {
+      transform: none;
+    }
+
+    .om-app__side {
+      width: 74px;
+    }
+
+    .om-habito__dato {
+      font-size: 13px;
+      padding: 12px 16px;
+    }
+  }
 </style>
 
 <script>
@@ -7216,6 +8145,18 @@ const faqs = [
       el.hidden = el.dataset.vista !== plan;
     });
 
+    // La barra sticky sigue al plan elegido (revisión 28-jul): si el usuario
+    // está en Mensual, la barra no le puede vender el anual.
+    const stickyCta = document.querySelector<HTMLAnchorElement>('.om-sticky__cta');
+    const stickyTachado = document.querySelector<HTMLElement>('.om-sticky__tachado');
+    const stickyMonto = document.querySelector<HTMLElement>('.om-sticky__monto');
+    if (stickyCta && ctaHero) {
+      stickyCta.href = ctaHero.href;
+      stickyCta.textContent = plan === 'mensual' ? 'Probar 14 días gratis' : 'Reclamar mi promo';
+    }
+    if (stickyTachado) stickyTachado.style.visibility = plan === 'mensual' ? 'hidden' : '';
+    if (stickyMonto) stickyMonto.innerHTML = plan === 'mensual' ? 'S/.20 <span>al mes</span>' : 'S/.200 <span>el año</span>';
+
     try {
       (window as any).posthog?.capture('millonaria_plan_elegido', { plan });
     } catch (e) {
@@ -7242,10 +8183,30 @@ const faqs = [
 
   const countdowns = document.querySelectorAll<HTMLElement>('.om-countdown');
 
+  // La promo se apaga sola al vencer (revisión 28-jul): sin esto, el 30-jul
+  // la página seguiría vendiendo bonos con el reloj clavado en ceros —
+  // exactamente lo contrario de "después el anual vuelve a ser solo el
+  // anual" que prometimos por correo.
+  let promoCerrada = false;
+  function cerrarPromo() {
+    if (promoCerrada) return;
+    promoCerrada = true;
+    countdowns.forEach((cd) => {
+      cd.style.display = 'none';
+    });
+    const eyebrow = document.querySelector<HTMLElement>('.om-hero__eyebrow');
+    if (eyebrow) eyebrow.textContent = 'La Pablo Promo cerró';
+    const deadlineTxt = document.querySelector<HTMLElement>('.om-hero__cierre[data-vista="anual"] .om-hero__deadline');
+    if (deadlineTxt) deadlineTxt.textContent = 'La promo cerró: el anual vuelve a ser solo el anual.';
+    document.getElementById('om-sticky')?.remove();
+  }
+
   function tick() {
+    let vencido = false;
     countdowns.forEach((cd) => {
       const deadline = cd.dataset.deadline ? new Date(cd.dataset.deadline).getTime() : 0;
       const resta = deadline - Date.now();
+      if (resta <= 0) vencido = true;
       const s = Math.max(0, Math.floor(resta / 1000));
 
       const setVal = (key: string, val: number) => {
@@ -7258,6 +8219,7 @@ const faqs = [
       setVal('m', Math.floor((s % 3600) / 60));
       setVal('s', s % 60);
     });
+    if (vencido && heroPromo) cerrarPromo();
   }
 
   if (countdowns.length) {
