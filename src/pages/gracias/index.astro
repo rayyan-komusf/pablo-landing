@@ -33,9 +33,13 @@ import ThankYou from '../../components/ThankYou.astro';
       var base = /^(localhost|127\.0\.0\.1|192\.168\.)/.test(location.hostname)
         ? "http://localhost:8080"
         : "https://usapablo.app";
+      // destino=dashboard: quien ya pagó NO debe pasar por el onboarding de
+      // la app — entra directo al dashboard. La app tiene que respetar este
+      // parámetro en /auth/sesion (pedido a Rayyan 29-jul); si lo ignora,
+      // instala la sesión igual y el único costo es ver el onboarding.
       btn.href =
         base +
-        "/auth/sesion#access_token=" +
+        "/auth/sesion?destino=dashboard#access_token=" +
         encodeURIComponent(t.access_token) +
         "&refresh_token=" +
         encodeURIComponent(t.refresh_token);

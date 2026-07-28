@@ -315,16 +315,17 @@
     function alGracias() {
       window.location.href = "/gracias?plan=" + encodeURIComponent(PLANES[planActual].slug);
     }
-    /* Ya tenía suscripción activa: no hay nada que cobrar, directo a la app. */
+    /* Ya tenía suscripción activa: no hay nada que cobrar, directo a la app
+     * (y al dashboard, sin onboarding — ya es cliente). */
     async function irALaAppLogueado() {
       var s = await asegurarSesion();
       if (s) {
         window.location.href =
-          phDid(APP + "/auth/sesion") +
+          phDid(APP + "/auth/sesion?destino=dashboard") +
           "#access_token=" + encodeURIComponent(s.access_token) +
           "&refresh_token=" + encodeURIComponent(s.refresh_token || "");
       } else {
-        window.location.href = phDid(APP);
+        window.location.href = phDid(APP + "/dashboard");
       }
     }
 

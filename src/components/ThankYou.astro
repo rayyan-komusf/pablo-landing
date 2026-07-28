@@ -62,10 +62,11 @@ const pixelValue = plan === 'anual' ? 200 : (plan === 'mensual' ? 20 : 0);
 
     <!-- CTAs -->
     <div class="gracias__ctas">
+      <!-- Misma pestaña (29-jul): quien acaba de pagar entra DE FRENTE a la
+           app, no a una pestaña nueva. El href real lo arma el puente de
+           sesión de /gracias con los tokens. -->
       <a
-        href="https://usapablo.app/"
-        target="_blank"
-        rel="noopener noreferrer"
+        href="https://usapablo.app/dashboard"
         class="btn-primary gracias__cta-app"
         id="gracias-app-btn"
         onclick="if(typeof fbq!=='undefined')fbq('trackCustom','Activacion_App');if(typeof ttq!=='undefined')ttq.track('ClickButton',{content_name:'Activacion_App'});"
