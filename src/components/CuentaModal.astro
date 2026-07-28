@@ -1,11 +1,18 @@
 ---
 // Modal reutilizable de "crear cuenta y pagar" (Pricing del home y oferta).
-// Crea la cuenta contra Supabase Auth (anon key), verifica el correo con el
-// código de 6 dígitos (edge function verificar-correo — con la confirmación
-// de Supabase activada el signup no da tokens y el código es lo que
-// desbloquea el login) y recién entonces puentea la sesión a la app
-// (usapablo.app/auth/sesion?plan=X#tokens): allá la pasarela activa cobra
-// (hoy Flow, widget embebido en /pricing).
+// TODO ocurre acá, sin salir de la página (pedido de Rodrigo 29-jul):
+//   1. cuenta contra Supabase Auth (anon key)
+//   2. código de 6 dígitos (edge function verificar-correo — con la
+//      confirmación de Supabase activada el signup no da tokens y el código
+//      es lo que desbloquea el login)
+//   3. PAGO embebido con el widget de Flow (elements), mismo patrón que
+//      StepCuentaPago del onboarding: flow-suscripcion "checkout" da el token
+//      del registro de tarjeta y "confirmar" crea la suscripción.
+//   4. pagado → /gracias?plan=X (su botón entra a la app ya logueado).
+// El puente a la app (usapablo.app/auth/sesion#tokens) quedó SOLO como
+// respaldo: si el widget no puede montarse o la persona elige "pagar dentro
+// de la app". Los días de prueba salen de TRIAL, con la misma ventana de la
+// promo que usan Step18, StepCuentaPago y el backend.
 // Abrir con: window.abrirCuentaPablo('semanal'|'mensual'|'anual').
 ---
 
@@ -45,6 +52,25 @@
       <button class="cuenta-btn" id="cuenta-verificar" type="submit">Verificar y continuar</button>
       <button type="button" class="cuenta-reenviar" id="cuenta-reenviar">¿No te llegó? Reenviar código</button>
     </form>
+    <!-- Fase 3: pago EN ESTA MISMA PÁGINA (pedido de Rodrigo 29-jul). Mismo
+         patrón del widget embebido de Flow que StepCuentaPago del onboarding:
+         flow-suscripcion "checkout" da el token del registro de tarjeta, el
+         widget se monta acá y "confirmar" crea la suscripción. Ya no se
+         bridgea a la app para cobrar; el fallback sí sigue existiendo. -->
+    <div id="cuenta-pago" hidden>
+      <p class="cuenta-pago-resumen" id="cuenta-pago-resumen">Preparando tu plan…</p>
+      <div class="cuenta-pago-exito" id="cuenta-pago-exito" hidden>
+        <svg viewBox="0 0 56 56" class="cuenta-exito-check" role="img" aria-label="Pago exitoso">
+          <circle cx="28" cy="28" r="26" class="cuenta-exito-circulo" transform="rotate(-90 28 28)"></circle>
+          <path d="M16.5 29.5l8 8 15-16" class="cuenta-exito-palomita"></path>
+        </svg>
+        <p class="cuenta-exito-texto">¡Pago exitoso!</p>
+      </div>
+      <p class="cuenta-pago-estado" id="cuenta-pago-estado">Preparando el pago seguro…</p>
+      <div id="cuenta-pago-widget"></div>
+      <button type="button" class="cuenta-btn" id="cuenta-pago-reintentar" hidden>Reintentar</button>
+      <button type="button" class="cuenta-reenviar" id="cuenta-pago-enapp">Prefiero pagar dentro de la app</button>
+    </div>
     <p class="cuenta-legal">
       Al crear tu cuenta aceptas los
       <a href="/terminos" target="_blank" rel="noopener">Términos</a> y la
@@ -64,6 +90,24 @@
     var ANON = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im1lenBmbmFna3VidW16YnJvbXNoIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjM0NDM3NDMsImV4cCI6MjA3OTAxOTc0M30.HsTSJqkzslq4HWxLlIvuFwudrFzkemHELgsi54vIJDw";
     var APP = "https://usapablo.app";
     var COOLDOWN_S = 60;
+    var FLOW_SCRIPTS = {
+      sandbox: "https://sandbox.flow.cl/app/elements/flow-1.1.0.min.js?20241202",
+      production: "https://www.flow.cl/app/elements/flow-1.1.0.min.js?20241202",
+    };
+    // Días de prueba por plan. La ventana de la Oferta Millonaria es la MISMA
+    // que usan Step18, StepCuentaPago y el backend: mensual 14 días, anual
+    // cobro directo. Fuera de la ventana no cambia nada.
+    var TRIAL = { semanal: 0, mensual: 3, anual: 7 };
+    (function () {
+      var ahora = Date.now();
+      if (
+        ahora >= Date.parse("2026-07-23T20:40:00-05:00") &&
+        ahora < Date.parse("2026-07-30T00:00:00-05:00")
+      ) {
+        TRIAL.mensual = 14;
+        TRIAL.anual = 0;
+      }
+    })();
 
     var overlay = document.getElementById("cuenta-modal");
     if (!overlay) return;
@@ -77,22 +121,31 @@
     var tituloEl = document.getElementById("cuenta-titulo");
     var subEl = document.getElementById("cuenta-sub");
     var loginEl = document.getElementById("cuenta-login");
+    var pagoEl = document.getElementById("cuenta-pago");
+    var pagoResumenEl = document.getElementById("cuenta-pago-resumen");
+    var pagoEstadoEl = document.getElementById("cuenta-pago-estado");
+    var pagoExitoEl = document.getElementById("cuenta-pago-exito");
+    var pagoReintentarEl = document.getElementById("cuenta-pago-reintentar");
+    var pagoEnAppEl = document.getElementById("cuenta-pago-enapp");
 
     var PLANES = {
       semanal: {
         nombre: "Plan Semanal", slug: "semanal",
+        resumen: "Plan Semanal — S/.7 a la semana",
         titulo: "Crea tu cuenta y empieza",
         sub: "Creas tu cuenta y continúas al pago del Plan Semanal (S/.7/semana) de forma 100% segura.",
         label: "Crear cuenta y continuar",
       },
       mensual: {
         nombre: "Plan Mensual", slug: "mensual",
+        resumen: "Plan Mensual — S/.20 al mes",
         titulo: "Crea tu cuenta y empieza gratis",
         sub: "Creas tu cuenta y empiezas tu prueba gratis del Plan Mensual (S/.20/mes). No pagas nada hoy.",
         label: "Crear cuenta y empezar prueba gratis",
       },
       anual: {
         nombre: "Plan Anual", slug: "anual",
+        resumen: "Plan Anual — S/.200 al año",
         titulo: "Crea tu cuenta y activa tu plan",
         sub: "Creas tu cuenta y continúas al pago del Plan Anual (S/.200/año) de forma 100% segura.",
         label: "Crear cuenta y continuar al pago",
@@ -105,6 +158,8 @@
     var tokens = null;
     var cooldownHasta = 0;
     var cooldownTimer = null;
+    var flowScriptPromise = null;
+    var pagoEnCurso = false;
 
     function abrir(plan) {
       planActual = PLANES[plan] ? plan : "anual";
@@ -115,6 +170,13 @@
       if (loginEl) loginEl.href = APP + "/pricing?plan=" + cfg.slug;
       form.hidden = false;
       formCodigo.hidden = true;
+      // Si cerraron el modal a media compra y vuelven a abrirlo, la fase de
+      // pago arranca limpia (widget desmontado, sin estado viejo).
+      if (pagoEl) pagoEl.hidden = true;
+      if (pagoExitoEl) pagoExitoEl.hidden = true;
+      var widgetViejo = document.getElementById("cuenta-pago-widget");
+      if (widgetViejo) widgetViejo.innerHTML = "";
+      pagoEnCurso = false;
       overlay.classList.add("is-open");
       overlay.setAttribute("aria-hidden", "false");
       document.body.style.overflow = "hidden";
@@ -182,8 +244,8 @@
       guardarTokens({ access_token: r.data.access_token, refresh_token: r.data.refresh_token || "" });
       return tokens;
     }
-    /* Al pago en la app (la pasarela activa cobra allá: hoy el widget de Flow
-     * en /pricing). Con sesión entra logueado; sin sesión, flujo clásico. */
+    /* RESPALDO: pagar dentro de la app (la pasarela cobra allá). Se usa solo
+     * si el widget embebido no puede montarse o si la persona lo elige. */
     async function irAlPago() {
       var cfg = PLANES[planActual];
       var s = await asegurarSesion();
@@ -195,6 +257,162 @@
       } else {
         window.location.href = phDid(APP + "/pricing?plan=" + cfg.slug);
       }
+    }
+
+    /* ─── Pago embebido con el widget de Flow, en esta misma página ─── */
+    function pagoEstado(msg, esError) {
+      if (!pagoEstadoEl) return;
+      pagoEstadoEl.textContent = msg || "";
+      pagoEstadoEl.hidden = !msg;
+      pagoEstadoEl.classList.toggle("cuenta-pago-estado--error", Boolean(esError));
+    }
+    function pagoReintentar(visible) {
+      if (pagoReintentarEl) pagoReintentarEl.hidden = !visible;
+    }
+    function pintarResumen() {
+      if (!pagoResumenEl) return;
+      var cfg = PLANES[planActual];
+      var dias = TRIAL[planActual] || 0;
+      pagoResumenEl.textContent =
+        cfg.resumen + (dias > 0
+          ? " · " + dias + " días gratis, cancela cuando quieras"
+          : " · se cobra hoy, cancela cuando quieras");
+    }
+    function cargarFlowScript(entorno) {
+      if (window.Flow) return Promise.resolve();
+      if (!flowScriptPromise) {
+        flowScriptPromise = new Promise(function (resolve, reject) {
+          var s = document.createElement("script");
+          s.src = FLOW_SCRIPTS[entorno] || FLOW_SCRIPTS.sandbox;
+          s.async = true;
+          s.onload = resolve;
+          s.onerror = function () {
+            flowScriptPromise = null;
+            reject(new Error("No se pudo cargar el pago seguro"));
+          };
+          document.head.appendChild(s);
+        });
+      }
+      return flowScriptPromise;
+    }
+    async function flowSuscripcion(body, accessToken) {
+      var res = await fetch(SUPA + "/functions/v1/flow-suscripcion", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          apikey: ANON,
+          Authorization: "Bearer " + accessToken,
+        },
+        body: JSON.stringify(body),
+      });
+      var data = {};
+      try { data = await res.json(); } catch (e) {}
+      data.__status = res.status;
+      return data;
+    }
+    /* Ya pagó: a /gracias (el botón de allá entra a la app logueado con los
+     * tokens que dejamos en sessionStorage). */
+    function alGracias() {
+      window.location.href = "/gracias?plan=" + encodeURIComponent(PLANES[planActual].slug);
+    }
+    /* Ya tenía suscripción activa: no hay nada que cobrar, directo a la app. */
+    async function irALaAppLogueado() {
+      var s = await asegurarSesion();
+      if (s) {
+        window.location.href =
+          phDid(APP + "/auth/sesion") +
+          "#access_token=" + encodeURIComponent(s.access_token) +
+          "&refresh_token=" + encodeURIComponent(s.refresh_token || "");
+      } else {
+        window.location.href = phDid(APP);
+      }
+    }
+
+    function mostrarFasePago() {
+      var cfg = PLANES[planActual];
+      if (tituloEl) tituloEl.textContent = "Activa tu " + cfg.nombre;
+      if (subEl) subEl.textContent = "Último paso: tus datos de pago. Nunca salimos de esta página.";
+      form.hidden = true;
+      formCodigo.hidden = true;
+      if (pagoEl) pagoEl.hidden = false;
+      arrancarPago();
+    }
+
+    async function arrancarPago() {
+      if (pagoEnCurso) return;
+      pagoEnCurso = true;
+      pagoReintentar(false);
+      if (pagoExitoEl) pagoExitoEl.hidden = true;
+      pintarResumen();
+      pagoEstado("Preparando el pago seguro…");
+
+      try {
+        var sesion = await asegurarSesion();
+        if (!sesion) { await irAlPago(); return; }
+
+        var registro = await flowSuscripcion(
+          { accion: "checkout", plan: PLANES[planActual].nombre },
+          sesion.access_token
+        );
+        if (registro.__status === 409) { await irALaAppLogueado(); return; }
+        if (!registro.token || !registro.entorno) {
+          throw new Error(registro.error || "No pudimos iniciar el pago");
+        }
+
+        await cargarFlowScript(registro.entorno);
+        if (typeof window.Flow !== "function") throw new Error("El pago seguro no está disponible");
+
+        var contenedor = document.getElementById("cuenta-pago-widget");
+        if (contenedor) contenedor.innerHTML = "";
+        pagoEstado("");
+
+        var flow = window.Flow();
+        var subscribe = flow.elements().create("subscribe", {
+          style: { backgroundColor: "transparent" },
+        });
+        subscribe.mount("#cuenta-pago-widget", registro.token);
+        // El widget devuelve un "thenable" propio, no una Promise real (su
+        // .then no encadena .catch): Promise.resolve lo asimila.
+        Promise.resolve(flow.handleCardSubscribed(subscribe))
+          .then(async function () {
+            pagoEstado("Confirmando tu suscripción…");
+            var res = await flowSuscripcion({ accion: "confirmar", token: registro.token }, sesion.access_token);
+            if (res && res.ok) {
+              try { window.posthog && window.posthog.capture("cuenta_modal_pago_exitoso", { plan: planActual }); } catch (e) {}
+              if (window.fbq) fbq("trackCustom", "PagoFlowExitoso", { plan: planActual });
+              if (contenedor) contenedor.innerHTML = "";
+              pagoEstado("");
+              if (pagoEnAppEl) pagoEnAppEl.hidden = true;
+              if (pagoExitoEl) pagoExitoEl.hidden = false;
+              setTimeout(alGracias, 1500);
+            } else {
+              pagoEstado((res && res.error) || "El pago no se completó, intenta de nuevo.", true);
+              pagoReintentar(true);
+              pagoEnCurso = false;
+            }
+          })
+          .catch(function (e) {
+            console.error("[Pablo] Widget de Flow:", e);
+            pagoEstado("El pago no se completó, intenta de nuevo.", true);
+            pagoReintentar(true);
+            pagoEnCurso = false;
+          });
+      } catch (e) {
+        console.error("[Pablo] Pago embebido falló:", e);
+        pagoEstado(e && e.message ? e.message : "No pudimos iniciar el pago", true);
+        pagoReintentar(true);
+        pagoEnCurso = false;
+      }
+    }
+
+    if (pagoReintentarEl) {
+      pagoReintentarEl.addEventListener("click", function () {
+        try { window.posthog && window.posthog.capture("cuenta_modal_pago_reintento", { plan: planActual }); } catch (e) {}
+        arrancarPago();
+      });
+    }
+    if (pagoEnAppEl) {
+      pagoEnAppEl.addEventListener("click", function () { irAlPago(); });
     }
 
     function pintarCooldown() {
@@ -265,7 +483,7 @@
         var envio = await verificarCorreo({ accion: "enviar", email: correo });
         if (envio && envio.ya_verificado) {
           btn.textContent = "¡Listo! Un momento…";
-          await irAlPago();
+          mostrarFasePago();
           return;
         }
         try { window.posthog && window.posthog.capture("cuenta_modal_codigo_enviado", { plan: planActual, ok: !!(envio && envio.ok) }); } catch (e3) {}
@@ -291,8 +509,8 @@
       if (res && (res.ok || res.ya_verificado)) {
         try { window.posthog && window.posthog.capture("cuenta_modal_correo_verificado", { plan: planActual }); } catch (e4) {}
         if (window.fbq) fbq("trackCustom", "CorreoVerificado", { plan: planActual });
-        btnVerificar.textContent = "¡Verificado! Llevándote al pago…";
-        await irAlPago();
+        btnVerificar.textContent = "¡Verificado! Un momento…";
+        mostrarFasePago();
         return;
       }
       mostrarError(errorCodigoEl, (res && res.error) || "No pudimos verificar el código, intenta de nuevo.");
@@ -309,7 +527,7 @@
       if (errorCodigoEl) errorCodigoEl.hidden = true;
       arrancarCooldown();
       var res = await verificarCorreo({ accion: "enviar", email: pendiente ? pendiente.email : "" });
-      if (res && res.ya_verificado) { await irAlPago(); return; }
+      if (res && res.ya_verificado) { mostrarFasePago(); return; }
       if (res && res.error) mostrarError(errorCodigoEl, res.error);
       try { window.posthog && window.posthog.capture("cuenta_modal_codigo_reenviado", { plan: planActual, ok: !!(res && res.ok) }); } catch (e5) {}
     });
@@ -434,4 +652,85 @@
   .cuenta-btn:disabled { opacity: 0.65; cursor: wait; transform: none; }
   .cuenta-legal { font-size: 0.75rem; color: var(--color-secondary); margin-top: 12px; line-height: 1.5; }
   .cuenta-legal a { color: var(--color-heading); font-weight: 700; text-decoration: underline; }
+
+  /* ─── Fase 3: pago embebido con el widget de Flow (29-jul) ─── */
+  /* `display:flex` de una clase le gana al `hidden` del user-agent, así que
+     sin esto el check de "¡Pago exitoso!" se vería ANTES de pagar (y la fase
+     de pago, antes de tocarla). El !important lo deja zanjado. */
+  #cuenta-pago[hidden],
+  .cuenta-pago-exito[hidden] {
+    display: none !important;
+  }
+  #cuenta-pago {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    text-align: left;
+  }
+  .cuenta-pago-resumen {
+    margin: 0;
+    background: #fdf3dd;
+    border: 1px solid #f0e2c0;
+    border-radius: 12px;
+    padding: 10px 13px;
+    font-size: 0.82rem;
+    font-weight: 700;
+    color: #7a4f00;
+    line-height: 1.4;
+  }
+  .cuenta-pago-estado {
+    margin: 0;
+    font-size: 0.85rem;
+    font-weight: 600;
+    color: var(--color-body);
+    text-align: center;
+  }
+  .cuenta-pago-estado--error { color: #d64545; }
+  /* El widget de Flow se monta acá; le damos aire y un fondo neutro. */
+  #cuenta-pago-widget:not(:empty) {
+    background: #ffffff;
+    border: 1px solid #e7e3f6;
+    border-radius: 14px;
+    padding: 12px;
+    min-height: 180px;
+  }
+  .cuenta-pago-exito {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 8px;
+    padding: 14px 0 6px;
+  }
+  .cuenta-exito-check { width: 62px; height: 62px; }
+  .cuenta-exito-circulo {
+    fill: none;
+    stroke: #3aa15f;
+    stroke-width: 3;
+    stroke-dasharray: 164;
+    stroke-dashoffset: 164;
+    animation: cuenta-exito-circulo 0.5s ease forwards;
+  }
+  .cuenta-exito-palomita {
+    fill: none;
+    stroke: #3aa15f;
+    stroke-width: 4;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+    stroke-dasharray: 40;
+    stroke-dashoffset: 40;
+    animation: cuenta-exito-palomita 0.32s 0.42s ease forwards;
+  }
+  @keyframes cuenta-exito-circulo { to { stroke-dashoffset: 0; } }
+  @keyframes cuenta-exito-palomita { to { stroke-dashoffset: 0; } }
+  .cuenta-exito-texto {
+    margin: 0;
+    font-family: var(--font-heading);
+    font-weight: 700;
+    font-size: 1.05rem;
+    color: #2c7a4b;
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .cuenta-exito-circulo,
+    .cuenta-exito-palomita { animation-duration: 0.01s; }
+  }
 </style>
