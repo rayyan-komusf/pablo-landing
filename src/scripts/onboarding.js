@@ -38,9 +38,10 @@ const STEP_ORDER = [
   "step-16", // Funciones para ti (checkboxes automáticos)
   "step-17", // Testimonios
   "step-18", // Paywall / prueba gratuita
-  "step-cuenta-nombre", // Registro (1/3): nombre
-  "step-cuenta-correo", // Registro (2/3): correo
-  "step-cuenta-password", // Registro (3/3): contraseña → cuenta + pago en la app
+  "step-cuenta-nombre", // Registro (1/4): nombre
+  "step-cuenta-correo", // Registro (2/4): correo
+  "step-cuenta-password", // Registro (3/4): contraseña → crea la cuenta + envía el código
+  "step-cuenta-codigo", // Registro (4/4): código de verificación → pago en la app
 ];
 
 /** Configuración de topbar por pantalla. */
@@ -74,6 +75,7 @@ const STEP_FLAGS = {
   "step-cuenta-nombre": { showTopbar: true, showSkip: false },
   "step-cuenta-correo": { showTopbar: true, showSkip: false },
   "step-cuenta-password": { showTopbar: true, showSkip: false },
+  "step-cuenta-codigo": { showTopbar: true, showSkip: false },
 };
 
 /** Progreso proporcional real: posición en el flujo lineal. */

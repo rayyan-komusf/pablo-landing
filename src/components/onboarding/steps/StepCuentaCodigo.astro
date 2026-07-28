@@ -1,0 +1,179 @@
+<!-- Registro paso a paso (4/4): verificación del correo por código.
+     El step anterior creó la cuenta y disparó el envío del código de 6
+     dígitos (edge function verificar-correo, correo por Brevo). Aquí el
+     usuario lo escribe; SOLO al verificar pasa al pago (puente de sesión a
+     la app → checkout de la pasarela activa). "Reenviar" con cooldown de 60s
+     (mismo rate limit del backend). -->
+<section class="step !pb-0" data-step="step-cuenta-codigo" aria-label="Verifica tu correo" aria-hidden="true">
+  <div class="fuente-header">
+    <div class="fuente-header__inner">
+      <div class="fuente-pablo">
+        <picture>
+          <source srcset="/onboarding/images/pablo/pablo-anotando.webp" type="image/webp" />
+          <img
+            src="/onboarding/images/pablo/pablo-point.png"
+            alt=""
+            width="140"
+            height="140"
+            loading="lazy"
+          />
+        </picture>
+      </div>
+      <div class="speech-bubble speech-bubble--side">
+        Te envié un código a tu correo. Escríbelo aquí para confirmar que eres tú
+      </div>
+    </div>
+  </div>
+
+  <div class="fuente-body flex-1 flex flex-col w-full mx-auto px-5 max-md:px-4 overflow-y-auto [scrollbar-width:none] [&::-webkit-scrollbar]:hidden vcenter">
+    <div class="cuenta-form">
+      <input
+        id="codigo-input"
+        class="cuenta-input cuenta-input--codigo"
+        type="text"
+        inputmode="numeric"
+        autocomplete="one-time-code"
+        placeholder="······"
+        maxlength="6"
+        oninput="pabloCodigoInput(this)"
+        onkeydown="if(event.key==='Enter')pabloCodigoVerificar()"
+      />
+      <p class="cuenta-hint" id="codigo-hint">Revisa tu bandeja de entrada (y el spam, por si acaso).</p>
+      <p class="cuenta-error" id="codigo-error" role="alert"></p>
+      <button type="button" class="cuenta-link" id="codigo-reenviar" onclick="pabloCodigoReenviar()">
+        ¿No te llegó? Reenviar código
+      </button>
+    </div>
+  </div>
+
+  <footer class="duo-footer cta-footer">
+    <button
+      id="codigo-verificar-btn"
+      class="btn-primary btn-continue disabled"
+      disabled
+      onclick="pabloCodigoVerificar()"
+      aria-label="Verificar mi correo"
+    >
+      Verificar y continuar
+    </button>
+  </footer>
+
+  <script is:inline>
+    (function () {
+      var COOLDOWN_S = 60;
+      var verificando = false;
+      var cooldownHasta = 0;
+      var cooldownTimer = null;
+
+      function correo() {
+        return sessionStorage.getItem("pablo_cuenta_correo") || "tu correo";
+      }
+      function mostrarError(msg) {
+        var el = document.getElementById("codigo-error");
+        if (el) {
+          el.textContent = msg;
+          el.classList.add("visible");
+        }
+      }
+      function limpiarError() {
+        document.getElementById("codigo-error")?.classList.remove("visible");
+      }
+      function setBoton(texto, deshabilitado) {
+        var btn = document.getElementById("codigo-verificar-btn");
+        if (!btn) return;
+        btn.textContent = texto;
+        btn.classList.toggle("disabled", deshabilitado);
+        if (deshabilitado) btn.setAttribute("disabled", "");
+        else btn.removeAttribute("disabled");
+      }
+
+      function pintarCooldown() {
+        var link = document.getElementById("codigo-reenviar");
+        if (!link) return;
+        var falta = Math.ceil((cooldownHasta - Date.now()) / 1000);
+        if (falta > 0) {
+          link.setAttribute("disabled", "");
+          link.textContent = "Reenviar código en " + falta + "s";
+        } else {
+          link.removeAttribute("disabled");
+          link.textContent = "¿No te llegó? Reenviar código";
+          if (cooldownTimer) {
+            clearInterval(cooldownTimer);
+            cooldownTimer = null;
+          }
+        }
+      }
+      function arrancarCooldown() {
+        cooldownHasta = Date.now() + COOLDOWN_S * 1000;
+        if (!cooldownTimer) cooldownTimer = setInterval(pintarCooldown, 1000);
+        pintarCooldown();
+      }
+
+      /* La llama el step de la contraseña al entrar aquí, con el resultado
+       * del primer envío: personaliza el hint y arma el cooldown. */
+      window.pabloCodigoArrancar = function (envio) {
+        var hint = document.getElementById("codigo-hint");
+        if (hint) hint.textContent = "Lo enviamos a " + correo() + ". Revisa también el spam.";
+        if (envio && envio.ok) {
+          arrancarCooldown();
+        } else if (envio && envio.error) {
+          mostrarError(envio.error);
+        }
+      };
+
+      window.pabloCodigoInput = function (el) {
+        el.value = el.value.replace(/\D/g, "").slice(0, 6);
+        limpiarError();
+        var listo = el.value.length === 6;
+        window.onboarding?.gateCta("step-cuenta-codigo", listo);
+        if (listo) el.blur();
+      };
+
+      window.pabloCodigoReenviar = async function () {
+        if (Date.now() < cooldownHasta) return;
+        limpiarError();
+        arrancarCooldown();
+        var res = await window.pabloCuentaVerificarCorreo({ accion: "enviar" });
+        if (res && res.ya_verificado) {
+          window.pabloCuentaIrAlPago();
+          return;
+        }
+        if (res && res.error) {
+          mostrarError(res.error);
+        } else {
+          var hint = document.getElementById("codigo-hint");
+          if (hint) hint.textContent = "Código nuevo enviado a " + correo() + ".";
+        }
+        window.pabloTrack?.("onboarding_codigo_reenviado", { ok: Boolean(res && res.ok) });
+      };
+
+      window.pabloCodigoVerificar = async function () {
+        if (verificando) return;
+        var codigo = document.getElementById("codigo-input")?.value || "";
+        if (!/^\d{6}$/.test(codigo)) {
+          mostrarError("El código son los 6 dígitos del correo.");
+          return;
+        }
+
+        verificando = true;
+        limpiarError();
+        setBoton("Verificando…", true);
+
+        var res = await window.pabloCuentaVerificarCorreo({ accion: "verificar", codigo: codigo });
+        if (res && (res.ok || res.ya_verificado)) {
+          window.pabloTrack?.("onboarding_correo_verificado", {
+            plan: sessionStorage.getItem("pablo_plan_elegido") || "anual",
+          });
+          if (window.fbq) window.fbq("trackCustom", "CorreoVerificado", {});
+          setBoton("¡Verificado! Llevándote al pago seguro…", true);
+          window.pabloCuentaIrAlPago();
+          return;
+        }
+
+        mostrarError((res && res.error) || "No pudimos verificar el código, intenta de nuevo.");
+        verificando = false;
+        setBoton("Verificar y continuar", false);
+      };
+    })();
+  </script>
+</section>

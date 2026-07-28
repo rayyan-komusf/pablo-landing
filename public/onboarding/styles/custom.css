@@ -1584,3 +1584,20 @@ body .topbar > div {
   padding: 4px;
   font-family: inherit;
 }
+.cuenta-link[disabled] {
+  opacity: 0.5;
+  text-decoration: none;
+  cursor: default;
+}
+
+/* Input del código de verificación (step-cuenta-codigo): 6 dígitos grandes. */
+.cuenta-input--codigo {
+  text-align: center;
+  font-size: 26px;
+  font-weight: 700;
+  letter-spacing: 0.45em;
+  text-indent: 0.45em; /* compensa el letter-spacing del último dígito */
+}
+.cuenta-input--codigo::placeholder {
+  letter-spacing: 0.3em;
+}
