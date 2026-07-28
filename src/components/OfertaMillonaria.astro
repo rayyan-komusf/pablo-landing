@@ -7,6 +7,7 @@ import { Image } from 'astro:assets';
 import logoImg from '../assets/Logo.png';
 import { PROMO_MILLONARIA, CHECKOUT_URLS } from '../siteConfig';
 import TestimonialsCarousel from './sections/TestimonialsCarousel.astro';
+import CuentaModal from './CuentaModal.astro';
 import HeroPhone from './sections/HeroPhone.astro';
 
 // `promo` = modo Pablo Promo (Fiestas Patrias): hero con el loop de Pablo y los
@@ -190,7 +191,7 @@ const LOOP = [
   {
     nombre: "Pablo, tu asistente financiero en WhatsApp",
     final: "/promo/00-hero/00-pablo.png",
-    provisional: "/onboarding/images/pablo/pablo-saludando.webp",
+    provisional: "/promo/00-hero/pablo.webp",
     alt: "Pablo saludando",
   },
   {
@@ -199,8 +200,8 @@ const LOOP = [
     icono: "calendario",
     ancla: "#que-es-pablo",
     final: "/promo/00-hero/01-plan-anual.png",
-    provisional: "/onboarding/images/pablo/pablo-wave.png",
-    alt: "Pablo, tu asistente financiero todo el año",
+    provisional: "/promo/00-hero/plan-anual.webp",
+    alt: "Pablo abrazando el celular con su chat de WhatsApp",
     antes: "S/.240",
     ahora: "S/.200",
   },
@@ -212,7 +213,7 @@ const LOOP = [
     ancla: "#el-trato",
     final: "/promo/00-hero/02-reto.png",
     // Ilustración Higgsfield 27-jul (editada sobre el render oficial)
-    provisional: "/promo/02-reto/fisico.webp",
+    provisional: "/promo/02-reto/fisico-cut.webp",
     alt: "Pablo celebrando el reto de 30 días",
     ahora: "Incluido",
   },
@@ -221,7 +222,7 @@ const LOOP = [
     icono: "curso",
     ancla: "#habito-educacion",
     final: "/promo/00-hero/03-curso.png",
-    provisional: "/promo/03-curso/boxset.webp",
+    provisional: "/promo/03-curso/boxset-cut.webp",
     alt: "Pablo estudiando el curso",
     antes: "S/.300",
     ahora: "Incluido",
@@ -231,8 +232,8 @@ const LOOP = [
     icono: "komu",
     ancla: "#la-komu",
     final: "/promo/00-hero/04-komunidad.png",
-    provisional: "/promo/04-komunidad/pase.webp",
-    alt: "Pablo con la comunidad de futuros millonarios",
+    provisional: "/promo/04-komunidad/pase-cut.webp",
+    alt: "El Pase Mensual a La Komunidad",
     antes: "$60 USD",
     ahora: "Incluido",
   },
@@ -241,7 +242,7 @@ const LOOP = [
     icono: "toolkit",
     ancla: "#la-komu",
     final: "/promo/00-hero/05-toolkit.png",
-    provisional: "/promo/05-toolkit/fisico.webp",
+    provisional: "/promo/05-toolkit/fisico-cut.webp",
     alt: "La caja del Toolkit Komunitario",
     ahora: "Incluido",
   },
@@ -250,7 +251,7 @@ const LOOP = [
     icono: "escudo",
     ancla: "#garantia",
     final: "/promo/00-hero/06-garantia.png",
-    provisional: "/promo/06-garantia/fisico.webp",
+    provisional: "/promo/06-garantia/fisico-cut.webp",
     alt: "El certificado de la garantía de 14 días",
     ahora: "Incluida",
   },
@@ -1794,15 +1795,18 @@ const faqs = [
           <!-- La comunidad en persona (pedido 28-jul): jóvenes peruanos
                ambiciosos socializando, al estilo clay de Pablo. -->
           <figure class="om-komu__banner">
+            <!-- REGLA (Rodrigo, 28-jul): la vida real de La Komu se muestra
+                 con material REAL, nunca generado con IA. Este es un frame
+                 de la Masterclass de Networking con Dario Colonia. -->
             <img
-              src="/promo/04-komunidad/miembros.webp"
-              alt="Una sesión en vivo de La Komunidad: el presentador frente a la comunidad conectada"
-              width="1400"
-              height="1045"
+              src="/promo/04-komunidad/clase-networking.webp"
+              alt="Masterclass presencial de Networking con Dario Colonia, en vivo con La Komunidad"
+              width="890"
+              height="336"
               loading="lazy"
               decoding="async"
             />
-            <figcaption>Las clases en vivo de La Komunidad — cada semana, con la comunidad entera.</figcaption>
+            <figcaption>Masterclass de Networking con Dario Colonia — una de las clases en vivo de La Komunidad.</figcaption>
           </figure>
 
           <!-- Reuniones presenciales (pedido 28-jul, 4ta ronda): la comunidad
@@ -2287,9 +2291,10 @@ const faqs = [
     </div>
   )}
 
-  <!-- Los CTA ya NO abren el modal de "crea tu cuenta": son links directos al
-       onboarding (/onboarding?plan=anual&oferta=millonaria). El usuario nuevo
-       hace el flujo y la oferta se le vuelve a presentar en el paywall final. -->
+  <!-- Popup de pago (28-jul): los CTA abren el modal de cuenta + Stripe en
+       la MISMA página (window.abrirCuentaPablo). El href a usapablo.app queda
+       de respaldo por si el modal no cargara. -->
+  <CuentaModal />
 
 <style>
   /* Bonus 1-a-1: nace oculto y se revela solo la noche del webinar. El
@@ -8813,6 +8818,18 @@ const faqs = [
         ev.preventDefault();
         elegirPlan(p.dataset.plan || 'anual');
       }
+    });
+  });
+
+  // ── Popup de pago (28-jul): todo CTA de checkout abre el modal de
+  // cuenta + Stripe EN LA MISMA PÁGINA (CuentaModal expone
+  // window.abrirCuentaPablo). Si el modal no cargó, el link navega normal. ──
+  document.querySelectorAll<HTMLAnchorElement>('a[href*="usapablo.app/pricing"]').forEach((a) => {
+    a.addEventListener('click', (ev) => {
+      const abrir = (window as any).abrirCuentaPablo;
+      if (typeof abrir !== 'function') return;
+      ev.preventDefault();
+      abrir(a.href.includes('plan=mensual') ? 'mensual' : 'anual');
     });
   });
 
