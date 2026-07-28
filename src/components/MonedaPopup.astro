@@ -3,7 +3,7 @@
 // (o 50% de scroll) y con exit-intent en desktop, Pablo ofrece tirar una
 // moneda a cambio de nombre + correo. El volado lo decide la edge function
 // moneda-pablo (50/50 real, determinístico por correo): si gana → código de
-// 5% de descuento para siempre, aplicable a cualquier plan (viaja en
+// 50% de descuento en el primer mes, aplicable a cualquier plan (viaja en
 // usapablo.app/pricing?codigo=… y también llega por correo); si pierde →
 // consuelo: la Plantilla de Presupuesto por correo. Se muestra 1 vez
 // (localStorage); kill-switch remoto con el feature flag `popup-moneda`.
@@ -37,7 +37,7 @@
       />
       <h3 class="mp-titulo">¿Tiramos una moneda?</h3>
       <p class="mp-sub">
-        Si cae de tu lado, te llevas <strong>5% de descuento PARA SIEMPRE</strong>,
+        Si cae de tu lado, te llevas <strong>50% de descuento en tu PRIMER MES</strong>,
         en el plan que quieras. Y si no… igual te llevas nuestra Plantilla de
         Presupuesto. Tú eliges el lado.
       </p>
@@ -102,8 +102,8 @@
       />
       <h3 class="mp-titulo">¡Cayó de tu lado! 🎉</h3>
       <p class="mp-sub mp-sub--ancho">
-        Te ganaste <strong>5% de descuento PARA SIEMPRE</strong>, en el plan
-        que elijas y en cada cobro, de por vida. Este es tu código:
+        Te ganaste <strong>50% de descuento en tu PRIMER MES</strong>, en el
+        plan que elijas (se aplica a tu primer cobro). Este es tu código:
       </p>
       <div class="mp-codigo" id="mp-codigo" aria-live="polite"></div>
       <a class="mp-cta mp-cta--link" id="mp-premio-link" href="https://usapablo.app/pricing">
