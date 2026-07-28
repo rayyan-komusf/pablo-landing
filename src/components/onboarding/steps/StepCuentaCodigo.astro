@@ -133,9 +133,12 @@
         if (Date.now() < cooldownHasta) return;
         limpiarError();
         arrancarCooldown();
-        var res = await window.pabloCuentaVerificarCorreo({ accion: "enviar" });
+        var res = await window.pabloCuentaVerificarCorreo({
+          accion: "enviar",
+          email: sessionStorage.getItem("pablo_cuenta_correo") || "",
+        });
         if (res && res.ya_verificado) {
-          window.pabloCuentaIrAlPago();
+          irAlPago();
           return;
         }
         if (res && res.error) {
@@ -146,6 +149,25 @@
         }
         window.pabloTrack?.("onboarding_codigo_reenviado", { ok: Boolean(res && res.ok) });
       };
+
+      /* Verificado → sesión (login recién desbloqueado si Supabase pedía
+       * confirmación) → pago embebido de Flow AQUÍ en el onboarding. */
+      async function irAlPago() {
+        setBoton("¡Verificado! Preparando tu pago…", true);
+        var sesion = await window.pabloCuentaAsegurarSesion();
+        if (sesion) {
+          window.pabloGoTo?.("step-cuenta-pago");
+          window.pabloPagoArrancar?.();
+        } else {
+          // Sin sesión (p. ej. la cuenta existía con otra contraseña):
+          // flujo clásico con login en la app.
+          window.location.href = window.pabloCuentaConPhDid(
+            window.pabloCuentaAppBase() +
+              "/pricing?plan=" +
+              (sessionStorage.getItem("pablo_plan_elegido") || "anual")
+          );
+        }
+      }
 
       window.pabloCodigoVerificar = async function () {
         if (verificando) return;
@@ -159,14 +181,19 @@
         limpiarError();
         setBoton("Verificando…", true);
 
-        var res = await window.pabloCuentaVerificarCorreo({ accion: "verificar", codigo: codigo });
+        var res = await window.pabloCuentaVerificarCorreo({
+          accion: "verificar",
+          email: sessionStorage.getItem("pablo_cuenta_correo") || "",
+          codigo: codigo,
+        });
         if (res && (res.ok || res.ya_verificado)) {
           window.pabloTrack?.("onboarding_correo_verificado", {
             plan: sessionStorage.getItem("pablo_plan_elegido") || "anual",
           });
           if (window.fbq) window.fbq("trackCustom", "CorreoVerificado", {});
-          setBoton("¡Verificado! Llevándote al pago seguro…", true);
-          window.pabloCuentaIrAlPago();
+          await irAlPago();
+          verificando = false;
+          setBoton("Verificar y continuar", false);
           return;
         }
 

@@ -1,0 +1,229 @@
+<!-- Registro paso a paso (5/5): pago embebido con el widget oficial de Flow
+     (elements), SIN salir del onboarding. Con la sesión ya asegurada por el
+     step del código: flow-suscripcion "checkout" da el token del registro de
+     tarjeta, el widget se monta aquí y "confirmar" crea la suscripción (con
+     el trial de la promo si aplica). Al pagar → puente de sesión a la app
+     (/auth/sesion → dashboard, ya premium). Fallback: pagar en la app. -->
+<section class="step !pb-0" data-step="step-cuenta-pago" aria-label="Pago seguro con Flow" aria-hidden="true">
+  <div class="fuente-header">
+    <div class="fuente-header__inner">
+      <div class="fuente-pablo">
+        <picture>
+          <source srcset="/onboarding/images/pablo/pablo-anotando.webp" type="image/webp" />
+          <img
+            src="/onboarding/images/pablo/pablo-point.png"
+            alt=""
+            width="140"
+            height="140"
+            loading="lazy"
+          />
+        </picture>
+      </div>
+      <div class="speech-bubble speech-bubble--side">
+        ¡Correo verificado! Ahora sí, activemos tu plan
+      </div>
+    </div>
+  </div>
+
+  <div class="fuente-body flex-1 flex flex-col w-full mx-auto px-5 max-md:px-4 overflow-y-auto [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
+    <div class="pago-card">
+      <p class="pago-resumen" id="pago-resumen">Preparando tu plan…</p>
+      <p class="pago-estado" id="pago-estado">Preparando el pago seguro…</p>
+      <div id="pago-widget"></div>
+      <button type="button" class="btn-primary btn-continue" id="pago-reintentar" hidden onclick="pabloPagoReintentar()">
+        Reintentar
+      </button>
+      <button type="button" class="cuenta-link" onclick="pabloCuentaIrAlPago()">
+        Prefiero pagar dentro de la app
+      </button>
+      <p class="pago-nota">🔒 Pago procesado por Flow. Pablo nunca ve tu tarjeta.</p>
+    </div>
+  </div>
+
+  <script is:inline>
+    (function () {
+      var SUPABASE_URL = "https://mezpfnagkubumzbromsh.supabase.co";
+      var SUPABASE_ANON_KEY =
+        "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im1lenBmbmFna3VidW16YnJvbXNoIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjM0NDM3NDMsImV4cCI6MjA3OTAxOTc0M30.HsTSJqkzslq4HWxLlIvuFwudrFzkemHELgsi54vIJDw";
+      var FLOW_SCRIPTS = {
+        sandbox: "https://sandbox.flow.cl/app/elements/flow-1.1.0.min.js?20241202",
+        production: "https://www.flow.cl/app/elements/flow-1.1.0.min.js?20241202",
+      };
+      var NOMBRE_PLAN = { semanal: "Plan Semanal", mensual: "Plan Mensual", anual: "Plan Anual" };
+      var PLANES = {
+        semanal: { texto: "Plan Semanal — S/.7 a la semana", trial: 0 },
+        mensual: { texto: "Plan Mensual — S/.20 al mes", trial: 3 },
+        anual: { texto: "Plan Anual — S/.200 al año", trial: 7 },
+      };
+      // Oferta Millonaria (misma ventana que Step18 y el backend): mensual 14
+      // días, anual cobro directo. Fuera de la ventana no cambia nada.
+      (function () {
+        var ahora = Date.now();
+        if (
+          ahora >= Date.parse("2026-07-23T20:40:00-05:00") &&
+          ahora < Date.parse("2026-07-30T00:00:00-05:00")
+        ) {
+          PLANES.mensual.trial = 14;
+          PLANES.anual.trial = 0;
+        }
+      })();
+
+      var flowScriptPromise = null;
+      var enCurso = false;
+
+      function planSlug() {
+        return sessionStorage.getItem("pablo_plan_elegido") || "anual";
+      }
+      function setEstado(msg, esError) {
+        var el = document.getElementById("pago-estado");
+        if (!el) return;
+        el.textContent = msg || "";
+        el.hidden = !msg;
+        el.classList.toggle("pago-estado--error", Boolean(esError));
+      }
+      function setReintentar(visible) {
+        var btn = document.getElementById("pago-reintentar");
+        if (btn) btn.hidden = !visible;
+      }
+      function pintarResumen() {
+        var p = PLANES[planSlug()] || PLANES.anual;
+        var el = document.getElementById("pago-resumen");
+        if (el) {
+          el.textContent =
+            p.texto +
+            (p.trial > 0
+              ? " · " + p.trial + " días gratis, cancela cuando quieras"
+              : " · se cobra hoy, cancela cuando quieras");
+        }
+      }
+
+      function cargarFlowScript(entorno) {
+        if (window.Flow) return Promise.resolve();
+        if (!flowScriptPromise) {
+          flowScriptPromise = new Promise(function (resolve, reject) {
+            var s = document.createElement("script");
+            s.src = FLOW_SCRIPTS[entorno] || FLOW_SCRIPTS.sandbox;
+            s.async = true;
+            s.onload = resolve;
+            s.onerror = function () {
+              flowScriptPromise = null;
+              reject(new Error("No se pudo cargar el widget de Flow"));
+            };
+            document.head.appendChild(s);
+          });
+        }
+        return flowScriptPromise;
+      }
+
+      async function flowSuscripcion(body, accessToken) {
+        var res = await fetch(SUPABASE_URL + "/functions/v1/flow-suscripcion", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            apikey: SUPABASE_ANON_KEY,
+            Authorization: "Bearer " + accessToken,
+          },
+          body: JSON.stringify(body),
+        });
+        var data = {};
+        try {
+          data = await res.json();
+        } catch (e) {
+          /* respuesta sin body */
+        }
+        data.__status = res.status;
+        return data;
+      }
+
+      /* Éxito (pago confirmado o suscripción ya activa): a la app logueado. */
+      function irALaAppPagado() {
+        var tokens = window.pabloCuentaTokens ? window.pabloCuentaTokens() : {};
+        var base = window.pabloCuentaConPhDid(window.pabloCuentaAppBase() + "/auth/sesion");
+        if (tokens.access_token && tokens.refresh_token) {
+          window.location.href =
+            base +
+            "#access_token=" +
+            encodeURIComponent(tokens.access_token) +
+            "&refresh_token=" +
+            encodeURIComponent(tokens.refresh_token);
+        } else {
+          window.location.href = window.pabloCuentaConPhDid(window.pabloCuentaAppBase());
+        }
+      }
+
+      window.pabloPagoArrancar = async function () {
+        if (enCurso) return;
+        enCurso = true;
+        setReintentar(false);
+        pintarResumen();
+        setEstado("Preparando el pago seguro…");
+
+        try {
+          var sesion = await window.pabloCuentaAsegurarSesion();
+          if (!sesion) {
+            window.pabloCuentaIrAlPago();
+            return;
+          }
+
+          var registro = await flowSuscripcion(
+            { accion: "checkout", plan: NOMBRE_PLAN[planSlug()] || NOMBRE_PLAN.anual },
+            sesion.access_token
+          );
+          if (registro.__status === 409) {
+            // Ya tiene una suscripción activa: nada que cobrar.
+            irALaAppPagado();
+            return;
+          }
+          if (!registro.token || !registro.entorno) {
+            throw new Error(registro.error || "No pudimos iniciar el pago");
+          }
+
+          await cargarFlowScript(registro.entorno);
+          if (typeof window.Flow !== "function") throw new Error("Widget de Flow no disponible");
+
+          var contenedor = document.getElementById("pago-widget");
+          if (contenedor) contenedor.innerHTML = "";
+          setEstado("");
+
+          var flow = window.Flow();
+          var subscribe = flow.elements().create("subscribe", {
+            style: { backgroundColor: "transparent" },
+          });
+          subscribe.mount("#pago-widget", registro.token);
+          flow
+            .handleCardSubscribed(subscribe)
+            .then(async function () {
+              setEstado("Confirmando tu suscripción…");
+              var res = await flowSuscripcion({ accion: "confirmar", token: registro.token }, sesion.access_token);
+              if (res && res.ok) {
+                window.pabloTrack?.("onboarding_pago_flow_exitoso", { plan: planSlug() });
+                if (window.fbq) window.fbq("trackCustom", "PagoFlowExitoso", { plan: planSlug() });
+                setEstado("¡Listo! Entrando a tu cuenta…");
+                irALaAppPagado();
+              } else {
+                setEstado((res && res.error) || "El pago no se completó, intenta de nuevo.", true);
+                setReintentar(true);
+                enCurso = false;
+              }
+            })
+            .catch(function (e) {
+              console.error("[Pablo] Widget de Flow:", e);
+              setEstado("El pago no se completó, intenta de nuevo.", true);
+              setReintentar(true);
+              enCurso = false;
+            });
+        } catch (e) {
+          console.error("[Pablo] Pago embebido falló:", e);
+          setEstado(e && e.message ? e.message : "No pudimos iniciar el pago", true);
+          setReintentar(true);
+          enCurso = false;
+        }
+      };
+
+      window.pabloPagoReintentar = function () {
+        window.pabloTrack?.("onboarding_pago_flow_reintento", { plan: planSlug() });
+        window.pabloPagoArrancar();
+      };
+    })();
+  </script>
+</section>

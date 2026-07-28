@@ -38,10 +38,11 @@ const STEP_ORDER = [
   "step-16", // Funciones para ti (checkboxes automáticos)
   "step-17", // Testimonios
   "step-18", // Paywall / prueba gratuita
-  "step-cuenta-nombre", // Registro (1/4): nombre
-  "step-cuenta-correo", // Registro (2/4): correo
-  "step-cuenta-password", // Registro (3/4): contraseña → crea la cuenta + envía el código
-  "step-cuenta-codigo", // Registro (4/4): código de verificación → pago en la app
+  "step-cuenta-nombre", // Registro (1/5): nombre
+  "step-cuenta-correo", // Registro (2/5): correo
+  "step-cuenta-password", // Registro (3/5): contraseña → crea la cuenta + envía el código
+  "step-cuenta-codigo", // Registro (4/5): código de verificación del correo
+  "step-cuenta-pago", // Registro (5/5): pago embebido con el widget de Flow
 ];
 
 /** Configuración de topbar por pantalla. */
@@ -76,6 +77,7 @@ const STEP_FLAGS = {
   "step-cuenta-correo": { showTopbar: true, showSkip: false },
   "step-cuenta-password": { showTopbar: true, showSkip: false },
   "step-cuenta-codigo": { showTopbar: true, showSkip: false },
+  "step-cuenta-pago": { showTopbar: true, showSkip: false },
 };
 
 /** Progreso proporcional real: posición en el flujo lineal. */
