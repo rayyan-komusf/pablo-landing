@@ -184,8 +184,10 @@ import Layout from "../layouts/Layout.astro";
         // A la página de gracias (pedido 28-jul). Los tokens quedan en
         // sessionStorage: el botón "Abrir la app" de /gracias hace el
         // puente de sesión y entra logueado.
+        // El ?plan= viaja SIEMPRE: /gracias lo usa para el valor del píxel
+        // de conversión (sin él, Meta/TikTok reciben value 0).
         setTimeout(function () {
-          location.replace("/gracias");
+          location.replace("/gracias?plan=" + encodeURIComponent(plan));
         }, 1600);
       } else if (estado === "cancelado") {
         document.getElementById("pago-cancelado").hidden = false;
