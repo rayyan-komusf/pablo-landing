@@ -176,6 +176,14 @@ const VALOR_UNO_A_UNO = "S/.200";
 // basta con poner HERO_ART_LISTO en true.
 const HERO_ART_LISTO = false;
 
+// `antes`/`ahora` alimentan la columna de valor del paquete del hero (28-jul):
+// el Plan Anual lleva su precio real y los bonos dicen "Gratis" con el valor
+// que ya quedó tachado donde existe (curso S/.300 y Komunidad $60 USD, los de
+// los correos C82/C93). El reto y el toolkit no llevan tachado: nunca se
+// cobraron por separado.
+// Los nombres son cortos a propósito (pedido de Rodrigo 28-jul): cada fila del
+// paquete —título incluido— tiene que entrar en UNA sola línea. `icono` apunta
+// al trazo de ICONOS; `sufijo` es la parte del título que móvil esconde.
 const LOOP = [
   {
     nombre: "Pablo, tu asistente financiero en WhatsApp",
@@ -184,44 +192,86 @@ const LOOP = [
     alt: "Pablo saludando",
   },
   {
-    nombre: "Plan Anual de Pablo — 12 meses",
+    nombre: "Plan Anual de Pablo",
+    sufijo: " — 12 meses",
+    icono: "calendario",
+    ancla: "#que-es-pablo",
     final: "/promo/00-hero/01-plan-anual.png",
     provisional: "/onboarding/images/pablo/pablo-wave.png",
     alt: "Pablo, tu asistente financiero todo el año",
+    antes: "S/.240",
+    ahora: "S/.200",
   },
   {
     // "reto de 30 días que te devuelve el 100% de tu plata" (C103)
-    nombre: "Reto de 30 días que te devuelve el 100%",
+    nombre: "Reto de 30 días con reembolso",
+    icono: "reembolso",
+    ancla: "#bono-reto",
     final: "/promo/00-hero/02-reto.png",
     // Ilustración Higgsfield 27-jul (editada sobre el render oficial)
     provisional: "/promo/02-reto/principal.webp",
     alt: "Pablo celebrando el reto de 30 días",
+    ahora: "Gratis",
   },
   {
-    nombre: "Curso “Finanzas de un Futuro Millonario”",
+    nombre: "Curso completo de finanzas",
+    icono: "curso",
+    ancla: "#bono-curso",
     final: "/promo/00-hero/03-curso.png",
     provisional: "/promo/03-curso/principal.webp",
     alt: "Pablo estudiando el curso",
+    antes: "S/.300",
+    ahora: "Gratis",
   },
   {
-    nombre: "Pase Mensual a La Komunidad",
+    nombre: "Pase Mensual a La Komu",
+    icono: "komu",
+    ancla: "#bono-komunidad",
     final: "/promo/00-hero/04-komunidad.png",
     provisional: "/promo/04-komunidad/principal.webp",
     alt: "Pablo con la comunidad de futuros millonarios",
+    antes: "$60 USD",
+    ahora: "Gratis",
   },
   {
     nombre: "Toolkit Komunitario",
+    icono: "toolkit",
+    ancla: "#bono-toolkit",
     final: "/promo/00-hero/05-toolkit.png",
     provisional: "/onboarding/images/pablo/pablo-point.png",
     alt: "Pablo señalando los recursos del toolkit",
+    ahora: "Gratis",
   },
   {
-    nombre: "Garantía de satisfacción de 14 días",
+    nombre: "Garantía de 14 días",
+    icono: "escudo",
+    ancla: "#bono-garantia",
     final: "/promo/00-hero/06-garantia.png",
     provisional: "/onboarding/images/pablo/emotions/pablo-tierno.png",
     alt: "Pablo tranquilo",
+    ahora: "Incluida",
   },
 ].map((f) => ({ ...f, img: HERO_ART_LISTO ? f.final : f.provisional }));
+
+// Anclas de las 5 hojas de bono, en el orden de bonosHoja.
+const ANCLAS_BONOS = ["bono-reto", "bono-curso", "bono-komunidad", "bono-toolkit", "bono-garantia"];
+
+// Mini íconos del paquete: trazos estilo lucide, un color con currentColor.
+// Se inyectan con set:html dentro del <svg> de cada fila.
+const ICONOS: Record<string, string> = {
+  calendario:
+    '<rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/>',
+  reembolso:
+    '<polyline points="1 4 1 10 7 10"/><path d="M3.51 15a9 9 0 1 0 2.13-9.36L1 10"/>',
+  curso:
+    '<path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/>',
+  komu:
+    '<path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/>',
+  toolkit:
+    '<path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z"/>',
+  escudo:
+    '<path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/><polyline points="9 12 11 14 15 10"/>',
+};
 
 // (Las citas verbatim de las entrevistas salieron de la página el 27-jul:
 // el lenguaje de la página responde a esos dolores, pero no se muestran.
@@ -524,19 +574,24 @@ const faqs = [
           <div class="om-hero__cabecera">
             <span class="om-hero__eyebrow">Pablo Promo · Fiestas Patrias</span>
 
-            <!-- Headline elegido por Rodrigo el 28-jul: los números en palabras
-                 se leen como dato y no como oferta, y el contraste (un mensaje
-                 al día ↔ un año entero) carga el trabajo. "Gratis" sigue siendo
-                 su promesa de los correos: el reto de 30 días devuelve el 100%
+            <!-- Headline elegido por Rodrigo el 28-jul (2da ronda): la promesa
+                 de los correos al frente — el reto de 30 días devuelve el 100%
                  ("Pablo te sale gratis todo un año", C82). -->
+            <!-- Los <br class="om-salto-desktop"> fijan el reparto de líneas
+                 en desktop (pedido 28-jul): la fila 1 termina en "WhatsApp." y
+                 la segunda oración va entera en la fila 2; en el kicker la
+                 fila 1 termina en "30 días,". En móvil el salto desaparece y
+                 el texto fluye solo. -->
             <h1 class="om-hero__title om-hero__title--promo">
-              Un mensaje al día. Trescientos sesenta y cinco días de control
-              total sobre tus gastos, <span class="highlight">gratis</span>.
+              Ordena tu plata en <span class="highlight">30 días</span> por
+              WhatsApp.<br class="om-salto-desktop" /> Si cumples el reto,
+              Pablo te sale <span class="highlight">gratis</span> todo el año.
             </h1>
 
             <p class="om-hero__kicker">
-              Un año entero de Pablo, tu asistente financiero en WhatsApp, por
-              S/.200. 12 meses al precio de 10.
+              Paga S/.200 una sola vez, usa Pablo 12 meses y, si tomas el
+              control en 30 días,<br class="om-salto-desktop" /> te devolvemos
+              el 100%. Sin letra chica, sin términos ocultos.
             </p>
           </div>
 
@@ -577,61 +632,71 @@ const faqs = [
             </div>
           </div>
 
-          <!-- ── La oferta: lista + precio, columna derecha del reparto ── -->
+          <!-- ── La oferta: un solo paquete con las 6 cosas y el CTA justo
+               debajo (pedido de Rodrigo 28-jul). El Plan Anual va resaltado
+               con su precio al lado; los bonos dicen Gratis con el tachado
+               donde existe. El que está en el carrusel se enciende. ── -->
           <div class="om-hero__derecha">
-            <!-- El primer frame del loop es Pablo solo (no es un bono), así que
-                 la lista arranca en el segundo: 6 ítems en cajas doradas, y el
-                 que está en pantalla se enciende. La garantía lleva escudo. -->
-            <ul class="om-hero__stack">
+            <!-- Cada fila es un link que baja a su sección de la página
+                 (pedido 28-jul), con hover propio. -->
+            <div class="om-paquete">
               {LOOP.slice(1).map((f, i) => (
-                <li class="om-hero__stack-item" data-loop-item={i + 1}>
-                  {f.nombre.startsWith('Garantía') && (
-                    <svg class="om-escudo" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" aria-hidden="true">
-                      <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" />
-                      <polyline points="9 12 11 14 15 10" />
-                    </svg>
-                  )}
-                  <span>{f.nombre}</span>
-                </li>
+                <a
+                  href={f.ancla}
+                  class:list={['om-paquete__fila', i === 0 && 'om-paquete__fila--principal']}
+                  data-loop-item={i + 1}
+                >
+                  <span class="om-paquete__nombre">
+                    {f.icono && (
+                      <svg class="om-paquete__icono" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true" set:html={ICONOS[f.icono]} />
+                    )}
+                    <span class="om-paquete__texto">
+                      {f.nombre}{f.sufijo && <span class="om-paquete__sufijo">{f.sufijo}</span>}
+                    </span>
+                  </span>
+                  <span class="om-paquete__valor">
+                    {f.antes && <s class="om-paquete__antes">{f.antes}</s>}
+                    <strong class:list={['om-paquete__ahora', f.ahora !== 'S/.200' && 'om-paquete__ahora--bono']}>{f.ahora}</strong>
+                  </span>
+                </a>
               ))}
-            </ul>
+            </div>
 
-            <div class="om-precio om-precio--hero">
-              <s class="om-precio__antes">{VALOR_ANUAL_SIN_PROMO}</s>
-              <strong class="om-precio__ahora">S/.200</strong>
-              <span class="om-precio__nota">por el año entero · tiempo limitado</span>
+            <a
+              href={CHECKOUT_URL}
+              class="om-cta om-hero__cta"
+              id="om-cta-hero"
+              onclick="try{window.posthog?.capture('millonaria_cta_clicked',{location:'hero'})}catch(e){};if(typeof fbq!=='undefined')fbq('trackCustom','Millonaria_CTA',{location:'hero'});"
+            >
+              Quiero ordenar mi plata y empezar el reto
+              <span class="om-cta__flecha" aria-hidden="true">→</span>
+            </a>
+
+            <!-- El countdown y sus dos líneas van pegados al botón (pedido de
+                 Rodrigo 28-jul): así la columna derecha pesa lo mismo que el
+                 carrusel y la primera pantalla queda balanceada. -->
+            <div class="om-hero__cierre">
+              <div class="om-countdown om-countdown--hero" data-deadline={DEADLINE_ISO}>
+                <div class="om-cd__unit"><span class="om-cd__num" data-cd="d">--</span><span class="om-cd__label">días</span></div>
+                <span class="om-cd__sep">:</span>
+                <div class="om-cd__unit"><span class="om-cd__num" data-cd="h">--</span><span class="om-cd__label">horas</span></div>
+                <span class="om-cd__sep">:</span>
+                <div class="om-cd__unit"><span class="om-cd__num" data-cd="m">--</span><span class="om-cd__label">min</span></div>
+                <span class="om-cd__sep">:</span>
+                <div class="om-cd__unit"><span class="om-cd__num" data-cd="s">--</span><span class="om-cd__label">seg</span></div>
+              </div>
+              <p class="om-hero__deadline">
+                Pago único por 1 año. Cancela cuando quieras
+              </p>
+              <p class="om-hero__garantia-mini">
+                <svg class="om-escudo" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" aria-hidden="true">
+                  <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" />
+                  <polyline points="9 12 11 14 15 10" />
+                </svg>
+                Garantía de 14 días
+              </p>
             </div>
           </div>
-          </div>
-
-          <a
-            href={CHECKOUT_URL}
-            class="om-cta om-hero__cta"
-            id="om-cta-hero"
-            onclick="try{window.posthog?.capture('millonaria_cta_clicked',{location:'hero'})}catch(e){};if(typeof fbq!=='undefined')fbq('trackCustom','Millonaria_CTA',{location:'hero'});"
-          >
-            Desbloquea a Pablo
-          </a>
-
-          <div class="om-hero__cierre">
-            <div class="om-countdown om-countdown--hero" data-deadline={DEADLINE_ISO}>
-              <div class="om-cd__unit"><span class="om-cd__num" data-cd="d">--</span><span class="om-cd__label">días</span></div>
-              <span class="om-cd__sep">:</span>
-              <div class="om-cd__unit"><span class="om-cd__num" data-cd="h">--</span><span class="om-cd__label">horas</span></div>
-              <span class="om-cd__sep">:</span>
-              <div class="om-cd__unit"><span class="om-cd__num" data-cd="m">--</span><span class="om-cd__label">min</span></div>
-              <span class="om-cd__sep">:</span>
-              <div class="om-cd__unit"><span class="om-cd__num" data-cd="s">--</span><span class="om-cd__label">seg</span></div>
-            </div>
-            <p class="om-hero__deadline">
-              La promo cierra el {DEADLINE_TEXTO} a las 11:59 p.m. (hora Perú)
-            </p>
-            <!-- Reversión de riesgo arriba del pliegue: la objeción más
-                 grande es S/.200 de golpe, y se responde antes del clic. -->
-            <ul class="om-hero__trust-row">
-              <li>Garantía de 14 días</li>
-              <li>Cancelas cuando quieras</li>
-            </ul>
           </div>
         </div>
       </section>
@@ -730,7 +795,7 @@ const faqs = [
          teléfono es el mock de HeroPhone: HTML y CSS, no imagen, así que se ve
          nítido en cualquier pantalla y muestra el producto funcionando. -->
     {promo && (
-      <section class="om-quees">
+      <section class="om-quees" id="que-es-pablo">
         <div class="container om-quees__inner">
           <div class="om-quees__texto">
             <!-- H2 verbatim de C103: "por eso construí a Pablo: para que ver
@@ -967,7 +1032,7 @@ const faqs = [
          CTA) — como tarjetas rectangulares verticales con el visual arriba. -->
     {bonosHoja.map((b, i) => (
       <Fragment>
-        <section class={`om-bono2${i % 2 === 1 ? ' om-bono2--alt' : ''}`}>
+        <section class={`om-bono2${i % 2 === 1 ? ' om-bono2--alt' : ''}`} id={ANCLAS_BONOS[i]}>
           <div class="container om-bono2__inner">
             <!-- Tarjeta A: el buildup -->
             <article class="om-bono2__card">
@@ -3033,22 +3098,34 @@ const faqs = [
     box-shadow: 0 2px 8px rgba(229, 155, 35, 0.35);
   }
 
-  /* El headline del 28-jul es largo a propósito (los números en palabras). El
-     max-width lo parte en dos líneas parejas en vez de dejarlo llegar al borde
-     de la pantalla, que se lee como un párrafo y no como un titular.
-     Va anidado bajo .om-hero--promo porque más abajo hay un `.om-hero__title`
-     suelto (el del hero viejo) que si no le gana por orden de documento. */
+  /* Titular ancho (pedido 28-jul): el reparto de líneas en desktop lo fija el
+     <br class="om-salto-desktop"> del markup — fila 1 hasta "WhatsApp.", fila
+     2 la oración entera — así que el tope de fuente está calibrado para que
+     la fila 2 (la más larga) entre sin partirse. Va anidado bajo
+     .om-hero--promo porque más abajo hay un `.om-hero__title` suelto (el del
+     hero viejo) que si no le gana por orden de documento. */
   .om-hero--promo .om-hero__title--promo {
-    font-size: clamp(26px, 3.2vw, 40px);
-    line-height: 1.12;
+    font-size: clamp(26px, 3.1vw, 38px);
+    line-height: 1.14;
     text-align: center;
-    max-width: 24ch;
+    max-width: none;
     margin-inline: auto;
+    text-wrap: balance;
+  }
+
+  /* El resaltador global es beige tímido; acá el "30 días" y el "gratis" van
+     en el amarillo de la campaña (pedido 28-jul). */
+  .om-hero__title--promo .highlight::after {
+    background: rgba(242, 184, 75, 0.45);
+    height: 44%;
   }
 
   .om-hero--promo .om-hero__kicker {
     text-align: center;
-    max-width: 52ch;
+    max-width: none;
+    font-size: clamp(14.5px, 1.3vw, 18.5px);
+    line-height: 1.55;
+    text-wrap: balance;
   }
 
   /* ── El carrusel vertical ── */
@@ -3152,51 +3229,109 @@ const faqs = [
     background: linear-gradient(180deg, #f2b84b, #e59b23);
   }
 
-  /* ── El stack: las 6 cosas que entran, cada una en su caja dorada ── */
-  .om-hero__stack {
-    list-style: none;
-    margin: 0;
-    padding: 0;
-    display: flex;
-    flex-direction: column;
-    gap: 6px;
+  /* ── El paquete: las 6 cosas en UNA sola tarjeta (pedido de Rodrigo 28-jul),
+     con el Plan Anual resaltado y su precio al lado; los bonos dicen Gratis.
+     La fila que está en el carrusel se enciende en dorado. ── */
+  .om-paquete {
     width: 100%;
-  }
-
-  .om-hero__stack-item {
-    display: flex;
-    align-items: center;
-    gap: 10px;
-    font-size: 14px;
-    line-height: 1.35;
-    color: var(--color-heading);
     background: #ffffff;
     border: 1.5px solid #f0d9a8;
-    border-radius: 12px;
-    padding: 9px 14px;
-    transition: border-color 0.3s ease, background 0.3s ease, box-shadow 0.3s ease;
+    border-radius: 16px;
+    overflow: hidden;
+    box-shadow: 0 8px 24px -12px rgba(76, 46, 133, 0.18);
   }
 
-  .om-hero__stack-item::before {
-    content: '';
-    width: 7px;
-    height: 7px;
-    border-radius: 50%;
-    background: #e8d5a8;
-    flex-shrink: 0;
-    transition: background 0.3s ease, transform 0.3s ease;
+  /* Cada fila entra en UNA sola línea (pedido 28-jul): nombres cortos en los
+     datos + nowrap acá + tamaños fluidos para los anchos apretados. Es un
+     <a> que baja a la sección de ese bono, con su hover propio. */
+  .om-paquete__fila {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 10px;
+    padding: 10px 16px;
+    font-size: clamp(12.5px, 0.35vw + 10px, 14px);
+    line-height: 1.35;
+    color: var(--color-heading);
+    text-decoration: none;
+    white-space: nowrap;
+    transition: background 0.3s ease;
   }
 
-  .om-hero__stack-item.is-active {
-    font-weight: 700;
-    border-color: var(--color-amber);
+  .om-paquete__fila:hover {
     background: #fdf6e7;
-    box-shadow: 0 2px 10px rgba(229, 155, 35, 0.18);
   }
 
-  .om-hero__stack-item.is-active::before {
-    background: var(--color-amber);
-    transform: scale(1.5);
+  .om-paquete__fila:hover .om-paquete__nombre {
+    transform: translateX(3px);
+  }
+
+  .om-paquete__fila:hover .om-paquete__icono {
+    transform: scale(1.15);
+  }
+
+  .om-paquete__fila + .om-paquete__fila {
+    border-top: 1px solid #f6ecd4;
+  }
+
+  .om-paquete__fila.is-active {
+    background: #fdf6e7;
+  }
+
+  /* El Plan Anual es lo que se compra: fila más alta, en negrita y con fondo
+     dorado suave permanente. */
+  .om-paquete__fila--principal {
+    padding: 14px 16px;
+    font-size: clamp(13.5px, 0.4vw + 10.5px, 15.5px);
+    font-weight: 700;
+    background: linear-gradient(135deg, #fdf3dd, #fbeecd);
+  }
+
+  .om-paquete__fila--principal.is-active,
+  .om-paquete__fila--principal:hover {
+    background: linear-gradient(135deg, #fdf0d2, #fae7ba);
+  }
+
+  .om-paquete__nombre {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    min-width: 0;
+    transition: transform 0.2s ease;
+  }
+
+  .om-paquete__icono {
+    flex-shrink: 0;
+    color: #b98a1e;
+    transition: transform 0.2s ease;
+  }
+
+  .om-paquete__valor {
+    display: flex;
+    align-items: baseline;
+    gap: 7px;
+    flex-shrink: 0;
+  }
+
+  .om-paquete__antes {
+    font-size: clamp(10.5px, 0.25vw + 9px, 12px);
+    font-weight: 600;
+    color: var(--color-secondary);
+    text-decoration-thickness: 1.5px;
+  }
+
+  .om-paquete__ahora {
+    font-family: var(--font-heading);
+    font-weight: 700;
+    font-size: clamp(16px, 0.5vw + 13px, 19px);
+    color: var(--color-heading);
+  }
+
+  .om-paquete__ahora--bono {
+    font-size: clamp(11px, 0.3vw + 9px, 13px);
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    color: #1f9d55;
   }
 
   /* Escudo de la garantía (pedido de Rodrigo 27-jul) */
@@ -3206,18 +3341,26 @@ const faqs = [
     margin-right: -4px;
   }
 
-  /* Precio al pie de la columna derecha, centrado bajo la lista */
-  .om-precio--hero {
-    margin-top: 6px;
-  }
-
-  .om-precio--hero .om-precio__ahora {
-    font-size: clamp(44px, 5.6vw, 60px);
-  }
-
+  /* CTA pegado al paquete, a todo el ancho de la columna y en UNA sola fila:
+     tamaño fluido y tracking más corto para que el texto nunca se parta. La
+     flecha se desliza un poco al pasar el mouse. */
   .om-hero--promo .om-hero__cta {
     width: 100%;
-    max-width: 380px;
+    max-width: none;
+    white-space: nowrap;
+    font-size: clamp(11px, 1.05vw, 14px);
+    letter-spacing: 0.04em;
+    padding: 15px 14px;
+  }
+
+  .om-cta__flecha {
+    display: inline-block;
+    margin-left: 8px;
+    transition: transform 0.25s ease;
+  }
+
+  .om-hero__cta:hover .om-cta__flecha {
+    transform: translateX(5px);
   }
 
   .om-hero--promo .om-hero__cierre {
@@ -3225,10 +3368,30 @@ const faqs = [
     width: 100%;
   }
 
-  .om-hero--promo .om-hero__deadline,
-  .om-hero--promo .om-hero__trust-row {
+  .om-hero--promo .om-hero__deadline {
     text-align: center;
+  }
+
+  /* Los destinos de las anclas del paquete respiran al llegar por scroll. */
+  .om-quees,
+  .om-bono2 {
+    scroll-margin-top: 28px;
+  }
+
+  /* Frasecita chica con escudo bajo el countdown */
+  .om-hero__garantia-mini {
+    display: flex;
+    align-items: center;
     justify-content: center;
+    gap: 6px;
+    font-size: 12px;
+    font-weight: 600;
+    color: var(--color-body);
+    margin: 0;
+  }
+
+  .om-hero__garantia-mini .om-escudo {
+    margin-right: 0;
   }
 
   /* ── Móvil (<760px; de ahí para arriba ya entra el reparto en dos
@@ -3276,10 +3439,15 @@ const faqs = [
 
     /* Sin tope de caracteres en móvil (el ancho de pantalla ya lo parte) y un
        punto más chico: el headline largo del 28-jul ocupaba 4 líneas y empujaba
-       el botón bajo el pliegue. */
+       el botón bajo el pliegue. El salto fijo de desktop desaparece: acá el
+       texto fluye solo. */
     .om-hero--promo .om-hero__title--promo {
       font-size: clamp(21px, 5.6vw, 27px);
       max-width: none;
+    }
+
+    .om-salto-desktop {
+      display: none;
     }
 
     /* El kicker se queda en móvil aunque apriete: es lo único arriba del
@@ -3289,37 +3457,59 @@ const faqs = [
       font-size: 13.5px;
     }
 
-    /* En móvil las cajas doradas van en 2 columnas compactas: 6 cajas en
-       columna empujaban el botón bajo el pliegue. */
-    .om-hero__stack {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      max-width: 360px;
-      gap: 5px;
+    /* El paquete se aprieta en móvil: filas más bajas y letra más chica, para
+       que las 6 quepan EN UNA LÍNEA y el botón no caiga bajo el pliegue. El
+       "— 12 meses" del título se esconde: es lo único que no entra. */
+    .om-hero__derecha {
+      width: 100%;
     }
 
-    .om-hero__stack-item {
-      font-size: 11.5px;
-      line-height: 1.3;
-      text-align: left;
-      padding: 7px 9px;
-      border-radius: 10px;
-      gap: 7px;
+    .om-paquete__fila {
+      padding: 8px 12px;
+      font-size: 12.5px;
+      gap: 8px;
     }
 
-    .om-hero__stack-item::before {
-      width: 6px;
-      height: 6px;
+    .om-paquete__fila--principal {
+      padding: 11px 12px;
+      font-size: 13.5px;
     }
 
-    .om-precio--hero .om-precio__ahora {
-      font-size: 48px;
+    .om-paquete__sufijo {
+      display: none;
     }
 
-    .om-precio--hero .om-precio__antes {
-      font-size: 17px;
+    .om-paquete__nombre {
+      gap: 6px;
     }
 
+    .om-paquete__icono {
+      width: 13px;
+      height: 13px;
+    }
+
+    .om-paquete__ahora {
+      font-size: 16px;
+    }
+
+    .om-paquete__ahora--bono {
+      font-size: 11px;
+    }
+
+    .om-paquete__antes {
+      font-size: 11px;
+    }
+
+    /* El CTA también en una sola fila en móvil. */
+    .om-hero--promo .om-hero__cta {
+      font-size: clamp(10px, 3.1vw, 12.5px);
+      letter-spacing: 0.02em;
+      padding: 13px 10px;
+    }
+
+    .om-cta__flecha {
+      margin-left: 6px;
+    }
   }
 
   /* Pantallas cortas de verdad (iPhone SE y similares): acá sí sobra el kicker,
@@ -3331,10 +3521,6 @@ const faqs = [
 
     .om-loop__ventana {
       max-width: min(120px, 34vw);
-    }
-
-    .om-precio--hero .om-precio__ahora {
-      font-size: 42px;
     }
   }
 
