@@ -524,12 +524,14 @@ const faqs = [
           <div class="om-hero__cabecera">
             <span class="om-hero__eyebrow">Pablo Promo · Fiestas Patrias</span>
 
-            <!-- El headline volvió a la versión del 26-jul (pedido de Rodrigo
-                 27-jul: "el headline regrese a como estaba antes"). "Si haces
-                 tu parte, te sale gratis" = su promesa de los correos ("Pablo
-                 te sale gratis todo un año... depende 100% de ti", C82). -->
+            <!-- Headline elegido por Rodrigo el 28-jul: los números en palabras
+                 se leen como dato y no como oferta, y el contraste (un mensaje
+                 al día ↔ un año entero) carga el trabajo. "Gratis" sigue siendo
+                 su promesa de los correos: el reto de 30 días devuelve el 100%
+                 ("Pablo te sale gratis todo un año", C82). -->
             <h1 class="om-hero__title om-hero__title--promo">
-              Este año sí. Y si haces tu parte, <span class="highlight">te sale gratis</span>.
+              Un mensaje al día. Trescientos sesenta y cinco días de control
+              total sobre tus gastos, <span class="highlight">gratis</span>.
             </h1>
 
             <p class="om-hero__kicker">
@@ -3031,10 +3033,17 @@ const faqs = [
     box-shadow: 0 2px 8px rgba(229, 155, 35, 0.35);
   }
 
-  .om-hero__title--promo {
-    font-size: clamp(28px, 3.4vw, 42px);
+  /* El headline del 28-jul es largo a propósito (los números en palabras). El
+     max-width lo parte en dos líneas parejas en vez de dejarlo llegar al borde
+     de la pantalla, que se lee como un párrafo y no como un titular.
+     Va anidado bajo .om-hero--promo porque más abajo hay un `.om-hero__title`
+     suelto (el del hero viejo) que si no le gana por orden de documento. */
+  .om-hero--promo .om-hero__title--promo {
+    font-size: clamp(26px, 3.2vw, 40px);
     line-height: 1.12;
     text-align: center;
+    max-width: 24ch;
+    margin-inline: auto;
   }
 
   .om-hero--promo .om-hero__kicker {
@@ -3265,8 +3274,12 @@ const faqs = [
       padding: 12px;
     }
 
-    .om-hero__title--promo {
-      font-size: clamp(25px, 7vw, 32px);
+    /* Sin tope de caracteres en móvil (el ancho de pantalla ya lo parte) y un
+       punto más chico: el headline largo del 28-jul ocupaba 4 líneas y empujaba
+       el botón bajo el pliegue. */
+    .om-hero--promo .om-hero__title--promo {
+      font-size: clamp(21px, 5.6vw, 27px);
+      max-width: none;
     }
 
     /* El kicker se queda en móvil aunque apriete: es lo único arriba del
