@@ -28,6 +28,26 @@
   <div class="fuente-body flex-1 flex flex-col w-full mx-auto px-5 max-md:px-4 overflow-y-auto [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
     <div class="pago-card">
       <p class="pago-resumen" id="pago-resumen">Preparando tu plan…</p>
+      <!-- Éxito: check verde animado (estilo iOS) antes de entrar a la app. -->
+      <div class="pago-exito" id="pago-exito" hidden>
+        <svg viewBox="0 0 56 56" class="pago-exito-check" role="img" aria-label="Pago exitoso">
+          <circle cx="28" cy="28" r="26" class="pago-exito-circulo" transform="rotate(-90 28 28)"></circle>
+          <path d="M16.5 29.5l8 8 15-16" class="pago-exito-palomita"></path>
+        </svg>
+        <p class="pago-exito-texto">¡Pago exitoso!</p>
+        <p class="pago-estado">Entrando a tu cuenta…</p>
+      </div>
+      <!-- Fallo: Pablito triste acompaña el mensaje de error. -->
+      <img
+        id="pago-triste"
+        class="pago-triste"
+        src="/onboarding/images/pablo/emotions/pablo-triste.png"
+        alt=""
+        width="96"
+        height="96"
+        loading="lazy"
+        hidden
+      />
       <p class="pago-estado" id="pago-estado">Preparando el pago seguro…</p>
       <div id="pago-widget"></div>
       <button type="button" class="btn-primary btn-continue" id="pago-reintentar" hidden onclick="pabloPagoReintentar()">
@@ -80,6 +100,17 @@
         el.textContent = msg || "";
         el.hidden = !msg;
         el.classList.toggle("pago-estado--error", Boolean(esError));
+        // Pablito triste acompaña los errores.
+        var triste = document.getElementById("pago-triste");
+        if (triste) triste.hidden = !esError;
+      }
+      function mostrarExito() {
+        var widget = document.getElementById("pago-widget");
+        if (widget) widget.innerHTML = "";
+        setEstado("");
+        setReintentar(false);
+        var exito = document.getElementById("pago-exito");
+        if (exito) exito.hidden = false;
       }
       function setReintentar(visible) {
         var btn = document.getElementById("pago-reintentar");
@@ -155,6 +186,8 @@
         if (enCurso) return;
         enCurso = true;
         setReintentar(false);
+        var exito = document.getElementById("pago-exito");
+        if (exito) exito.hidden = true;
         pintarResumen();
         setEstado("Preparando el pago seguro…");
 
@@ -199,8 +232,9 @@
               if (res && res.ok) {
                 window.pabloTrack?.("onboarding_pago_flow_exitoso", { plan: planSlug() });
                 if (window.fbq) window.fbq("trackCustom", "PagoFlowExitoso", { plan: planSlug() });
-                setEstado("¡Listo! Entrando a tu cuenta…");
-                irALaAppPagado();
+                // Check animado un instante antes de entrar a la app.
+                mostrarExito();
+                setTimeout(irALaAppPagado, 1600);
               } else {
                 setEstado((res && res.error) || "El pago no se completó, intenta de nuevo.", true);
                 setReintentar(true);
