@@ -82,8 +82,8 @@ const stack = [
     valorReal: "",
     incluido: "100% de reembolso",
     cta: "Reclamar mi Pablo Promo",
-    img: "/onboarding/images/pablo/emotions/pablo-emocionado.png",
-    alt: "Pablo celebrando el reto de 30 días",
+    img: "/promo/02-reto/fisico.webp",
+    alt: "El calendario físico del Reto 30 Días con sus checks dorados",
     // C93 verbatim: "el problema nunca fue que te falten ganas..."
     desc:
       "El problema nunca fue que te falten ganas: es que nadie te acompaña en " +
@@ -140,8 +140,8 @@ const stack = [
     valorReal: "",
     incluido: "Dentro de La Komunidad",
     cta: "Reclamar mi Pablo Promo",
-    img: "/onboarding/images/pablo/pablo-point.png",
-    alt: "Pablo señalando los recursos",
+    img: "/promo/05-toolkit/fisico.webp",
+    alt: "La caja del Toolkit Komunitario con sus recursos",
     // C82/C93 verbatim: "+10 recursos de finanzas e inversiones"
     desc: "+10 recursos de finanzas e inversiones, listos para usar.",
     bullets: [],
@@ -152,8 +152,8 @@ const stack = [
     valorReal: "",
     incluido: "Incluida",
     cta: "Reclamar mi Pablo Promo",
-    img: "/onboarding/images/pablo/emotions/pablo-tierno.png",
-    alt: "Pablo tranquilo",
+    img: "/promo/06-garantia/fisico.webp",
+    alt: "El certificado de la garantía de 14 días",
     // C82/C93 verbatim: "si no es para ti, te devuelvo tu plata sin preguntas"
     desc: "Si no es para ti, te devolvemos tu plata sin preguntas.",
     bullets: [],
@@ -1295,8 +1295,9 @@ const faqs = [
         </div>
 
         <!-- Segundo CTA de la página (pedido 28-jul): justo después de
-             conocer a Pablo y su loop, antes de la carta. -->
-        <div class="om-quees__cta-wrap">
+             conocer a Pablo y su loop, antes de la carta. Va DENTRO de un
+             container: sin él, en móvil el botón pegaba los bordes. -->
+        <div class="container om-quees__cta-wrap">
           <a
             href={CHECKOUT_URL}
             class="om-cta om-cta--xl"
@@ -1594,7 +1595,7 @@ const faqs = [
                          (video de la clase en La Komu). -->
                     <div class="om-lap" aria-hidden="true">
                       <div class="om-lap__pantalla om-lap__pantalla--foto">
-                        <img src="/promo/03-curso/clase-real.webp" alt="Rodrigo dictando la Sesión 1 del curso en La Komu" width="640" height="360" loading="lazy" decoding="async" />
+                        <img src="/promo/03-curso/clase-real.webp" alt="Rodrigo dictando la Sesión 1: lo que vamos a resolver — disciplina financiera, quedarte en cero, ahorrar sin torturarte" width="640" height="360" loading="lazy" decoding="async" />
                       </div>
                       <div class="om-lap__base"></div>
                     </div>
@@ -1782,10 +1783,10 @@ const faqs = [
                ambiciosos socializando, al estilo clay de Pablo. -->
           <figure class="om-komu__banner">
             <img
-              src="/promo/04-komunidad/jovenes.webp"
-              alt="Jóvenes de la comunidad conversando alrededor de una mesa, con Pablo entre ellos"
-              width="1100"
-              height="820"
+              src="/promo/04-komunidad/miembros.webp"
+              alt="Una sesión en vivo de La Komunidad: el presentador frente a la comunidad conectada"
+              width="1400"
+              height="1045"
               loading="lazy"
               decoding="async"
             />
@@ -7620,14 +7621,21 @@ const faqs = [
     transform: perspective(1400px) rotateY(4deg);
   }
 
+  /* Sin aspect-ratio fijo (fix 28-jul): con 16/10 el contenido de la app se
+     recortaba ("paneles intercortados"); ahora la pantalla crece con su
+     contenido y nada se corta en ningún ancho. */
   .om-lap__pantalla {
     background: #0e0f28;
     border: 3px solid #2e2f5e;
     border-bottom: 0;
     border-radius: 16px 16px 0 0;
     padding: 9px 9px 0;
-    aspect-ratio: 16 / 10;
+    min-height: 150px;
     overflow: hidden;
+  }
+
+  .om-lap__pantalla--foto {
+    aspect-ratio: 16 / 10;
   }
 
   .om-lap__pantalla--foto {
