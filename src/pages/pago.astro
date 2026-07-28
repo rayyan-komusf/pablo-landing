@@ -23,7 +23,7 @@ import Layout from "../layouts/Layout.astro";
     <section class="pago-card" id="pago-exito" hidden>
       <img src="/onboarding/images/pablo/emotions/pablo-emocionado.png" alt="" width="140" height="140" />
       <h1>¡Pago confirmado!</h1>
-      <p>Tu cuenta premium está lista. Te estamos llevando a Pablo…</p>
+      <p>Tu cuenta premium está lista. Preparando tu bienvenida…</p>
       <div class="pago-spinner" aria-hidden="true"></div>
     </section>
 
@@ -181,8 +181,12 @@ import Layout from "../layouts/Layout.astro";
       if (estado === "exito") {
         document.getElementById("pago-exito").hidden = false;
         track("pago_stripe_exitoso", { plan: plan });
-        // Un momento para leer el mensaje y a la app, ya logueado.
-        setTimeout(irALaApp, 2000);
+        // A la página de gracias (pedido 28-jul). Los tokens quedan en
+        // sessionStorage: el botón "Abrir la app" de /gracias hace el
+        // puente de sesión y entra logueado.
+        setTimeout(function () {
+          location.replace("/gracias");
+        }, 1600);
       } else if (estado === "cancelado") {
         document.getElementById("pago-cancelado").hidden = false;
         track("pago_stripe_cancelado", { plan: plan });

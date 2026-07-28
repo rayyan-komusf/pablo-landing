@@ -15,4 +15,33 @@ import ThankYou from '../../components/ThankYou.astro';
     <ThankYou />
   </main>
   <Footer />
+
+  <script is:inline>
+    // Puente de sesión (28-jul): si venimos del pago con tokens guardados
+    // (los deja el flujo de /pago en sessionStorage), "Abrir la app" entra
+    // ya logueado en usapablo.app.
+    (function () {
+      var btn = document.getElementById("gracias-app-btn");
+      if (!btn) return;
+      var t = null;
+      try {
+        t = JSON.parse(sessionStorage.getItem("pablo_sesion_tokens") || "null");
+      } catch (e) {
+        /* sin storage */
+      }
+      if (!t || !t.access_token || !t.refresh_token) return;
+      var base = /^(localhost|127\.0\.0\.1|192\.168\.)/.test(location.hostname)
+        ? "http://localhost:8080"
+        : "https://usapablo.app";
+      btn.href =
+        base +
+        "/auth/sesion#access_token=" +
+        encodeURIComponent(t.access_token) +
+        "&refresh_token=" +
+        encodeURIComponent(t.refresh_token);
+      btn.addEventListener("click", function () {
+        sessionStorage.removeItem("pablo_sesion_tokens");
+      });
+    })();
+  </script>
 </Layout>

@@ -189,12 +189,6 @@ const HERO_ART_LISTO = false;
 // al trazo de ICONOS; `sufijo` es la parte del título que móvil esconde.
 const LOOP = [
   {
-    nombre: "Pablo, tu asistente financiero en WhatsApp",
-    final: "/promo/00-hero/00-pablo.png",
-    provisional: "/promo/00-hero/pablo.webp",
-    alt: "Pablo saludando",
-  },
-  {
     nombre: "Plan Anual de Pablo",
     sufijo: " — 12 meses",
     icono: "calendario",
@@ -904,11 +898,11 @@ const faqs = [
                          Anual ya NO va como fila: el head de la tarjeta lo
                          dice (nombre + precio), así que solo van los bonos. -->
                     <div class="om-paquete">
-                      {LOOP.slice(2).map((f, i) => (
+                      {LOOP.slice(1).map((f, i) => (
                         <a
                           href={f.ancla}
                           class="om-paquete__fila"
-                          data-loop-item={i + 2}
+                          data-loop-item={i + 1}
                         >
                           <span class="om-paquete__nombre">
                             {f.icono && (
@@ -8158,17 +8152,16 @@ const faqs = [
      También al final a propósito: a igual especificidad, gana.
      ══════════════════════════════════════════════════════════════════ */
 
-  /* ─── 1. La franja "visto en": lila → blanco → lila, y el dolor recibe
-         con su propio degradado para que no haya ningún corte duro. ─── */
+  /* ─── 1. La franja "visto en": SIN fondo blanco (pedido 28-jul, 6ta
+         ronda) — lila plano continuando el hero; los logos (PNG con fondo
+         blanco propio) se funden con mix-blend multiply. ─── */
   .om-visto {
-    background: linear-gradient(
-      180deg,
-      #f2f0fa 0%,
-      #ffffff 34%,
-      #ffffff 66%,
-      #f2f0fa 100%
-    );
-    padding: 46px 0 46px;
+    background: #f2f0fa;
+    padding: 40px 0 40px;
+  }
+
+  .om-visto__logos img {
+    mix-blend-mode: multiply;
   }
 
   .om-dolor {
@@ -8739,18 +8732,36 @@ const faqs = [
     }
   }
 
-  /* ─── 22. El stack sin cajitas blancas: los objetos flotan recortados ─── */
+  /* ─── 22. El stack sin cajitas blancas: los objetos flotan recortados,
+         GRANDES (pedido 28-jul, 6ta ronda). ─── */
   .om-stackf__media {
     background: transparent;
     border-radius: 0;
-    width: 64px;
-    height: 64px;
+    width: 108px;
+    height: 108px;
   }
 
   .om-stackf__media img {
-    width: 62px;
-    height: 62px;
+    width: 104px;
+    height: 104px;
     object-fit: contain;
+  }
+
+  .om-stackf__item {
+    padding: 16px 20px;
+    gap: 20px;
+  }
+
+  @media (max-width: 760px) {
+    .om-stackf__media {
+      width: 76px;
+      height: 76px;
+    }
+
+    .om-stackf__media img {
+      width: 74px;
+      height: 74px;
+    }
   }
 </style>
 
