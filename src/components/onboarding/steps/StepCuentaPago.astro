@@ -190,8 +190,9 @@
             style: { backgroundColor: "transparent" },
           });
           subscribe.mount("#pago-widget", registro.token);
-          flow
-            .handleCardSubscribed(subscribe)
+          // El widget de Flow devuelve un "thenable" propio, no una Promise
+          // real (su .then no encadena .catch): Promise.resolve lo asimila.
+          Promise.resolve(flow.handleCardSubscribed(subscribe))
             .then(async function () {
               setEstado("Confirmando tu suscripción…");
               var res = await flowSuscripcion({ accion: "confirmar", token: registro.token }, sesion.access_token);
