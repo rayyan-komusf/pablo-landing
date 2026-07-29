@@ -4,6 +4,7 @@ import SubscribeModal from "../components/SubscribeModal.astro";
 import CountdownBanner from "../components/CountdownBanner.astro";
 import MonedaPopup from "../components/MonedaPopup.astro";
 import PostHogSnippet from "../components/PostHogSnippet.astro";
+import Atribucion from "../components/Atribucion.astro";
 import { IS_LIVE } from "../siteConfig";
 
 interface Props {
@@ -58,6 +59,9 @@ const ogImage = `${siteUrl}/Logo.png`;
     </script>
 
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+    <!-- Primer toque de marketing → localStorage (viaja en el signup) -->
+    <Atribucion />
 
     <!-- Favicon -->
     <link rel="icon" type="image/png" href="/favicon.png" />

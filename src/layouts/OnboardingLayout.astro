@@ -3,6 +3,7 @@
 // Independiente de Layout.astro: el onboarding trae su propio CSS
 // (public/onboarding/styles) y no comparte estilos con la landing.
 import PostHogSnippet from "../components/PostHogSnippet.astro";
+import Atribucion from "../components/Atribucion.astro";
 const base = "/onboarding";
 ---
 
@@ -40,6 +41,8 @@ const base = "/onboarding";
          producción no sirva una versión cacheada con markup nuevo. -->
     <link rel="stylesheet" href={`${base}/styles/base.css`} />
     <link rel="stylesheet" href={`${base}/styles/custom.css?v=14`} />
+    <!-- Primer toque de marketing → localStorage (viaja en el signup) -->
+    <Atribucion />
     <!-- Meta Pixel (Facebook/Instagram Ads) -->
     <script is:inline>
       !(function (f, b, e, v, n, t, s) {

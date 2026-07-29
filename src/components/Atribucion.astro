@@ -1,0 +1,44 @@
+---
+// Primer toque de marketing (first-touch): guarda utm_* + referrer + página de
+// aterrizaje en localStorage (`pablo_atrib_v1`) para que el signup (onboarding
+// y CuentaModal) lo mande en el user_metadata y quede en
+// users_app.registro_atribucion — así el panel admin sabe de dónde vino cada
+// cuenta sin depender de PostHog.
+// Se escribe una vez por visitante; solo se reemplaza si la visita nueva trae
+// utm_source y la guardada no tenía (entró directo y después clickeó un ad).
+// Montado en Layout.astro y OnboardingLayout.astro (mismo dominio).
+---
+
+<script is:inline>
+  (function () {
+    try {
+      var KEY = "pablo_atrib_v1";
+      var previa = null;
+      try {
+        previa = JSON.parse(localStorage.getItem(KEY) || "null");
+      } catch (e) {
+        previa = null;
+      }
+
+      var params = new URLSearchParams(location.search);
+      var atrib = {};
+      ["utm_source", "utm_medium", "utm_campaign", "utm_content"].forEach(function (k) {
+        var v = params.get(k);
+        if (v) atrib[k] = v.slice(0, 150);
+      });
+
+      // First-touch: la guardada manda, salvo que no tuviera utm y esta sí.
+      if (previa && (previa.utm_source || !atrib.utm_source)) return;
+
+      if (document.referrer) {
+        var ref = new URL(document.referrer).hostname;
+        if (ref && ref.indexOf("usapablo") === -1) atrib.ref = ref.slice(0, 150);
+      }
+      atrib.landing = (location.pathname + location.search).slice(0, 150);
+
+      localStorage.setItem(KEY, JSON.stringify(atrib));
+    } catch (e) {
+      // sin atribución no pasa nada
+    }
+  })();
+</script>

@@ -455,7 +455,11 @@
 
       btn.disabled = true; btn.textContent = "Creando tu cuenta…";
       try {
-        var r = await authFetch("/auth/v1/signup", { email: correo, password: pass, data: { nombre: nombre, apellido: "" } });
+        // registro_origen + atribucion → users_app (handle_new_user los
+        // whitelistea) para que el admin sepa de dónde vino la cuenta.
+        var atrib = null;
+        try { atrib = JSON.parse(localStorage.getItem("pablo_atrib_v1") || "null"); } catch (e) { atrib = null; }
+        var r = await authFetch("/auth/v1/signup", { email: correo, password: pass, data: { nombre: nombre, apellido: "", registro_origen: "landing", atribucion: atrib || undefined } });
         var yaExiste = !r.ok && (r.data.error_code === "user_already_exists" ||
           /already|registrad/i.test(r.data.msg || r.data.message || r.data.error_description || ""));
         if (yaExiste) {
