@@ -4,8 +4,8 @@
 //   • 8:00 – 8:40 PM: registro CERRADO (el webinar ya empezó).
 //   • 8:40 PM – medianoche del 23: salta a la OFERTA (Oferta Millonaria, con el
 //     bono 1-a-1 de la noche).
-//   • Desde mañana (medianoche en adelante): la oferta vive en /fiestas-patrias;
-//     quien caiga en /webinar es redirigido ahí.
+//   • Desde medianoche del 24 en adelante: la oferta ya cerró y su página salió
+//     de la web; quien caiga en /webinar es redirigido al home.
 import Layout from '../../layouts/Layout.astro';
 import Navbar from '../../components/Navbar.astro';
 import Footer from '../../components/Footer.astro';
@@ -120,9 +120,10 @@ import { PROMO_MILLONARIA, WEBINAR_MANDAMIENTOS } from '../../siteConfig';
     (function () {
       try {
         var ahora = Date.now();
-        // Desde mañana (medianoche): la oferta vive en /fiestas-patrias.
+        // Cerrada la oferta, /fiestas-patrias salió de la web: quien caiga acá
+        // va al home.
         if (ahora >= Date.parse(nocheFinISO)) {
-          window.location.replace('/fiestas-patrias');
+          window.location.replace('/');
           return;
         }
         var evento = document.getElementById('wb-evento');
