@@ -8,6 +8,11 @@ export default defineConfig({
   redirects: {
     // El webinar es el único evento activo: /eventos va directo a la landing
     '/eventos': '/webinar',
+    // La Pablo Promo de Fiestas Patrias cerró el 29-jul-2026 y su página salió
+    // de la web (sigue en el repo como _fiestas-patrias.astro). El link quedó
+    // circulando en correos, anuncios y el bot, así que en vez de un 404
+    // manda al home.
+    '/fiestas-patrias': '/',
   },
   integrations: [
     sitemap({
