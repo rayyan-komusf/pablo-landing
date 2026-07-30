@@ -1,0 +1,174 @@
+---
+// 404 — pantalla de carga de Pablo. No tiene botón: manda solo al home.
+//
+// nginx la sirve con status 404 DE VERDAD (`error_page 404 /404.html` en
+// nginx.conf), no con un 302. Así Google saca la URL muerta del índice — un
+// redirect a 200 sería un soft 404 — y el visitante igual termina en el home.
+//
+// Página standalone (mismo patrón que /planes): sin Navbar, sin popups y sin
+// webfonts, para que cargue instantáneo y el caminado se vea antes del salto.
+//
+// EL CAMINADO. Es un sprite sheet horizontal de 8 cuadros (public/404/) con una
+// animación CSS de steps(): un solo archivo de ~100 KB, sin video y sin JS.
+// Los cuadros salen del render OFICIAL de Pablo
+// (product/_shared/pablo-waving-transparent.png) animado con Higgsfield
+// Seedance sobre fondo verde y recortado por croma — NO redibujado. Editarle la
+// pose con generación de imagen le deforma la cara, las manos y el emblema.
+// Receta completa y scripts: "visual assets/_404_pablo_caminando/".
+//
+// El ciclo del video son 26 cuadros a 24 fps = 1,083 s, de ahí la duración de
+// la animación. La sombra del piso se aplasta una vez por paso (media vuelta
+// del ciclo), por eso 0.2625s en `alternate`.
+const DESTINO = '/';
+const FRAMES = 8;
+const CICLO = '1.05s';
+const ESPERA_MS = 2600;
+---
+
+<!doctype html>
+<html lang="es">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="robots" content="noindex, nofollow" />
+    <meta http-equiv="refresh" content={`3; url=${DESTINO}`} />
+    <link rel="canonical" href="https://www.usapablo.com/" />
+    <link rel="icon" type="image/png" href="/favicon.png" />
+    <link rel="preload" as="image" href="/404/pablo-caminando.webp" />
+    <title>Un momento — Pablo</title>
+
+    <script is:inline define:vars={{ DESTINO, ESPERA_MS }}>
+      // replace() y no href: así el 404 no queda en el historial y el botón
+      // "atrás" del navegador no rebota al usuario de vuelta acá.
+      setTimeout(function () {
+        window.location.replace(DESTINO);
+      }, ESPERA_MS);
+    </script>
+
+    <style define:vars={{ frames: FRAMES }}>
+      :root {
+        --lila: #f5f3ff;
+        --navy: #2b2c64;
+        --body: #56578f;
+        --ambar: #f5a623;
+        --pablo: 190px;
+      }
+
+      * { box-sizing: border-box; }
+
+      body {
+        margin: 0;
+        min-height: 100svh;
+        display: grid;
+        place-items: center;
+        background: var(--lila);
+        color: var(--navy);
+        font-family: system-ui, -apple-system, 'Segoe UI', sans-serif;
+        text-align: center;
+        padding: 24px;
+      }
+
+      .carga {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+      }
+
+      /* Pablo caminando. El recorrido va en PÍXELES, no en porcentaje: con
+         porcentajes los steps() no caen en el límite de cada cuadro y el
+         sprite se ve cortado a mitad de camino. */
+      .pablo {
+        width: var(--pablo);
+        height: var(--pablo);
+        background-image: url('/404/pablo-caminando.webp');
+        background-repeat: no-repeat;
+        background-size: calc(var(--pablo) * var(--frames)) var(--pablo);
+        background-position: 0 0;
+      }
+
+      @keyframes caminar {
+        to { background-position-x: calc(var(--pablo) * var(--frames) * -1); }
+      }
+
+      /* Sombra blanda en el piso: se aplasta cada vez que planta una bota. */
+      .piso {
+        width: calc(var(--pablo) * 0.46);
+        height: 11px;
+        margin-top: -14px;
+        border-radius: 50%;
+        background: radial-gradient(
+          ellipse at center,
+          rgba(43, 44, 100, 0.18) 0%,
+          rgba(43, 44, 100, 0) 72%
+        );
+        animation: pisar 0.2625s ease-in-out infinite alternate;
+      }
+
+      @keyframes pisar {
+        from { transform: scaleX(1); opacity: 1; }
+        to   { transform: scaleX(0.86); opacity: 0.72; }
+      }
+
+      /* El círculo cargando, debajo de él. */
+      .anillo {
+        width: 28px;
+        height: 28px;
+        margin-top: 26px;
+        border-radius: 50%;
+        border: 3px solid rgba(43, 44, 100, 0.14);
+        border-top-color: var(--ambar);
+        animation: girar 0.75s linear infinite;
+      }
+
+      @keyframes girar {
+        to { transform: rotate(360deg); }
+      }
+
+      .titulo {
+        margin: 22px 0 0;
+        font-size: 1.05rem;
+        font-weight: 600;
+        letter-spacing: -0.01em;
+      }
+
+      .nota {
+        margin: 5px 0 0;
+        font-size: 0.85rem;
+        color: var(--body);
+        opacity: 0.75;
+      }
+
+      .escape { margin-top: 18px; font-size: 0.9rem; }
+      .escape a { color: var(--navy); font-weight: 700; }
+
+      @media (max-width: 420px) {
+        :root { --pablo: 150px; }
+      }
+
+      /* Quien pidió menos movimiento ve a Pablo quieto. El salto al home igual
+         ocurre: eso no es decoración. */
+      @media (prefers-reduced-motion: reduce) {
+        .pablo, .piso, .anillo { animation: none !important; }
+        .anillo { border-top-color: rgba(43, 44, 100, 0.14); }
+      }
+    </style>
+  </head>
+
+  <body>
+    <div class="carga">
+      <div
+        class="pablo"
+        role="img"
+        aria-label="Pablo caminando"
+        style={`animation: caminar ${CICLO} steps(${FRAMES}) infinite;`}
+      ></div>
+      <div class="piso" aria-hidden="true"></div>
+      <div class="anillo" aria-hidden="true"></div>
+      <p class="titulo">Te estoy llevando al inicio</p>
+      <p class="nota">Esa página no existe</p>
+      <noscript>
+        <p class="escape"><a href={DESTINO}>Entra acá</a> si no pasa nada.</p>
+      </noscript>
+    </div>
+  </body>
+</html>
