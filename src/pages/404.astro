@@ -8,20 +8,24 @@
 // Página standalone (mismo patrón que /planes): sin Navbar, sin popups y sin
 // webfonts, para que cargue instantáneo y el caminado se vea antes del salto.
 //
-// EL CAMINADO. Es un sprite sheet horizontal de 8 cuadros (public/404/) con una
-// animación CSS de steps(): un solo archivo de ~100 KB, sin video y sin JS.
-// Los cuadros salen del render OFICIAL de Pablo
-// (product/_shared/pablo-waving-transparent.png) animado con Higgsfield
-// Seedance sobre fondo verde y recortado por croma — NO redibujado. Editarle la
-// pose con generación de imagen le deforma la cara, las manos y el emblema.
-// Receta completa y scripts: "visual assets/_404_pablo_caminando/".
+// EL CAMINADO. Pablo camina de PERFIL, en su estilo 2D cartoon kawaii (el set
+// `visual assets/pablo_2d_fullbody/`, master M4), sobre un terrón de suelo
+// dibujado en SVG acá abajo.
 //
-// El ciclo del video son 26 cuadros a 24 fps = 1,083 s, de ahí la duración de
-// la animación. La sombra del piso se aplasta una vez por paso (media vuelta
-// del ciclo), por eso 0.2625s en `alternate`.
+// Es un sprite sheet de 4 celdas (61 KB, un archivo) con una animación CSS de
+// steps(): sin video y sin JS. Sólo hay 3 dibujos: en un perfil 2D el contacto
+// con la otra pierna se ve casi idéntico (las dos piernas son del mismo crema y
+// sólo cambia cuál va delante), así que el ciclo honesto es abierta ↔ juntas:
+//
+//     1 contacto (abierta)  →  2 juntas (arriba)
+//     3 empuje  (ancha)     →  2 juntas (arriba)
+//
+// El rebote está horneado en el sprite en píxeles, no heredado del modelo: el
+// sprite es una sola imagen de fondo y el CSS no puede desplazar celdas suelvas.
+// Receta, scripts y las poses descartadas: "visual assets/_404_pablo_caminando/".
 const DESTINO = '/';
-const FRAMES = 8;
-const CICLO = '1.05s';
+const FRAMES = 4;
+const CICLO = '0.7s';
 const ESPERA_MS = 2600;
 ---
 
@@ -51,6 +55,8 @@ const ESPERA_MS = 2600;
         --navy: #2b2c64;
         --body: #56578f;
         --ambar: #f5a623;
+        --tinta: #4a3527;   /* la línea de tinta del Pablo 2D */
+        --tierra: #e9dcbe;  /* tono tierra del suelo: más oscuro que su crema */
         --pablo: 190px;
       }
 
@@ -68,52 +74,72 @@ const ESPERA_MS = 2600;
         padding: 24px;
       }
 
-      .carga {
-        display: flex;
-        flex-direction: column;
-        align-items: center;
-      }
+      .carga { display: flex; flex-direction: column; align-items: center; }
 
-      /* Pablo caminando. El recorrido va en PÍXELES, no en porcentaje: con
-         porcentajes los steps() no caen en el límite de cada cuadro y el
-         sprite se ve cortado a mitad de camino. */
-      .pablo {
+      /* Pablo y su suelo comparten caja, para que las botas caigan encima. */
+      .escena {
+        position: relative;
         width: var(--pablo);
         height: var(--pablo);
+      }
+
+      /* Pablo caminando de perfil. El recorrido va en PÍXELES, no en
+         porcentaje: con porcentajes los steps() no caen en el límite de cada
+         celda y el sprite se ve cortado a mitad de camino. */
+      .pablo {
+        position: absolute;
+        inset: 0;
         background-image: url('/404/pablo-caminando.webp');
         background-repeat: no-repeat;
         background-size: calc(var(--pablo) * var(--frames)) var(--pablo);
         background-position: 0 0;
+        z-index: 2;
       }
 
       @keyframes caminar {
         to { background-position-x: calc(var(--pablo) * var(--frames) * -1); }
       }
 
-      /* Sombra blanda en el piso: se aplasta cada vez que planta una bota. */
-      .piso {
-        width: calc(var(--pablo) * 0.46);
-        height: 11px;
-        margin-top: -14px;
+      /* El terrón de suelo: un poquito de piso bajo sus pies, dibujado con la
+         misma tinta gruesa y el mismo crema que el Pablo 2D. */
+      .suelo {
+        position: absolute;
+        left: 50%;
+        bottom: calc(var(--pablo) * -0.035);
+        width: calc(var(--pablo) * 0.62);
+        transform: translateX(-50%);
+        z-index: 1;
+        overflow: visible;
+      }
+
+      /* Sombra de contacto sobre el suelo: se aplasta en cada pisada. */
+      .sombra {
+        position: absolute;
+        left: 50%;
+        bottom: calc(var(--pablo) * 0.075);
+        width: calc(var(--pablo) * 0.42);
+        height: calc(var(--pablo) * 0.045);
+        margin-left: calc(var(--pablo) * -0.21);
         border-radius: 50%;
         background: radial-gradient(
           ellipse at center,
-          rgba(43, 44, 100, 0.18) 0%,
-          rgba(43, 44, 100, 0) 72%
+          rgba(74, 53, 39, 0.22) 0%,
+          rgba(74, 53, 39, 0) 72%
         );
-        animation: pisar 0.2625s ease-in-out infinite alternate;
+        z-index: 2;
+        animation: pisar 0.175s ease-in-out infinite alternate;
       }
 
       @keyframes pisar {
         from { transform: scaleX(1); opacity: 1; }
-        to   { transform: scaleX(0.86); opacity: 0.72; }
+        to   { transform: scaleX(0.84); opacity: 0.7; }
       }
 
       /* El círculo cargando, debajo de él. */
       .anillo {
         width: 28px;
         height: 28px;
-        margin-top: 26px;
+        margin-top: 24px;
         border-radius: 50%;
         border: 3px solid rgba(43, 44, 100, 0.14);
         border-top-color: var(--ambar);
@@ -148,21 +174,45 @@ const ESPERA_MS = 2600;
       /* Quien pidió menos movimiento ve a Pablo quieto. El salto al home igual
          ocurre: eso no es decoración. */
       @media (prefers-reduced-motion: reduce) {
-        .pablo, .piso, .anillo { animation: none !important; }
-        .anillo { border-top-color: rgba(43, 44, 100, 0.14); }
+        .pablo, .sombra { animation: none !important; }
+        .anillo { animation: none !important; border-top-color: rgba(43, 44, 100, 0.14); }
       }
     </style>
   </head>
 
   <body>
     <div class="carga">
-      <div
-        class="pablo"
-        role="img"
-        aria-label="Pablo caminando"
-        style={`animation: caminar ${CICLO} steps(${FRAMES}) infinite;`}
-      ></div>
-      <div class="piso" aria-hidden="true"></div>
+      <div class="escena">
+        <!-- Un terrón de suelo, no una tabla: tiene cuerpo, va en tono tierra
+             (más oscuro que el crema de Pablo, si no se funden) y lleva la
+             misma tinta gruesa del dibujo 2D. -->
+        <svg class="suelo" viewBox="0 0 170 54" aria-hidden="true">
+          <path
+            d="M9 24 C9 14 26 10 44 9 C70 6 98 6 126 9 C146 11 161 15 161 25 C161 39 138 47 106 47 L62 47 C31 47 9 38 9 24 Z"
+            fill="var(--tierra)"
+            stroke="var(--tinta)"
+            stroke-width="4.6"
+            stroke-linejoin="round"
+          />
+          <path
+            d="M20 23 C40 15 68 13 94 14 C118 15 142 18 152 24"
+            fill="none"
+            stroke="#fffaf0"
+            stroke-opacity="0.6"
+            stroke-width="3.4"
+            stroke-linecap="round"
+          />
+          <ellipse cx="56" cy="33" rx="5" ry="2.1" fill="var(--tinta)" opacity="0.2" />
+          <ellipse cx="122" cy="36" rx="3.6" ry="1.6" fill="var(--tinta)" opacity="0.16" />
+        </svg>
+        <div class="sombra" aria-hidden="true"></div>
+        <div
+          class="pablo"
+          role="img"
+          aria-label="Pablo caminando"
+          style={`animation: caminar ${CICLO} steps(${FRAMES}) infinite;`}
+        ></div>
+      </div>
       <div class="anillo" aria-hidden="true"></div>
       <p class="titulo">Te estoy llevando al inicio</p>
       <p class="nota">Esa página no existe</p>
