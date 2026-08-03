@@ -198,8 +198,17 @@
             return;
           }
 
+          // Huella del clic del anuncio: el pago ocurre en usapablo.com, donde
+          // la cookie _fbc SÍ existe. Es la única oportunidad de capturarla —
+          // el webhook del cobro llega días después y sin navegador.
+          var fb = window.pabloFbCookies ? window.pabloFbCookies() : {};
           var registro = await flowSuscripcion(
-            { accion: "checkout", plan: NOMBRE_PLAN[planSlug()] || NOMBRE_PLAN.anual },
+            {
+              accion: "checkout",
+              plan: NOMBRE_PLAN[planSlug()] || NOMBRE_PLAN.anual,
+              fbc: fb.fbc || undefined,
+              fbp: fb.fbp || undefined,
+            },
             sesion.access_token
           );
           if (registro.__status === 409) {

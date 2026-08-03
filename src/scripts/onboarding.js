@@ -451,6 +451,9 @@ class OnboardingEngine {
     try {
       const did = window.posthog?.get_distinct_id?.();
       if (did) url += `?ph_did=${encodeURIComponent(did)}`;
+      // Huella del clic de Meta (_fbc/_fbp): un miembro que vuelve puede
+      // terminar comprando otro plan, y sin esto esa venta queda huérfana.
+      if (window.pabloConFbc) url = window.pabloConFbc(url);
     } catch {}
     window.location.href = url;
   }

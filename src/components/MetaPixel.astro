@@ -1,0 +1,120 @@
+---
+// Meta Pixel (Facebook/Instagram Ads) — usado por Layout.astro y por
+// OnboardingLayout.astro.
+//
+// El ID NO va hardcodeado: viene de PUBLIC_META_PIXEL_ID, que solo está
+// definida en producción (build arg del Dockerfile → EasyPanel). Sin variable
+// no se emite el snippet, así que local, staging y los previews no ensucian la
+// medición con eventos falsos. Esto reemplaza al `if (hostname !== 'localhost')`
+// que no cubría esos otros entornos.
+//
+// Antecedente: el 28-jul-2026 llegaron 12 `Purchase` desde http://localhost/,
+// el 75% de las compras que Meta vio ese día.
+const pixelId = import.meta.env.PUBLIC_META_PIXEL_ID;
+---
+
+{
+  pixelId && (
+    <Fragment>
+      <script is:inline define:vars={{ pixelId }}>
+        !(function (f, b, e, v, n, t, s) {
+          if (f.fbq) return;
+          n = f.fbq = function () {
+            n.callMethod
+              ? n.callMethod.apply(n, arguments)
+              : n.queue.push(arguments);
+          };
+          if (!f._fbq) f._fbq = n;
+          n.push = n;
+          n.loaded = !0;
+          n.version = "2.0";
+          n.queue = [];
+          t = b.createElement(e);
+          t.async = !0;
+          t.src = v;
+          s = b.getElementsByTagName(e)[0];
+          s.parentNode.insertBefore(t, s);
+        })(
+          window,
+          document,
+          "script",
+          "https://connect.facebook.net/en_US/fbevents.js",
+        );
+        fbq("init", pixelId);
+        fbq("track", "PageView");
+      </script>
+      <noscript>
+        <img
+          height="1"
+          width="1"
+          style="display:none"
+          src={`https://www.facebook.com/tr?id=${pixelId}&ev=PageView&noscript=1`}
+        />
+      </noscript>
+
+      <script is:inline>
+        // Cross-domain: la app (usapablo.app) es OTRO dominio y no comparte
+        // cookies con este, así que ahí el `_fbc` no existe. Como TODOS los
+        // botones de compra llevan a usapablo.app/pricing, sin esto la venta
+        // llega a Meta sin saber de qué anuncio vino — por más que el Purchase
+        // del webhook funcione perfecto. Mismo mecanismo que ya usa ?ph_did=
+        // para PostHog (ver PostHogSnippet.astro).
+        (function () {
+          function leerCookie(nombre) {
+            try {
+              var m = document.cookie.match(
+                "(^|;)\\s*" + nombre + "\\s*=\\s*([^;]+)",
+              );
+              return m ? decodeURIComponent(m[2]) : null;
+            } catch (e) {
+              return null;
+            }
+          }
+
+          /** Cookies de Meta de ESTE dominio, ya escritas por el pixel. */
+          window.pabloFbCookies = function () {
+            return { fbc: leerCookie("_fbc"), fbp: leerCookie("_fbp") };
+          };
+
+          /**
+           * Agrega la huella del clic a una URL de usapablo.app. Se manda el
+           * valor COMPLETO de la cookie (fb.1.<ts>.<fbclid>), no el fbclid
+           * pelado: conserva el timestamp real del clic, que es lo que Meta
+           * cruza. La app lo reenvía al backend en el checkout.
+           */
+          window.pabloConFbc = function (url) {
+            try {
+              var c = window.pabloFbCookies();
+              if (!c.fbc && !c.fbp) return url;
+              var u = new URL(url, location.href);
+              if (c.fbc) u.searchParams.set("fbc", c.fbc);
+              if (c.fbp) u.searchParams.set("fbp", c.fbp);
+              return u.toString();
+            } catch (e) {
+              return url;
+            }
+          };
+
+          // Enlaces normales: se decoran al hacer clic (en ese momento la
+          // cookie ya está escrita, aunque el pixel haya cargado tarde).
+          document.addEventListener(
+            "click",
+            function (e) {
+              try {
+                var a =
+                  e.target &&
+                  e.target.closest &&
+                  e.target.closest('a[href^="https://usapablo.app"]');
+                if (!a) return;
+                a.href = window.pabloConFbc(a.href);
+              } catch (err) {
+                /* noop: nunca bloquear la navegación */
+              }
+            },
+            true,
+          );
+        })();
+      </script>
+    </Fragment>
+  )
+}

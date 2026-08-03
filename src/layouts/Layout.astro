@@ -5,6 +5,7 @@ import CountdownBanner from "../components/CountdownBanner.astro";
 import MonedaPopup from "../components/MonedaPopup.astro";
 import PostHogSnippet from "../components/PostHogSnippet.astro";
 import Atribucion from "../components/Atribucion.astro";
+import MetaPixel from "../components/MetaPixel.astro";
 import { IS_LIVE } from "../siteConfig";
 
 interface Props {
@@ -28,6 +29,10 @@ const {
 
 const siteUrl = "https://www.usapablo.com";
 const ogImage = `${siteUrl}/Logo.png`;
+
+// Igual que el pixel de Meta (ver MetaPixel.astro): el ID viene de una variable
+// definida solo en producción, así local/staging/previews no emiten eventos.
+const tiktokPixelId = import.meta.env.PUBLIC_TIKTOK_PIXEL_ID;
 ---
 
 <!doctype html>
@@ -125,45 +130,11 @@ const ogImage = `${siteUrl}/Logo.png`;
     <!-- End Google tag -->
 
     <!-- Meta Pixel (Facebook/Instagram Ads) -->
-    <script is:inline>
-      !(function (f, b, e, v, n, t, s) {
-        if (f.fbq) return;
-        n = f.fbq = function () {
-          n.callMethod
-            ? n.callMethod.apply(n, arguments)
-            : n.queue.push(arguments);
-        };
-        if (!f._fbq) f._fbq = n;
-        n.push = n;
-        n.loaded = !0;
-        n.version = "2.0";
-        n.queue = [];
-        t = b.createElement(e);
-        t.async = !0;
-        t.src = v;
-        s = b.getElementsByTagName(e)[0];
-        s.parentNode.insertBefore(t, s);
-      })(
-        window,
-        document,
-        "script",
-        "https://connect.facebook.net/en_US/fbevents.js",
-      );
-      fbq("init", "1723759659073430");
-      fbq("track", "PageView");
-    </script>
-    <noscript>
-      <img
-        height="1"
-        width="1"
-        style="display:none"
-        src="https://www.facebook.com/tr?id=1723759659073430&ev=PageView&noscript=1"
-      />
-    </noscript>
-    <!-- End Meta Pixel -->
+    <MetaPixel />
 
     <!-- TikTok Pixel Code Start -->
-    <script is:inline>
+    {tiktokPixelId && (
+    <script is:inline define:vars={{ tiktokPixelId }}>
       !(function (w, d, t) {
         w.TiktokAnalyticsObject = t;
         var ttq = (w[t] = w[t] || []);
@@ -214,10 +185,11 @@ const ogImage = `${siteUrl}/Logo.png`;
             e = document.getElementsByTagName("script")[0];
             e.parentNode.insertBefore(n, e);
           }));
-        ttq.load("D7C1JVBC77UFLDKDR4JG");
+        ttq.load(tiktokPixelId);
         ttq.page();
       })(window, document, "ttq");
     </script>
+    )}
     <!-- TikTok Pixel Code End -->
 
     <!-- PostHog -->

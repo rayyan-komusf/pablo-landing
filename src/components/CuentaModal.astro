@@ -196,11 +196,16 @@
     overlay.addEventListener("click", function (e) { if (e.target === overlay) cerrar(); });
     document.addEventListener("keydown", function (e) { if (e.key === "Escape") cerrar(); });
 
+    // ph_did (PostHog) + _fbc/_fbp (Meta): los dominios no comparten cookies,
+    // así que la identidad y la huella del clic viajan por URL a usapablo.app.
     function phDid(url) {
       try {
         var did = window.posthog && window.posthog.get_distinct_id && window.posthog.get_distinct_id();
-        if (!did) return url;
-        var u = new URL(url); u.searchParams.set("ph_did", did); return u.toString();
+        var salida = url;
+        if (did) {
+          var u = new URL(url); u.searchParams.set("ph_did", did); salida = u.toString();
+        }
+        return window.pabloConFbc ? window.pabloConFbc(salida) : salida;
       } catch (e) { return url; }
     }
     function mostrarError(el, msg) { if (el) { el.textContent = msg; el.hidden = false; } }
@@ -351,8 +356,16 @@
         var sesion = await asegurarSesion();
         if (!sesion) { await irAlPago(); return; }
 
+        // Huella del clic del anuncio (ver MetaPixel.astro): se captura acá,
+        // que es donde la cookie existe; el webhook del cobro ya no la vería.
+        var fb = window.pabloFbCookies ? window.pabloFbCookies() : {};
         var registro = await flowSuscripcion(
-          { accion: "checkout", plan: PLANES[planActual].nombre },
+          {
+            accion: "checkout",
+            plan: PLANES[planActual].nombre,
+            fbc: fb.fbc || undefined,
+            fbp: fb.fbp || undefined,
+          },
           sesion.access_token
         );
         if (registro.__status === 409) { await irALaAppLogueado(); return; }
