@@ -236,6 +236,11 @@ class OnboardingEngine {
     if (stepId === "step-16") this.initStep16();
     if (stepId === "step-fiesta") this.initFiesta();
     if (stepId === "step-porque") this.initPorque();
+    // El pago embebido de Flow arranca al ENTRAR al step (también cubre la
+    // recarga de página: antes solo lo disparaba el step del código y al
+    // recargar nadie montaba el widget). pabloPagoArrancar deduplica con su
+    // guard interno si el step del código ya lo llamó.
+    if (stepId === "step-cuenta-pago") window.pabloPagoArrancar?.();
 
     // Preguntas con CTA condicionado: la clave es la respuesta que habilita
     // Continuar (comparación con undefined: hasDebt=false también habilita).

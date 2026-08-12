@@ -3,7 +3,8 @@
      step del código: flow-suscripcion "checkout" da el token del registro de
      tarjeta, el widget se monta aquí y "confirmar" crea la suscripción (con
      el trial de la promo si aplica). Al pagar → puente de sesión a la app
-     (/auth/sesion → dashboard, ya premium). Fallback: pagar en la app. -->
+     (/auth/sesion → dashboard, ya premium). Sin sesión, el JS cae a
+     pabloCuentaIrAlPago() (pagar en la app); ya no hay botón visible. -->
 <section class="step !pb-0" data-step="step-cuenta-pago" aria-label="Pago seguro con Flow" aria-hidden="true">
   <div class="fuente-header">
     <div class="fuente-header__inner">
@@ -49,12 +50,14 @@
         hidden
       />
       <p class="pago-estado" id="pago-estado">Preparando el pago seguro…</p>
+      <!-- Pablito "cargando": sprite sheet animado mientras el widget/iframe
+           de Flow termina de cargar (mismo truco steps() del 404). -->
+      <div class="pago-cargando" id="pago-cargando" hidden>
+        <div class="pago-cargando-sprite" aria-hidden="true"></div>
+      </div>
       <div id="pago-widget"></div>
       <button type="button" class="btn-primary btn-continue" id="pago-reintentar" hidden onclick="pabloPagoReintentar()">
         Reintentar
-      </button>
-      <button type="button" class="cuenta-link" onclick="pabloCuentaIrAlPago()">
-        Prefiero pagar dentro de la app
       </button>
       <p class="pago-nota">🔒 Pago procesado por Flow. Pablo nunca ve tu tarjeta.</p>
     </div>
@@ -108,6 +111,7 @@
         var widget = document.getElementById("pago-widget");
         if (widget) widget.innerHTML = "";
         setEstado("");
+        setCargando(false);
         setReintentar(false);
         var exito = document.getElementById("pago-exito");
         if (exito) exito.hidden = false;
@@ -115,6 +119,31 @@
       function setReintentar(visible) {
         var btn = document.getElementById("pago-reintentar");
         if (btn) btn.hidden = !visible;
+      }
+      function setCargando(visible) {
+        var el = document.getElementById("pago-cargando");
+        if (el) el.hidden = !visible;
+      }
+      /* El mount de Flow inyecta un iframe que tarda en pintar: el Pablito
+         cargando se queda hasta el load del iframe (con tope por si el
+         widget no usa iframe o el load ya pasó). */
+      function ocultarCargandoConElWidget(contenedor) {
+        var intentos = 0;
+        (function esperar() {
+          var iframe = contenedor && contenedor.querySelector("iframe");
+          if (iframe) {
+            iframe.addEventListener("load", function () {
+              setCargando(false);
+            }, { once: true });
+            setTimeout(function () {
+              setCargando(false);
+            }, 5000);
+          } else if (++intentos < 40) {
+            setTimeout(esperar, 150);
+          } else {
+            setCargando(false);
+          }
+        })();
       }
       function pintarResumen() {
         var p = PLANES[planSlug()] || PLANES.anual;
@@ -189,6 +218,7 @@
         var exito = document.getElementById("pago-exito");
         if (exito) exito.hidden = true;
         pintarResumen();
+        setCargando(true);
         setEstado("Preparando el pago seguro…");
 
         try {
@@ -232,6 +262,7 @@
             style: { backgroundColor: "transparent" },
           });
           subscribe.mount("#pago-widget", registro.token);
+          ocultarCargandoConElWidget(contenedor);
           // El widget de Flow devuelve un "thenable" propio, no una Promise
           // real (su .then no encadena .catch): Promise.resolve lo asimila.
           Promise.resolve(flow.handleCardSubscribed(subscribe))
@@ -246,6 +277,7 @@
                 setTimeout(irALaAppPagado, 1600);
               } else {
                 setEstado((res && res.error) || "El pago no se completó, intenta de nuevo.", true);
+                setCargando(false);
                 setReintentar(true);
                 enCurso = false;
               }
@@ -253,12 +285,14 @@
             .catch(function (e) {
               console.error("[Pablo] Widget de Flow:", e);
               setEstado("El pago no se completó, intenta de nuevo.", true);
+              setCargando(false);
               setReintentar(true);
               enCurso = false;
             });
         } catch (e) {
           console.error("[Pablo] Pago embebido falló:", e);
           setEstado(e && e.message ? e.message : "No pudimos iniciar el pago", true);
+          setCargando(false);
           setReintentar(true);
           enCurso = false;
         }
