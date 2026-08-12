@@ -73,10 +73,12 @@
         production: "https://www.flow.cl/app/elements/flow-1.1.0.min.js?20241202",
       };
       var NOMBRE_PLAN = { semanal: "Plan Semanal", mensual: "Plan Mensual", anual: "Plan Anual" };
+      // Anual 7→3 días (11-ago-2026): con 7 el cobro caía fuera de la ventana
+      // de atribución de Meta. Mismo valor que FLOW_PLANES en el backend.
       var PLANES = {
-        semanal: { texto: "Plan Semanal — S/.7 a la semana", trial: 0 },
-        mensual: { texto: "Plan Mensual — S/.20 al mes", trial: 3 },
-        anual: { texto: "Plan Anual — S/.200 al año", trial: 7 },
+        semanal: { texto: "Plan Semanal — S/.7 a la semana", trial: 0, monto: 7 },
+        mensual: { texto: "Plan Mensual — S/.20 al mes", trial: 3, monto: 20 },
+        anual: { texto: "Plan Anual — S/.200 al año", trial: 3, monto: 200 },
       };
       // Oferta Millonaria (misma ventana que Step18 y el backend): mensual 14
       // días, anual cobro directo. Fuera de la ventana no cambia nada.
@@ -146,14 +148,21 @@
         })();
       }
       function pintarResumen() {
-        var p = PLANES[planSlug()] || PLANES.anual;
+        var slug = planSlug();
+        var p = PLANES[slug] || PLANES.anual;
         var el = document.getElementById("pago-resumen");
         if (el) {
           el.textContent =
             p.texto +
             (p.trial > 0
-              ? " · " + p.trial + " días gratis, cancela cuando quieras"
-              : " · se cobra hoy, cancela cuando quieras");
+              ? " · " + p.trial + " días gratis. Registras tu tarjeta y no se cobra hasta el día " +
+                (p.trial + 1) + ". Cancelas cuando quieras."
+              : " · se cobra hoy, cancela cuando quieras") +
+            // Garantía SOLO del anual, anclada al inicio de la prueba (el
+            // cobro es al día 3; sin el ancla la lectura es reclamable).
+            (slug === "anual"
+              ? " Garantía de satisfacción de 14 días desde que empiezas tu prueba: te devolvemos el 100%, sin preguntas."
+              : "");
         }
       }
 
@@ -262,6 +271,25 @@
             style: { backgroundColor: "transparent" },
           });
           subscribe.mount("#pago-widget", registro.token);
+          // InitiateCheckout en el momento exacto en que se abre el widget:
+          // sin él, el tramo "vio los planes → registró tarjeta" es caja negra.
+          try {
+            var pIC = PLANES[planSlug()] || PLANES.anual;
+            if (window.fbq) {
+              window.fbq("track", "InitiateCheckout", {
+                value: pIC.monto,
+                currency: "PEN",
+                content_name: NOMBRE_PLAN[planSlug()] || NOMBRE_PLAN.anual,
+              });
+            }
+            if (window.ttq) {
+              window.ttq.track("InitiateCheckout", {
+                value: pIC.monto,
+                currency: "PEN",
+                content_name: NOMBRE_PLAN[planSlug()] || NOMBRE_PLAN.anual,
+              });
+            }
+          } catch (eIC) { /* medir nunca bloquea el pago */ }
           ocultarCargandoConElWidget(contenedor);
           // El widget de Flow devuelve un "thenable" propio, no una Promise
           // real (su .then no encadena .catch): Promise.resolve lo asimila.

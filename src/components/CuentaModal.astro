@@ -97,7 +97,10 @@
     // Días de prueba por plan. La ventana de la Oferta Millonaria es la MISMA
     // que usan Step18, StepCuentaPago y el backend: mensual 14 días, anual
     // cobro directo. Fuera de la ventana no cambia nada.
-    var TRIAL = { semanal: 0, mensual: 3, anual: 7 };
+    // Anual 7→3 (11-ago-2026): con 7 el cobro caía fuera de la ventana de
+    // atribución de Meta. Mismo valor que FLOW_PLANES en el backend.
+    var TRIAL = { semanal: 0, mensual: 3, anual: 3 };
+    var MONTOS = { semanal: 7, mensual: 20, anual: 200 };
     (function () {
       var ahora = Date.now();
       if (
@@ -280,8 +283,14 @@
       var dias = TRIAL[planActual] || 0;
       pagoResumenEl.textContent =
         cfg.resumen + (dias > 0
-          ? " · " + dias + " días gratis, cancela cuando quieras"
-          : " · se cobra hoy, cancela cuando quieras");
+          ? " · " + dias + " días gratis. Registras tu tarjeta y no se cobra hasta el día " +
+            (dias + 1) + ". Cancelas cuando quieras."
+          : " · se cobra hoy, cancela cuando quieras") +
+        // Garantía SOLO del anual, anclada al inicio de la prueba (el cobro
+        // es al día 3; "14 días de garantía" a secas se lee desde el cobro).
+        (planActual === "anual"
+          ? " Garantía de satisfacción de 14 días desde que empiezas tu prueba: te devolvemos el 100%, sin preguntas."
+          : "");
     }
     function cargarFlowScript(entorno) {
       if (window.Flow) return Promise.resolve();
@@ -385,6 +394,26 @@
           style: { backgroundColor: "transparent" },
         });
         subscribe.mount("#cuenta-pago-widget", registro.token);
+        // InitiateCheckout en el momento exacto en que se abre el widget:
+        // sin él, el tramo "vio los planes → registró tarjeta" es caja negra
+        // (el que vivía en SubscribeModal nunca disparaba: nadie abre ese
+        // modal desde que los botones usan este).
+        try {
+          if (window.fbq) {
+            fbq("track", "InitiateCheckout", {
+              value: MONTOS[planActual] || 20,
+              currency: "PEN",
+              content_name: PLANES[planActual].nombre,
+            });
+          }
+          if (window.ttq) {
+            window.ttq.track("InitiateCheckout", {
+              value: MONTOS[planActual] || 20,
+              currency: "PEN",
+              content_name: PLANES[planActual].nombre,
+            });
+          }
+        } catch (eIC) { /* medir nunca bloquea el pago */ }
         // El widget devuelve un "thenable" propio, no una Promise real (su
         // .then no encadena .catch): Promise.resolve lo asimila.
         Promise.resolve(flow.handleCardSubscribed(subscribe))

@@ -14,8 +14,8 @@ export const OFFER_AVAILABLE = true;
 
 // ============================================================
 //  FREE TRIAL MODE — controla el plan anual de S/.200
-//  true  → usa el link con 7 días gratis y muestra ese beneficio
-//  false → usa el link sin prueba y oculta el ítem "7 días gratis"
+//  true  → usa el link con 3 días gratis y muestra ese beneficio
+//  false → usa el link sin prueba y oculta el ítem "3 días gratis"
 // ============================================================
 export const FREE_TRIAL = true;
 
@@ -96,6 +96,6 @@ export const APP_URL = 'https://usapablo.app/';
 export const CHECKOUT_URLS = {
   weekly: 'https://usapablo.app/pricing?plan=semanal',   // S/.7/semana — sin trial
   monthly: 'https://usapablo.app/pricing?plan=mensual',  // S/.20/mes — 3 días gratis
-  annual_trial: 'https://usapablo.app/pricing?plan=anual',    // S/.200/año — 7 días gratis
+  annual_trial: 'https://usapablo.app/pricing?plan=anual',    // S/.200/año — 3 días gratis (7→3 el 11-ago-2026, atribución Meta)
   annual_no_trial: 'https://usapablo.app/pricing?plan=anual', // mismo plan; el trial lo define la pasarela
 };

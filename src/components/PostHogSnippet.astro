@@ -2,10 +2,17 @@
 // Snippet de PostHog compartido por toda la web (landing + onboarding).
 // capturePageview: true para páginas normales; false en el onboarding,
 // que trackea cada pantalla manualmente (onboarding_screen_viewed).
+// defer: true en la landing (Sandra 10-ago-2026) — el init espera al load +
+// requestIdleCallback para no competir con el primer render. El pageview no
+// se pierde (se captura al init); los capture manuales de la landing ocurren
+// segundos después (clics, timers del pop-up) y todos van con guarda
+// `window.posthog?.`/`window.posthog &&`, así que antes del init son no-op.
+// El onboarding NO difiere: su primer onboarding_screen_viewed sale al toque.
 interface Props {
   capturePageview?: boolean;
+  defer?: boolean;
 }
-const { capturePageview = true } = Astro.props;
+const { capturePageview = true, defer = false } = Astro.props;
 const POSTHOG_KEY = import.meta.env.PUBLIC_POSTHOG_KEY ?? "";
 // Reverse proxy en subdominio propio para esquivar bloqueadores (*.posthog.com).
 const POSTHOG_HOST = import.meta.env.PUBLIC_POSTHOG_HOST ?? "https://ph.usapablo.app";
@@ -14,7 +21,8 @@ const POSTHOG_UI_HOST = "https://us.posthog.com";
 
 {
   POSTHOG_KEY && (
-    <script is:inline define:vars={{ POSTHOG_KEY, POSTHOG_HOST, POSTHOG_UI_HOST, capturePageview }}>
+    <script is:inline define:vars={{ POSTHOG_KEY, POSTHOG_HOST, POSTHOG_UI_HOST, capturePageview, defer }}>
+      var pabloArrancarPostHog = function () {
       !(function (t, e) {
         var o, n, p, r;
         e.__SV ||
@@ -87,6 +95,24 @@ const POSTHOG_UI_HOST = "https://us.posthog.com";
         },
         true
       );
+      };
+
+      if (!defer) {
+        pabloArrancarPostHog();
+      } else if (window.pabloDiferir) {
+        // Helper de Layout.astro (mismo criterio que GTM y TikTok).
+        window.pabloDiferir(pabloArrancarPostHog);
+      } else {
+        var pabloIdlePostHog = function () {
+          if ("requestIdleCallback" in window) {
+            requestIdleCallback(pabloArrancarPostHog, { timeout: 2000 });
+          } else {
+            setTimeout(pabloArrancarPostHog, 200);
+          }
+        };
+        if (document.readyState === "complete") pabloIdlePostHog();
+        else window.addEventListener("load", pabloIdlePostHog);
+      }
     </script>
   )
 }

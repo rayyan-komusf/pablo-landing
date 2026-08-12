@@ -226,7 +226,7 @@ const annualCheckoutUrl = FREE_TRIAL ? CHECKOUT_URLS.annual_trial : CHECKOUT_URL
         {IS_LIVE ? (
           <>
             <!-- LIVE: Weekly Plan -->
-            <div class="plan-card plan-monthly">
+            <div class="plan-card plan-monthly plan-semanal">
               <div class="plan-header">
                 <div class="plan-icon plan-icon--navy">
                   <span class="icon-premium" set:html={iconPremiumRaw}></span>
@@ -278,7 +278,7 @@ const annualCheckoutUrl = FREE_TRIAL ? CHECKOUT_URLS.annual_trial : CHECKOUT_URL
             </div>
 
             <!-- LIVE: Monthly Plan -->
-            <div class="plan-card plan-monthly">
+            <div class="plan-card plan-monthly plan-mensual">
               <div class="plan-header">
                 <div class="plan-icon plan-icon--navy">
                   <span class="icon-premium" set:html={iconPremiumRaw}></span>
@@ -335,10 +335,29 @@ const annualCheckoutUrl = FREE_TRIAL ? CHECKOUT_URLS.annual_trial : CHECKOUT_URL
                   Oferta no disponible
                 </button>
               )}
+              <!-- Convierte una sorpresa en una expectativa justo antes del
+                   widget de Flow (Sandra 10-ago): la tarjeta se registra hoy
+                   pero el cobro llega al día 4. -->
+              <p class="plan-cta-nota">
+                3 días gratis. Registras tu tarjeta y no se cobra hasta el día 4.
+                Cancelas cuando quieras.
+              </p>
+              <!-- Modo pauta: los otros dos planes nacen ocultos y este enlace
+                   los revela en la misma página. Es texto, no botón: si parece
+                   un botón junto al CTA se recrea la elección de tres precios
+                   que el modo pauta vino a quitar. -->
+              <button
+                type="button"
+                class="ver-otros-planes"
+                id="ver-otros-planes"
+                onclick="document.documentElement.classList.add('ver-planes');if(typeof fbq!=='undefined')fbq('trackCustom','Ver_Planes');try{window.posthog&&window.posthog.capture('pauta_ver_planes')}catch(e){}"
+              >
+                Ver los otros planes
+              </button>
             </div>
 
             <!-- LIVE: Annual Plan -->
-            <div class="plan-card plan-premium plan-annual">
+            <div class="plan-card plan-premium plan-annual plan-anual">
               <div class="plan-best-badge">
                 <span class="icon-corona" set:html={coronaRaw}></span>
                 Tu mejor opción
@@ -368,9 +387,13 @@ const annualCheckoutUrl = FREE_TRIAL ? CHECKOUT_URLS.annual_trial : CHECKOUT_URL
                 {FREE_TRIAL && (
                   <li data-pm-hide>
                     <svg class="check check--amber" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#F5A623" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>
-                    <span>7 días gratis de prueba.</span>
+                    <span>3 días gratis de prueba.</span>
                   </li>
                 )}
+                <li>
+                  <svg class="check check--amber" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#F5A623" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>
+                  <span><strong>Garantía de satisfacción de 14 días desde que empiezas tu prueba.</strong> Si Pablo no es para ti, te devolvemos el 100% de tu dinero. Sin preguntas.</span>
+                </li>
                 <li data-promo-millonaria hidden>
                   <svg class="check check--amber" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#F5A623" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>
                   <strong>Sin prueba: acceso inmediato a todo por un año.</strong>
@@ -955,7 +978,57 @@ const annualCheckoutUrl = FREE_TRIAL ? CHECKOUT_URLS.annual_trial : CHECKOUT_URL
     }
   }
 
+  /* Nota bajo el CTA del mensual (expectativa del cobro al día 4) */
+  .plan-cta-nota {
+    font-size: 12px;
+    color: var(--color-secondary);
+    text-align: center;
+    line-height: 1.45;
+    margin-top: 8px;
+  }
+
   /* Force Astro CSS compiler reload */
+</style>
+
+<style is:global>
+  /* ── Modo pauta (Sandra 10-ago-2026) ──────────────────────────────────
+     Con utm_medium=paid el <html> llega con la clase .pauta (script inline
+     en el <head> de Layout.astro, ANTES del primer render: sin parpadeo de
+     los S/.200). El mensual de S/.20 —lo que vende el anuncio— queda como
+     único plan visible; "Ver los otros planes" revela semanal y anual en la
+     misma página. Global a propósito: las clases .pauta/.ver-planes viven
+     en <html>, fuera del scope de Astro. */
+  html.pauta .plan-semanal,
+  html.pauta .plan-anual {
+    display: none;
+  }
+  html.pauta.ver-planes .plan-semanal,
+  html.pauta.ver-planes .plan-anual {
+    display: flex; /* .plan-card es flex, no block */
+  }
+  /* Un solo plan visible → una sola columna centrada */
+  html.pauta:not(.ver-planes) .pricing__cards--three {
+    grid-template-columns: 1fr;
+    max-width: 480px;
+  }
+  /* El enlace solo existe en modo pauta y muere al revelar los planes.
+     Texto subrayado, no botón: no debe competir con el CTA. */
+  .ver-otros-planes {
+    display: none;
+    background: none;
+    border: none;
+    cursor: pointer;
+    font-family: var(--font-body);
+    font-size: 13px;
+    color: var(--color-secondary);
+    text-decoration: underline;
+    text-underline-offset: 3px;
+    margin: 10px auto 0;
+    padding: 4px;
+  }
+  html.pauta:not(.ver-planes) .ver-otros-planes {
+    display: block;
+  }
 </style>
 
 <script is:inline define:vars={{ pmInicio: PROMO_MILLONARIA.nocheInicioISO, pmFin: PROMO_MILLONARIA.nocheFinISO }}>

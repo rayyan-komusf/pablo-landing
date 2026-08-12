@@ -40,6 +40,47 @@ const tiktokPixelId = import.meta.env.PUBLIC_TIKTOK_PIXEL_ID;
   <head>
     <meta charset="UTF-8" />
 
+    <!-- Modo pauta (Sandra 10-ago-2026): con utm_medium=paid el mensual es el
+         único plan visible en #planes (las reglas CSS viven en Pricing.astro).
+         EN LÍNEA y ANTES de los estilos a propósito: si la clase llega después
+         del primer render, todos ven los S/.200 por un instante — justo lo que
+         se quiere evitar. sessionStorage (no localStorage): sobrevive la
+         navegación interna y muere al cerrar la pestaña. No cambia URLs: los
+         anuncios siguen apuntando a https://www.usapablo.com/. -->
+    <script is:inline>
+      (function () {
+        try {
+          var esPauta =
+            new URLSearchParams(location.search).get("utm_medium") === "paid" ||
+            sessionStorage.getItem("pablo_pauta") === "1";
+          if (!esPauta) return;
+          sessionStorage.setItem("pablo_pauta", "1");
+          document.documentElement.classList.add("pauta");
+        } catch (e) {
+          /* sin storage no hay modo pauta: se ven los tres planes */
+        }
+      })();
+    </script>
+
+    <!-- Diferir terceros que no escriben la _fbc (Sandra 10-ago-2026): GTM,
+         TikTok y PostHog cargan tras el load + requestIdleCallback. El pixel
+         de Meta NO se difiere: escribe la cookie _fbc y de él depende toda la
+         atribución. Los stubs quedan en línea, así lo que se dispare antes de
+         la carga real se encola y no se pierde. -->
+    <script is:inline>
+      window.pabloDiferir = function (fn) {
+        var idle = function () {
+          if ("requestIdleCallback" in window) {
+            requestIdleCallback(fn, { timeout: 2000 });
+          } else {
+            setTimeout(fn, 200);
+          }
+        };
+        if (document.readyState === "complete") idle();
+        else window.addEventListener("load", idle);
+      };
+    </script>
+
     <!-- Nuevo visitante → los CTAs llevan al primer onboarding.
          El onboarding marca localStorage.pablo_intro_vista cuando el usuario
          ya vio el intro (pregunta inicial + saludo + primer gasto); comparte
@@ -113,11 +154,8 @@ const tiktokPixelId = import.meta.env.PUBLIC_TIKTOK_PIXEL_ID;
       rel="stylesheet"
     />
 
-    <!-- Google tag (gtag.js) -->
-    <script
-      is:inline
-      async
-      src="https://www.googletagmanager.com/gtag/js?id=G-F36V5SDW1T"></script>
+    <!-- Google tag (gtag.js) — diferido: el stub encola y el script externo
+         entra tras el primer render (pabloDiferir). -->
     <script is:inline>
       window.dataLayer = window.dataLayer || [];
       function gtag() {
@@ -126,6 +164,13 @@ const tiktokPixelId = import.meta.env.PUBLIC_TIKTOK_PIXEL_ID;
       gtag("js", new Date());
 
       gtag("config", "G-F36V5SDW1T");
+
+      window.pabloDiferir(function () {
+        var s = document.createElement("script");
+        s.async = true;
+        s.src = "https://www.googletagmanager.com/gtag/js?id=G-F36V5SDW1T";
+        document.head.appendChild(s);
+      });
     </script>
     <!-- End Google tag -->
 
@@ -185,15 +230,19 @@ const tiktokPixelId = import.meta.env.PUBLIC_TIKTOK_PIXEL_ID;
             e = document.getElementsByTagName("script")[0];
             e.parentNode.insertBefore(n, e);
           }));
-        ttq.load(tiktokPixelId);
-        ttq.page();
+        // Diferido (Sandra 10-ago): el stub de arriba ya encola los ttq.track
+        // que ocurran antes; recién acá se descarga events.js y sale el page().
+        window.pabloDiferir(function () {
+          ttq.load(tiktokPixelId);
+          ttq.page();
+        });
       })(window, document, "ttq");
     </script>
     )}
     <!-- TikTok Pixel Code End -->
 
-    <!-- PostHog -->
-    <PostHogSnippet />
+    <!-- PostHog (diferido: init tras el primer render, ver PostHogSnippet) -->
+    <PostHogSnippet defer />
   </head>
   <body>
     {!hideBanner && <CountdownBanner />}
