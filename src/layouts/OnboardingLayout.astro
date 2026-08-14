@@ -5,6 +5,7 @@
 import PostHogSnippet from "../components/PostHogSnippet.astro";
 import Atribucion from "../components/Atribucion.astro";
 import MetaPixel from "../components/MetaPixel.astro";
+import TikTokPixel from "../components/TikTokPixel.astro";
 const base = "/onboarding";
 ---
 
@@ -46,6 +47,9 @@ const base = "/onboarding";
     <Atribucion />
     <!-- Meta Pixel (Facebook/Instagram Ads) -->
     <MetaPixel />
+    <!-- TikTok Pixel: acá disparan CompleteRegistration y el pago embebido,
+         sin él no habría cookie _ttp ni eventos del onboarding -->
+    <TikTokPixel />
 
     <!-- PostHog (pageviews manuales: cada pantalla emite onboarding_screen_viewed) -->
     <PostHogSnippet capturePageview={false} />

@@ -239,14 +239,18 @@
 
           // Huella del clic del anuncio: el pago ocurre en usapablo.com, donde
           // la cookie _fbc SÍ existe. Es la única oportunidad de capturarla —
-          // el webhook del cobro llega días después y sin navegador.
+          // el webhook del cobro llega días después y sin navegador. Para
+          // TikTok igual, pero el ttclid va CRUDO (sin envoltorio fb.1.<ts>).
           var fb = window.pabloFbCookies ? window.pabloFbCookies() : {};
+          var tt = window.pabloTtClic ? window.pabloTtClic() : {};
           var registro = await flowSuscripcion(
             {
               accion: "checkout",
               plan: NOMBRE_PLAN[planSlug()] || NOMBRE_PLAN.anual,
               fbc: fb.fbc || undefined,
               fbp: fb.fbp || undefined,
+              ttclid: tt.ttclid || undefined,
+              ttp: tt.ttp || undefined,
             },
             sesion.access_token
           );

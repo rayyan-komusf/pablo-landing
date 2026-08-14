@@ -81,15 +81,23 @@ const pixelId = import.meta.env.PUBLIC_META_PIXEL_ID;
            * valor COMPLETO de la cookie (fb.1.<ts>.<fbclid>), no el fbclid
            * pelado: conserva el timestamp real del clic, que es lo que Meta
            * cruza. La app lo reenvía al backend en el checkout.
+           *
+           * Encadena con la huella de TikTok (ttclid/_ttp, ver
+           * TikTokPixel.astro): todos los saltos a la app llevan ambas en la
+           * misma pasada, incluidos los que llaman pabloConFbc a mano en
+           * navegaciones por JS.
            */
           window.pabloConFbc = function (url) {
             try {
+              var salida = url;
               var c = window.pabloFbCookies();
-              if (!c.fbc && !c.fbp) return url;
-              var u = new URL(url, location.href);
-              if (c.fbc) u.searchParams.set("fbc", c.fbc);
-              if (c.fbp) u.searchParams.set("fbp", c.fbp);
-              return u.toString();
+              if (c.fbc || c.fbp) {
+                var u = new URL(url, location.href);
+                if (c.fbc) u.searchParams.set("fbc", c.fbc);
+                if (c.fbp) u.searchParams.set("fbp", c.fbp);
+                salida = u.toString();
+              }
+              return window.pabloConTtclid ? window.pabloConTtclid(salida) : salida;
             } catch (e) {
               return url;
             }

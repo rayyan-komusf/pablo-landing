@@ -365,15 +365,19 @@
         var sesion = await asegurarSesion();
         if (!sesion) { await irAlPago(); return; }
 
-        // Huella del clic del anuncio (ver MetaPixel.astro): se captura acá,
-        // que es donde la cookie existe; el webhook del cobro ya no la vería.
+        // Huella del clic del anuncio (ver MetaPixel.astro y TikTokPixel.astro):
+        // se captura acá, que es donde la cookie existe; el webhook del cobro
+        // ya no la vería. El ttclid va CRUDO, sin el envoltorio fb.1.<ts> de Meta.
         var fb = window.pabloFbCookies ? window.pabloFbCookies() : {};
+        var tt = window.pabloTtClic ? window.pabloTtClic() : {};
         var registro = await flowSuscripcion(
           {
             accion: "checkout",
             plan: PLANES[planActual].nombre,
             fbc: fb.fbc || undefined,
             fbp: fb.fbp || undefined,
+            ttclid: tt.ttclid || undefined,
+            ttp: tt.ttp || undefined,
           },
           sesion.access_token
         );
@@ -519,6 +523,7 @@
         }
         try { window.posthog && window.posthog.capture("cuenta_creada", { ya_existia: !!yaExiste, plan: planActual }); } catch (e2) {}
         if (window.fbq) fbq("trackCustom", "CuentaCreada", { plan: planActual });
+        if (window.ttq) window.ttq.track("CompleteRegistration");
 
         pendiente = { email: correo, pass: pass };
         if (r.data && r.data.access_token) {

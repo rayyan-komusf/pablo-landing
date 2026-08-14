@@ -1,0 +1,199 @@
+---
+// TikTok Pixel (TikTok Ads) — usado por Layout.astro y OnboardingLayout.astro,
+// mismo criterio que MetaPixel.astro.
+//
+// El ID NO va hardcodeado: viene de PUBLIC_TIKTOK_PIXEL_ID, que solo está
+// definida en producción (build arg del Dockerfile → EasyPanel). Sin variable
+// no se emite el snippet, así que local, staging y los previews no ensucian la
+// medición con eventos falsos.
+const pixelId = import.meta.env.PUBLIC_TIKTOK_PIXEL_ID;
+---
+
+{
+  pixelId && (
+    <Fragment>
+      <script is:inline define:vars={{ pixelId }}>
+        !(function (w, d, t) {
+          w.TiktokAnalyticsObject = t;
+          var ttq = (w[t] = w[t] || []);
+          ((ttq.methods = [
+            "page",
+            "track",
+            "identify",
+            "instances",
+            "debug",
+            "on",
+            "off",
+            "once",
+            "ready",
+            "alias",
+            "group",
+            "enableCookie",
+            "disableCookie",
+            "holdConsent",
+            "revokeConsent",
+            "grantConsent",
+          ]),
+            (ttq.setAndDefer = function (t, e) {
+              t[e] = function () {
+                t.push([e].concat(Array.prototype.slice.call(arguments, 0)));
+              };
+            }));
+          for (var i = 0; i < ttq.methods.length; i++)
+            ttq.setAndDefer(ttq, ttq.methods[i]);
+          ((ttq.instance = function (t) {
+            for (var e = ttq._i[t] || [], n = 0; n < ttq.methods.length; n++)
+              ttq.setAndDefer(e, ttq.methods[n]);
+            return e;
+          }),
+            (ttq.load = function (e, n) {
+              var r = "https://analytics.tiktok.com/i18n/pixel/events.js",
+                o = n && n.partner;
+              ((ttq._i = ttq._i || {}),
+                (ttq._i[e] = []),
+                (ttq._i[e]._u = r),
+                (ttq._t = ttq._t || {}),
+                (ttq._t[e] = +new Date()),
+                (ttq._o = ttq._o || {}),
+                (ttq._o[e] = n || {}));
+              n = document.createElement("script");
+              ((n.type = "text/javascript"),
+                (n.async = !0),
+                (n.src = r + "?sdkid=" + e + "&lib=" + t));
+              e = document.getElementsByTagName("script")[0];
+              e.parentNode.insertBefore(n, e);
+            }));
+          // Diferido (Sandra 10-ago): el stub de arriba ya encola los ttq.track
+          // que ocurran antes; recién acá se descarga events.js y sale el
+          // page(). En el onboarding no existe pabloDiferir: se carga directo.
+          (w.pabloDiferir ||
+            function (fn) {
+              fn();
+            })(function () {
+            ttq.load(pixelId);
+            ttq.page();
+          });
+        })(window, document, "ttq");
+      </script>
+
+      <script is:inline>
+        // Huella del clic de TikTok Ads, espejo del mecanismo del _fbc de Meta
+        // (ver MetaPixel.astro). Dos diferencias que importan:
+        //
+        //  1. El ttclid llega como PARÁMETRO DE URL del anuncio y el pixel no
+        //     lo convierte en una cookie propia, así que lo persistimos
+        //     nosotros (localStorage, 7 días = ventana de atribución).
+        //  2. Viaja CRUDO, tal cual llegó. NUNCA envolverlo en el formato
+        //     fb.1.<timestamp>.<id> de Meta: con prefijo o timestamp TikTok no
+        //     cruza nada. Se copia y se pega el valor tal como viene.
+        //
+        // La cookie _ttp (id de navegador) sí la escribe el pixel y se lee al
+        // momento de usarla.
+        (function () {
+          var CLAVE = "pablo_tiktok_clic_v1";
+          var VIGENCIA_MS = 7 * 24 * 60 * 60 * 1000;
+
+          function valido(v) {
+            // Token URL-safe crudo; se descarta lo que tenga pinta de cookie
+            // de Meta (campos cruzados) o de basura inyectada.
+            return Boolean(
+              v &&
+                v.trim().indexOf("fb.") !== 0 &&
+                /^[A-Za-z0-9._-]{4,500}$/.test(v.trim()),
+            );
+          }
+
+          function leerCookie(nombre) {
+            try {
+              var m = document.cookie.match(
+                "(^|;)\\s*" + nombre + "\\s*=\\s*([^;]+)",
+              );
+              return m ? decodeURIComponent(m[2]) : null;
+            } catch (e) {
+              return null;
+            }
+          }
+
+          function leerGuardado() {
+            try {
+              var crudo = localStorage.getItem(CLAVE);
+              if (!crudo) return null;
+              var dato = JSON.parse(crudo);
+              if (!dato || !dato.ts || Date.now() - dato.ts > VIGENCIA_MS) {
+                localStorage.removeItem(CLAVE);
+                return null;
+              }
+              return dato;
+            } catch (e) {
+              return null;
+            }
+          }
+
+          // Capturar el ttclid de la URL al cargar cada página. El valor bueno
+          // no se pisa con uno peor: sin parámetro (o con basura) se conserva
+          // lo guardado.
+          try {
+            var ttclid = new URL(location.href).searchParams.get("ttclid");
+            if (valido(ttclid)) {
+              localStorage.setItem(
+                CLAVE,
+                JSON.stringify({ ttclid: ttclid.trim(), ts: Date.now() }),
+              );
+            }
+          } catch (e) {
+            /* sin URL ni storage: la medición no puede romper la página */
+          }
+
+          /** Huella de TikTok de ESTE dominio: ttclid persistido + cookie _ttp. */
+          window.pabloTtClic = function () {
+            var g = leerGuardado();
+            var ttp = leerCookie("_ttp");
+            return {
+              ttclid: g && valido(g.ttclid) ? g.ttclid : null,
+              ttp: valido(ttp) ? ttp : null,
+            };
+          };
+
+          /**
+           * Agrega la huella de TikTok a una URL de usapablo.app, mismo patrón
+           * que pabloConFbc (que además encadena con esta al decorar enlaces).
+           * La app la recoge y la reenvía al backend en el checkout.
+           */
+          window.pabloConTtclid = function (url) {
+            try {
+              var c = window.pabloTtClic();
+              if (!c.ttclid && !c.ttp) return url;
+              var u = new URL(url, location.href);
+              if (c.ttclid) u.searchParams.set("ttclid", c.ttclid);
+              if (c.ttp) u.searchParams.set("ttp", c.ttp);
+              return u.toString();
+            } catch (e) {
+              return url;
+            }
+          };
+
+          // Enlaces normales: decorar al hacer clic. Redundante cuando el
+          // pixel de Meta está activo (pabloConFbc ya encadena), pero cubre el
+          // caso de TikTok solo — y volver a setear los mismos parámetros es
+          // inocuo.
+          document.addEventListener(
+            "click",
+            function (e) {
+              try {
+                var a =
+                  e.target &&
+                  e.target.closest &&
+                  e.target.closest('a[href^="https://usapablo.app"]');
+                if (!a) return;
+                a.href = window.pabloConTtclid(a.href);
+              } catch (err) {
+                /* noop: nunca bloquear la navegación */
+              }
+            },
+            true,
+          );
+        })();
+      </script>
+    </Fragment>
+  )
+}
