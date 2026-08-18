@@ -4,6 +4,121 @@
  */
 
 /* ============================================================
+ * 0. TOKENS DEL DESIGN SYSTEM DE PABLO (paridad con la app)
+ * ============================================================
+ * La app (pablo-finance-pal) define estos valores en src/index.css y
+ * src/lib/ceramica.ts. Acá NO se puede importar ese CSS, así que se
+ * replican los VALORES tal cual (fuente de verdad:
+ * design-system/08-tokens-ios.md).
+ *
+ * Reglas duras que gobiernan todo lo de abajo:
+ *  · Profundidad = extrusión SÓLIDA inferior (canto) + nada más.
+ *    JAMÁS halo difuso ni glow: si ves `0 8px 16px -6px …`, está mal.
+ *  · Esquina squircle (corner-shape), con el radio circular como fallback.
+ *  · Radios: campos 14 · tiles/botones/chips 16 · cards 24 · heros 32.
+ *  · Acento de marca = navy. CTA = amarillo. Colores de elemento = cerámica.
+ * ============================================================ */
+
+:root {
+  /* — Superficies y tinta — */
+  --pab-card: #ffffff;
+  --pab-card-edge: #d9d7e5; /* canto de las cards blancas */
+  --pab-border: #dcdae7;
+  --pab-ink: #2b194d; /* --foreground / tinta sobre cerámica */
+  --pab-ink-soft: #6a6487; /* --muted-foreground (5.06:1 sobre el lila) */
+
+  /* — CTA amarillo — */
+  --pab-primary: #f9b81f;
+  --pab-primary-edge: #c78d05;
+  --pab-primary-ink: #201339; /* texto sobre amarillo: nunca blanco */
+  --pab-primary-strong: #d5920b; /* links/íconos chicos donde el amarillo se lava */
+  /* Ámbar para TEXTO. Ni #fba920 (1.82:1 sobre el lila) ni --primary-strong
+   * (2.24:1) pasan AA: como texto el amarillo se lava contra el lila. Este
+   * ocre sí (4.85:1 sobre lila, 6.24:1 sobre blanco) y mantiene la familia.
+   * El amarillo vivo se queda para RELLENOS (CTA, progreso, insignias). */
+  --pab-amber-texto: #8f5b07;
+
+  /* — Acento de marca (navy) — */
+  --pab-accent: #2b2c64;
+  --pab-accent-edge: #191a3e;
+
+  /* — Neutro deshabilitado — */
+  --pab-neutral: #e2e0eb;
+  --pab-neutral-edge: #cbc8da;
+
+  /* — Semánticos — */
+  --pab-success: #20b670;
+  --pab-success-texto: #178250; /* 4.83:1 sobre blanco; #20b670 da 2.63:1 */
+  --pab-destructive: #dd3c3c;
+  --pab-destructive-texto: #c02f2f; /* 5.69:1 sobre blanco; #dd3c3c da 4.39:1 */
+
+  /* — Radios del sistema — */
+  --pab-r-field: 14px;
+  --pab-r-tile: 16px;
+  --pab-r-card: 24px;
+  --pab-r-hero: 32px;
+
+  /* — Drops de la extrusión (spec iOS) — */
+  --pab-drop-sm: 3px; /* cards */
+  --pab-drop: 4px; /* botones, pills, chips */
+  --pab-drop-lg: 6px; /* heros */
+
+  /* — Cerámica: las 8 tintas (ceramica.ts). Nivel `claro` + su canto para
+       los tiles de ícono, que viven sobre cards blancas. — */
+  --cer-1: #f9e6e9;
+  --cer-1-edge: #eea5b1; /* rosa */
+  --cer-2: #faf5e6;
+  --cer-2-edge: #efdca4; /* ámbar */
+  --cer-3: #e8f7f0;
+  --cer-3-edge: #aee5cb; /* esmeralda */
+  --cer-4: #e7f3f9;
+  --cer-4-edge: #a6d5ed; /* cielo */
+  --cer-5: #ece7f8;
+  --cer-5-edge: #bca7ec; /* lila */
+  --cer-6: #faeee6;
+  --cer-6-edge: #efc3a4; /* durazno */
+  --cer-7: #e8f7f6;
+  --cer-7-edge: #aee5df; /* menta */
+  --cer-8: #e6eaf9;
+  --cer-8-edge: #a5b3ee; /* índigo */
+
+  /* Padding lateral del .step. Existe como variable porque el footer y el
+   * header de pregunta van a sangre y necesitan cancelarlo con margen
+   * negativo; hardcodear -24px desbordaba 6px por lado a 320px. */
+  --step-pad-x: 24px;
+}
+
+@media (max-width: 360px) {
+  :root {
+    --step-pad-x: 18px;
+  }
+}
+
+/* ------------------------------------------------------------
+ * Esquina continua de Apple. CSS no tiene un radio continuo
+ * nativo; `corner-shape: squircle` es la mejor aproximación
+ * (Chrome 139+). Los navegadores sin soporte ignoran la línea y
+ * se quedan con la esquina circular: no hace falta @supports.
+ * Excluidos a propósito los círculos y las píldoras.
+ * ------------------------------------------------------------ */
+[class*="rounded-"]:not([class*="rounded-full"]):not([class*="rounded-none"]),
+.option-card,
+.duo-card,
+.btn-primary,
+.speech-bubble,
+.cuenta-input,
+.slider-caja,
+.pago-card,
+.om-nota,
+.om-paywall__lista,
+.om-paywall__total,
+.plan-card,
+.plans-sheet,
+.demo-tip {
+  corner-shape: squircle;
+}
+
+/* ============================================================
  * 1. Animaciones del onboarding
  * base.css referencia stepIn / topbarFloat / msgSlide / phoneSlide
  * pero nunca las definió, así que las transiciones no animaban.
@@ -147,59 +262,86 @@
  * con vida, mascota con idle bounce y entrada escalonada.
  * ============================================================ */
 
-/* --- 4.1 Botón primario "3D": reborde inferior que se hunde al tocar --- */
-/* El sello Duolingo: el botón tiene un borde sólido debajo (ledge) y al
- * presionar baja y el ledge se comprime, dando feedback físico. */
+/* --- 4.1 Botón de juguete matte (el CTA amarillo) ---------------------
+ * Anatomía del sistema: cara amarilla plana + canto sólido debajo. Al
+ * presionar la cara baja exactamente el drop y el canto desaparece, o sea
+ * aterriza sobre su propia base. Sin gradiente de brillo, sin halo. */
 .btn-primary {
-  box-shadow:
-    0 5px 0 0 #c9820a,
-    0 10px 18px -4px rgba(43, 44, 100, 0.28);
+  background: var(--pab-primary);
+  color: var(--pab-primary-ink);
+  border-radius: var(--pab-r-tile); /* botones = 16, no píldora */
+  box-shadow: 0 var(--pab-drop) 0 0 var(--pab-primary-edge);
   transition:
     transform 0.12s var(--ease-soft),
     box-shadow 0.12s var(--ease-soft);
 }
 
-.btn-primary:hover {
-  transform: translateY(-1px);
-  box-shadow:
-    0 6px 0 0 #c9820a,
-    0 13px 22px -4px rgba(43, 44, 100, 0.3);
+/* El levantamiento solo con mouse: en táctil se quedaba pegado tras el tap */
+@media (hover: hover) {
+  .btn-primary:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 calc(var(--pab-drop) + 1px) 0 0 var(--pab-primary-edge);
+  }
 }
 
 .btn-primary:active {
-  transform: translateY(4px);
-  box-shadow:
-    0 1px 0 0 #c9820a,
-    0 3px 8px -2px rgba(43, 44, 100, 0.25);
+  transform: translateY(var(--pab-drop));
+  box-shadow: 0 0 0 0 var(--pab-primary-edge);
 }
 
-/* --- 4.2 Option cards: reborde 3D + rebote elástico al seleccionar --- */
+.btn-primary:focus-visible {
+  outline: 3px solid var(--pab-accent);
+  outline-offset: 3px;
+}
+
+/* Deshabilitado: cara Y canto neutros. Antes el canto ámbar sobrevivía por
+ * orden de cascada y el botón gris salía con una repisa amarilla debajo. */
+.btn-primary.disabled,
+.btn-primary[disabled] {
+  background: var(--pab-neutral);
+  /* #575173 sobre #e2e0eb = 5.69:1. Con --muted-foreground eran 4.25:1. */
+  color: #575173;
+  box-shadow: 0 var(--pab-drop) 0 0 var(--pab-neutral-edge);
+  transform: none;
+}
+
+/* La flechita del CTA: navy sobre amarillo, como el acento de la app */
+.btn-primary .arrow {
+  background: var(--pab-accent);
+  color: #fff;
+}
+
+/* --- 4.2 Option cards: card blanca con canto sólido -------------------
+ * Radio 24 (regla del sistema: TODAS las cards comparten 24) y borde de
+ * 2px como las cards de la app. */
 .option-card {
-  box-shadow:
-    0 3px 0 0 #cfc7e2,
-    0 4px 10px -3px rgba(43, 44, 100, 0.1);
+  background: var(--pab-card);
+  border: 2px solid var(--pab-border);
+  border-radius: var(--pab-r-card);
+  color: var(--pab-ink);
+  box-shadow: 0 var(--pab-drop) 0 0 var(--pab-card-edge);
   transition:
     border-color 0.13s var(--ease-soft),
     transform 0.13s var(--ease-soft),
     box-shadow 0.13s var(--ease-soft);
 }
 
-.option-card:hover {
-  transform: translateY(-2px);
-  box-shadow:
-    0 5px 0 0 #cfc7e2,
-    0 9px 16px -4px rgba(43, 44, 100, 0.14);
+@media (hover: hover) {
+  .option-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 calc(var(--pab-drop) + 2px) 0 0 var(--pab-card-edge);
+    border-color: var(--pab-card-edge);
+  }
 }
 
 .option-card:active {
-  transform: translateY(1px);
-  box-shadow: 0 2px 0 0 #cfc7e2;
+  transform: translateY(var(--pab-drop));
+  box-shadow: 0 0 0 0 var(--pab-card-edge);
 }
 
 .option-card.selected {
-  box-shadow:
-    0 3px 0 0 var(--color-ambar-deep),
-    0 6px 14px -4px rgba(245, 158, 11, 0.32);
+  border-color: var(--pab-primary);
+  box-shadow: 0 var(--pab-drop) 0 0 var(--pab-primary-edge);
   animation: optionPop 0.34s var(--ease-clay);
 }
 
@@ -250,38 +392,18 @@
   }
 }
 
-/* --- 4.4 Barra de progreso con vida: gruesa como Duolingo + brillo --- */
+/* --- 4.4 Barra de progreso: gruesa, plana y matte ---------------------
+ * Se eliminan el gradiente y el barrido de brillo: el sistema es matte,
+ * nada de gloss ni glow. El relleno es amarillo plano con su canto. */
 .progress-track {
   height: 14px;
+  background: var(--pab-neutral);
 }
 
 .progress-fill {
   position: relative;
-  overflow: hidden;
-}
-
-.progress-fill::after {
-  content: "";
-  position: absolute;
-  inset: 0;
-  background: linear-gradient(
-    90deg,
-    transparent,
-    rgba(255, 255, 255, 0.55),
-    transparent
-  );
-  transform: translateX(-100%);
-  animation: progressShine 2.4s ease-in-out infinite;
-}
-
-@keyframes progressShine {
-  0% {
-    transform: translateX(-100%);
-  }
-  60%,
-  to {
-    transform: translateX(100%);
-  }
+  background: var(--pab-primary);
+  box-shadow: inset 0 -3px 0 0 var(--pab-primary-edge);
 }
 
 /* --- 4.5 Pablo con vida: idle bounce suave (no toca los transforms
@@ -342,33 +464,12 @@
   aspect-ratio: 1 / 1;
   min-height: 0;
   padding: 22px 12px;
-  border-radius: 16px;
-  background: var(--color-white);
-  border: 2px solid #e5e5e5;
-  border-bottom-width: 4px; /* el "ledge" sutil que usa Duolingo */
-  box-shadow: none;
-}
-
-.option-card--tile:hover {
-  transform: none;
-  background: #f7f7f7;
-  border-color: #e5e5e5;
-  box-shadow: none;
-}
-
-.option-card--tile:active {
-  transform: translateY(2px);
-  border-bottom-width: 2px;
-  box-shadow: none;
+  /* radio, borde, canto y hundimiento los hereda de .option-card */
 }
 
 .option-card--tile.selected {
   background: var(--color-lila-light);
-  border: 2px solid var(--color-ambar);
-  border-bottom-width: 4px;
-  border-bottom-color: var(--color-ambar-deep);
   padding: 22px 12px;
-  box-shadow: none;
 }
 
 /* La tile no usa el radio circular; la selección se ve por el borde */
@@ -376,7 +477,8 @@
   display: none;
 }
 
-/* Icono grande y plano, sin caja de color (como las banderas de Duolingo) */
+/* Icono grande, en su propio tile cerámico (anatomía de la app: card
+ * blanca + tile de color con el ícono de la librería adentro) */
 .option-card--tile .option-icon {
   font-size: 44px;
   line-height: 1;
@@ -389,11 +491,7 @@
   font-weight: 700;
   font-size: 15px;
   line-height: 1.3;
-  color: #4b4b4b;
-}
-
-.option-card--tile.selected .option-label {
-  color: var(--color-navy);
+  color: var(--pab-ink);
 }
 
 /* Desktop: 3 columnas dimensionadas para que las 2 filas + título entren
@@ -456,7 +554,7 @@
   right: 0;
   z-index: 20;
   background: var(--color-white);
-  border-bottom: 2px solid #e5e5e5;
+  border-bottom: 2px solid var(--pab-border);
 }
 
 .duo-header__inner {
@@ -497,7 +595,7 @@
   font-size: 13px;
   letter-spacing: 0.06em;
   text-transform: uppercase;
-  color: #9b9b9b;
+  color: var(--pab-ink-soft);
   background: none;
   border: none;
   cursor: pointer;
@@ -537,9 +635,10 @@ body {
 
 .slider-caja {
   background: var(--color-white);
-  border: 2px solid #e5e5e5;
-  border-radius: 16px;
+  border: 2px solid var(--pab-border);
+  border-radius: var(--pab-r-card);
   padding: 16px 20px;
+  box-shadow: 0 var(--pab-drop-sm) 0 0 var(--pab-card-edge);
 }
 
 /* Footer tipo Duolingo: línea divisoria + CONTINUAR a la derecha.
@@ -550,28 +649,32 @@ body {
 .duo-footer {
   position: sticky;
   bottom: 0;
-  margin-inline: -24px;
-  border-top: 2px solid #e5e5e5;
+  /* A sangre: cancela el padding lateral del .step, que cambia por
+   * breakpoint. Con -24px fijo desbordaba 6px por lado a 320px. */
+  margin-inline: calc(-1 * var(--step-pad-x));
+  border-top: 2px solid var(--pab-border);
   background: var(--color-white);
-  padding: 18px 24px;
+  padding: 18px var(--step-pad-x);
   flex-direction: row;
   justify-content: flex-end;
   align-items: center;
   z-index: 10;
 }
 
+/* Sentence case, como los botones de la app ("Guardar cambios"): el
+ * versalitas + tracking era el único resto tipográfico ajeno al sistema. */
 .duo-footer .btn-continue {
   width: auto;
   min-width: 220px;
   max-width: 300px;
-  text-transform: uppercase;
-  letter-spacing: 0.08em;
-  font-size: 15px;
+  text-transform: none;
+  letter-spacing: -0.01em;
+  font-size: 17px;
 }
 
 @media (max-width: 640px) {
   .duo-footer {
-    padding: 14px 16px;
+    padding: 14px var(--step-pad-x);
   }
   .duo-footer .btn-continue {
     width: 100%;
@@ -583,13 +686,13 @@ body {
 .speech-bubble {
   position: relative;
   background: var(--color-white);
-  border: 2px solid #e5e5e5;
-  border-radius: 16px;
-  padding: 12px 20px;
+  border: 2px solid var(--pab-border);
+  border-radius: var(--pab-r-card);
+  padding: 14px 20px;
   font-family: var(--font-display);
   font-weight: 700;
   font-size: 17px;
-  color: var(--color-navy);
+  color: var(--pab-ink);
   max-width: 480px;
   text-align: center;
   line-height: 1.45;
@@ -604,7 +707,7 @@ body {
   font-size: 13px;
   letter-spacing: 0.06em;
   text-transform: uppercase;
-  color: #9b9b9b;
+  color: var(--pab-ink-soft);
   background: none;
   border: none;
   cursor: pointer;
@@ -625,8 +728,8 @@ body {
   width: 14px;
   height: 14px;
   background: var(--color-white);
-  border-right: 2px solid #e5e5e5;
-  border-bottom: 2px solid #e5e5e5;
+  border-right: 2px solid var(--pab-border);
+  border-bottom: 2px solid var(--pab-border);
   transform: translateX(-50%) rotate(45deg);
 }
 
@@ -637,8 +740,8 @@ body {
   top: 50%;
   border-right: none;
   border-top: none;
-  border-left: 2px solid #e5e5e5;
-  border-bottom: 2px solid #e5e5e5;
+  border-left: 2px solid var(--pab-border);
+  border-bottom: 2px solid var(--pab-border);
   transform: translateY(-50%) rotate(45deg);
 }
 
@@ -784,8 +887,9 @@ body .topbar > div {
 
 @media (max-width: 560px) {
   .fuente-header {
-    margin-inline: -24px;
-    border-bottom: 2px solid #e5e5e5;
+    margin-inline: calc(-1 * var(--step-pad-x));
+    border-bottom: 2px solid var(--pab-border);
+    padding-inline: 0;
   }
 }
 
@@ -866,51 +970,26 @@ body .topbar > div {
 }
 
 .option-card--pill {
-  background: var(--color-white);
-  border: 2px solid #e5e5e5;
-  border-bottom-width: 4px;
-  border-radius: 16px;
-  box-shadow: none;
   min-height: 76px;
-  padding: 16px 20px;
-  gap: 14px;
+  padding: 14px 16px;
+  gap: 12px;
+  /* radio 24, borde 2px, canto y hundimiento vienen de .option-card */
 }
 
 .option-card--pill .option-icon {
   font-size: 26px;
 }
 
-.option-card--pill:hover {
-  transform: none;
-  background: #f7f7f7;
-  border-color: #e5e5e5;
-  box-shadow: none;
-}
-
-.option-card--pill:active {
-  transform: translateY(2px);
-  border-bottom-width: 2px;
-  box-shadow: none;
-}
-
 .option-card--pill.selected {
   background: var(--color-lila-light);
-  border: 2px solid var(--color-ambar);
-  border-bottom-width: 4px;
-  border-bottom-color: var(--color-ambar-deep);
   padding: 14px 16px;
-  box-shadow: none;
 }
 
 .option-card--pill .option-label {
   font-family: var(--font-display);
   font-weight: 700;
   font-size: 16px;
-  color: #4b4b4b;
-}
-
-.option-card--pill.selected .option-label {
-  color: var(--color-navy);
+  color: var(--pab-ink);
 }
 
 @media (max-width: 560px) {
@@ -1361,7 +1440,7 @@ body .topbar > div {
 }
 
 .wa-input__campo input:disabled {
-  color: #9b9b9b;
+  color: var(--pab-ink-soft);
 }
 
 /* Overlay de grabación */
@@ -1460,10 +1539,9 @@ body .topbar > div {
 /* Tarjeta genérica estilo Duolingo (reemplaza las sombras clay) */
 .duo-card {
   background: var(--color-white);
-  border: 2px solid #e5e5e5;
-  border-bottom-width: 4px;
-  border-radius: 20px;
-  box-shadow: none;
+  border: 2px solid var(--pab-border);
+  border-radius: var(--pab-r-card);
+  box-shadow: 0 var(--pab-drop-sm) 0 0 var(--pab-card-edge);
 }
 
 /* Leyenda del grid "No estás solo" */
@@ -1711,4 +1789,465 @@ body .topbar > div {
 }
 .pago-triste[hidden] {
   display: none;
+}
+
+/* ============================================================
+ * 6. LENGUAJE VISUAL DE LA APP APLICADO AL ONBOARDING (r7)
+ * ============================================================
+ * Ronda 7 (18-ago-2026). Rodrigo: "con este mismo estilo y diseño y
+ * correcciones, quiero que lo apliques a todo el onboarding de la landing
+ * page… asegurándose que sea 100% responsive y siguiendo el design system".
+ *
+ * Todo lo de acá replica valores de la app (§0) — no hay estilo inventado.
+ * ============================================================ */
+
+/* --- 6.1 Tile cerámico del ícono ------------------------------------
+ * Anatomía de una fila de la app: card blanca + tile de color con el
+ * ícono de la librería adentro. El tile lleva su propio canto sólido
+ * (nivel `claro` + `cantoClaro` de ceramica.ts), radio 16 y ≥44px de
+ * lado, así que además resuelve el área táctil. Solo aplica cuando el
+ * ícono es un asset de la librería: si quedara un emoji, no se enmarca. */
+.option-icon:has(img) {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  width: 48px;
+  height: 48px;
+  border-radius: var(--pab-r-tile);
+  corner-shape: squircle;
+  background: var(--cer-5);
+  border: 1.5px solid var(--cer-5-edge);
+  box-shadow: 0 var(--pab-drop-sm) 0 0 var(--cer-5-edge);
+}
+
+.option-icon img {
+  width: 30px;
+  height: 30px;
+  object-fit: contain;
+  display: block;
+}
+
+/* Cerámica por posición (ceramicaPorIndice): en una lista corta ningún
+ * vecino repite tinta. 8 tintas → hasta 8 opciones sin repetir. */
+.option-card:nth-child(8n + 1) .option-icon:has(img) {
+  background: var(--cer-1);
+  border-color: var(--cer-1-edge);
+  box-shadow: 0 var(--pab-drop-sm) 0 0 var(--cer-1-edge);
+}
+.option-card:nth-child(8n + 2) .option-icon:has(img) {
+  background: var(--cer-2);
+  border-color: var(--cer-2-edge);
+  box-shadow: 0 var(--pab-drop-sm) 0 0 var(--cer-2-edge);
+}
+.option-card:nth-child(8n + 3) .option-icon:has(img) {
+  background: var(--cer-3);
+  border-color: var(--cer-3-edge);
+  box-shadow: 0 var(--pab-drop-sm) 0 0 var(--cer-3-edge);
+}
+.option-card:nth-child(8n + 4) .option-icon:has(img) {
+  background: var(--cer-4);
+  border-color: var(--cer-4-edge);
+  box-shadow: 0 var(--pab-drop-sm) 0 0 var(--cer-4-edge);
+}
+.option-card:nth-child(8n + 5) .option-icon:has(img) {
+  background: var(--cer-5);
+  border-color: var(--cer-5-edge);
+  box-shadow: 0 var(--pab-drop-sm) 0 0 var(--cer-5-edge);
+}
+.option-card:nth-child(8n + 6) .option-icon:has(img) {
+  background: var(--cer-6);
+  border-color: var(--cer-6-edge);
+  box-shadow: 0 var(--pab-drop-sm) 0 0 var(--cer-6-edge);
+}
+.option-card:nth-child(8n + 7) .option-icon:has(img) {
+  background: var(--cer-7);
+  border-color: var(--cer-7-edge);
+  box-shadow: 0 var(--pab-drop-sm) 0 0 var(--cer-7-edge);
+}
+.option-card:nth-child(8n + 8) .option-icon:has(img) {
+  background: var(--cer-8);
+  border-color: var(--cer-8-edge);
+  box-shadow: 0 var(--pab-drop-sm) 0 0 var(--cer-8-edge);
+}
+
+/* En las tarjetas cuadradas del step-primer el tile es el protagonista */
+.option-card--tile .option-icon:has(img) {
+  width: 84px;
+  height: 84px;
+  border-radius: var(--pab-r-card);
+  margin-bottom: 10px;
+}
+
+.option-card--tile .option-icon img {
+  width: 54px;
+  height: 54px;
+}
+
+/* Íconos fuera de una option-card (títulos, listas de beneficios) */
+.pab-icono {
+  width: 28px;
+  height: 28px;
+  object-fit: contain;
+  display: inline-block;
+  vertical-align: -6px;
+}
+
+/* --- 6.2 Campos de formulario (radio 14) ---------------------------- */
+.cuenta-input {
+  border-radius: var(--pab-r-field);
+  border: 2px solid var(--pab-border);
+  color: var(--pab-ink);
+  /* extrusión sólida, sin halo */
+  box-shadow: 0 2px 0 0 var(--pab-card-edge);
+  min-height: 52px;
+}
+
+/* El foco del sistema es NAVY (--ring), no ámbar */
+.cuenta-input:focus {
+  border-color: var(--pab-accent);
+  box-shadow: 0 2px 0 0 var(--pab-accent-edge);
+}
+
+.cuenta-input::placeholder {
+  color: var(--pab-ink-soft);
+}
+
+.cuenta-hint {
+  color: var(--pab-ink-soft);
+}
+
+.cuenta-error {
+  color: var(--pab-destructive);
+}
+
+/* Link secundario: 44px de alto real sin inflar la columna */
+.cuenta-link {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 44px;
+  color: var(--pab-accent);
+}
+
+/* --- 6.3 Slider de estrés: matte y con área táctil de 44px ---------- */
+.stress-slider {
+  /* La pista sigue midiendo 8px, pero el control ocupa 44 de alto para
+   * que el pulgar tenga dónde caer (WCAG 2.5.5). */
+  height: 44px;
+  padding-block: 18px;
+  background: none;
+}
+
+.stress-slider::-webkit-slider-runnable-track {
+  height: 8px;
+  border-radius: 9999px;
+  background: linear-gradient(
+    to right,
+    var(--pab-primary) 0%,
+    var(--pab-primary) var(--fill),
+    var(--pab-neutral) var(--fill),
+    var(--pab-neutral) 100%
+  );
+}
+
+.stress-slider::-moz-range-track {
+  height: 8px;
+  border-radius: 9999px;
+  background: linear-gradient(
+    to right,
+    var(--pab-primary) 0%,
+    var(--pab-primary) var(--fill),
+    var(--pab-neutral) var(--fill),
+    var(--pab-neutral) 100%
+  );
+}
+
+/* Pulgar: cara blanca + canto sólido. Antes traía `0 2px 8px #fba92066`,
+ * o sea un glow ámbar — exactamente lo que el sistema prohíbe. */
+.stress-slider::-webkit-slider-thumb {
+  border: 3px solid var(--pab-primary);
+  background: #fff;
+  box-shadow: 0 var(--pab-drop-sm) 0 0 var(--pab-primary-edge);
+  margin-top: -10px;
+}
+
+.stress-slider::-moz-range-thumb {
+  border: 3px solid var(--pab-primary);
+  background: #fff;
+  box-shadow: 0 var(--pab-drop-sm) 0 0 var(--pab-primary-edge);
+}
+
+/* --- 6.4 Chips (radio 16, cerámica) -------------------------------- */
+.demo-tip {
+  border-radius: var(--pab-r-tile);
+  background: var(--cer-5);
+  border: 1.5px solid var(--cer-5-edge);
+  color: var(--pab-ink);
+  box-shadow: 0 2px 0 0 var(--cer-5-edge);
+}
+
+/* --- 6.5 Cards del paywall y del pago ------------------------------ */
+.pago-card,
+.om-nota,
+.om-paywall__lista,
+.om-paywall__total {
+  border-radius: var(--pab-r-card);
+  border: 2px solid var(--pab-border);
+  box-shadow: 0 var(--pab-drop-sm) 0 0 var(--pab-card-edge);
+}
+
+.om-nota {
+  border-color: #f2e6c9;
+  box-shadow: 0 var(--pab-drop-sm) 0 0 #eddcb4;
+}
+
+/* El logo traía un drop-shadow difuso (halo) */
+.om-paywall__logo {
+  filter: none;
+}
+
+/* Tarjetas de plan: card presionable del sistema */
+.plan-card {
+  border: 2px solid var(--pab-border);
+  border-radius: var(--pab-r-card);
+  box-shadow: 0 var(--pab-drop-sm) 0 0 var(--pab-card-edge);
+  min-height: 44px;
+}
+
+@media (hover: hover) {
+  .plan-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 calc(var(--pab-drop-sm) + 2px) 0 0 var(--pab-card-edge);
+  }
+}
+
+.plan-card:active {
+  transform: translateY(var(--pab-drop-sm));
+  box-shadow: 0 0 0 0 var(--pab-card-edge);
+}
+
+.plan-card.selected {
+  border-color: var(--pab-primary);
+  box-shadow: 0 var(--pab-drop-sm) 0 0 var(--pab-primary-edge);
+}
+
+/* La insignia deja el gradiente: amarillo plano con su canto */
+.plan-badge {
+  background: var(--pab-primary);
+  border-radius: var(--pab-r-tile);
+  corner-shape: squircle;
+  color: var(--pab-primary-ink);
+  box-shadow: 0 2px 0 0 var(--pab-primary-edge);
+}
+
+/* Downsell y links legales: 44px de alto táctil */
+.om-paywall__downsell {
+  min-height: 44px;
+  color: var(--pab-ink-soft);
+}
+
+/* --- 6.6 Texto: nada justificado ----------------------------------- */
+/* A 320-393px el justificado abre ríos enormes entre palabras ("Empieza
+ * tu   prueba"). Red de seguridad además del markup. */
+.step [class~="text-justify"] {
+  text-align: left;
+}
+
+/* --- 6.7 Áreas táctiles del cromo (≥44px) -------------------------- */
+.btn-back,
+.btn-exit,
+.btn-exit-floating {
+  min-width: 44px;
+  min-height: 44px;
+}
+
+.duo-header__brand,
+.duo-header__link,
+.duo-footer__link,
+.btn-topbar-skip {
+  min-height: 44px;
+  display: inline-flex;
+  align-items: center;
+}
+
+/* Los links legales del paywall van en su propia fila: pueden crecer a 44
+ * sin mover nada de su alrededor. */
+[data-om-default] a[href] {
+  display: inline-flex;
+  align-items: center;
+  min-height: 44px;
+  padding-inline: 2px;
+}
+
+/* --- 6.8 320px: el móvil más chico ---------------------------------
+ * Nada de scroll horizontal y nada de texto cortado. Solo se aprieta el
+ * espaciado; los tamaños de fuente y los targets no bajan. */
+@media (max-width: 360px) {
+  .duo-header__inner {
+    padding-inline: 14px;
+    gap: 8px;
+  }
+  .duo-header__brand span {
+    font-size: 20px;
+  }
+  .duo-header__link {
+    font-size: 11px;
+    letter-spacing: 0.04em;
+  }
+  .fuente-header__inner {
+    padding: 10px 14px 12px;
+    gap: 10px;
+  }
+  .speech-bubble {
+    padding: 12px 14px;
+    font-size: 14px;
+  }
+  .options-grid {
+    gap: 14px;
+  }
+  .option-card--tile {
+    min-height: 190px;
+    padding: 20px 10px;
+  }
+  .option-card--tile .option-icon:has(img) {
+    width: 72px;
+    height: 72px;
+  }
+  .option-card--tile .option-icon img {
+    width: 46px;
+    height: 46px;
+  }
+  .option-card--pill {
+    padding: 12px 12px;
+    gap: 10px;
+    min-height: 68px;
+  }
+  .option-card--pill .option-label {
+    font-size: 15px;
+  }
+  .option-icon:has(img) {
+    width: 44px;
+    height: 44px;
+  }
+  .option-icon img {
+    width: 28px;
+    height: 28px;
+  }
+  .duo-footer .btn-continue {
+    font-size: 16px;
+    min-width: 0;
+  }
+  .demo-title {
+    font-size: 18px;
+  }
+}
+
+/* --- 6.9 Accesibilidad: sin movimiento si el usuario lo pidió ------ */
+@media (prefers-reduced-motion: reduce) {
+  .duo-stage__pablo img,
+  .fuente-pablo img,
+  .wa-input__btn:not(.wa-input__btn--off) {
+    animation: none !important;
+  }
+  .btn-primary,
+  .option-card,
+  .plan-card {
+    transition-duration: 0.01ms;
+  }
+}
+
+/* --- 6.10 Piezas puntuales que quedaban fuera del sistema ------------ */
+
+/* Ícono de librería suelto (chips, notas, filas de preview). El tamaño lo
+ * fijan los atributos width/height del <img>; acá solo la alineación. */
+.pab-icono {
+  object-fit: contain;
+  display: inline-block;
+  vertical-align: -0.22em;
+  flex-shrink: 0;
+}
+
+/* Chips del demo: el ícono y el texto en una sola línea */
+.demo-tip {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+
+/* Tile de categoría en el preview del panel (step-10): squircle 16 con su
+ * canto, igual que los tiles de categoría de la app — no un círculo. */
+.cat-tile {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 38px;
+  height: 38px;
+  border-radius: var(--pab-r-tile);
+  corner-shape: squircle;
+}
+
+/* Calificación de los testimonios: la estrella de la librería, no el glifo ★ */
+.testi-estrellas {
+  display: inline-flex;
+  align-items: center;
+  gap: 2px;
+}
+
+.testi-estrellas img {
+  width: 15px;
+  height: 15px;
+  object-fit: contain;
+  display: block;
+}
+
+/* Nota del pago: ícono + texto alineados */
+.pago-nota {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+}
+
+/* --- 6.11 Contraste AA del ámbar como texto ------------------------- */
+/* `.text-amber` de base.css es #f59e0b: 1.82:1 sobre el lila del onboarding
+ * y 2.15:1 sobre blanco — muy por debajo de AA en cualquier tamaño. Se
+ * reemplaza por el ocre del sistema (4.85:1 / 6.24:1). Medido, no a ojo. */
+.text-amber,
+.om-paywall__eyebrow,
+.om-nota__firma,
+.om-paywall__nombre b {
+  color: var(--pab-amber-texto);
+}
+
+.cuenta-link,
+.om-paywall__downsell {
+  color: var(--pab-accent);
+}
+
+/* --- 6.12 Últimas áreas táctiles ------------------------------------ */
+
+/* Los botones de foto/mic del mock de WhatsApp escalan con el teléfono (em),
+ * así que a 320-393px miden 22-27px. En vez de romper la proporción del
+ * mock, se extiende el área de toque con un pseudoelemento invisible: el
+ * dibujo no cambia y el dedo tiene ≥44px. */
+.wa-input__btn {
+  position: relative;
+}
+
+.wa-input__btn::after {
+  content: "";
+  position: absolute;
+  inset: -11px;
+}
+
+/* Nota: la extensión no puede pasar del borde de la pantalla del mock
+ * (.iphone__pantalla recorta con overflow:hidden), así que el alto llega a
+ * 44px y el ancho queda en ~33px en el botón pegado al borde. Es el máximo
+ * que permite un teléfono simulado de ~210px de ancho a 320px de viewport. */
+
+/* "Ver todos los planes" medía 19px de alto */
+[data-om-default] button.underline,
+#plansModal button.underline {
+  min-height: 44px;
 }

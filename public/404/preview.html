@@ -1,0 +1,159 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Pablo caminando — preview (sin redirect)</title>
+<style>
+  :root {
+    --lila: #f5f3ff;
+    --navy: #2b2c64;
+    --body: #56578f;
+    --ambar: #f5a623;
+    --tinta: #4a3527;
+    --tierra: #e9dcbe;
+    --pablo: 190px;
+    --frames: 4;
+    --ciclo: 0.7s;
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0; min-height: 100svh;
+    display: flex; flex-direction: column; align-items: center; justify-content: center;
+    gap: 34px;
+    background: var(--lila); color: var(--navy);
+    font-family: system-ui, -apple-system, 'Segoe UI', sans-serif;
+    text-align: center; padding: 32px 24px;
+  }
+  .carga { display: flex; flex-direction: column; align-items: center; }
+  .escena { position: relative; width: var(--pablo); height: var(--pablo); }
+  .pablo {
+    position: absolute; inset: 0;
+    background-image: url('pablo-caminando.webp');
+    background-repeat: no-repeat;
+    background-size: calc(var(--pablo) * var(--frames)) var(--pablo);
+    background-position: 0 0;
+    z-index: 2;
+    animation: caminar var(--ciclo) steps(4) infinite;
+  }
+  @keyframes caminar { to { background-position-x: calc(var(--pablo) * var(--frames) * -1); } }
+  .suelo {
+    position: absolute; left: 50%;
+    bottom: calc(var(--pablo) * -0.035);
+    width: calc(var(--pablo) * 0.62);
+    transform: translateX(-50%); z-index: 1; overflow: visible;
+  }
+  .sombra {
+    position: absolute; left: 50%;
+    bottom: calc(var(--pablo) * 0.075);
+    width: calc(var(--pablo) * 0.42);
+    height: calc(var(--pablo) * 0.045);
+    margin-left: calc(var(--pablo) * -0.21);
+    border-radius: 50%;
+    background: radial-gradient(ellipse at center, rgba(74,53,39,0.22) 0%, rgba(74,53,39,0) 72%);
+    z-index: 2;
+    animation: pisar 0.175s ease-in-out infinite alternate;
+  }
+  @keyframes pisar {
+    from { transform: scaleX(1); opacity: 1; }
+    to   { transform: scaleX(0.84); opacity: 0.7; }
+  }
+  .anillo {
+    width: 28px; height: 28px; margin-top: 24px; border-radius: 50%;
+    border: 3px solid rgba(43,44,100,0.14); border-top-color: var(--ambar);
+    animation: girar 0.75s linear infinite;
+  }
+  @keyframes girar { to { transform: rotate(360deg); } }
+  .titulo { margin: 22px 0 0; font-size: 1.05rem; font-weight: 600; letter-spacing: -0.01em; }
+  .nota { margin: 5px 0 0; font-size: 0.85rem; color: var(--body); opacity: 0.75; }
+
+  /* --- controles del preview (no van en producción) --- */
+  .panel {
+    display: flex; align-items: center; gap: 18px; flex-wrap: wrap; justify-content: center;
+    font-size: 0.8rem; color: var(--body);
+    background: #fff; border: 1px solid rgba(43,44,100,0.1);
+    border-radius: 14px; padding: 14px 20px;
+  }
+  .panel label { display: flex; align-items: center; gap: 8px; }
+  .panel input[type=range] { width: 130px; accent-color: var(--ambar); }
+  .panel b { color: var(--navy); font-variant-numeric: tabular-nums; }
+  .zoom { --pablo: 380px; }
+  .hoja {
+    display: block; width: min(760px, 92vw); image-rendering: auto;
+    border: 1px solid rgba(43,44,100,0.1); border-radius: 12px; background: #fff;
+  }
+  .cap { font-size: 0.72rem; color: var(--body); opacity: 0.7; margin: 8px 0 0; letter-spacing: 0.04em; text-transform: uppercase; }
+  .fila { display: flex; gap: 48px; align-items: flex-end; flex-wrap: wrap; justify-content: center; }
+</style>
+</head>
+<body>
+  <div class="fila">
+    <div>
+      <div class="carga">
+        <div class="escena">
+          <svg class="suelo" viewBox="0 0 170 54" aria-hidden="true">
+            <path d="M9 24 C9 14 26 10 44 9 C70 6 98 6 126 9 C146 11 161 15 161 25 C161 39 138 47 106 47 L62 47 C31 47 9 38 9 24 Z"
+              fill="var(--tierra)" stroke="var(--tinta)" stroke-width="4.6" stroke-linejoin="round" />
+            <path d="M20 23 C40 15 68 13 94 14 C118 15 142 18 152 24"
+              fill="none" stroke="#fffaf0" stroke-opacity="0.6" stroke-width="3.4" stroke-linecap="round" />
+            <ellipse cx="56" cy="33" rx="5" ry="2.1" fill="var(--tinta)" opacity="0.2" />
+            <ellipse cx="122" cy="36" rx="3.6" ry="1.6" fill="var(--tinta)" opacity="0.16" />
+          </svg>
+          <div class="sombra" aria-hidden="true"></div>
+          <div class="pablo" role="img" aria-label="Pablo caminando"></div>
+        </div>
+        <div class="anillo" aria-hidden="true"></div>
+        <p class="titulo">Redirigiéndote a la base</p>
+        <p class="nota">Esa página no existe</p>
+      </div>
+      <p class="cap">tamaño real de la 404 · 190px</p>
+    </div>
+
+    <div>
+      <div class="escena zoom">
+        <svg class="suelo" viewBox="0 0 170 54" aria-hidden="true">
+          <path d="M9 24 C9 14 26 10 44 9 C70 6 98 6 126 9 C146 11 161 15 161 25 C161 39 138 47 106 47 L62 47 C31 47 9 38 9 24 Z"
+            fill="var(--tierra)" stroke="var(--tinta)" stroke-width="4.6" stroke-linejoin="round" />
+          <path d="M20 23 C40 15 68 13 94 14 C118 15 142 18 152 24"
+            fill="none" stroke="#fffaf0" stroke-opacity="0.6" stroke-width="3.4" stroke-linecap="round" />
+        </svg>
+        <div class="sombra" aria-hidden="true"></div>
+        <div class="pablo" role="img" aria-label="Pablo caminando, ampliado"></div>
+      </div>
+      <p class="cap">2× para revisar el titileo</p>
+    </div>
+  </div>
+
+  <div class="panel">
+    <label>ciclo <input id="vel" type="range" min="300" max="1400" step="20" value="700" /> <b id="velTxt">0.70 s</b></label>
+    <label><input id="pausa" type="checkbox" /> pausar</label>
+    <label><input id="lento" type="checkbox" /> celda por celda (2.4 s)</label>
+  </div>
+
+  <div>
+    <img class="hoja" src="pablo-caminando.webp" alt="hoja de sprite, 4 celdas" />
+    <p class="cap">la hoja: contacto → juntas → empuje → juntas</p>
+  </div>
+
+<script>
+  const root = document.documentElement;
+  const vel = document.getElementById('vel');
+  const velTxt = document.getElementById('velTxt');
+  const pausa = document.getElementById('pausa');
+  const lento = document.getElementById('lento');
+
+  function aplicar() {
+    const ms = lento.checked ? 2400 : Number(vel.value);
+    root.style.setProperty('--ciclo', (ms / 1000).toFixed(2) + 's');
+    velTxt.textContent = (ms / 1000).toFixed(2) + ' s';
+    document.querySelectorAll('.pablo, .sombra, .anillo').forEach(el => {
+      el.style.animationPlayState = pausa.checked ? 'paused' : 'running';
+    });
+  }
+  vel.addEventListener('input', aplicar);
+  pausa.addEventListener('change', aplicar);
+  lento.addEventListener('change', aplicar);
+  aplicar();
+</script>
+</body>
+</html>

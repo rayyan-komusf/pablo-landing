@@ -35,7 +35,7 @@
           data-index="0"
           onclick="selectCategory(0)"
         >
-          <div class="w-9 h-9 rounded-full flex items-center justify-center text-[18px] shrink-0" style="background: #fdf0d5">🏠</div>
+          <div class="cat-tile shrink-0" style="background: #fdf0d5"><img src="/onboarding/images/iconos/ho01_casa.png" alt="" width="22" height="22" loading="lazy" class="pab-icono" /></div>
           <div class="flex-1 flex flex-col gap-[1px]">
             <span class="text-[13px] text-navy font-body font-medium">Alquiler</span>
             <span class="font-display font-bold text-[14px] text-navy">S/.1,100</span>
@@ -47,7 +47,7 @@
           data-index="1"
           onclick="selectCategory(1)"
         >
-          <div class="w-9 h-9 rounded-full flex items-center justify-center text-[18px] shrink-0" style="background: #ede8f5">🛒</div>
+          <div class="cat-tile shrink-0" style="background: #ede8f5"><img src="/onboarding/images/iconos/co06_mercado.png" alt="" width="22" height="22" loading="lazy" class="pab-icono" /></div>
           <div class="flex-1 flex flex-col gap-[1px]">
             <span class="text-[13px] text-navy font-body font-medium">Alimento</span>
             <span class="font-display font-bold text-[14px] text-navy">S/.300</span>
@@ -59,7 +59,7 @@
           data-index="2"
           onclick="selectCategory(2)"
         >
-          <div class="w-9 h-9 rounded-full flex items-center justify-center text-[18px] shrink-0" style="background: #d6efe1">🚌</div>
+          <div class="cat-tile shrink-0" style="background: #d6efe1"><img src="/onboarding/images/iconos/tr01_bus.png" alt="" width="22" height="22" loading="lazy" class="pab-icono" /></div>
           <div class="flex-1 flex flex-col gap-[1px]">
             <span class="text-[13px] text-navy font-body font-medium">Transporte</span>
             <span class="font-display font-bold text-[14px] text-navy">S/.120</span>
@@ -71,7 +71,7 @@
           data-index="3"
           onclick="selectCategory(3)"
         >
-          <div class="w-9 h-9 rounded-full flex items-center justify-center text-[18px] shrink-0" style="background: #fde8d8">🐷</div>
+          <div class="cat-tile shrink-0" style="background: #fde8d8"><img src="/onboarding/images/iconos/ui12_bolsa_dinero.png" alt="" width="22" height="22" loading="lazy" class="pab-icono" /></div>
           <div class="flex-1 flex flex-col gap-[1px]">
             <span class="text-[13px] text-navy font-body font-medium">Ahorro</span>
             <span class="font-display font-bold text-[14px] text-navy">S/.300</span>
@@ -91,10 +91,10 @@
 
 <script is:inline type="module">
   const categorias = [
-    { icon: "🏠", label: "ALQUILER", amount: "S/.1,100", value: 1100, color: "#D4A853" },
-    { icon: "🛒", label: "ALIMENTO", amount: "S/.300", value: 300, color: "#9B8EC4" },
-    { icon: "🚌", label: "TRANSPORTE", amount: "S/.120", value: 120, color: "#5BAD7F" },
-    { icon: "🐷", label: "AHORRO", amount: "S/.300", value: 300, color: "#E8A87C" },
+    { icon: "ho01_casa", label: "ALQUILER", amount: "S/.1,100", value: 1100, color: "#D4A853" },
+    { icon: "co06_mercado", label: "ALIMENTO", amount: "S/.300", value: 300, color: "#9B8EC4" },
+    { icon: "tr01_bus", label: "TRANSPORTE", amount: "S/.120", value: 120, color: "#5BAD7F" },
+    { icon: "ui12_bolsa_dinero", label: "AHORRO", amount: "S/.300", value: 300, color: "#E8A87C" },
   ];
   let activa = 0;
   let intervalo = null;
