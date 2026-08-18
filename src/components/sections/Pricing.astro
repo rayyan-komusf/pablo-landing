@@ -384,15 +384,10 @@ const annualCheckoutUrl = FREE_TRIAL ? CHECKOUT_URLS.annual_trial : CHECKOUT_URL
                   <svg class="check check--amber" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#F5A623" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>
                   Todo lo incluido en el plan Mensual.
                 </li>
-                {FREE_TRIAL && (
-                  <li data-pm-hide>
-                    <svg class="check check--amber" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#F5A623" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>
-                    <span>3 días gratis de prueba.</span>
-                  </li>
-                )}
+                {/* El anual perdió su trial el 18-ago-2026: cobro directo, sin prueba. */}
                 <li>
                   <svg class="check check--amber" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#F5A623" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>
-                  <span><strong>Garantía de satisfacción de 14 días desde que empiezas tu prueba.</strong> Si Pablo no es para ti, te devolvemos el 100% de tu dinero. Sin preguntas.</span>
+                  <span><strong>Garantía de satisfacción de 14 días desde tu compra.</strong> Si Pablo no es para ti, te devolvemos el 100% de tu dinero. Sin preguntas.</span>
                 </li>
                 <li data-promo-millonaria hidden>
                   <svg class="check check--amber" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#F5A623" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>

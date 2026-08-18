@@ -91,11 +91,11 @@ export const APP_URL = 'https://usapablo.app/';
 //  Estos links llevan a usapablo.app/pricing con el plan preseleccionado;
 //  la app pide registro/login y retoma el checkout (hoy Stripe por API;
 //  cuando Flow vuelva, el mismo /pricing lo usa vía su switch de pasarela).
-//  Los trials (mensual 3 días, anual 7) los define la pasarela.
+//  Los trials (mensual 3 días, anual SIN prueba desde el 18-ago-2026) los define la pasarela.
 // ============================================================
 export const CHECKOUT_URLS = {
   weekly: 'https://usapablo.app/pricing?plan=semanal',   // S/.7/semana — sin trial
   monthly: 'https://usapablo.app/pricing?plan=mensual',  // S/.20/mes — 3 días gratis
-  annual_trial: 'https://usapablo.app/pricing?plan=anual',    // S/.200/año — 3 días gratis (7→3 el 11-ago-2026, atribución Meta)
+  annual_trial: 'https://usapablo.app/pricing?plan=anual',    // S/.200/año — cobro directo (3→0 el 18-ago-2026, pedido de Sandra)
   annual_no_trial: 'https://usapablo.app/pricing?plan=anual', // mismo plan; el trial lo define la pasarela
 };

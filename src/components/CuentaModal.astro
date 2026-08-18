@@ -97,9 +97,9 @@
     // Días de prueba por plan. La ventana de la Oferta Millonaria es la MISMA
     // que usan Step18, StepCuentaPago y el backend: mensual 14 días, anual
     // cobro directo. Fuera de la ventana no cambia nada.
-    // Anual 7→3 (11-ago-2026): con 7 el cobro caía fuera de la ventana de
-    // atribución de Meta. Mismo valor que FLOW_PLANES en el backend.
-    var TRIAL = { semanal: 0, mensual: 3, anual: 3 };
+    // Anual 3→0 (18-ago-2026, pedido de Sandra): cobro directo, sin prueba.
+    // Mismo valor que FLOW_PLANES en el backend.
+    var TRIAL = { semanal: 0, mensual: 3, anual: 0 };
     var MONTOS = { semanal: 7, mensual: 20, anual: 200 };
     (function () {
       var ahora = Date.now();
@@ -286,10 +286,9 @@
           ? " · " + dias + " días gratis. Registras tu tarjeta y no se cobra hasta el día " +
             (dias + 1) + ". Cancelas cuando quieras."
           : " · se cobra hoy, cancela cuando quieras") +
-        // Garantía SOLO del anual, anclada al inicio de la prueba (el cobro
-        // es al día 3; "14 días de garantía" a secas se lee desde el cobro).
+        // Garantía SOLO del anual; sin trial (18-ago-2026) el ancla es la compra.
         (planActual === "anual"
-          ? " Garantía de satisfacción de 14 días desde que empiezas tu prueba: te devolvemos el 100%, sin preguntas."
+          ? " Garantía de satisfacción de 14 días desde tu compra: te devolvemos el 100%, sin preguntas."
           : "");
     }
     function cargarFlowScript(entorno) {

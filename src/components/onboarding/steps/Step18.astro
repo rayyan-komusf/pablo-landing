@@ -148,7 +148,9 @@
       <!-- Título -->
       <div class="flex flex-col gap-1">
         <h2 class="font-display font-bold text-[28px] max-[360px]:text-[24px] leading-[1.15] tracking-tight text-navy text-justify">
-          <span data-pm-swap="Empieza hoy con el Plan Anual.">Empieza tu prueba gratuita de 3 días.</span>
+          <!-- El anual perdió su trial el 18-ago-2026 (cobro directo): el
+               paywall vende el anual, así que el copy es el de compra. -->
+          <span>Empieza hoy con el Plan Anual.</span>
         </h2>
         <p class="text-[15px] font-body text-amber text-justify">Cancela en cualquier momento.</p>
       </div>
@@ -159,7 +161,7 @@
         </p>
         <p class="text-[14px] leading-relaxed font-body text-navy text-justify">
           Plan Anual: garantía de satisfacción de
-          <strong class="font-bold">14 días desde que empiezas tu prueba</strong>.
+          <strong class="font-bold">14 días desde tu compra</strong>.
           Si Pablo no es para ti, te devolvemos el
           <strong class="font-bold">100% de tu dinero</strong>. Sin preguntas.
         </p>
@@ -185,7 +187,7 @@
       </div>
       <!-- CTA principal: siempre inicia el plan anual -->
       <button class="btn-primary w-full text-[16px] py-[14px]" style="box-shadow: none" onclick="pabloStartTrial('anual')">
-        <span data-pm-swap="Quiero el Plan Anual">Empieza tu prueba gratuita de 3 días</span>
+        <span>Quiero el Plan Anual</span>
         <span class="arrow" aria-hidden="true">→</span>
       </button>
       <!-- Ver planes -->
@@ -260,12 +262,11 @@
           <span class="text-[10px] font-body uppercase tracking-widest text-navy-soft mt-1">meses</span>
           <span class="font-display font-bold text-[18px] text-navy mt-2">S/. 200</span>
           <span class="text-[10px] font-body text-navy-soft leading-tight">S/. 3.84 /sem</span>
-          <span class="text-[10px] font-body font-bold text-amber mt-1" data-pm-hide>3 días gratis</span>
         </button>
       </div>
       <!-- CTA del modal -->
       <button class="btn-primary w-full text-[16px] py-[14px] mt-1" style="box-shadow: none" onclick="pabloStartTrial()">
-        <span id="plansCtaLabel">Empieza tu prueba gratuita de 3 días</span>
+        <span id="plansCtaLabel">Quiero el Plan Anual</span>
         <span class="arrow" aria-hidden="true">→</span>
       </button>
       <p class="text-[12px] text-center font-body text-navy-soft -mt-2">Cancela en cualquier momento</p>
@@ -286,9 +287,10 @@
       ctaLabel: "Empieza tu prueba gratuita de 3 días",
     },
     anual: {
-      // 7→3 el 11-ago-2026 (atribución de Meta); en sync con FLOW_PLANES.
-      trialDays: 3,
-      ctaLabel: "Empieza tu prueba gratuita de 3 días",
+      // 3→0 el 18-ago-2026 (pedido de Sandra): cobro directo, sin prueba.
+      // En sync con FLOW_PLANES (_shared/flow.ts del backend).
+      trialDays: 0,
+      ctaLabel: "Quiero el Plan Anual",
     },
   };
   let planSeleccionado = "anual";

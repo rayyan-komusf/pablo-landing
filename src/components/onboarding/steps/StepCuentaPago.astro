@@ -73,12 +73,12 @@
         production: "https://www.flow.cl/app/elements/flow-1.1.0.min.js?20241202",
       };
       var NOMBRE_PLAN = { semanal: "Plan Semanal", mensual: "Plan Mensual", anual: "Plan Anual" };
-      // Anual 7→3 días (11-ago-2026): con 7 el cobro caía fuera de la ventana
-      // de atribución de Meta. Mismo valor que FLOW_PLANES en el backend.
+      // Anual 3→0 días (18-ago-2026, pedido de Sandra): cobro directo.
+      // Mismo valor que FLOW_PLANES en el backend.
       var PLANES = {
         semanal: { texto: "Plan Semanal — S/.7 a la semana", trial: 0, monto: 7 },
         mensual: { texto: "Plan Mensual — S/.20 al mes", trial: 3, monto: 20 },
-        anual: { texto: "Plan Anual — S/.200 al año", trial: 3, monto: 200 },
+        anual: { texto: "Plan Anual — S/.200 al año", trial: 0, monto: 200 },
       };
       // Oferta Millonaria (misma ventana que Step18 y el backend): mensual 14
       // días, anual cobro directo. Fuera de la ventana no cambia nada.
