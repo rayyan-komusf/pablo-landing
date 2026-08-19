@@ -133,62 +133,69 @@
     </div>
   </div>
 
-  <div class="flex flex-col flex-1 w-full max-w-[340px] mx-auto px-5 pt-6 pb-8 max-md:pb-[40px] overflow-y-auto [scrollbar-width:none] [&::-webkit-scrollbar]:hidden vcenter" data-om-default>
-    <!-- Top Block -->
-    <div class="flex flex-col gap-3">
-      <!-- Pablo logo -->
-      <div class="flex justify-center">
-        <img
-          src="/onboarding/images/pablo/pablo-logo.png"
-          alt="Pablo"
-          class="w-[72px] h-[72px] object-cover drop-shadow-md rounded-2xl"
-        />
-      </div>
-      <!-- Título -->
-      <div class="flex flex-col gap-1">
-        <h2 class="font-display font-bold text-[28px] max-[360px]:text-[24px] leading-[1.15] tracking-tight text-navy">
-          <span data-pm-swap="Empieza hoy con el Plan Anual.">Empieza tu prueba gratuita de 7 días.</span>
+  <!-- ══════════ Paywall por defecto ══════════
+       Rediseñado 19-ago sobre datos de PostHog (30 días): de 607 personas que
+       llegan a esta pantalla, solo 311 pasan al registro. Es la fuga más grande
+       del embudo — 296 personas, más que las 13 pantallas de preguntas juntas
+       (que cuestan 54). Tres cambios, todos apuntados a esa fuga:
+
+       1. El héroe es el MENSUAL con prueba gratis, no el anual. Antes lo primero
+          y más grande que se leía era "S/. 200 /año" — el número más caro del
+          catálogo, a 25 pantallas de haber dicho hola.
+       2. Jerarquía invertida: primero qué se llevan, después cuánto cuesta. El
+          precio pasa de 32px a una línea de apoyo.
+       3. Resumen personalizado arriba: devuelve lo que la persona acaba de
+          contar y lo conecta con lo que Pablo hará. Las 13 preguntas dejan de
+          ser un peaje y se vuelven la razón por la que la oferta le calza. -->
+  <div class="pw" data-om-default>
+    <div class="pw__scroll">
+      <!-- Resumen personalizado: se arma en el script de abajo SOLO con
+           respuestas reales. Si la persona saltó todo, este bloque no existe;
+           nunca se rellena con datos inventados. -->
+      <section class="pw-resumen" data-pw-resumen hidden aria-labelledby="pwResumenTitulo">
+        <h2 class="pw-resumen__titulo" id="pwResumenTitulo">Esto es lo que me contaste</h2>
+        <ul class="pw-resumen__lista" data-pw-resumen-lista></ul>
+        <p class="pw-resumen__cierre" data-pw-resumen-cierre></p>
+      </section>
+
+      <div class="pw-head">
+        <h2 class="pw-head__titulo">
+          Empieza gratis<span class="pw-head__dias" data-pw-dias>&nbsp;3 días</span>
         </h2>
-        <p class="text-[15px] font-body text-amber">Cancela en cualquier momento.</p>
-      </div>
-      <!-- Promesa -->
-      <div class="flex flex-col gap-3">
-        <p class="text-[14px] leading-relaxed font-body text-navy">
-          Solo nos importa que sigas usando a Pablo si en verdad cambia tu vida financiera.
+        <p class="pw-head__sub">
+          Pablo trabaja contigo desde hoy. Si no es para ti, cancelas antes de que
+          termine la prueba y no pagas nada.
         </p>
-        <p class="text-[14px] leading-relaxed font-body text-navy">
-          Si sientes que Pablo no es para ti, te devolveremos el
-          <strong class="font-bold">100% de tu dinero</strong>. Sin preguntas.
-        </p>
-        <p class="text-[14px] italic font-body text-navy-soft">— El equipo de Pablo</p>
       </div>
-      <!-- Links legales -->
-      <div class="flex items-center gap-2 text-[12px] font-body text-center justify-center text-navy-soft">
-        <a href="#" class="hover:text-navy transition-colors">Contáctanos</a>
-        <span>·</span>
-        <a href="#" class="hover:text-navy transition-colors">Términos</a>
-        <span>·</span>
-        <a href="#" class="hover:text-navy transition-colors">Privacidad</a>
-      </div>
+
+      <ul class="pw-incluye">
+        <li><img src="/onboarding/images/iconos/t07_whatsapp.png" alt="" width="26" height="26" loading="lazy" /><span>Registra tus gastos por WhatsApp, escribiendo o con un audio</span></li>
+        <li><img src="/onboarding/images/iconos/t04_presupuesto_piechart.png" alt="" width="26" height="26" loading="lazy" /><span>Tu presupuesto se actualiza solo, en tiempo real</span></li>
+        <li><img src="/onboarding/images/iconos/t12_racha_fuego.png" alt="" width="26" height="26" loading="lazy" /><span>Pablo te escribe primero para que no pierdas el hilo</span></li>
+        <li><img src="/onboarding/images/iconos/t03_metas_bullseye.png" alt="" width="26" height="26" loading="lazy" /><span>Metas y deudas con un plan claro, no con culpa</span></li>
+      </ul>
+
+      <p class="pw-garantia">
+        Si sientes que Pablo no es para ti, te devolvemos el
+        <strong>100% de tu dinero</strong>. Sin preguntas.
+      </p>
+
+      <p class="pw-legal">
+        <a href="/terminos">Términos</a> · <a href="/privacidad">Privacidad</a>
+      </p>
     </div>
-    <!-- Bottom Stack -->
-    <div class="flex flex-col gap-4 mt-8 pt-2 w-full">
-      <!-- Pricing card -->
-      <div class="duo-card p-6 flex flex-col items-center gap-1">
-        <p class="font-display font-bold text-[32px] text-navy">S/. 200 /año</p>
-        <p class="text-[12px] text-center font-body text-navy-soft leading-tight">
-          Eso es aprox. S/. 3.84 a la semana, facturados anualmente
-        </p>
-      </div>
-      <!-- CTA principal: siempre inicia el plan anual -->
-      <button class="btn-primary w-full text-[16px] py-[14px]" onclick="pabloStartTrial('anual')">
-        <span data-pm-swap="Quiero el Plan Anual">Empieza tu prueba gratuita de 7 días</span>
+
+    <!-- Zona de decisión: pegada abajo, siempre visible, sin competir con el
+         contenido de arriba. -->
+    <div class="pw-cierre">
+      <p class="pw-precio" data-pw-precio>
+        Luego <strong>S/.20 al mes</strong> · cancela cuando quieras
+      </p>
+      <button class="btn-primary pw-cta" onclick="pabloStartTrial('mensual')">
+        <span data-pw-cta-label>Empezar mis 3 días gratis</span>
         <span class="arrow" aria-hidden="true">→</span>
       </button>
-      <!-- Ver planes -->
-      <button class="text-[13px] underline text-center font-body text-navy mt-1" onclick="pabloOpenPlans()">
-        Ver todos los planes ↓
-      </button>
+      <button class="pw-planes" onclick="pabloOpenPlans()">Ver todos los planes</button>
     </div>
   </div>
 
@@ -233,11 +240,12 @@
         <!-- 1 mes -->
         <button
           type="button"
-          class="plan-card relative flex flex-col items-center rounded-[18px] px-2 pt-5 pb-4 bg-white"
+          class="plan-card selected relative flex flex-col items-center rounded-[18px] px-2 pt-5 pb-4 bg-white"
           data-plan="mensual"
           onclick="pabloSelectPlan(this, 'mensual')"
-          aria-pressed="false"
+          aria-pressed="true"
         >
+          <span class="plan-badge absolute -top-[10px] left-1/2 -translate-x-1/2 whitespace-nowrap text-[9px] font-display font-bold tracking-wide text-navy px-2 py-[3px]">EL MÁS ELEGIDO</span>
           <span class="font-display font-bold text-[26px] text-navy leading-none">1</span>
           <span class="text-[10px] font-body uppercase tracking-widest text-navy-soft mt-1">mes</span>
           <span class="font-display font-bold text-[18px] text-navy mt-2">S/. 20</span>
@@ -247,10 +255,10 @@
         <!-- 12 meses -->
         <button
           type="button"
-          class="plan-card selected relative flex flex-col items-center rounded-[18px] px-2 pt-5 pb-4 bg-white"
+          class="plan-card relative flex flex-col items-center rounded-[18px] px-2 pt-5 pb-4 bg-white"
           data-plan="anual"
           onclick="pabloSelectPlan(this, 'anual')"
-          aria-pressed="true"
+          aria-pressed="false"
         >
           <span class="plan-badge absolute -top-[10px] left-1/2 -translate-x-1/2 whitespace-nowrap text-[9px] font-display font-bold tracking-wide text-navy px-2 py-[3px]">AHORRA 45%</span>
           <span class="font-display font-bold text-[26px] text-navy leading-none">12</span>
@@ -262,7 +270,7 @@
       </div>
       <!-- CTA del modal -->
       <button class="btn-primary w-full text-[16px] py-[14px] mt-1" onclick="pabloStartTrial()">
-        <span id="plansCtaLabel">Empieza tu prueba gratuita de 7 días</span>
+        <span id="plansCtaLabel">Empezar mis 3 días gratis</span>
         <span class="arrow" aria-hidden="true">→</span>
       </button>
       <p class="text-[12px] text-center font-body text-navy-soft -mt-2">Cancela en cualquier momento</p>
@@ -279,15 +287,17 @@
       ctaLabel: "Continuar con el plan semanal",
     },
     mensual: {
-      trialDays: 3,
-      ctaLabel: "Empieza tu prueba gratuita de 3 días",
+      trialDays: 3, // definido en el plan de Flow, no acá: no se puede prometer más
+      ctaLabel: "Empezar mis 3 días gratis",
     },
     anual: {
       trialDays: 7,
       ctaLabel: "Empieza tu prueba gratuita de 7 días",
     },
   };
-  let planSeleccionado = "anual";
+  // El mensual es el plan héroe (antes era el anual): S/.20 es la decisión
+  // barata, y el anual queda como upgrade dentro del modal de planes.
+  let planSeleccionado = "mensual";
 
   // Oferta Millonaria (fin del webinar 20:40 del 23 al 29 jul, hora Perú):
   // el anual pasa a COBRO DIRECTO (sin prueba) y el mensual a 14 días. Misma
@@ -317,7 +327,12 @@
       return false;
     }
   })();
-  if (enPromoMillonaria || llegoDesdeLaOferta) {
+  // ⚠️ 19-ago: antes bastaba con `llegoDesdeLaOferta` (un ?oferta=millonaria en
+  // la URL o un sessionStorage viejo) para mostrar el paywall de la Oferta
+  // Millonaria — con su "Cierra el miércoles 29 de julio", 20 días vencido, en
+  // la pantalla exacta donde la persona decide pagar. La ventana ya es la única
+  // condición: fuera de ella el bloque no puede aparecer ni por link viejo.
+  if (enPromoMillonaria) {
     const bloqueOferta = document.querySelector("[data-om-oferta]");
     const bloqueDefault = document.querySelector("[data-om-default]");
     if (bloqueOferta && bloqueDefault) {
@@ -376,6 +391,104 @@
     window.pabloTrack?.("onboarding_trial_started", { plan });
     cerrarPlanes();
     window.pabloNext();
+  }
+
+  /* ─────────────────────────────────────────────────────────────────────
+     Resumen personalizado.
+
+     Devuelve lo que la persona acabó de contar en las 13 preguntas y lo ata a
+     lo que Pablo hace. Regla dura: SOLO respuestas reales. Cada fila existe
+     únicamente si su respuesta existe; si no hay ninguna (alguien que saltó
+     todo, o que entró directo al paywall), el bloque entero queda oculto. Nada
+     de rellenar con cifras o frases de ejemplo que parezcan datos suyos.
+     ───────────────────────────────────────────────────────────────────── */
+  const OBJETIVO = {
+    "gastos-hormiga": ["controlar tus gastos hormiga", "te aviso apenas un gasto chico se te empiece a ir de las manos"],
+    ahorrar: ["ahorrar más para el futuro", "aparto tu ahorro apenas entra la plata, antes de que se gaste sola"],
+    metas: ["avanzar hacia tus metas", "parto tu meta en aportes que sí entran en tu mes"],
+    automatizar: ["automatizar tus finanzas", "yo registro y ordeno; tú solo me hablas por WhatsApp"],
+    deudas: ["ordenar tus deudas", "armamos el orden de pago y te recuerdo cada cuota"],
+    educacion: ["entender mejor tu plata", "te explico cada decisión en peruano, sin palabreo de banco"],
+  };
+  const CLARIDAD = {
+    siempre: "casi nunca sabes a dónde se fue tu plata",
+    "a-veces": "a veces se te pierde de vista a dónde se fue tu plata",
+    "bajo-control": "ya tienes tus gastos bastante bajo control",
+  };
+  const FLUJO = {
+    siempre: "sueles llegar justo a fin de mes",
+    "a-veces": "algunos meses llegas justo a fin de mes",
+    nunca: "sueles llegar cómodo a fin de mes",
+  };
+  const EXPERIENCIA = {
+    "primera-vez": "es tu primera vez haciendo un presupuesto",
+    excel: "vienes de llevar tus cuentas en Excel",
+    manual: "vienes de anotar tus cuentas a mano",
+    app: "ya probaste otras apps de finanzas",
+  };
+  const AHORRO = {
+    si: "ya tienes una meta de ahorro en mente",
+    "quiero-empezar": "quieres empezar a ahorrar con una meta",
+    "todavia-no": null,
+  };
+
+  function pintarResumen() {
+    const caja = document.querySelector("[data-pw-resumen]");
+    const lista = document.querySelector("[data-pw-resumen-lista]");
+    const cierre = document.querySelector("[data-pw-resumen-cierre]");
+    if (!caja || !lista) return;
+
+    let r = {};
+    try {
+      r = {
+        ...JSON.parse(localStorage.getItem("pablo_answers_v1") || "{}"),
+        ...JSON.parse(sessionStorage.getItem("pablo_answers") || "{}"),
+      };
+    } catch {
+      r = {};
+    }
+
+    const filas = [];
+    const meta = OBJETIVO[r.mainGoal];
+    if (meta) filas.push({ icono: "t03_metas_bullseye", texto: `Quieres <strong>${meta[0]}</strong>.` });
+    if (CLARIDAD[r.moneyClarity]) filas.push({ icono: "t01_panel_gauge", texto: `Hoy ${CLARIDAD[r.moneyClarity]}.` });
+    if (FLUJO[r.cashFlow]) filas.push({ icono: "ui11_billete_alas", texto: `Y ${FLUJO[r.cashFlow]}.` });
+    if (r.hasDebt === true) filas.push({ icono: "ac03_tarjeta_credito", texto: "Estás pagando una deuda." });
+    if (EXPERIENCIA[r.budgetingExp]) filas.push({ icono: "en04_libro", texto: `Además, ${EXPERIENCIA[r.budgetingExp]}.` });
+    if (AHORRO[r.hasSavingsGoal]) filas.push({ icono: "ui12_bolsa_dinero", texto: `Y ${AHORRO[r.hasSavingsGoal]}.` });
+
+    // Sin respuestas reales no hay resumen. Preferimos no mostrar nada antes
+    // que mostrar algo genérico disfrazado de personalizado.
+    if (filas.length < 2) {
+      caja.hidden = true;
+      return;
+    }
+
+    lista.innerHTML = filas
+      .slice(0, 3) // 3 filas: con 4, el titular de la oferta caía bajo el pliegue
+      .map(
+        (f) =>
+          `<li><img src="/onboarding/images/iconos/${f.icono}.png" alt="" width="24" height="24" loading="lazy" /><span>${f.texto}</span></li>`
+      )
+      .join("");
+
+    if (cierre) {
+      cierre.innerHTML = meta
+        ? `Por eso, desde hoy, <strong>${meta[1]}</strong>.`
+        : "Por eso Pablo trabaja contigo todos los días, desde WhatsApp.";
+    }
+    caja.hidden = false;
+    window.pabloTrack?.("onboarding_paywall_resumen_visto", { filas: filas.length });
+  }
+
+  // El paywall vive oculto hasta que el motor lo activa: se pinta al mostrarse,
+  // no al cargar la página, para que use las respuestas ya dadas.
+  const pantallaPaywall = document.querySelector('[data-step="step-18"]');
+  if (pantallaPaywall) {
+    new MutationObserver(() => {
+      if (pantallaPaywall.classList.contains("active")) pintarResumen();
+    }).observe(pantallaPaywall, { attributes: true, attributeFilter: ["class"] });
+    if (pantallaPaywall.classList.contains("active")) pintarResumen();
   }
 
   document.addEventListener("keydown", (e) => {

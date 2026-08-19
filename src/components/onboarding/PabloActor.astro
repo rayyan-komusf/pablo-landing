@@ -1,0 +1,183 @@
+---
+// Pablo persistente del onboarding.
+//
+// Regla de oro (Rodrigo, 19-ago): Pablo NUNCA desaparece de la pantalla; solo
+// cambia de posición, de tamaño o de pose. Antes cada step tenía su propio
+// <img>: al cambiar de pantalla el elemento viejo se desmontaba y el nuevo
+// aparecía ya colocado, y se veía como un parpadeo con salto de pose.
+//
+// Ahora hay UN solo Pablo, montado fuera de los .step y con position:fixed, que
+// viaja entre "anclajes" (`[data-pablo-anclaje]`) con FLIP. Nunca se desmonta,
+// así que no hay parpadeo posible: se ve al mismo Pablo desplazándose.
+//
+// No toca el motor: observa qué .step tiene la clase `active` y usa las
+// globales públicas que el motor ya expone (window.pabloNext).
+const base = "/onboarding/images/pablo/2d";
+---
+
+<div class="pablo-actor" id="pabloActor" data-pose="saludando" aria-hidden="true">
+  <div class="pablo-actor__cuerpo">
+    <img class="pablo-actor__sprite is-activo" data-capa="a" src={`${base}/pablo-saludando.webp`} alt="" width="445" height="420" fetchpriority="high" />
+    <img class="pablo-actor__sprite" data-capa="b" src={`${base}/pablo-saludando.webp`} alt="" width="445" height="420" loading="lazy" />
+  </div>
+  <span class="pablo-actor__sombra" aria-hidden="true"></span>
+</div>
+
+<script is:inline>
+  (() => {
+    const actor = document.getElementById("pabloActor");
+    if (!actor) return;
+
+    const cuerpo = actor.querySelector(".pablo-actor__cuerpo");
+    const capas = [...actor.querySelectorAll(".pablo-actor__sprite")];
+    const BASE = "/onboarding/images/pablo/2d";
+    const POSES = ["saludando", "senalando", "explicando", "celebrando", "emocionado", "anotando"];
+    const suave = window.matchMedia("(prefers-reduced-motion: reduce)");
+
+    // Precarga: cambiar de pose no debe costar un fotograma en blanco.
+    POSES.forEach((p) => { const i = new Image(); i.src = `${BASE}/pablo-${p}.webp`; });
+
+    let poseActual = "saludando";
+    let capaViva = 0;
+    let timers = [];
+    let ultimoPaso = null;
+
+    const limpiar = () => { timers.forEach(clearTimeout); timers = []; };
+    const luego = (fn, ms) => { const t = setTimeout(fn, ms); timers.push(t); return t; };
+
+    /* ---- Pose: crossfade entre dos capas, nunca un swap seco ------------ */
+    function ponerPose(pose) {
+      if (!pose || pose === poseActual) return;
+      const entra = capas[1 - capaViva];
+      const sale = capas[capaViva];
+      entra.src = `${BASE}/pablo-${pose}.webp`;
+      const aplicar = () => {
+        entra.classList.add("is-activo");
+        sale.classList.remove("is-activo");
+        capaViva = 1 - capaViva;
+        poseActual = pose;
+        // Squash & stretch: el cambio de pose se siente como un impulso del
+        // cuerpo, no como que se cambió la imagen.
+        cuerpo.classList.remove("pablo-impulso");
+        void cuerpo.offsetWidth;
+        if (!suave.matches) cuerpo.classList.add("pablo-impulso");
+      };
+      entra.complete ? aplicar() : entra.addEventListener("load", aplicar, { once: true });
+    }
+
+    /* ---- Viaje: FLIP entre el sitio actual y el anclaje del step nuevo --- */
+    function viajarA(anclaje, primeraVez) {
+      const destino = anclaje.getBoundingClientRect();
+      const origen = actor.getBoundingClientRect();
+      // El anclaje define caja y tamaño; el actor se sitúa encima de él.
+      actor.style.width = `${destino.width}px`;
+      actor.style.height = `${destino.height}px`;
+      actor.style.left = `${destino.left}px`;
+      actor.style.top = `${destino.top}px`;
+
+      if (primeraVez || suave.matches || !origen.width) {
+        actor.style.transition = "none";
+        actor.style.transform = "none";
+        void actor.offsetWidth;
+        actor.style.transition = "";
+        return;
+      }
+      // Invert: se pinta donde estaba…
+      const dx = origen.left - destino.left;
+      const dy = origen.top - destino.top;
+      const es = origen.width / destino.width;
+      actor.style.transition = "none";
+      actor.style.transform = `translate(${dx}px, ${dy}px) scale(${es})`;
+      void actor.offsetWidth;
+      // …y se suelta hacia su sitio con rebote (masa, no interpolación lineal).
+      actor.style.transition = "transform 620ms cubic-bezier(.34,1.56,.64,1)";
+      actor.style.transform = "none";
+    }
+
+    /* ---- Burbujas encadenadas + auto-avance ----------------------------- */
+    function hablar(step) {
+      const burbuja = step.querySelector("[data-pablo-burbuja]");
+      if (!burbuja) return;
+      let frases;
+      try { frases = JSON.parse(step.dataset.pabloDice || "[]"); } catch { frases = []; }
+      if (!frases.length) return;
+
+      const auto = step.dataset.pabloAuto === "true";
+      const footer = step.querySelector(".duo-footer");
+      // Mientras Pablo habla, el CONTINUAR se atenúa; sigue clicable para
+      // quien quiera adelantarse (auto-avance ≠ secuestrar al usuario).
+      footer?.classList.add("duo-footer--esperando");
+
+      const LEER = (t) => Math.min(4200, Math.max(1500, 380 + t.length * 46));
+      let t = 0;
+      frases.forEach((frase, i) => {
+        luego(() => {
+          burbuja.textContent = frase;
+          burbuja.classList.remove("burbuja-entra");
+          void burbuja.offsetWidth;
+          burbuja.classList.add("burbuja-entra");
+          // Pablo gesticula en cada frase: alterna señalar/explicar.
+          if (!suave.matches && i > 0) ponerPose(i % 2 ? "explicando" : "senalando");
+        }, t);
+        t += LEER(frase);
+      });
+
+      luego(() => {
+        footer?.classList.remove("duo-footer--esperando");
+        if (auto && !suave.matches && document.querySelector(".step.active") === step) {
+          window.pabloNext?.();
+        }
+      }, t);
+    }
+
+    /* ---- Reacción al cambio de pantalla --------------------------------- */
+    function alCambiarPaso(primeraVez) {
+      const step = document.querySelector(".step.active");
+      if (!step || step === ultimoPaso) return;
+      ultimoPaso = step;
+      limpiar();
+
+      const anclaje = step.querySelector("[data-pablo-anclaje]");
+      if (!anclaje) {
+        // Pantallas sin Pablo (demo, paywall): NO se oculta con display:none —
+        // se retira de escena hacia abajo, para que al volver entre caminando.
+        actor.classList.add("pablo-actor--fuera");
+        return;
+      }
+      actor.classList.remove("pablo-actor--fuera");
+      ponerPose(anclaje.dataset.pose || "explicando");
+      viajarA(anclaje, primeraVez);
+
+      // Pantallas de resultado: Pablo cae desde fuera del encuadre y aterriza
+      // celebrando lo que el usuario acaba de ver (patrón de Duo cuando te
+      // entrega un logro). No reemplaza al FLIP: se encima como capa interna.
+      actor.classList.remove("pablo-actor--celebra");
+      if (anclaje.dataset.pabloCelebra === "true" && !suave.matches) {
+        void actor.offsetWidth;
+        actor.classList.add("pablo-actor--celebra");
+      }
+
+      hablar(step);
+    }
+
+    // El motor no emite eventos, así que se observa la clase `active`.
+    // Observar en vez de parchear = cero cambios en onboarding.js.
+    const obs = new MutationObserver(() => alCambiarPaso(false));
+    document.querySelectorAll(".step").forEach((s) =>
+      obs.observe(s, { attributes: true, attributeFilter: ["class"] })
+    );
+
+    let reflow;
+    addEventListener("resize", () => {
+      clearTimeout(reflow);
+      reflow = setTimeout(() => {
+        const step = document.querySelector(".step.active");
+        const anclaje = step?.querySelector("[data-pablo-anclaje]");
+        if (anclaje) viajarA(anclaje, true);
+      }, 120);
+    });
+
+    // El motor arranca al final del body; se espera a que pinte el primer step.
+    requestAnimationFrame(() => requestAnimationFrame(() => alCambiarPaso(true)));
+  })();
+</script>

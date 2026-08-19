@@ -777,13 +777,8 @@ body {
   justify-content: center;
 }
 
-.duo-stage__pablo img {
-  max-width: 100%;
-  max-height: 100%;
-  object-fit: contain;
-  animation: pabloBob 3.4s var(--ease-soft) infinite;
-  transform-origin: center bottom;
-}
+/* El sprite ya no vive dentro del anclaje (lo pone PabloActor); la caja solo
+ * reserva el sitio al que Pablo viaja. */
 
 @media (max-width: 640px) {
   .duo-stage__pablo {
@@ -856,11 +851,10 @@ body {
   min-height: 0;
 }
 
-/* El contenido arranca arriba (no centrado verticalmente), como Duolingo */
-.step[data-step="step-fuente"] .vcenter > :first-child,
-.step[data-step="step-porque"] .vcenter > :first-child {
-  margin-top: 0;
-}
+/* El contenido arranca arriba (no centrado verticalmente), como Duolingo.
+ * El imán superior de la sección 12 ya lo hace para las 20 pantallas con
+ * .fuente-body; esta regla solo sobrevivía con más especificidad y dejaba
+ * step-fuente/step-porque 24px más pegadas que sus hermanas. */
 
 /* La topbar acompaña el ancho Duolingo */
 body .topbar > div {
@@ -901,36 +895,14 @@ body .topbar > div {
   height: 140px;
 }
 
-.fuente-pablo picture {
-  display: flex;
-  width: 100%;
-  height: 100%;
-}
+/* La caja de la esquina ya no contiene <img>: es el anclaje al que viaja el
+ * Pablo persistente. Conserva sus medidas porque son las que definen el
+ * tamaño de Pablo en las pantallas de pregunta. */
 
-.fuente-pablo img {
-  width: 140px;
-  height: 140px;
-  object-fit: contain;
-  animation: pabloBob 3.4s var(--ease-soft) infinite;
-}
-
-/* La mascota "viaja": aparece grande al centro del escenario y se desliza
- * hasta su sitio junto a la pregunta (patrón Duolingo del lápiz). Después
- * retoma su flotación normal. */
-.step.active[data-step="step-fuente"] .fuente-pablo img {
-  animation:
-    fuentePabloIn 0.9s var(--ease-clay) backwards,
-    pabloBob 3.4s var(--ease-soft) 1.1s infinite;
-}
-
-@keyframes fuentePabloIn {
-  0% {
-    transform: translate(min(240px, 30vw), 28vh) scale(2);
-  }
-  to {
-    transform: translate(0, 0) scale(1);
-  }
-}
+/* El "viaje" de la mascota hacia su sitio ya no es un keyframe de step-fuente:
+ * lo hace el FLIP de PabloActor, y por eso ocurre en TODAS las transiciones y
+ * no solo en esta. Antes, además, era una animación de entrada — o sea que
+ * Pablo igual se desmontaba y volvía a aparecer. */
 
 /* Las opciones entran DESPUÉS de que la mascota aterriza */
 .step.active[data-step="step-fuente"] .fuente-grid > .option-card:nth-child(1) {
@@ -1594,14 +1566,13 @@ body .topbar > div {
   }
 }
 
-/* Los WebP/GIF animados de Pablito traen el fondo blanqueado a #fff puro
- * (se optimizaron cuando el onboarding era blanco). Sobre el lila actual
- * dejaban un cuadro blanco: multiply funde el blanco con CUALQUIER fondo
- * (el resto de colores apenas se oscurece sobre un lila tan claro). */
-.duo-stage__pablo img,
-.fuente-pablo img {
-  mix-blend-mode: multiply;
-}
+/* mix-blend-mode: multiply RETIRADO (19-ago).
+ * Existía para tapar el fondo BLANCO OPACO de pablo-anotando.webp y
+ * pablo-saludando.webp sobre el lila. El efecto colateral era que multiplicaba
+ * también el cuerpo de Pablo: el crema #FBF3E4 salía grisáceo y sucio — el
+ * "no se ve como Pablo para nada" que reportó Rodrigo.
+ * Los sprites del set 2D ya se sirven con canal alfa recortado, así que no hace
+ * falta ningún blend: Pablo se ve con su color real. */
 
 /* --- 5. Registro de cuenta (steps cuenta-nombre/correo/password) ---
  * Inputs estilo Duo: card blanca redondeada, borde que se enciende en foco.
@@ -2250,4 +2221,444 @@ body .topbar > div {
 [data-om-default] button.underline,
 #plansModal button.underline {
   min-height: 44px;
+}
+
+/* ============================================================
+ * 12. Imán superior en las pantallas de pregunta
+ *
+ * Problema medido (1440×1000, rama diseno/onboarding-glowup):
+ * `.vcenter > :first-child { margin-top: auto }` centraba verticalmente el
+ * bloque de opciones, así que entre la pregunta y la primera opción quedaban
+ * 172px (step-6), 219px (step-7/9/14/15) y hasta 268px (step-11/12) de aire
+ * muerto, con el mismo hueco repetido abajo. La pregunta y su respuesta se
+ * leían como dos bloques sin relación.
+ *
+ * Las opciones ahora se pegan bajo la pregunta con un ritmo fijo y el aire
+ * sobrante se va TODO abajo (el `margin-bottom:auto` del .vcenter lo absorbe).
+ * Aplica a los 20 steps que usan .fuente-body de una sola vez.
+ *
+ * Los steps de cuenta también se pegan arriba a propósito: un campo centrado
+ * es justo el que tapa el teclado móvil; arriba queda siempre a la vista.
+ * ============================================================ */
+
+.fuente-body.vcenter > :first-child {
+  margin-top: 0;
+}
+
+.fuente-grid,
+.fuente-body.vcenter > :first-child {
+  margin-top: var(--pab-gap-pregunta, 40px);
+}
+
+@media (max-width: 560px) {
+  .fuente-grid,
+  .fuente-body.vcenter > :first-child {
+    margin-top: var(--pab-gap-pregunta-mobile, 24px);
+  }
+}
+
+/* ============================================================
+ * 13. Pablo persistente (ver src/components/onboarding/PabloActor.astro)
+ *
+ * REGLA DE ORO (Rodrigo, 19-ago): Pablo nunca desaparece de la pantalla.
+ * Solo se mueve, cambia de tamaño o cambia de pose. Por eso vive FUERA de los
+ * .step, en position:fixed, y viaja con FLIP entre los `[data-pablo-anclaje]`
+ * de cada pantalla. Al no desmontarse nunca, el parpadeo entre pantallas que
+ * reportó Rodrigo ("desapareció unos milisegundos y volvió diferente") deja de
+ * ser posible por construcción.
+ * ============================================================ */
+
+.pablo-actor {
+  position: fixed;
+  z-index: 30;
+  pointer-events: none;
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+  will-change: transform;
+}
+
+.pablo-actor__cuerpo {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  transform-origin: 50% 100%; /* pivota sobre los pies: peso, no centro geométrico */
+}
+
+.pablo-actor__sprite {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  object-position: bottom center;
+  opacity: 0;
+  transition: opacity 220ms linear;
+}
+
+.pablo-actor__sprite.is-activo {
+  opacity: 1;
+}
+
+/* Sombra de contacto: ancla a Pablo al suelo. Sin esto, al viajar parece que
+ * flota recortado sobre el fondo. Es sombra de contacto, nunca halo difuso. */
+.pablo-actor__sombra {
+  position: absolute;
+  bottom: -2px;
+  left: 50%;
+  width: 46%;
+  height: 10px;
+  transform: translateX(-50%);
+  background: rgba(43, 44, 100, 0.16);
+  border-radius: 50%;
+  filter: blur(4px);
+}
+
+/* Respiración permanente: aunque esté quieto, está vivo. */
+.pablo-actor:not(.pablo-actor--fuera) .pablo-actor__cuerpo {
+  animation: pabloRespira 3.2s var(--ease-soft, ease-in-out) infinite;
+}
+
+@keyframes pabloRespira {
+  0%, 100% { transform: translateY(0) scale(1, 1); }
+  50%      { transform: translateY(-5px) scale(0.995, 1.008); }
+}
+
+/* Squash & stretch al cambiar de pose: comprime al aterrizar y rebota.
+ * Es la diferencia entre "cambió la imagen" y "Pablo se movió". */
+.pablo-actor__cuerpo.pablo-impulso {
+  animation: pabloImpulso 560ms cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+@keyframes pabloImpulso {
+  0%   { transform: scale(1, 1); }
+  22%  { transform: scale(1.09, 0.90) translateY(4px); }  /* aplasta */
+  52%  { transform: scale(0.95, 1.07) translateY(-9px); } /* estira */
+  78%  { transform: scale(1.02, 0.98) translateY(1px); }
+  100% { transform: scale(1, 1); }
+}
+
+/* Salir de escena: se va hacia abajo, NO se apaga. Al volver, entra caminando
+ * desde donde se fue. */
+.pablo-actor--fuera {
+  transform: translateY(130%) scale(0.9);
+  transition: transform 480ms cubic-bezier(0.4, 0, 0.6, 1);
+  opacity: 0;
+}
+
+/* Bajada celebrando (step-10, step-nuevo-4): Pablo cae desde arriba del
+ * encuadre, aterriza con rebote y da un saltito — el patrón de Duo cuando
+ * te entrega un resultado. */
+.pablo-actor--celebra .pablo-actor__cuerpo {
+  animation: pabloAterriza 1150ms cubic-bezier(0.34, 1.4, 0.64, 1);
+}
+
+@keyframes pabloAterriza {
+  0%   { transform: translateY(-58vh) scale(0.86, 1.14); }
+  38%  { transform: translateY(0) scale(1.14, 0.86); }
+  54%  { transform: translateY(-26px) scale(0.94, 1.06); }
+  70%  { transform: translateY(0) scale(1.07, 0.93); }
+  84%  { transform: translateY(-9px) scale(0.98, 1.02); }
+  100% { transform: translateY(0) scale(1, 1); }
+}
+
+/* El anclaje solo reserva sitio: es una caja invisible que define dónde y de
+ * qué tamaño va Pablo en cada pantalla. */
+[data-pablo-anclaje] {
+  visibility: hidden;
+}
+
+/* Burbuja: entra desde el lado de Pablo con un pop corto, como si la soltara
+ * al hablar. */
+.burbuja-entra {
+  animation: burbujaPop 380ms cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+@keyframes burbujaPop {
+  0%   { opacity: 0; transform: translateY(8px) scale(0.94); }
+  60%  { opacity: 1; transform: translateY(0) scale(1.02); }
+  100% { opacity: 1; transform: translateY(0) scale(1); }
+}
+
+/* Mientras Pablo habla, el CONTINUAR baja de peso pero sigue clicable:
+ * el auto-avance no puede volverse un secuestro. */
+.duo-footer--esperando .btn-continue {
+  opacity: 0.5;
+  transition: opacity 260ms ease;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .pablo-actor:not(.pablo-actor--fuera) .pablo-actor__cuerpo,
+  .pablo-actor__cuerpo.pablo-impulso,
+  .pablo-actor--celebra .pablo-actor__cuerpo,
+  .burbuja-entra {
+    animation: none;
+  }
+  .pablo-actor {
+    transition: none;
+  }
+}
+
+/* Caja del Pablo que celebra en las pantallas de resultado (step-10). Se
+ * reserva encima del contenido y a la derecha, para que al aterrizar no tape
+ * la cifra que el usuario vino a leer. */
+.celebra-ancla {
+  width: 128px;
+  height: 128px;
+  margin: 4px auto -8px;
+}
+
+@media (max-width: 560px) {
+  .celebra-ancla {
+    width: 96px;
+    height: 96px;
+    margin: 0 auto -6px;
+  }
+}
+
+/* ============================================================
+ * 14. Paywall (step-18) — la fuga más grande del embudo
+ *
+ * Medición PostHog 30 días: 607 personas ven esta pantalla, 311 pasan al
+ * registro. Se van 296 — más que en las 13 pantallas de preguntas juntas (54).
+ *
+ * El layout anterior mezclaba todo en una columna que scrolleaba entera: el
+ * precio anual en 32px era el elemento más grande de la pantalla, y los links
+ * legales quedaban clavados a media página, entre la promesa y el precio.
+ *
+ * Ahora la pantalla se parte en dos: arriba scrollea el argumento, abajo queda
+ * fija la decisión. El precio baja a línea de apoyo — se lee después de saber
+ * qué se lleva, no antes.
+ * ============================================================ */
+
+.pw {
+  display: flex;
+  flex-direction: column;
+  flex: 1 1 auto;
+  width: 100%;
+  max-width: 460px;
+  margin-inline: auto;
+  min-height: 0;
+}
+
+.pw__scroll {
+  flex: 1 1 auto;
+  min-height: 0;
+  overflow-y: auto;
+  scrollbar-width: none;
+  padding: 6px 20px 18px;
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+}
+
+.pw__scroll::-webkit-scrollbar {
+  display: none;
+}
+
+/* --- Resumen personalizado ------------------------------------------- */
+.pw-resumen {
+  background: #fff;
+  border-radius: 24px;
+  padding: 16px 16px 15px;
+  box-shadow: 0 4px 0 0 var(--pab-card-edge, rgba(43, 44, 100, 0.14)),
+    0 6px 14px -6px rgba(43, 44, 100, 0.18);
+}
+
+.pw-resumen__titulo {
+  font-family: var(--font-display);
+  font-weight: 700;
+  font-size: 14px;
+  letter-spacing: -0.01em;
+  color: var(--pab-ink-soft, #5c5d86);
+  margin-bottom: 11px;
+}
+
+.pw-resumen__lista {
+  display: flex;
+  flex-direction: column;
+  gap: 9px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.pw-resumen__lista li {
+  display: flex;
+  align-items: flex-start;
+  gap: 11px;
+  font-family: var(--font-body);
+  font-size: 14.5px;
+  line-height: 1.45;
+  color: var(--pab-ink, #2b2c64);
+}
+
+.pw-resumen__lista img {
+  flex-shrink: 0;
+  margin-top: 1px;
+  object-fit: contain;
+}
+
+.pw-resumen__lista strong {
+  font-weight: 700;
+}
+
+.pw-resumen__cierre {
+  margin-top: 11px;
+  padding-top: 11px;
+  border-top: 2px solid rgba(43, 44, 100, 0.09);
+  font-family: var(--font-body);
+  font-size: 14.5px;
+  line-height: 1.45;
+  color: var(--pab-ink, #2b2c64);
+}
+
+/* Ámbar oscurecido a #9d6d0e: el #b57d10 daba 3.56:1 sobre blanco a 14.5px y
+ * AA exige 4.5:1 en texto normal. Medido, no estimado — ahora 4.54:1.
+ * El #b57d10 sí pasa en el titular de 34px (3.01:1 contra un mínimo de 3:1),
+ * así que ahí se queda. */
+.pw-resumen__cierre strong {
+  font-weight: 700;
+  color: #9d6d0e;
+}
+
+/* --- Encabezado: la promesa manda, el precio no aparece todavía ------- */
+.pw-head__titulo {
+  font-family: var(--font-display);
+  font-weight: 700;
+  font-size: 30px;
+  line-height: 1.1;
+  letter-spacing: -0.02em;
+  color: var(--pab-ink, #2b2c64);
+}
+
+.pw-head__dias {
+  color: #b57d10;
+  white-space: nowrap;
+}
+
+.pw-head__sub {
+  margin-top: 9px;
+  font-family: var(--font-body);
+  font-size: 14.5px;
+  line-height: 1.5;
+  color: var(--pab-ink-soft, #5c5d86);
+}
+
+/* --- Qué incluye ------------------------------------------------------ */
+.pw-incluye {
+  display: flex;
+  flex-direction: column;
+  gap: 13px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.pw-incluye li {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  font-family: var(--font-body);
+  font-size: 15px;
+  line-height: 1.4;
+  color: var(--pab-ink, #2b2c64);
+}
+
+.pw-incluye img {
+  flex-shrink: 0;
+  object-fit: contain;
+}
+
+.pw-garantia {
+  font-family: var(--font-body);
+  font-size: 13.5px;
+  line-height: 1.5;
+  color: var(--pab-ink-soft, #5c5d86);
+}
+
+.pw-garantia strong {
+  font-weight: 700;
+  color: var(--pab-ink, #2b2c64);
+}
+
+/* --- Zona de decisión: fija abajo ------------------------------------ */
+.pw-cierre {
+  flex-shrink: 0;
+  background: #fff;
+  border-top: 2px solid var(--pab-border, rgba(43, 44, 100, 0.12));
+  padding: 12px 20px calc(10px + env(safe-area-inset-bottom));
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+/* El precio ya no es el titular: es la letra chica de la decisión. */
+.pw-precio {
+  text-align: center;
+  font-family: var(--font-body);
+  font-size: 13.5px;
+  color: var(--pab-ink-soft, #5c5d86);
+}
+
+.pw-precio strong {
+  font-weight: 700;
+  color: var(--pab-ink, #2b2c64);
+}
+
+.pw-cta {
+  width: 100%;
+  font-size: 16px;
+  padding: 15px 18px;
+}
+
+.pw-planes,
+.pw-legal {
+  text-align: center;
+  font-family: var(--font-body);
+  font-size: 13px;
+  color: var(--pab-ink-soft, #5c5d86);
+}
+
+/* Área táctil de 44px conservada, pero sin que sume 44px de alto a la franja
+ * fija: el padding se reparte y la línea de texto queda compacta. */
+.pw-planes {
+  text-decoration: underline;
+  min-height: 44px;
+  padding: 4px 12px;
+  align-self: center;
+}
+
+/* Texto corrido, no flex: como fila flex el separador "·" se descolgaba a su
+ * propia línea encima de los enlaces. */
+.pw-legal {
+  font-size: 12px;
+  padding-bottom: 4px;
+}
+
+.pw-legal a {
+  color: inherit;
+  text-decoration: underline;
+}
+
+@media (min-width: 561px) {
+  .pw__scroll {
+    padding-inline: 24px;
+  }
+  .pw-head__titulo {
+    font-size: 34px;
+  }
+}
+
+@media (max-width: 360px) {
+  .pw-head__titulo {
+    font-size: 26px;
+  }
+  .pw__scroll {
+    gap: 18px;
+    padding-inline: 16px;
+  }
+  .pw-cierre {
+    padding-inline: 16px;
+  }
 }

@@ -120,7 +120,9 @@ const ogImage = `${siteUrl}/Logo.png`;
       }
       gtag("js", new Date());
 
-      gtag("config", "G-F36V5SDW1T");
+      // Mismo criterio que los pixels: fuera de usapablo.com no se configura,
+      // así las sesiones de desarrollo no entran en GA4.
+      if (/^(www\.)?usapablo\.com$/.test(location.hostname)) gtag("config", "G-F36V5SDW1T");
     </script>
     <!-- End Google tag -->
 
@@ -149,8 +151,14 @@ const ogImage = `${siteUrl}/Logo.png`;
         "script",
         "https://connect.facebook.net/en_US/fbevents.js",
       );
-      fbq("init", "1723759659073430");
-      fbq("track", "PageView");
+      // Solo se inicializa en el dominio de producción. En localhost, LAN y
+      // previews el stub de fbq queda definido (los fbq(...) del onboarding no
+      // revientan) pero no se envía nada: probar el flujo no debe inyectar
+      // PageView ni OnboardingStep falsos en la medición real.
+      if (/^(www\.)?usapablo\.com$/.test(location.hostname)) {
+        fbq("init", "1723759659073430");
+        fbq("track", "PageView");
+      }
     </script>
     <noscript>
       <img
@@ -214,8 +222,11 @@ const ogImage = `${siteUrl}/Logo.png`;
             e = document.getElementsByTagName("script")[0];
             e.parentNode.insertBefore(n, e);
           }));
-        ttq.load("D7C1JVBC77UFLDKDR4JG");
-        ttq.page();
+        // Mismo criterio que el pixel de Meta: fuera de usapablo.com no se carga.
+        if (/^(www\.)?usapablo\.com$/.test(location.hostname)) {
+          ttq.load("D7C1JVBC77UFLDKDR4JG");
+          ttq.page();
+        }
       })(window, document, "ttq");
     </script>
     <!-- TikTok Pixel Code End -->

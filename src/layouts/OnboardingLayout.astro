@@ -4,6 +4,7 @@
 // (public/onboarding/styles) y no comparte estilos con la landing.
 import PostHogSnippet from "../components/PostHogSnippet.astro";
 import Atribucion from "../components/Atribucion.astro";
+import PabloActor from "../components/onboarding/PabloActor.astro";
 const base = "/onboarding";
 ---
 
@@ -40,7 +41,7 @@ const base = "/onboarding";
          ?v= : cache-busting manual — subirlo al cambiar custom.css para que
          producción no sirva una versión cacheada con markup nuevo. -->
     <link rel="stylesheet" href={`${base}/styles/base.css`} />
-    <link rel="stylesheet" href={`${base}/styles/custom.css?v=19`} />
+    <link rel="stylesheet" href={`${base}/styles/custom.css?v=27`} />
     <!-- Primer toque de marketing → localStorage (viaja en el signup) -->
     <Atribucion />
     <!-- Meta Pixel (Facebook/Instagram Ads) -->
@@ -68,8 +69,14 @@ const base = "/onboarding";
         "script",
         "https://connect.facebook.net/en_US/fbevents.js",
       );
-      fbq("init", "1723759659073430");
-      fbq("track", "PageView");
+      // Solo se inicializa en el dominio de producción. En localhost, LAN y
+      // previews el stub de fbq queda definido (los fbq(...) del onboarding no
+      // revientan) pero no se envía nada: probar el flujo no debe inyectar
+      // PageView ni OnboardingStep falsos en la medición real.
+      if (/^(www\.)?usapablo\.com$/.test(location.hostname)) {
+        fbq("init", "1723759659073430");
+        fbq("track", "PageView");
+      }
     </script>
     <noscript>
       <img
@@ -119,6 +126,9 @@ const base = "/onboarding";
       </header>
 
       <slot />
+
+      <!-- Pablo persistente: vive FUERA de los steps para no desmontarse nunca. -->
+      <PabloActor />
     </div>
 
     <!-- Motor de navegación -->
