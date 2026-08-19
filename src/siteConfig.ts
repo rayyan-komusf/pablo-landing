@@ -105,11 +105,9 @@ export const CHECKOUT_URLS = {
   annual_no_trial: 'https://usapablo.app/pricing?plan=anual', // mismo plan; el trial lo define la pasarela
 };
 
-// URL de la app en el App Store.
-// ⚠️ VACÍA A PROPÓSITO (19-ago): no existe en ningún repo y no se inventa. La
-// sección de descarga muestra el badge como "Disponible pronto" mientras esté
-// vacía, y se convierte en enlace real en cuanto Rodrigo pegue la URL acá.
-export const APP_STORE_URL = '';
+// URL de la app en el App Store (la pasó Rodrigo el 19-ago).
+export const APP_STORE_URL =
+  'https://apps.apple.com/pe/app/pablo-tu-compa%C3%B1ero-financiero/id6792320815';
 
 // Android todavía no sale: el badge es una etiqueta de estado, no un botón.
 export const ANDROID_DISPONIBLE = false;

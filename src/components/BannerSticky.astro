@@ -26,6 +26,12 @@
 
 <script is:inline>
   (() => {
+    // ⚠️ Este componente se monta ANTES de <main> y el script corre al parsear:
+    // en ese momento #hero todavía NO existe en el DOM, el querySelector daba
+    // null y el script se retiraba sin observar nada — el banner quedaba oculto
+    // para siempre (el bug que reportó Rodrigo: "no hay ningún banner cuando
+    // bajo"). Todo se difiere a DOMContentLoaded.
+    const iniciar = () => {
     const barra = document.getElementById("bannerSticky");
     if (!barra) return;
 
@@ -57,6 +63,11 @@
         scroll_y: Math.round(window.scrollY),
       });
     });
+    };
+
+    document.readyState === "loading"
+      ? document.addEventListener("DOMContentLoaded", iniciar, { once: true })
+      : iniciar();
   })();
 </script>
 
