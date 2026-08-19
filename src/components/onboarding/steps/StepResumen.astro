@@ -1,0 +1,196 @@
+<!-- Diagnóstico: lo que Pablo aprendió en el cuestionario.
+     Pantalla nueva (19-ago, pedido de Rodrigo): el paywall metía el resumen,
+     la oferta y los planes en una sola pantalla. Ahora el tramo final se parte
+     en tres momentos, cada uno con un solo trabajo:
+
+       1. ESTA — te devuelvo lo que me contaste, con una gráfica, y TÚ me
+          confirmas que es así. La aceptación es lo que hace que lo siguiente
+          se lea como consecuencia y no como venta.
+       2. step-16 — estas son las funciones que te van a ayudar con eso.
+       3. step-18 — la oferta.
+
+     Regla dura: la gráfica se arma SOLO con respuestas reales. Cada barra
+     existe únicamente si su pregunta fue contestada. Si no hay ninguna, la
+     pantalla cae a una versión honesta sin diagnóstico inventado. -->
+<section class="step !pb-0" data-step="step-resumen" aria-label="Tu diagnóstico" aria-hidden="true">
+  <div class="fuente-header">
+    <div class="fuente-header__inner">
+      <div class="fuente-pablo" data-pablo-anclaje data-pose="anotando"></div>
+      <div class="speech-bubble speech-bubble--side" data-res-burbuja>
+        Ya te escuché. Esto es lo que veo hoy en tu plata
+      </div>
+    </div>
+  </div>
+
+  <div class="fuente-body flex-1 flex flex-col w-full mx-auto px-5 max-md:px-4 overflow-y-auto [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
+    <div class="res">
+      <!-- Gráfica: tres ejes con el nivel de HOY. Las barras crecen al entrar
+           y cada una lleva la etiqueta de lo que la persona respondió. -->
+      <div class="res-grafica" data-res-grafica hidden>
+        <div class="res-eje" data-res-eje="claridad">
+          <span class="res-eje__cab">
+            <span class="res-eje__nombre">Claridad de tus gastos</span>
+            <span class="res-eje__valor" data-res-etiqueta></span>
+          </span>
+          <span class="res-pista"><i data-res-barra></i></span>
+        </div>
+        <div class="res-eje" data-res-eje="mes">
+          <span class="res-eje__cab">
+            <span class="res-eje__nombre">Cómo llegas a fin de mes</span>
+            <span class="res-eje__valor" data-res-etiqueta></span>
+          </span>
+          <span class="res-pista"><i data-res-barra></i></span>
+        </div>
+        <div class="res-eje" data-res-eje="plan">
+          <span class="res-eje__cab">
+            <span class="res-eje__nombre">Tu plan de ahorro</span>
+            <span class="res-eje__valor" data-res-etiqueta></span>
+          </span>
+          <span class="res-pista"><i data-res-barra></i></span>
+        </div>
+      </div>
+
+      <!-- Lectura en una frase, armada con sus propias respuestas. -->
+      <p class="res-lectura" data-res-lectura></p>
+
+      <!-- La aceptación. No es decorativa: hasta que no la marque, el CONTINUAR
+           sigue apagado. Que lo diga con su dedo es lo que convierte el
+           diagnóstico en algo suyo. -->
+      <button
+        type="button"
+        class="res-acepto"
+        data-res-acepto
+        aria-pressed="false"
+        onclick="pabloResumenAceptar(this)"
+      >
+        <span class="res-acepto__check" aria-hidden="true"></span>
+        <span class="res-acepto__texto">Sí, así estoy hoy</span>
+      </button>
+    </div>
+  </div>
+
+  <footer class="duo-footer cta-footer">
+    <button class="btn-primary btn-continue disabled" disabled onclick="pabloNext()" aria-label="Continuar">
+      Continuar
+    </button>
+  </footer>
+</section>
+
+<script is:inline>
+  (function () {
+    // Niveles de HOY: 0 = mal, 1 = regular, 2 = bien. La barra se pinta con
+    // el color del estado, así que un diagnóstico malo se ve rojo sin que
+    // haga falta decirlo.
+    var CLARIDAD = {
+      siempre: [15, "Casi nunca sabes"],
+      "a-veces": [50, "A veces se pierde"],
+      "bajo-control": [88, "Bajo control"],
+    };
+    var MES = {
+      siempre: [18, "Llegas justo"],
+      "a-veces": [52, "Algunos meses justo"],
+      nunca: [90, "Llegas cómodo"],
+    };
+    var PLAN = {
+      si: [85, "Ya tienes meta"],
+      "quiero-empezar": [35, "Quieres empezar"],
+      "todavia-no": [12, "Todavía sin meta"],
+    };
+
+    function leerRespuestas() {
+      try {
+        return Object.assign(
+          {},
+          JSON.parse(localStorage.getItem("pablo_answers_v1") || "{}"),
+          JSON.parse(sessionStorage.getItem("pablo_answers") || "{}")
+        );
+      } catch (e) {
+        return {};
+      }
+    }
+
+    function pintar() {
+      var r = leerRespuestas();
+      var grafica = document.querySelector("[data-res-grafica]");
+      var lectura = document.querySelector("[data-res-lectura]");
+      if (!grafica || !lectura) return;
+
+      var ejes = {
+        claridad: CLARIDAD[r.moneyClarity],
+        mes: MES[r.cashFlow],
+        plan: PLAN[r.hasSavingsGoal],
+      };
+      var vivos = 0;
+
+      Object.keys(ejes).forEach(function (clave) {
+        var caja = grafica.querySelector('[data-res-eje="' + clave + '"]');
+        var dato = ejes[clave];
+        if (!caja) return;
+        if (!dato) {
+          // Sin respuesta no se inventa un nivel: el eje simplemente no existe.
+          caja.hidden = true;
+          return;
+        }
+        caja.hidden = false;
+        vivos++;
+        var pct = dato[0];
+        caja.querySelector("[data-res-etiqueta]").textContent = dato[1];
+        var barra = caja.querySelector("[data-res-barra]");
+        barra.style.setProperty("--pct", pct + "%");
+        barra.dataset.nivel = pct < 35 ? "bajo" : pct < 70 ? "medio" : "alto";
+      });
+
+      grafica.hidden = vivos === 0;
+
+      // La frase de lectura se arma con lo que de verdad contestó.
+      var partes = [];
+      if (r.hasDebt === true) partes.push("estás pagando una deuda");
+      if (r.moneyClarity === "siempre") partes.push("se te pierde de vista a dónde va tu plata");
+      else if (r.moneyClarity === "a-veces") partes.push("a veces se te escapa a dónde va tu plata");
+      if (r.cashFlow === "siempre") partes.push("sueles llegar justo a fin de mes");
+      else if (r.cashFlow === "a-veces") partes.push("algunos meses llegas justo");
+
+      lectura.innerHTML = partes.length
+        ? "Hoy <strong>" + partes.slice(0, 2).join("</strong> y <strong>") + "</strong>."
+        : "Ordenar tu plata es más fácil cuando alguien lleva la cuenta contigo.";
+
+      // Si ya había aceptado antes, la pantalla vuelve marcada.
+      var btn = document.querySelector("[data-res-acepto]");
+      if (btn && r.diagnosticoAceptado === true) {
+        btn.setAttribute("aria-pressed", "true");
+        btn.classList.add("res-acepto--si");
+      }
+
+      window.pabloTrack &&
+        window.pabloTrack("onboarding_resumen_visto", { ejes: vivos });
+    }
+
+    // Aceptar habilita el CONTINUAR. Es el gate de esta pantalla.
+    window.pabloResumenAceptar = function (el) {
+      var marcado = el.getAttribute("aria-pressed") === "true";
+      var ahora = !marcado;
+      el.setAttribute("aria-pressed", String(ahora));
+      el.classList.toggle("res-acepto--si", ahora);
+      // La aceptación se guarda como respuesta: así el motor la reconoce en su
+      // mapa GATED y el CONTINUAR sigue habilitado si la persona va y vuelve.
+      if (window.onboarding && window.onboarding.setAnswer) {
+        window.onboarding.setAnswer("diagnosticoAceptado", ahora);
+      }
+      var cta = document.querySelector('[data-step="step-resumen"] .cta-footer .btn-primary');
+      if (cta) {
+        cta.classList.toggle("disabled", !ahora);
+        if (ahora) cta.removeAttribute("disabled");
+        else cta.setAttribute("disabled", "");
+      }
+    };
+
+    // Se pinta cuando la pantalla se activa (las respuestas ya están dadas).
+    var pantalla = document.querySelector('[data-step="step-resumen"]');
+    if (pantalla) {
+      new MutationObserver(function () {
+        if (pantalla.classList.contains("active")) pintar();
+      }).observe(pantalla, { attributes: true, attributeFilter: ["class"] });
+      if (pantalla.classList.contains("active")) pintar();
+    }
+  })();
+</script>

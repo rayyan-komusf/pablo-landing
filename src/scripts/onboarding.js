@@ -35,6 +35,7 @@ const STEP_ORDER = [
   "step-14", // Pregunta 8: cash flow
   "step-15", // Pregunta 9: meta de ahorro
   "step-nuevo-4", // Animación meta de ahorro
+  "step-resumen", // Diagnóstico: lo que Pablo aprendió + la persona lo acepta
   "step-16", // Funciones para ti (checkboxes automáticos)
   "step-17", // Testimonios
   "step-18", // Paywall / prueba gratuita
@@ -70,6 +71,7 @@ const STEP_FLAGS = {
   "step-14": { showTopbar: true, showSkip: true },
   "step-15": { showTopbar: true, showSkip: true },
   "step-nuevo-4": { showTopbar: true, showSkip: true },
+  "step-resumen": { showTopbar: true, showSkip: false },
   "step-16": { showTopbar: true, showSkip: false },
   "step-17": { showTopbar: true, showSkip: true },
   "step-18": { showTopbar: true, showSkip: false },
@@ -250,6 +252,7 @@ class OnboardingEngine {
       "step-12": "hasDebt",
       "step-14": "cashFlow",
       "step-15": "hasSavingsGoal",
+      "step-resumen": "diagnosticoAceptado",
     };
     if (GATED[stepId]) {
       this.gateCta(stepId, this.answers[GATED[stepId]] !== undefined);

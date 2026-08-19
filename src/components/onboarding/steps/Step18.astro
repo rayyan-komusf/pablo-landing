@@ -149,44 +149,59 @@
           ser un peaje y se vuelven la razón por la que la oferta le calza. -->
   <div class="pw" data-om-default>
     <div class="pw__scroll">
-      <!-- Resumen personalizado: se arma en el script de abajo SOLO con
-           respuestas reales. Si la persona saltó todo, este bloque no existe;
-           nunca se rellena con datos inventados. -->
-      <section class="pw-resumen" data-pw-resumen hidden aria-labelledby="pwResumenTitulo">
-        <h2 class="pw-resumen__titulo" id="pwResumenTitulo">Esto es lo que me contaste</h2>
-        <ul class="pw-resumen__lista" data-pw-resumen-lista></ul>
-        <p class="pw-resumen__cierre" data-pw-resumen-cierre></p>
-      </section>
-
+      <!-- Orden pedido por Rodrigo (19-ago): título arriba, su nota debajo, el
+           calendario después y los planes al final. La lista de beneficios y la
+           garantía salieron de acá: esos argumentos ya se dieron en el
+           diagnóstico y en las funciones. Esta pantalla ya no vende — informa
+           para que la persona elija con todo a la vista. -->
       <div class="pw-head">
         <h2 class="pw-head__titulo">
           Empieza gratis<span class="pw-head__dias" data-pw-dias>&nbsp;3 días</span>
         </h2>
         <p class="pw-head__sub">
-          Pablo trabaja contigo desde hoy. Si no es para ti, cancelas antes de que
-          termine la prueba y no pagas nada.
+          Sin tarjeta hoy y sin compromiso. Tú decides si sigues.
         </p>
       </div>
 
-      <ul class="pw-incluye">
-        <li><img src="/onboarding/images/iconos/t07_whatsapp.png" alt="" width="26" height="26" loading="lazy" /><span>Registra tus gastos por WhatsApp, escribiendo o con un audio</span></li>
-        <li><img src="/onboarding/images/iconos/t04_presupuesto_piechart.png" alt="" width="26" height="26" loading="lazy" /><span>Tu presupuesto se actualiza solo, en tiempo real</span></li>
-        <li><img src="/onboarding/images/iconos/t12_racha_fuego.png" alt="" width="26" height="26" loading="lazy" /><span>Pablo te escribe primero para que no pierdas el hilo</span></li>
-        <li><img src="/onboarding/images/iconos/t03_metas_bullseye.png" alt="" width="26" height="26" loading="lazy" /><span>Metas y deudas con un plan claro, no con culpa</span></li>
-      </ul>
+      <!-- Nota de Rodrigo, en primera persona y firmada con su cuenta. Se
+           teclea en vivo para que se lea como algo que está escribiendo ahora.
+           ⚠️ No se le inventa biografía: dice lo que él pidió decir
+           (agradecer, animar y asegurar que se puede cancelar y retomar) y
+           nada más. -->
+      <div class="pw-nota">
+        <p class="pw-nota__p" data-pw-teclea="Gracias por llegar hasta acá y por confiar en lo que estamos construyendo."></p>
+        <p class="pw-nota__p" data-pw-teclea="Pablo está para acompañarte todos los días, sin sermones y sin hacerte sentir mal por un gasto."></p>
+        <p class="pw-nota__p" data-pw-teclea="Y si sientes que no es para ti, cancelas cuando quieras, sin penalidades, y lo retomas el día que estés listo."></p>
+        <p class="pw-nota__firma" data-pw-firma>
+          Rodrigo<span class="pw-nota__arroba">@rodrigo.al.millon</span>
+        </p>
+      </div>
 
-      <p class="pw-garantia">
-        Si sientes que Pablo no es para ti, te devolvemos el
-        <strong>100% de tu dinero</strong>. Sin preguntas.
-      </p>
+      <!-- Calendario honesto: la objeción real acá no es el precio, es
+           "¿me van a cobrar sin avisarme?". -->
+      <ol class="pw-linea" data-pw-linea>
+        <li class="pw-linea__hito pw-linea__hito--hoy">
+          <span class="pw-linea__punto" aria-hidden="true"></span>
+          <span class="pw-linea__cuando">Hoy</span>
+          <span class="pw-linea__que">Desbloqueas Pablo completo. <strong>No pagas nada.</strong></span>
+        </li>
+        <li class="pw-linea__hito">
+          <span class="pw-linea__punto" aria-hidden="true"></span>
+          <span class="pw-linea__cuando" data-pw-dia-aviso>En 2 días</span>
+          <span class="pw-linea__que">Pablo te avisa por WhatsApp que tu prueba termina mañana.</span>
+        </li>
+        <li class="pw-linea__hito">
+          <span class="pw-linea__punto" aria-hidden="true"></span>
+          <span class="pw-linea__cuando" data-pw-dia-cobro>En 3 días</span>
+          <span class="pw-linea__que" data-pw-cobro>Empieza tu plan: <strong>S/.20 al mes</strong>. Cancelas cuando quieras.</span>
+        </li>
+      </ol>
 
       <p class="pw-legal">
         <a href="/terminos">Términos</a> · <a href="/privacidad">Privacidad</a>
       </p>
     </div>
 
-    <!-- Zona de decisión: pegada abajo, siempre visible, sin competir con el
-         contenido de arriba. -->
     <!-- Zona de decisión. Revisada 19-ago contra 8 paywalls reales de Mobbin
          (Beside, Fixtured, Hatch, Calm Sleep, Tide Guide, Yubo, BitePal, KOHO),
          la misma fuente del video que pasó Rodrigo. Tres patrones que se
@@ -242,6 +257,7 @@
       <p class="pw-hoy">
         <strong>Hoy pagas S/.0.</strong> <span data-pw-luego>Luego S/.20 al mes, y cancelas cuando quieras.</span>
       </p>
+      <button class="pw-planes" onclick="pabloOpenPlans()">Ver todos los planes</button>
     </div>
   </div>
 
@@ -442,102 +458,73 @@
     window.pabloNext();
   }
 
-  /* ─────────────────────────────────────────────────────────────────────
-     Resumen personalizado.
-
-     Devuelve lo que la persona acabó de contar en las 13 preguntas y lo ata a
-     lo que Pablo hace. Regla dura: SOLO respuestas reales. Cada fila existe
-     únicamente si su respuesta existe; si no hay ninguna (alguien que saltó
-     todo, o que entró directo al paywall), el bloque entero queda oculto. Nada
-     de rellenar con cifras o frases de ejemplo que parezcan datos suyos.
-     ───────────────────────────────────────────────────────────────────── */
-  const OBJETIVO = {
-    "gastos-hormiga": ["controlar tus gastos hormiga", "te aviso apenas un gasto chico se te empiece a ir de las manos"],
-    ahorrar: ["ahorrar más para el futuro", "aparto tu ahorro apenas entra la plata, antes de que se gaste sola"],
-    metas: ["avanzar hacia tus metas", "parto tu meta en aportes que sí entran en tu mes"],
-    automatizar: ["automatizar tus finanzas", "yo registro y ordeno; tú solo me hablas por WhatsApp"],
-    deudas: ["ordenar tus deudas", "armamos el orden de pago y te recuerdo cada cuota"],
-    educacion: ["entender mejor tu plata", "te explico cada decisión en peruano, sin palabreo de banco"],
-  };
-  const CLARIDAD = {
-    siempre: "casi nunca sabes a dónde se fue tu plata",
-    "a-veces": "a veces se te pierde de vista a dónde se fue tu plata",
-    "bajo-control": "ya tienes tus gastos bastante bajo control",
-  };
-  const FLUJO = {
-    siempre: "sueles llegar justo a fin de mes",
-    "a-veces": "algunos meses llegas justo a fin de mes",
-    nunca: "sueles llegar cómodo a fin de mes",
-  };
-  const EXPERIENCIA = {
-    "primera-vez": "es tu primera vez haciendo un presupuesto",
-    excel: "vienes de llevar tus cuentas en Excel",
-    manual: "vienes de anotar tus cuentas a mano",
-    app: "ya probaste otras apps de finanzas",
-  };
-  const AHORRO = {
-    si: "ya tienes una meta de ahorro en mente",
-    "quiero-empezar": "quieres empezar a ahorrar con una meta",
-    "todavia-no": null,
-  };
-
-  function pintarResumen() {
-    const caja = document.querySelector("[data-pw-resumen]");
-    const lista = document.querySelector("[data-pw-resumen-lista]");
-    const cierre = document.querySelector("[data-pw-resumen-cierre]");
-    if (!caja || !lista) return;
-
-    let r = {};
-    try {
-      r = {
-        ...JSON.parse(localStorage.getItem("pablo_answers_v1") || "{}"),
-        ...JSON.parse(sessionStorage.getItem("pablo_answers") || "{}"),
-      };
-    } catch {
-      r = {};
-    }
-
-    const filas = [];
-    const meta = OBJETIVO[r.mainGoal];
-    if (meta) filas.push({ icono: "t03_metas_bullseye", texto: `Quieres <strong>${meta[0]}</strong>.` });
-    if (CLARIDAD[r.moneyClarity]) filas.push({ icono: "t01_panel_gauge", texto: `Hoy ${CLARIDAD[r.moneyClarity]}.` });
-    if (FLUJO[r.cashFlow]) filas.push({ icono: "ui11_billete_alas", texto: `Y ${FLUJO[r.cashFlow]}.` });
-    if (r.hasDebt === true) filas.push({ icono: "ac03_tarjeta_credito", texto: "Estás pagando una deuda." });
-    if (EXPERIENCIA[r.budgetingExp]) filas.push({ icono: "en04_libro", texto: `Además, ${EXPERIENCIA[r.budgetingExp]}.` });
-    if (AHORRO[r.hasSavingsGoal]) filas.push({ icono: "ui12_bolsa_dinero", texto: `Y ${AHORRO[r.hasSavingsGoal]}.` });
-
-    // Sin respuestas reales no hay resumen. Preferimos no mostrar nada antes
-    // que mostrar algo genérico disfrazado de personalizado.
-    if (filas.length < 2) {
-      caja.hidden = true;
+  /* La nota se teclea en vivo al entrar. El resumen de respuestas ya no vive
+     acá: se mudó a step-resumen, antes de las funciones, para que esta
+     pantalla tenga un solo trabajo — la oferta. */
+  function tecleaNota() {
+    var lineas = [].slice.call(document.querySelectorAll("[data-pw-teclea]"));
+    var firma = document.querySelector("[data-pw-firma]");
+    if (!lineas.length) return;
+    if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) {
+      lineas.forEach(function (el) { el.textContent = el.dataset.pwTeclea; });
+      if (firma) firma.classList.add("pw-nota__firma--lista");
       return;
     }
+    lineas.forEach(function (el) { el.textContent = ""; el.classList.remove("pw-nota__p--activa"); });
+    if (firma) firma.classList.remove("pw-nota__firma--lista");
 
-    lista.innerHTML = filas
-      .slice(0, 3) // 3 filas: con 4, el titular de la oferta caía bajo el pliegue
-      .map(
-        (f) =>
-          `<li><img src="/onboarding/images/iconos/${f.icono}.png" alt="" width="24" height="24" loading="lazy" /><span>${f.texto}</span></li>`
-      )
-      .join("");
-
-    if (cierre) {
-      cierre.innerHTML = meta
-        ? `Por eso, desde hoy, <strong>${meta[1]}</strong>.`
-        : "Por eso Pablo trabaja contigo todos los días, desde WhatsApp.";
-    }
-    caja.hidden = false;
-    window.pabloTrack?.("onboarding_paywall_resumen_visto", { filas: filas.length });
+    var li = 0, ci = 0;
+    (function paso() {
+      if (li >= lineas.length) {
+        if (firma) firma.classList.add("pw-nota__firma--lista");
+        return;
+      }
+      var el = lineas[li], txt = el.dataset.pwTeclea;
+      el.classList.add("pw-nota__p--activa");
+      el.textContent = txt.slice(0, ++ci);
+      if (ci >= txt.length) {
+        el.classList.remove("pw-nota__p--activa");
+        li++; ci = 0;
+        setTimeout(paso, 240);              // respiro entre frases
+      } else {
+        // Ritmo irregular: a velocidad constante se lee como máquina de
+        // escribir, no como alguien escribiendo a mano. A 29ms/carácter la
+        // nota tardaba 9.4s en la pantalla del cobro — demasiado para el
+        // momento más caro del embudo. A ~11ms queda en ~3.5s.
+        setTimeout(paso, 6 + Math.random() * 11);
+      }
+    })();
   }
 
-  // El paywall vive oculto hasta que el motor lo activa: se pinta al mostrarse,
-  // no al cargar la página, para que use las respuestas ya dadas.
+  /* El calendario se ajusta al plan elegido: el anual tiene 7 días de prueba y
+     no 3, y prometer el día equivocado en la pantalla del cobro es lo peor que
+     puede pasar acá. */
+  function pintarLinea(plan) {
+    var p = planes[plan] || planes.mensual;
+    var dias = p.trialDays;
+    var aviso = document.querySelector("[data-pw-dia-aviso]");
+    var cobro = document.querySelector("[data-pw-dia-cobro]");
+    var texto = document.querySelector("[data-pw-cobro]");
+    if (aviso) aviso.textContent = dias > 1 ? "En " + (dias - 1) + (dias - 1 === 1 ? " día" : " días") : "Mañana";
+    if (cobro) cobro.textContent = "En " + dias + (dias === 1 ? " día" : " días");
+    if (texto) {
+      texto.innerHTML =
+        plan === "anual"
+          ? "Empieza tu plan: <strong>S/.200 al año</strong>. Cancelas cuando quieras."
+          : "Empieza tu plan: <strong>S/.20 al mes</strong>. Cancelas cuando quieras.";
+    }
+  }
+
   const pantallaPaywall = document.querySelector('[data-step="step-18"]');
+  function alEntrarPaywall() {
+    tecleaNota();
+    pintarLinea(planSeleccionado);
+  }
   if (pantallaPaywall) {
     new MutationObserver(() => {
-      if (pantallaPaywall.classList.contains("active")) pintarResumen();
+      if (pantallaPaywall.classList.contains("active")) alEntrarPaywall();
     }).observe(pantallaPaywall, { attributes: true, attributeFilter: ["class"] });
-    if (pantallaPaywall.classList.contains("active")) pintarResumen();
+    if (pantallaPaywall.classList.contains("active")) alEntrarPaywall();
   }
 
   document.addEventListener("keydown", (e) => {
@@ -556,6 +543,7 @@
     });
     var cta = document.querySelector("[data-pw-cta-label]");
     if (cta) cta.textContent = planes[plan].ctaLabel;
+    pintarLinea(plan);
     var luego = document.querySelector("[data-pw-luego]");
     if (luego) {
       luego.textContent =
