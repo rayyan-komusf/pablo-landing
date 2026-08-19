@@ -1,0 +1,203 @@
+---
+import { APP_STORE_URL } from '../../siteConfig';
+// Descarga: App Store disponible, Android en camino.
+// Equivalente al "aprende cuando quieras y donde quieras" de la home de
+// Duolingo, que va justo antes del footer.
+//
+// El badge de Android NO es un botón: es un estado honesto. Un botón deshabilitado
+// que no lleva a ningún lado se lee como que la web está rota; una etiqueta que
+// dice "en camino" se lee como una promesa.
+---
+
+<section class="dl" aria-label="Descarga la app de Pablo">
+  <div class="dl__inner">
+    <div class="dl__texto">
+      <h2 class="dl__titulo">Pablo también vive en tu bolsillo</h2>
+      <p class="dl__desc">
+        Chatea por WhatsApp como siempre y abre la app cuando quieras ver el
+        panorama completo: tus presupuestos, tus metas y tu racha, en una sola
+        pantalla.
+      </p>
+
+      <div class="dl__botones">
+        <a
+          class:list={["dl__badge", !APP_STORE_URL && "dl__badge--sin-link"]}
+          href={APP_STORE_URL || undefined}
+          target={APP_STORE_URL ? "_blank" : undefined}
+          rel={APP_STORE_URL ? "noopener" : undefined}
+          aria-disabled={!APP_STORE_URL}
+          onclick="window.posthog?.capture?.('descarga_appstore_clicked')"
+        >
+          <svg viewBox="0 0 24 24" width="26" height="26" fill="currentColor" aria-hidden="true">
+            <path d="M17.05 12.54c-.02-2.2 1.8-3.26 1.88-3.31-1.02-1.5-2.62-1.7-3.19-1.72-1.36-.14-2.65.8-3.34.8-.69 0-1.75-.78-2.87-.76-1.48.02-2.84.86-3.6 2.18-1.53 2.66-.39 6.6 1.1 8.76.73 1.06 1.6 2.25 2.74 2.2 1.1-.04 1.52-.71 2.85-.71 1.33 0 1.7.71 2.87.69 1.18-.02 1.93-1.08 2.65-2.14.83-1.22 1.18-2.41 1.2-2.47-.03-.01-2.3-.88-2.32-3.5zM14.9 5.9c.6-.74 1.01-1.76.9-2.78-.87.04-1.93.58-2.56 1.31-.56.65-1.06 1.7-.93 2.7.97.08 1.97-.5 2.59-1.23z"/>
+          </svg>
+          <span>
+            <small>{APP_STORE_URL ? "Descárgala en el" : "Muy pronto en el"}</small>
+            <strong>App Store</strong>
+          </span>
+        </a>
+
+        <span class="dl__pronto">
+          <svg viewBox="0 0 24 24" width="22" height="22" fill="currentColor" aria-hidden="true">
+            <path d="M17.6 9.48l1.84-3.18a.4.4 0 0 0-.7-.4L16.87 9.1a11.4 11.4 0 0 0-9.75 0L5.25 5.9a.4.4 0 1 0-.7.4L6.4 9.48A10.8 10.8 0 0 0 1 17.9h22a10.8 10.8 0 0 0-5.4-8.42zM7 14.6a.9.9 0 1 1 0-1.8.9.9 0 0 1 0 1.8zm10 0a.9.9 0 1 1 0-1.8.9.9 0 0 1 0 1.8z"/>
+          </svg>
+          <span>
+            <small>Android</small>
+            <strong>Viene pronto</strong>
+          </span>
+        </span>
+      </div>
+    </div>
+
+    <div class="dl__pablo" aria-hidden="true">
+      <img
+        src="/onboarding/images/pablo/2d/pablo-saludando.webp"
+        alt=""
+        width="445"
+        height="420"
+        loading="lazy"
+      />
+    </div>
+  </div>
+</section>
+
+<style>
+  .dl {
+    background: #2b2c64;
+    color: #fff;
+  }
+
+  .dl__inner {
+    max-width: 1080px;
+    margin-inline: auto;
+    padding: 72px 24px;
+    display: grid;
+    grid-template-columns: 1.25fr 0.75fr;
+    align-items: center;
+    gap: 48px;
+  }
+
+  .dl__titulo {
+    font-family: var(--font-display, "Outfit"), sans-serif;
+    font-weight: 700;
+    font-size: clamp(26px, 3.2vw, 38px);
+    line-height: 1.15;
+    letter-spacing: -0.02em;
+  }
+
+  .dl__desc {
+    margin-top: 14px;
+    font-size: 17px;
+    line-height: 1.6;
+    color: rgba(255, 255, 255, 0.78);
+    max-width: 48ch;
+  }
+
+  .dl__botones {
+    margin-top: 26px;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 12px;
+  }
+
+  .dl__badge,
+  .dl__pronto {
+    display: inline-flex;
+    align-items: center;
+    gap: 11px;
+    min-height: 56px;
+    padding: 10px 20px;
+    border-radius: 16px;
+    text-decoration: none;
+  }
+
+  .dl__badge {
+    background: #fff;
+    color: #2b2c64;
+    box-shadow: 0 4px 0 0 rgba(0, 0, 0, 0.28);
+    transition: transform 120ms ease, box-shadow 120ms ease;
+  }
+
+  @media (hover: hover) {
+    .dl__badge:hover {
+      transform: translateY(-1px);
+      box-shadow: 0 5px 0 0 rgba(0, 0, 0, 0.28);
+    }
+  }
+
+  .dl__badge:active {
+    transform: translateY(3px);
+    box-shadow: 0 1px 0 0 rgba(0, 0, 0, 0.28);
+  }
+
+  /* Sin URL configurada el badge no finge ser un enlace: mismo aviso honesto
+     que Android, para no mandar a nadie a un clic que no hace nada. */
+  .dl__badge--sin-link {
+    background: rgba(255, 255, 255, 0.1);
+    border: 2px dashed rgba(255, 255, 255, 0.3);
+    color: rgba(255, 255, 255, 0.82);
+    box-shadow: none;
+    cursor: default;
+    pointer-events: none;
+  }
+
+  /* Android no es un botón muerto: es una etiqueta de estado, sin canto ni
+     sombra de presionable, para que nadie intente tocarla. */
+  .dl__pronto {
+    background: rgba(255, 255, 255, 0.1);
+    border: 2px dashed rgba(255, 255, 255, 0.3);
+    color: rgba(255, 255, 255, 0.82);
+    cursor: default;
+  }
+
+  .dl__badge small,
+  .dl__pronto small {
+    display: block;
+    font-size: 11px;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+    opacity: 0.72;
+  }
+
+  .dl__badge strong,
+  .dl__pronto strong {
+    display: block;
+    font-family: var(--font-display, "Outfit"), sans-serif;
+    font-size: 17px;
+    line-height: 1.15;
+  }
+
+  .dl__pablo {
+    display: flex;
+    justify-content: center;
+  }
+
+  .dl__pablo img {
+    width: min(240px, 100%);
+    height: auto;
+    /* Flotación lenta: la sección no se queda muerta al final de la página. */
+    animation: dlFlota 4.2s ease-in-out infinite;
+  }
+
+  @keyframes dlFlota {
+    0%, 100% { transform: translateY(0) rotate(-1deg); }
+    50%      { transform: translateY(-10px) rotate(1deg); }
+  }
+
+  @media (max-width: 860px) {
+    .dl__inner {
+      grid-template-columns: 1fr;
+      gap: 24px;
+      padding: 52px 20px;
+      text-align: center;
+    }
+    .dl__desc { margin-inline: auto; }
+    .dl__botones { justify-content: center; }
+    .dl__pablo { order: -1; }
+    .dl__pablo img { width: 168px; }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .dl__pablo img { animation: none; }
+  }
+</style>

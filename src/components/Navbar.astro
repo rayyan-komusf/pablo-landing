@@ -12,150 +12,20 @@ import logoImg from '../assets/Logo.png';
       <span class="logo-text">Pablo</span>
     </a>
 
-    <!-- Desktop Nav -->
-    <nav class="navbar__nav">
-
-      <!-- Conoce a Pablo -->
-      <div class="nav-item">
-        <a href="/#como-funciona" class="nav-trigger">
-          Conoce a Pablo <span class="nav-arrow">▾</span>
-        </a>
-        <div class="dropdown">
-          <a href="/#hero" class="dropdown-item">
-            <span class="di-label">¿Qué es Pablo?</span>
-            <span class="di-desc">Tu asistente financiero en WhatsApp</span>
-          </a>
-          <a href="/#como-funciona" class="dropdown-item">
-            <span class="di-label">Cómo funciona</span>
-            <span class="di-desc">Registra gastos, crea metas y más</span>
-          </a>
-          <a href="/#faq" class="dropdown-item">
-            <span class="di-label">Preguntas frecuentes</span>
-            <span class="di-desc">Resolvemos tus dudas</span>
-          </a>
-        </div>
-      </div>
-
-      <!-- Planes -->
-      <div class="nav-item">
-        <a href="/planes" class="nav-trigger">
-          Planes <span class="nav-arrow">▾</span>
-        </a>
-        <!-- Sin cifras en el menú (19-ago): si el home no muestra precio, el
-             menú del home tampoco puede mostrarlo. El precio se ve al entrar
-             a /planes, que es una decisión del visitante. -->
-        <div class="dropdown">
-          <a href="/planes" class="dropdown-item">
-            <span class="di-label">Plan Semanal</span>
-            <span class="di-desc">Prueba Pablo esta semana</span>
-          </a>
-          <a href="/planes" class="dropdown-item">
-            <span class="di-label">Plan Mensual</span>
-            <span class="di-desc">Empieza con días gratis</span>
-          </a>
-          <a href="/planes" class="dropdown-item">
-            <span class="di-label">Plan Anual</span>
-            <span class="di-desc">La opción que más ahorra</span>
-          </a>
-        </div>
-      </div>
-
-      <!-- Promos -->
-      <div class="nav-item">
-        <a href="/promos" class="nav-trigger">
-          Promos <span class="nav-arrow">▾</span>
-        </a>
-        <div class="dropdown">
-          <a href="/trabaja-con-nosotros" class="dropdown-item">
-            <span class="di-label">Crea con Pablo y gana</span>
-            <span class="di-desc">Monetiza tu audiencia con nosotros</span>
-          </a>
-          <div class="dropdown-item dropdown-item--disabled">
-            <span class="di-label">Pablo Points <span class="di-badge di-badge--soon">Próximamente</span></span>
-            <span class="di-desc">Acumula puntos y gana recompensas</span>
-          </div>
-          <a href="/pablo-pone-para-la-chancha" class="dropdown-item">
-            <span class="di-label">Pablo pone para la chancha</span>
-            <span class="di-desc">Ahorra con un objetivo en mente</span>
-          </a>
-        </div>
-      </div>
-
-      <!-- Recursos: dropdown simplificado — solo botones directos -->
-      <div class="nav-item">
-        <a href="/blog" class="nav-trigger">
-          Recursos <span class="nav-arrow">▾</span>
-        </a>
-        <div class="dropdown">
-          <a href="/blog" class="dropdown-item">
-            <span class="di-label">Blog</span>
-          </a>
-          <a href="/cursos" class="dropdown-item">
-            <span class="di-label">Cursos</span>
-          </a>
-          <span class="dropdown-item dropdown-item--disabled">
-            <span class="di-label">Tutoriales <span class="di-badge di-badge--soon">Próximamente</span></span>
-          </span>
-        </div>
-      </div>
-
-    </nav>
-
-    <button class="hamburger" id="hamburger-btn" aria-label="Abrir menú" aria-expanded="false">
-      <span></span><span></span><span></span>
-    </button>
-  </div>
-
-  <!-- Mobile menu -->
-  <div class="navbar__mobile-menu" id="mobile-menu" aria-hidden="true">
-
-    <!-- Conoce a Pablo accordion -->
-    <div class="mob-section">
-      <button class="mob-section__trigger">Conoce a Pablo <span class="mob-arrow">▾</span></button>
-      <div class="mob-section__body">
-        <a href="/#hero" class="mob-link">¿Qué es Pablo?</a>
-        <a href="/#como-funciona" class="mob-link">Cómo funciona</a>
-        <a href="/#faq" class="mob-link">Preguntas frecuentes</a>
-      </div>
-    </div>
-
-    <!-- Planes accordion -->
-    <div class="mob-section">
-      <button class="mob-section__trigger">Planes <span class="mob-arrow">▾</span></button>
-      <div class="mob-section__body">
-        <a href="/planes" class="mob-link">Plan Semanal</a>
-        <a href="/planes" class="mob-link">Plan Mensual</a>
-        <a href="/planes" class="mob-link">Plan Anual</a>
-      </div>
-    </div>
-
-    <!-- Promos accordion -->
-    <div class="mob-section">
-      <button class="mob-section__trigger">Promos <span class="mob-arrow">▾</span></button>
-      <div class="mob-section__body">
-        <a href="/trabaja-con-nosotros" class="mob-link">Crea con Pablo y gana</a>
-        <span class="mob-link mob-link--disabled">Pablo Points <span class="mob-badge mob-badge--soon">Próximamente</span></span>
-        <a href="/pablo-pone-para-la-chancha" class="mob-link">Pablo pone para la chancha</a>
-      </div>
-    </div>
-
-    <!-- Recursos accordion — solo botones directos -->
-    <div class="mob-section">
-      <button class="mob-section__trigger">Recursos <span class="mob-arrow">▾</span></button>
-      <div class="mob-section__body">
-        <a href="/blog" class="mob-link">Blog</a>
-        <a href="/cursos" class="mob-link">Cursos</a>
-        <span class="mob-link mob-link--disabled">Tutoriales <span class="mob-badge mob-badge--soon">Próximamente</span></span>
-      </div>
-    </div>
-
-  </div>
+    <!-- Sin navegación arriba (19-ago, patrón Duolingo).
+         La primera pantalla tiene UNA sola cosa que hacer. Todos los links de
+         sección viven en el footer, y el CTA reaparece en la barra que baja al
+         hacer scroll (BannerSticky.astro). El menú móvil se conserva para no
+         dejar sin salida a quien busca términos o su cuenta. -->
 </header>
 
 <style>
+  /* Estático, no sticky (19-ago): la cabecera se va con el scroll y su lugar lo
+     toma la barra que baja (BannerSticky). Pegadas las dos, se apilaban dos
+     franjas haciendo lo mismo y la primera pantalla dejaba de tener una sola
+     cosa que hacer. */
   .navbar {
-    position: sticky;
-    top: 0;
+    position: relative;
     z-index: 100;
     background: transparent;
     backdrop-filter: none;
