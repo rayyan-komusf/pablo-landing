@@ -4,7 +4,6 @@ import Navbar from '../components/Navbar.astro';
 import Hero from '../components/sections/Hero.astro';
 import HowItWorks from '../components/sections/HowItWorks.astro';
 import Features from '../components/sections/Features.astro';
-import Pricing from '../components/sections/Pricing.astro';
 import Testimonials from '../components/sections/Testimonials.astro';
 import FAQ from '../components/sections/FAQ.astro';
 import FinalCTA from '../components/sections/FinalCTA.astro';
@@ -15,10 +14,12 @@ import WaitlistModal from '../components/WaitlistModal.astro';
 <Layout>
   <Navbar />
   <main>
+    <!-- Sin sección de precios a propósito (19-ago): la home explica qué hace
+         Pablo, no cuánto cuesta. El pricing vive en /planes, al que se llega
+         desde el menú y el footer. -->
     <Hero />
     <HowItWorks />
     <Features />
-    <Pricing />
     <Testimonials />
     <FAQ />
     <FinalCTA />

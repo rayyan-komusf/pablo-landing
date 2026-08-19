@@ -1,4 +1,22 @@
 /* ===========================
+   SIN SCROLL HORIZONTAL, NUNCA
+   ===========================
+   Un dropdown del navbar (absolute, oculto con visibility) se salía 8px del
+   viewport a 1280px y hacía scrollear la página en horizontal — en todas las
+   rutas con navbar. Ocultar con visibility no lo saca del área de scroll, y
+   clip-path tampoco: recortar es solo visual.
+
+   `overflow-x: clip` sí lo resuelve y, a diferencia de `hidden`, NO crea un
+   contenedor de scroll: position:sticky (navbar, footers del onboarding) sigue
+   funcionando igual. Va en html Y en body porque el viewport propaga el
+   overflow del body al html si solo se declara en uno.
+   =========================== */
+html,
+body {
+  overflow-x: clip;
+}
+
+/* ===========================
    DESIGN TOKENS
    =========================== */
 :root {

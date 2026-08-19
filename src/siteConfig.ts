@@ -54,7 +54,7 @@ export const CTA_CONFIG = {
   },
   live: {
     label: 'Desbloquea a Pablo',
-    href: '#planes',
+    href: '/planes',
   },
 } as const;
 

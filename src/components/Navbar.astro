@@ -38,21 +38,24 @@ import logoImg from '../assets/Logo.png';
 
       <!-- Planes -->
       <div class="nav-item">
-        <a href="/#planes" class="nav-trigger">
+        <a href="/planes" class="nav-trigger">
           Planes <span class="nav-arrow">▾</span>
         </a>
+        <!-- Sin cifras en el menú (19-ago): si el home no muestra precio, el
+             menú del home tampoco puede mostrarlo. El precio se ve al entrar
+             a /planes, que es una decisión del visitante. -->
         <div class="dropdown">
-          <a href="/#planes" class="dropdown-item">
-            <span class="di-label">Plan Semanal <span class="di-badge">S/.7/sem</span></span>
+          <a href="/planes" class="dropdown-item">
+            <span class="di-label">Plan Semanal</span>
             <span class="di-desc">Prueba Pablo esta semana</span>
           </a>
-          <a href="/#planes" class="dropdown-item">
-            <span class="di-label">Plan Mensual <span class="di-badge">S/.20/mes</span></span>
-            <span class="di-desc">3 días gratis de prueba</span>
+          <a href="/planes" class="dropdown-item">
+            <span class="di-label">Plan Mensual</span>
+            <span class="di-desc">Empieza con días gratis</span>
           </a>
-          <a href="/#planes" class="dropdown-item">
-            <span class="di-label">Plan Anual <span class="di-badge di-badge--featured">S/.200/año</span></span>
-            <span class="di-desc">Ahorra 2 meses · 16% OFF</span>
+          <a href="/planes" class="dropdown-item">
+            <span class="di-label">Plan Anual</span>
+            <span class="di-desc">La opción que más ahorra</span>
           </a>
         </div>
       </div>
@@ -120,9 +123,9 @@ import logoImg from '../assets/Logo.png';
     <div class="mob-section">
       <button class="mob-section__trigger">Planes <span class="mob-arrow">▾</span></button>
       <div class="mob-section__body">
-        <a href="/#planes" class="mob-link">Plan Semanal <span class="mob-badge">S/.7</span></a>
-        <a href="/#planes" class="mob-link">Plan Mensual <span class="mob-badge">S/.20</span></a>
-        <a href="/#planes" class="mob-link">Plan Anual <span class="mob-badge mob-badge--featured">S/.200</span></a>
+        <a href="/planes" class="mob-link">Plan Semanal</a>
+        <a href="/planes" class="mob-link">Plan Mensual</a>
+        <a href="/planes" class="mob-link">Plan Anual</a>
       </div>
     </div>
 
@@ -278,6 +281,20 @@ import logoImg from '../assets/Logo.png';
     visibility: hidden;
     transition: opacity 0.18s ease, transform 0.18s ease, visibility 0.18s;
     z-index: 200;
+  }
+
+  /* El dropdown del último ítem se salía del viewport a 1280px. `overflow-x:
+   * clip` ya impide que la página scrollee, pero al abrirse quedaría cortado
+   * contra el borde: los de la derecha se anclan a su propio borde derecho en
+   * vez de centrarse. */
+  .nav-item:nth-last-child(-n + 2) .dropdown {
+    left: auto;
+    right: 0;
+    transform: translateX(0) translateY(-6px);
+  }
+
+  .nav-item:nth-last-child(-n + 2):hover .dropdown {
+    transform: translateX(0) translateY(0);
   }
 
   .nav-item:hover .dropdown {
