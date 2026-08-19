@@ -187,15 +187,61 @@
 
     <!-- Zona de decisión: pegada abajo, siempre visible, sin competir con el
          contenido de arriba. -->
+    <!-- Zona de decisión. Revisada 19-ago contra 8 paywalls reales de Mobbin
+         (Beside, Fixtured, Hatch, Calm Sleep, Tide Guide, Yubo, BitePal, KOHO),
+         la misma fuente del video que pasó Rodrigo. Tres patrones que se
+         repetían y acá faltaban:
+
+         1. 6 de los 8 muestran los planes EN la pantalla, no detrás de un
+            link. El "Ver todos los planes" escondía la decisión y obligaba a
+            abrir un modal para comparar.
+         2. Casi todos matan la objeción del cobro con una línea explícita —
+            "Due today $0.00" (Beside), "No payment now" (BitePal). Decir
+            "cancela cuando quieras" no es lo mismo que decir que hoy no se
+            cobra nada.
+         3. El precio se enmarca por día o por semana, no solo por mes.
+
+         El mensual sigue siendo el héroe (preseleccionado); el anual queda
+         visible como upgrade, con su ahorro real. -->
     <div class="pw-cierre">
-      <p class="pw-precio" data-pw-precio>
-        Luego <strong>S/.20 al mes</strong> · cancela cuando quieras
-      </p>
-      <button class="btn-primary pw-cta" onclick="pabloStartTrial('mensual')">
+      <div class="pw-planes-fila" role="radiogroup" aria-label="Elige tu plan">
+        <button
+          type="button"
+          class="pw-plan pw-plan--activo"
+          data-pw-plan="mensual"
+          role="radio"
+          aria-checked="true"
+          onclick="pabloElegirPlanPaywall(this, 'mensual')"
+        >
+          <span class="pw-plan__nombre">1 mes</span>
+          <span class="pw-plan__precio">S/.20</span>
+          <span class="pw-plan__unidad">S/.5 por semana</span>
+          <span class="pw-plan__gratis">3 días gratis</span>
+        </button>
+        <button
+          type="button"
+          class="pw-plan"
+          data-pw-plan="anual"
+          role="radio"
+          aria-checked="false"
+          onclick="pabloElegirPlanPaywall(this, 'anual')"
+        >
+          <span class="pw-plan__ahorro">Ahorra 45%</span>
+          <span class="pw-plan__nombre">12 meses</span>
+          <span class="pw-plan__precio">S/.200</span>
+          <span class="pw-plan__unidad">S/.3.84 por semana</span>
+          <span class="pw-plan__gratis">7 días gratis</span>
+        </button>
+      </div>
+
+      <button class="btn-primary pw-cta" onclick="pabloStartTrial()">
         <span data-pw-cta-label>Empezar mis 3 días gratis</span>
         <span class="arrow" aria-hidden="true">→</span>
       </button>
-      <button class="pw-planes" onclick="pabloOpenPlans()">Ver todos los planes</button>
+
+      <p class="pw-hoy">
+        <strong>Hoy pagas S/.0.</strong> <span data-pw-luego>Luego S/.20 al mes, y cancelas cuando quieras.</span>
+      </p>
     </div>
   </div>
 
@@ -497,6 +543,30 @@
   document.addEventListener("keydown", (e) => {
     if (e.key === "Escape") cerrarPlanes();
   });
+  /* Selector inline del paywall. Escribe el MISMO `planSeleccionado` que el
+     modal para que no existan dos fuentes de verdad: el CTA lanza siempre el
+     plan marcado acá. */
+  function elegirPlanPaywall(el, plan) {
+    if (!planes[plan]) return;
+    planSeleccionado = plan;
+    document.querySelectorAll("[data-pw-plan]").forEach(function (b) {
+      var activo = b === el;
+      b.classList.toggle("pw-plan--activo", activo);
+      b.setAttribute("aria-checked", String(activo));
+    });
+    var cta = document.querySelector("[data-pw-cta-label]");
+    if (cta) cta.textContent = planes[plan].ctaLabel;
+    var luego = document.querySelector("[data-pw-luego]");
+    if (luego) {
+      luego.textContent =
+        plan === "anual"
+          ? "Luego S/.200 al año, y cancelas cuando quieras."
+          : "Luego S/.20 al mes, y cancelas cuando quieras.";
+    }
+    window.pabloTrack?.("onboarding_plan_selected", { plan: plan, origen: "paywall" });
+  }
+  window.pabloElegirPlanPaywall = elegirPlanPaywall;
+
   window.pabloOpenPlans = abrirPlanes;
   window.pabloClosePlans = cerrarPlanes;
   window.pabloSelectPlan = seleccionarPlan;

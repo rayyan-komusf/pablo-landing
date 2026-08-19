@@ -2587,7 +2587,7 @@ body .topbar > div {
   flex-shrink: 0;
   background: #fff;
   border-top: 2px solid var(--pab-border, rgba(43, 44, 100, 0.12));
-  padding: 12px 20px calc(10px + env(safe-area-inset-bottom));
+  padding: 11px 18px calc(9px + env(safe-area-inset-bottom));
   display: flex;
   flex-direction: column;
   gap: 8px;
@@ -2620,13 +2620,107 @@ body .topbar > div {
   color: var(--pab-ink-soft, #5c5d86);
 }
 
-/* Área táctil de 44px conservada, pero sin que sume 44px de alto a la franja
- * fija: el padding se reparte y la línea de texto queda compacta. */
-.pw-planes {
-  text-decoration: underline;
-  min-height: 44px;
-  padding: 4px 12px;
-  align-self: center;
+/* --- Selector de plan inline (19-ago) ---
+ * Antes los planes vivían detrás de "Ver todos los planes". En 6 de los 8
+ * paywalls revisados en Mobbin los planes están EN la pantalla: esconder la
+ * comparación obliga a abrir un modal justo cuando la persona está decidiendo.
+ * El mensual va preseleccionado; el anual se ve al lado con su ahorro real. */
+.pw-planes-fila {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 9px;
+}
+
+.pw-plan {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1px;
+  padding: 9px 8px 8px;
+  border-radius: 16px;
+  background: #fff;
+  border: 2px solid rgba(43, 44, 100, 0.14);
+  box-shadow: 0 3px 0 0 rgba(43, 44, 100, 0.1);
+  transition: border-color 140ms ease, box-shadow 140ms ease, background 140ms ease;
+}
+
+.pw-plan--activo {
+  border-color: #2b2c64;
+  background: #f7f5ff;
+  box-shadow: 0 3px 0 0 #2b2c64;
+}
+
+.pw-plan__nombre {
+  font-family: var(--font-body);
+  font-size: 12px;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  color: var(--pab-ink-soft, #5c5d86);
+}
+
+.pw-plan__precio {
+  font-family: var(--font-display);
+  font-weight: 700;
+  font-size: 19px;
+  line-height: 1.1;
+  color: var(--pab-ink, #2b2c64);
+}
+
+/* El precio por semana da escala: "S/.5 por semana" pesa menos en la cabeza
+ * que "S/.20 al mes", y es el encuadre que usaban casi todos los paywalls. */
+.pw-plan__unidad {
+  font-family: var(--font-body);
+  font-size: 11.5px;
+  color: var(--pab-ink-soft, #5c5d86);
+}
+
+/* #9d6d0e pasa sobre blanco (4.54:1) pero NO sobre el lila del plan activo
+ * (#f7f5ff), donde cae a 4.21:1. #916409 pasa en ambos fondos: 4.83 y 5.21. */
+.pw-plan__gratis {
+  margin-top: 3px;
+  font-family: var(--font-body);
+  font-weight: 700;
+  font-size: 11.5px;
+  color: #916409;
+}
+
+.pw-plan__ahorro {
+  position: absolute;
+  top: -9px;
+  left: 50%;
+  transform: translateX(-50%);
+  white-space: nowrap;
+  font-family: var(--font-display);
+  font-weight: 700;
+  font-size: 9.5px;
+  letter-spacing: 0.03em;
+  color: var(--pab-ink, #2b2c64);
+  background: #f5c723;
+  padding: 3px 8px;
+  border-radius: 999px;
+  box-shadow: 0 2px 0 0 #cf9a12;
+}
+
+/* La línea que mata la objeción del cobro. "Cancela cuando quieras" no dice lo
+ * mismo que "hoy no se te cobra nada": esto último es lo que aparecía, textual,
+ * en los paywalls que mejor resuelven ese momento. */
+.pw-hoy {
+  text-align: center;
+  font-family: var(--font-body);
+  font-size: 13px;
+  line-height: 1.45;
+  color: var(--pab-ink-soft, #5c5d86);
+}
+
+.pw-hoy strong {
+  font-weight: 700;
+  color: var(--pab-ink, #2b2c64);
+}
+
+@media (max-width: 360px) {
+  .pw-plan__precio { font-size: 18px; }
+  .pw-plan__unidad { font-size: 11px; }
 }
 
 /* Texto corrido, no flex: como fila flex el separador "·" se descolgaba a su
