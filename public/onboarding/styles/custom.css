@@ -2694,3 +2694,154 @@ body .topbar > div {
 .pablo-actor--animado .pablo-actor__cuerpo {
   animation: none;
 }
+
+/* ============================================================
+ * 15. Preparando el pago (step-cuenta-pago)
+ *
+ * El punto más caro del embudo: la persona ya decidió, ya dio sus datos, y lo
+ * único que falta es que Flow responda. Antes acá había un texto quieto
+ * ("Preparando el pago seguro…") y Pablito arriba en la esquina, del mismo
+ * tamaño que en cualquier pregunta. Una espera muda en el paso del cobro se
+ * lee como que algo se colgó.
+ *
+ * Ahora: Pablo baja al centro y se agranda a revisar su moneda, una sola frase
+ * rota cada 1.9s matando una objeción distinta, y debajo se pinta el esqueleto
+ * del checkout real — cuando el widget de Flow monta, ocupa exactamente ese
+ * hueco, así que no hay salto de layout y el usuario siente que ya estaba ahí.
+ * ============================================================ */
+
+.pago-prep {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 14px;
+  padding: 4px 0 2px;
+}
+
+/* Anclaje al que viaja el Pablo persistente: más grande que en la esquina,
+ * para que el viaje se lea como "se acercó a ayudarte". */
+.pago-prep__pablo {
+  width: 132px;
+  height: 132px;
+  flex-shrink: 0;
+}
+
+.pago-prep__frase {
+  display: flex;
+  align-items: baseline;
+  gap: 1px;
+  font-family: var(--font-display);
+  font-weight: 700;
+  font-size: 16px;
+  color: var(--pab-ink, #2b2c64);
+  text-align: center;
+  min-height: 22px;
+  transition: opacity 200ms ease, transform 200ms ease;
+}
+
+.pago-prep__frase--sale {
+  opacity: 0;
+  transform: translateY(-4px);
+}
+
+/* Los tres puntos hacen una ola muy ligera, no un parpadeo: el movimiento
+ * continuo dice "sigue pasando algo", que es justo lo que hay que comunicar. */
+.pago-puntos {
+  display: inline-flex;
+  gap: 3px;
+  margin-left: 3px;
+}
+
+.pago-puntos i {
+  width: 4px;
+  height: 4px;
+  border-radius: 50%;
+  background: currentColor;
+  display: block;
+  animation: pagoOla 1.25s ease-in-out infinite;
+}
+
+.pago-puntos i:nth-child(2) { animation-delay: 0.14s; }
+.pago-puntos i:nth-child(3) { animation-delay: 0.28s; }
+
+@keyframes pagoOla {
+  0%, 60%, 100% { transform: translateY(0); opacity: 0.45; }
+  30%           { transform: translateY(-3px); opacity: 1; }
+}
+
+/* --- Esqueleto del checkout ---
+ * Mismas cajas, mismo orden y alto parecido al widget de Flow. El brillo que
+ * recorre las cajas es lo que separa "está cargando" de "está roto". */
+.pago-prev {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.pago-prev__label {
+  width: 42%;
+  height: 9px;
+  border-radius: 5px;
+}
+
+.pago-prev__campo {
+  height: 46px;
+  border-radius: 14px; /* radio de campo del sistema */
+  flex: 1;
+}
+
+.pago-prev__campo--tarjeta {
+  height: 52px;
+}
+
+.pago-prev__fila {
+  display: flex;
+  gap: 10px;
+}
+
+.pago-prev__boton {
+  height: 50px;
+  border-radius: 16px; /* radio de botón del sistema */
+  margin-top: 2px;
+}
+
+.pago-prev__label,
+.pago-prev__campo,
+.pago-prev__boton {
+  background: linear-gradient(
+    100deg,
+    rgba(43, 44, 100, 0.07) 30%,
+    rgba(43, 44, 100, 0.13) 45%,
+    rgba(43, 44, 100, 0.07) 60%
+  );
+  background-size: 280% 100%;
+  animation: pagoBrillo 1.6s linear infinite;
+}
+
+@keyframes pagoBrillo {
+  0%   { background-position: 180% 0; }
+  100% { background-position: -80% 0; }
+}
+
+@media (max-width: 560px) {
+  .pago-prep__pablo {
+    width: 108px;
+    height: 108px;
+  }
+  .pago-prep__frase {
+    font-size: 15px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .pago-puntos i,
+  .pago-prev__label,
+  .pago-prev__campo,
+  .pago-prev__boton {
+    animation: none;
+  }
+  .pago-prep__frase {
+    transition: none;
+  }
+}

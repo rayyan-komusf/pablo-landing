@@ -37,12 +37,12 @@ const base = "/onboarding/images/pablo/2d";
     const capas = [...actor.querySelectorAll(".pablo-actor__sprite")];
     const video = actor.querySelector(".pablo-actor__video");
     const BASE = "/onboarding/images/pablo/2d";
-    const POSES = ["saludando", "senalando", "explicando", "celebrando", "emocionado", "anotando"];
+    const POSES = ["saludando", "senalando", "explicando", "celebrando", "emocionado", "anotando", "buscando"];
 
     // Poses que ya tienen animación real (miembros articulados, generada con
     // Kling sobre el render oficial y recortada por croma a WebM con alfa).
     // Las que no están acá siguen con su sprite fijo + la física CSS.
-    const CON_VIDEO = new Set(["saludando", "anotando"]);
+    const CON_VIDEO = new Set(["saludando", "anotando", "buscando"]);
 
     const suave = window.matchMedia("(prefers-reduced-motion: reduce)");
     // Safari < 16 no reproduce alfa en WebM: ahí el video mostraría un
@@ -185,6 +185,28 @@ const base = "/onboarding/images/pablo/2d";
       }, t);
     }
 
+    /* Una pantalla puede declarar más de un sitio para Pablo — el pago tiene el
+     * de la esquina y el del centro mientras prepara el checkout. Gana el
+     * ÚLTIMO visible: así Pablo baja al centro a acompañar la espera y vuelve
+     * solo a la esquina cuando el widget de Flow ocupa ese hueco. */
+    function anclajeDe(step) {
+      const todos = [...step.querySelectorAll("[data-pablo-anclaje]")].filter(
+        (el) => el.offsetParent !== null || el.getClientRects().length > 0
+      );
+      return todos[todos.length - 1] || null;
+    }
+
+    /* Hook público: una pantalla que muestra u oculta un anclaje avisa para que
+     * Pablo se mueva, sin tener que tocar el motor ni este componente. */
+    window.pabloActorRevisar = () => {
+      const step = document.querySelector(".step.active");
+      const anclaje = step && anclajeDe(step);
+      if (!anclaje) return;
+      actor.classList.remove("pablo-actor--fuera");
+      ponerPose(anclaje.dataset.pose || "explicando");
+      viajarA(anclaje, false);
+    };
+
     /* ---- Reacción al cambio de pantalla --------------------------------- */
     function alCambiarPaso(primeraVez) {
       const step = document.querySelector(".step.active");
@@ -192,7 +214,7 @@ const base = "/onboarding/images/pablo/2d";
       ultimoPaso = step;
       limpiar();
 
-      const anclaje = step.querySelector("[data-pablo-anclaje]");
+      const anclaje = anclajeDe(step);
       if (!anclaje) {
         // Pantallas sin Pablo (demo, paywall): NO se oculta con display:none —
         // se retira de escena hacia abajo, para que al volver entre caminando.

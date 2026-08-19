@@ -16,7 +16,7 @@
 
   <div class="fuente-body flex-1 flex flex-col w-full mx-auto px-5 max-md:px-4 overflow-y-auto [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
     <div class="pago-card">
-      <p class="pago-resumen" id="pago-resumen">Preparando tu plan…</p>
+      <p class="pago-resumen" id="pago-resumen" hidden></p>
       <!-- Éxito: check verde animado (estilo iOS) antes de entrar a la app. -->
       <div class="pago-exito" id="pago-exito" hidden>
         <svg viewBox="0 0 56 56" class="pago-exito-check" role="img" aria-label="Pago exitoso">
@@ -37,13 +37,39 @@
         loading="lazy"
         hidden
       />
-      <p class="pago-estado" id="pago-estado">Preparando el pago seguro…</p>
+      <!-- ══ Preparando ══
+           Este es el punto más caro del embudo: la persona ya decidió y solo
+           falta que no se le enfríe mientras Flow responde. En vez de un texto
+           quieto, Pablo baja al centro a revisar su moneda y debajo se pinta el
+           esqueleto del checkout real. Cuando el widget monta, ocupa
+           exactamente ese hueco: el cerebro ya estaba ahí. -->
+      <div class="pago-prep" id="pago-prep">
+        <div class="pago-prep__pablo" data-pablo-anclaje data-pose="buscando"></div>
+
+        <!-- Una frase a la vez, cambiando cada ~1.9s. Nunca una lista: en una
+             pantalla de carga, ver varias frases juntas se lee como demora. -->
+        <p class="pago-prep__frase" id="pago-prep-frase" aria-live="polite">
+          <span data-prep-texto>Preparando tu plan</span><span class="pago-puntos" aria-hidden="true"><i></i><i></i><i></i></span>
+        </p>
+
+        <!-- Vista previa del checkout: mismas cajas, mismo orden y mismo alto
+             que el widget de Flow, en gris. No es decoración — evita el salto
+             de layout cuando el widget aparece. -->
+        <div class="pago-prev" aria-hidden="true">
+          <span class="pago-prev__label"></span>
+          <div class="pago-prev__campo pago-prev__campo--tarjeta"></div>
+          <div class="pago-prev__fila">
+            <div class="pago-prev__campo"></div>
+            <div class="pago-prev__campo"></div>
+          </div>
+          <div class="pago-prev__boton"></div>
+        </div>
+      </div>
+
+      <p class="pago-estado" id="pago-estado" hidden></p>
       <div id="pago-widget"></div>
       <button type="button" class="btn-primary btn-continue" id="pago-reintentar" hidden onclick="pabloPagoReintentar()">
         Reintentar
-      </button>
-      <button type="button" class="cuenta-link" onclick="pabloCuentaIrAlPago()">
-        Prefiero pagar dentro de la app
       </button>
       <p class="pago-nota"><img src="/onboarding/images/iconos/fi06_escudo.png" alt="" width="18" height="18" loading="lazy" class="pab-icono" /> Pago procesado por Flow. Pablo nunca ve tu tarjeta.</p>
     </div>
@@ -83,17 +109,62 @@
       function planSlug() {
         return sessionStorage.getItem("pablo_plan_elegido") || "anual";
       }
+      /* Frases de la espera. Cortas, concretas y en el orden real de lo que
+         está pasando: cada una mata una objeción distinta (¿me cobran ya?,
+         ¿es seguro?, ¿puedo salirme?). Se muestra UNA a la vez. */
+      var FRASES_PREP = [
+        "Preparando tu plan",
+        "Abriendo tu prueba gratis",
+        "Nadie te cobra hoy",
+        "Cifrando la conexión",
+        "Cancelas cuando quieras",
+        "Ya casi",
+      ];
+      var prepTimer = null;
+
+      function prepArrancar() {
+        var caja = document.getElementById("pago-prep");
+        var span = document.querySelector("[data-prep-texto]");
+        if (!caja || !span) return;
+        caja.hidden = false;
+        // Pablo baja al centro a acompañar la espera.
+        window.pabloActorRevisar && window.pabloActorRevisar();
+        var i = 0;
+        span.textContent = FRASES_PREP[0];
+        clearInterval(prepTimer);
+        prepTimer = setInterval(function () {
+          i = (i + 1) % FRASES_PREP.length;
+          // Se desvanece, cambia y vuelve: sin el fundido el texto "salta".
+          span.parentElement.classList.add("pago-prep__frase--sale");
+          setTimeout(function () {
+            span.textContent = FRASES_PREP[i];
+            span.parentElement.classList.remove("pago-prep__frase--sale");
+          }, 220);
+        }, 1900);
+      }
+
+      function prepParar() {
+        clearInterval(prepTimer);
+        prepTimer = null;
+        var caja = document.getElementById("pago-prep");
+        if (caja) caja.hidden = true;
+        // …y vuelve a la esquina para dejarle la pantalla al checkout.
+        window.pabloActorRevisar && window.pabloActorRevisar();
+      }
+
       function setEstado(msg, esError) {
         var el = document.getElementById("pago-estado");
         if (!el) return;
         el.textContent = msg || "";
         el.hidden = !msg;
+        if (esError) prepParar();
         el.classList.toggle("pago-estado--error", Boolean(esError));
         // Pablito triste acompaña los errores.
         var triste = document.getElementById("pago-triste");
         if (triste) triste.hidden = !esError;
       }
       function mostrarExito() {
+        prepParar();
         var widget = document.getElementById("pago-widget");
         if (widget) widget.innerHTML = "";
         setEstado("");
@@ -109,6 +180,7 @@
         var p = PLANES[planSlug()] || PLANES.anual;
         var el = document.getElementById("pago-resumen");
         if (el) {
+          el.hidden = false;
           el.textContent =
             p.texto +
             (p.trial > 0
@@ -171,6 +243,24 @@
         }
       }
 
+      /* El rotador se ata a que la PANTALLA se muestre, no al flujo de pago.
+         Antes solo arrancaba dentro de pabloPagoArrancar: si el checkout
+         fallaba antes de llegar ahí (sin sesión, red caída), el bloque quedaba
+         visible con la primera frase congelada para siempre — justo la
+         sensación de "se colgó" que esta pantalla tiene que evitar. */
+      var pantallaPago = document.querySelector('[data-step="step-cuenta-pago"]');
+      if (pantallaPago) {
+        new MutationObserver(function () {
+          if (pantallaPago.classList.contains("active")) {
+            var caja = document.getElementById("pago-prep");
+            if (caja && !caja.hidden) prepArrancar();
+          } else {
+            prepParar();
+          }
+        }).observe(pantallaPago, { attributes: true, attributeFilter: ["class"] });
+        if (pantallaPago.classList.contains("active")) prepArrancar();
+      }
+
       window.pabloPagoArrancar = async function () {
         if (enCurso) return;
         enCurso = true;
@@ -178,7 +268,8 @@
         var exito = document.getElementById("pago-exito");
         if (exito) exito.hidden = true;
         pintarResumen();
-        setEstado("Preparando el pago seguro…");
+        prepArrancar();
+        setEstado("");
 
         try {
           var sesion = await window.pabloCuentaAsegurarSesion();
@@ -205,6 +296,7 @@
 
           var contenedor = document.getElementById("pago-widget");
           if (contenedor) contenedor.innerHTML = "";
+          prepParar();
           setEstado("");
 
           var flow = window.Flow();
