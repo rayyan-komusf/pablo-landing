@@ -1,0 +1,230 @@
+---
+// Los dos lead magnets del final (Rodrigo, 19-ago): para quien llegó hasta acá
+// pero todavía no está listo para comprar. El paso siguiente tiene que ser
+// obvio y verse profesional, como la sección del English Test al final de la
+// home de Duolingo. Van después del CTA final y antes de las preguntas.
+//
+//  1. La plantilla de presupuesto gratis → al blog donde se descarga
+//     (/blog/plantilla-detox-financiero, el post del detox financiero).
+//  2. El curso "Finanzas de un Futuro Millonario" → /cursos/camino-al-millon
+//     (viene incluido con el plan de Pablo; la primera clase se puede ver
+//     dejando el correo — ese gate vive en la página del curso).
+const PABLO = "/onboarding/images/pablo/2d";
+const ICONOS = "/onboarding/images/iconos";
+---
+
+<section class="lm" aria-label="Recursos gratis para empezar">
+  <!-- ── Plantilla gratis (blanco) ── -->
+  <div class="lm__bloque lm__bloque--blanco" id="plantilla-gratis">
+    <div class="lm__escena" aria-hidden="true">
+      <div class="lm-plantilla">
+        <span class="lm-plantilla__cab"></span>
+        <span class="lm-plantilla__fila" style="--w: 84%"></span>
+        <span class="lm-plantilla__fila" style="--w: 62%"></span>
+        <span class="lm-plantilla__fila" style="--w: 74%"></span>
+        <span class="lm-plantilla__fila" style="--w: 48%"></span>
+      </div>
+      <img class="lm__pablo" src={`${PABLO}/pablo-senalando.webp`} alt="" width="343" height="420" loading="lazy" />
+    </div>
+    <div class="lm__texto">
+      <h2 class="lm__titulo">¿Todavía no estás listo?</h2>
+      <p class="lm__desc">
+        Empieza por tu cuenta con la plantilla de presupuesto gratis de Pablo.
+        Te la llevas hoy, y cuando quieras que él la llene por ti, ya sabes
+        dónde encontrarlo.
+      </p>
+      <a class="lm__cta" href="/blog/plantilla-detox-financiero" onclick="window.posthog?.capture?.('lm_plantilla_clicked')">
+        Leer el blog
+      </a>
+    </div>
+  </div>
+
+  <div class="lm-ola" aria-hidden="true"><svg viewBox="0 0 1440 90" preserveAspectRatio="none"><path fill="#ffffff" d="M0,46 C250,82 510,20 770,52 C1020,82 1250,28 1440,56 L1440,0 L0,0 Z"/></svg></div>
+
+  <!-- ── El curso (lila) ── -->
+  <div class="lm__bloque lm__bloque--lila" id="camino-al-millon">
+    <div class="lm__escena" aria-hidden="true">
+      <div class="lm-clase">
+        <span class="lm-clase__play"></span>
+        <span class="lm-clase__linea" style="--w: 70%"></span>
+        <span class="lm-clase__linea" style="--w: 46%"></span>
+      </div>
+      <img class="lm__pablo lm__pablo--curso" src={`${PABLO}/pablo-explicando.webp`} alt="" width="316" height="420" loading="lazy" />
+    </div>
+    <div class="lm__texto">
+      <h2 class="lm__titulo">Empieza tu camino al primer millón</h2>
+      <p class="lm__desc">
+        El curso «Finanzas de un Futuro Millonario» viene incluido con tu plan
+        de Pablo. Mira la primera clase gratis dejando tu correo y decide con
+        calma.
+      </p>
+      <a class="lm__cta" href="/cursos/camino-al-millon" onclick="window.posthog?.capture?.('lm_curso_clicked')">
+        Ver la primera clase
+      </a>
+    </div>
+  </div>
+</section>
+
+<style>
+  .lm__bloque {
+    padding: 72px 24px 80px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 30px;
+  }
+
+  .lm__bloque--blanco { background: #ffffff; }
+  .lm__bloque--lila { background: #f5f3ff; }
+
+  .lm-ola { line-height: 0; margin-top: -1px; background: #f5f3ff; }
+  .lm-ola svg { width: 100%; height: 76px; display: block; }
+
+  .lm__texto {
+    max-width: 560px;
+    text-align: center;
+  }
+
+  .lm__titulo {
+    font-family: var(--font-display, "Outfit"), sans-serif;
+    font-weight: 700;
+    font-size: clamp(24px, 3vw, 36px);
+    line-height: 1.15;
+    letter-spacing: -0.02em;
+    color: #2b2c64;
+  }
+
+  .lm__desc {
+    margin: 13px auto 22px;
+    font-size: 16.5px;
+    line-height: 1.6;
+    color: #56578f;
+    max-width: 52ch;
+  }
+
+  /* Botón de juguete navy: mismo lenguaje que los badges de descarga. */
+  .lm__cta {
+    display: inline-flex;
+    align-items: center;
+    min-height: 50px;
+    padding: 13px 26px;
+    border-radius: 16px;
+    background: #2b2c64;
+    color: #fff;
+    font-family: var(--font-display, "Outfit"), sans-serif;
+    font-weight: 700;
+    font-size: 15.5px;
+    text-decoration: none;
+    box-shadow: 0 4px 0 0 #191a44, 0 6px 10px -6px rgba(43, 44, 100, 0.4);
+    transition: transform 120ms ease, box-shadow 120ms ease;
+  }
+
+  @media (hover: hover) {
+    .lm__cta:hover {
+      transform: translateY(-1px);
+      box-shadow: 0 5px 0 0 #191a44, 0 8px 12px -6px rgba(43, 44, 100, 0.42);
+    }
+  }
+
+  .lm__cta:active {
+    transform: translateY(3px);
+    box-shadow: 0 1px 0 0 #191a44;
+  }
+
+  /* ── Escenas: Pablo con su prop, mismo lenguaje que el resto ── */
+  .lm__escena {
+    position: relative;
+    display: flex;
+    align-items: flex-end;
+    justify-content: center;
+    gap: 14px;
+    min-height: 200px;
+  }
+
+  .lm__pablo {
+    width: 150px;
+    height: auto;
+    animation: lmFlota 4.4s ease-in-out infinite;
+    transform-origin: 50% 100%;
+  }
+
+  @keyframes lmFlota {
+    0%, 100% { transform: translateY(0) rotate(-1deg); }
+    50%      { transform: translateY(-7px) rotate(1deg); }
+  }
+
+  /* La plantilla: hoja cerámica con filas, inclinada como recién impresa. */
+  .lm-plantilla {
+    width: 170px;
+    padding: 16px 14px 18px;
+    background: #ffffff;
+    border-radius: 18px;
+    box-shadow: 0 5px 0 0 #d9d4ec, 0 14px 20px -14px rgba(43, 44, 100, 0.35);
+    transform: rotate(-4deg);
+    display: flex;
+    flex-direction: column;
+    gap: 9px;
+    margin-bottom: 24px;
+  }
+
+  .lm-plantilla__cab {
+    width: 58%;
+    height: 12px;
+    border-radius: 6px;
+    background: #f5c723;
+    box-shadow: inset 0 -3px 0 0 #cf9a12;
+    margin-bottom: 3px;
+  }
+
+  .lm-plantilla__fila {
+    width: var(--w);
+    height: 9px;
+    border-radius: 5px;
+    background: rgba(43, 44, 100, 0.1);
+  }
+
+  /* La clase: tarjeta de video con play, como un aula esperándote. */
+  .lm-clase {
+    width: 190px;
+    height: 128px;
+    background: #2b2c64;
+    border-radius: 18px;
+    box-shadow: 0 5px 0 0 #191a44, 0 14px 20px -14px rgba(43, 44, 100, 0.45);
+    transform: rotate(3deg);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 9px;
+    margin-bottom: 30px;
+  }
+
+  .lm-clase__play {
+    width: 0;
+    height: 0;
+    border-top: 14px solid transparent;
+    border-bottom: 14px solid transparent;
+    border-left: 22px solid #f5a623;
+    margin-left: 5px;
+    filter: drop-shadow(0 2px 0 #c97f0c);
+  }
+
+  .lm-clase__linea {
+    width: var(--w);
+    height: 7px;
+    border-radius: 4px;
+    background: rgba(255, 255, 255, 0.22);
+  }
+
+  @media (max-width: 640px) {
+    .lm__bloque { padding: 50px 18px 58px; }
+    .lm-ola svg { height: 44px; }
+    .lm__pablo { width: 124px; }
+    .lm-plantilla { width: 146px; }
+    .lm-clase { width: 164px; height: 112px; }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .lm__pablo { animation: none; }
+  }
+</style>

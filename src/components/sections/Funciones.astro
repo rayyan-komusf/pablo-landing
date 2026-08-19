@@ -1,155 +1,136 @@
 ---
 import { APP_STORE_URL } from '../../siteConfig';
-// Recorrido de BENEFICIOS, reescrito el 19-ago tras el feedback de Rodrigo:
+// Recorrido de beneficios.
 //
-//  1. Nada de maquetas del producto. La primera versión mostraba mini-UIs
-//     (burbujas de chat, barras de presupuesto) que ni siquiera usaban el
-//     design kit real. Lo que vende acá es el BENEFICIO, con Pablo en persona
-//     haciendo cosas distintas en cada bloque — como Duo en duolingo.com.
-//  2. Pablo es el protagonista: en cada bloque aparece con su animación real
-//     (WebM con alfa del set oficial, miembros articulados) o su render 2D.
-//  3. Las escenas REACCIONAN AL SCROLL en tiempo real: Pablo y las piezas que
-//     lo rodean se desplazan con el avance del bloque por el viewport, y al
-//     subir vuelven exactamente a su lugar (es posición, no animación de
-//     entrada). El mismo efecto vivo de la home de Duolingo.
-//  4. La descarga va en el MISMO flujo, como bloque final del recorrido, no
-//     como una franja aparte de otro color.
+// Estructura (Rodrigo, 19-ago): título + descripción CENTRADOS, sin eyebrows;
+// bloques que alternan lila/blanco separados por olas, nunca por una línea
+// recta; y la descarga centrada al final del mismo flujo.
+//
+// ⚠️ LAS ESCENAS SON UN SLOT ÚNICO. Se intentó armarlas con primitivas CSS
+// (una cama de divs, soldaditos marchando, una pista de carrera) y el
+// resultado eran "piezas juntadas", no una animación: cada elemento se movía
+// por su cuenta y nada se leía como una sola pieza. Cada bloque declara ahora
+// UN solo hueco `[data-escena]` que espera UN video WebM con alfa — la escena
+// completa, animada de una sola pieza. Mientras ese video no exista, cae al
+// clip actual de Pablo solo, que sí se ve bien.
+//
+// El brief para producir esos cinco videos está en
+// `docs/brief-animaciones-landing.md`.
+const PABLO = "/onboarding/images/pablo/2d";
 
 const BLOQUES = [
   {
     id: "companero",
-    eyebrow: "tu compañero",
+    tono: "lila",
     titulo: "Un amigo que sabe de plata, no otra app de banco",
     texto:
-      "Pablo te saluda, te escucha y te responde al toque, en cristiano. Sin jerga financiera, sin sermones y sin hacerte sentir mal por un gasto.",
-    video: "saludando",
-    pose: "saludando",
+      "Pablo te responde al toque y en cristiano, como un pata que sabe del tema. Sin jerga financiera, sin sermones y sin hacerte sentir mal por un gasto.",
+    escena: "cama",      // pendiente: Pablo echado en su cama con el celular
+    respaldo: "saludando",
   },
   {
     id: "sin-esfuerzo",
-    eyebrow: "cero esfuerzo",
+    tono: "blanco",
     titulo: "Tú vive tu vida, Pablo lleva las cuentas",
     texto:
-      "Cuéntale lo que gastaste y listo: él anota, ordena y cuadra todo por ti. Nada de planillas, ni de fuerza de voluntad, ni de acordarte a fin de mes.",
-    video: "anotando",
-    pose: "anotando",
+      "Cada gasto que le cuentas mueve tu presupuesto al instante. Nada de planillas, ni de fuerza de voluntad, ni de acordarte a fin de mes.",
+    escena: "presupuesto", // pendiente: presupuesto 3D flotante moviéndose
+    respaldo: "anotando",
   },
   {
     id: "motivacion",
-    eyebrow: "motivación",
+    tono: "lila",
     titulo: "Cuidar tu plata por fin se siente bien",
     texto:
-      "Rachas, metas y un compañero que festeja contigo cada avance, por chiquito que sea. Ordenar tus finanzas deja de ser un castigo y se vuelve un juego.",
-    video: "emocionado",
-    pose: "emocionado",
+      "Cada día que registras suma racha, y cada sol que ordenas te acerca. Pablo corre contigo hacia tu libertad financiera, un día a la vez.",
+    escena: "corriendo",   // pendiente: corriendo hacia la meta inalcanzable
+    respaldo: "emocionado",
   },
   {
     id: "claridad",
-    eyebrow: "claridad",
+    tono: "blanco",
     titulo: "Cada sol encuentra su lugar",
     texto:
-      "Pablo caza los gastos hormiga que se te escapan y te muestra a dónde se va tu sueldo de verdad. Tranquilidad para llegar a fin de mes, no culpa.",
-    video: "buscando",
-    pose: "buscando",
+      "Mientras le escribes por WhatsApp, Pablo pasa lista: caza los gastos hormiga que se te escapan y te muestra a dónde va tu sueldo de verdad.",
+    escena: "soles",       // pendiente: soldaditos-moneda marchando
+    respaldo: "anotando",
   },
 ];
 ---
 
+
 <section class="fx" id="funciones" aria-label="Por qué Pablo">
   {
     BLOQUES.map((b, i) => (
-      <div class:list={["fx__bloque", i % 2 === 1 && "fx__bloque--invertido"]} id={b.id}>
-        <div class="fx__texto">
-          <span class="fx__eyebrow">{b.eyebrow}</span>
-          <h2 class="fx__titulo">{b.titulo}</h2>
-          <p class="fx__desc">{b.texto}</p>
-        </div>
+      <>
+        <div class:list={["fx__bloque", `fx__bloque--${b.tono}`]} id={b.id}>
+          <div class="fx__texto">
+            <h2 class="fx__titulo">{b.titulo}</h2>
+            <p class="fx__desc">{b.texto}</p>
+          </div>
 
-        <div class="fx-escena" data-parallax aria-hidden="true">
-          {/* Piezas cerámicas que flotan alrededor de Pablo. Cada una lleva su
-              propio factor de parallax (--f): al scrollear se separan entre sí
-              y de Pablo, y al volver arriba regresan a su sitio. */}
-          <span class="fx-pieza fx-pieza--moneda" style="--f: 42px" />
-          <span class="fx-pieza fx-pieza--lila" style="--f: -30px" />
-          <span class="fx-pieza fx-pieza--anillo" style="--f: 66px" />
-          <span class="fx-pieza fx-pieza--chispa" style="--f: -54px" />
-
-          <div class="fx-pablo" style="--f: -14px">
-            <img
-              src={`/onboarding/images/pablo/2d/pablo-${b.pose}.webp`}
-              alt=""
-              width="445"
-              height="420"
-              loading={i === 0 ? "eager" : "lazy"}
-            />
-            <video
-              data-src={`/onboarding/images/pablo/2d/pablo-${b.video}.webm`}
-              muted
-              loop
-              playsinline
-              preload="none"
-              width="445"
-              height="420"
-            />
-            <span class="fx-sombra" />
+          {/* Slot de escena: un solo video con alfa cuando exista. */}
+          <div class="fx-escena" data-escena={b.escena} aria-hidden="true">
+            <div class="fx-pablo">
+              <img src={`${PABLO}/pablo-${b.respaldo}.webp`} alt="" width="445" height="420" loading={i === 0 ? "eager" : "lazy"} />
+              <video data-src={`${PABLO}/pablo-${b.respaldo}.webm`} muted loop playsinline preload="none" width="445" height="420"></video>
+              <span class="fx-sombra"></span>
+            </div>
           </div>
         </div>
-      </div>
+
+        <div class="fx-ola" data-desde={b.tono} aria-hidden="true">
+          <svg viewBox="0 0 1440 80" preserveAspectRatio="none">
+            <path d="M0,46 C240,80 500,16 760,50 C1010,82 1240,26 1440,54 L1440,0 L0,0 Z" />
+          </svg>
+        </div>
+      </>
     ))
   }
 
-  <!-- ── Descarga: mismo flujo, mismo lenguaje, bloque final ── -->
-  <div class="fx__bloque" id="descarga">
+  {/* ── Descarga: todo centrado ── */}
+  <div class="fx__bloque fx__bloque--lila" id="descarga">
     <div class="fx__texto">
-      <span class="fx__eyebrow">llévalo contigo</span>
       <h2 class="fx__titulo">Pablo va donde tú vas</h2>
       <p class="fx__desc">
         En WhatsApp, en la web y ahora también en tu iPhone. Descarga la app y
         ten tu plata clara en el bolsillo, estés donde estés.
       </p>
+    </div>
 
-      <div class="fx__badges">
-        <a
-          class="fx-badge"
-          href={APP_STORE_URL}
-          target="_blank"
-          rel="noopener"
-          onclick="window.posthog?.capture?.('descarga_appstore_clicked')"
-        >
-          <svg viewBox="0 0 24 24" width="24" height="24" fill="currentColor" aria-hidden="true">
-            <path d="M17.05 12.54c-.02-2.2 1.8-3.26 1.88-3.31-1.02-1.5-2.62-1.7-3.19-1.72-1.36-.14-2.65.8-3.34.8-.69 0-1.75-.78-2.87-.76-1.48.02-2.84.86-3.6 2.18-1.53 2.66-.39 6.6 1.1 8.76.73 1.06 1.6 2.25 2.74 2.2 1.1-.04 1.52-.71 2.85-.71 1.33 0 1.7.71 2.87.69 1.18-.02 1.93-1.08 2.65-2.14.83-1.22 1.18-2.41 1.2-2.47-.03-.01-2.3-.88-2.32-3.5zM14.9 5.9c.6-.74 1.01-1.76.9-2.78-.87.04-1.93.58-2.56 1.31-.56.65-1.06 1.7-.93 2.7.97.08 1.97-.5 2.59-1.23z"/>
-          </svg>
-          <span>
-            <small>Descárgala en el</small>
-            <strong>App Store</strong>
-          </span>
-        </a>
-        <span class="fx-badge fx-badge--pronto">
-          <svg viewBox="0 0 24 24" width="21" height="21" fill="currentColor" aria-hidden="true">
-            <path d="M17.6 9.48l1.84-3.18a.4.4 0 0 0-.7-.4L16.87 9.1a11.4 11.4 0 0 0-9.75 0L5.25 5.9a.4.4 0 1 0-.7.4L6.4 9.48A10.8 10.8 0 0 0 1 17.9h22a10.8 10.8 0 0 0-5.4-8.42zM7 14.6a.9.9 0 1 1 0-1.8.9.9 0 0 1 0 1.8zm10 0a.9.9 0 1 1 0-1.8.9.9 0 0 1 0 1.8z"/>
-          </svg>
-          <span>
-            <small>Android</small>
-            <strong>Viene pronto</strong>
-          </span>
-        </span>
+    <div class="fx-escena" data-escena="celular" aria-hidden="true">
+      <div class="fx-pablo">
+        <img src={`${PABLO}/pablo-saludando.webp`} alt="" width="445" height="420" loading="lazy" />
+        <video data-src={`${PABLO}/pablo-saludando.webm`} muted loop playsinline preload="none" width="445" height="420"></video>
+        <span class="fx-sombra"></span>
       </div>
     </div>
 
-    <div class="fx-escena" data-parallax aria-hidden="true">
-      <span class="fx-pieza fx-pieza--moneda" style="--f: 48px" />
-      <span class="fx-pieza fx-pieza--lila" style="--f: -36px" />
-      <span class="fx-pieza fx-pieza--chispa" style="--f: 60px" />
-      <div class="fx-pablo fx-pablo--flota" style="--f: -14px">
-        <img
-          src="/onboarding/images/pablo/2d/pablo-senalando.webp"
-          alt=""
-          width="343"
-          height="420"
-          loading="lazy"
-        />
-        <span class="fx-sombra" />
-      </div>
+    <div class="fx__badges">
+      <a
+        class="fx-badge"
+        href={APP_STORE_URL}
+        target="_blank"
+        rel="noopener"
+        onclick="window.posthog?.capture?.('descarga_appstore_clicked')"
+      >
+        <svg viewBox="0 0 24 24" width="24" height="24" fill="currentColor" aria-hidden="true">
+          <path d="M17.05 12.54c-.02-2.2 1.8-3.26 1.88-3.31-1.02-1.5-2.62-1.7-3.19-1.72-1.36-.14-2.65.8-3.34.8-.69 0-1.75-.78-2.87-.76-1.48.02-2.84.86-3.6 2.18-1.53 2.66-.39 6.6 1.1 8.76.73 1.06 1.6 2.25 2.74 2.2 1.1-.04 1.52-.71 2.85-.71 1.33 0 1.7.71 2.87.69 1.18-.02 1.93-1.08 2.65-2.14.83-1.22 1.18-2.41 1.2-2.47-.03-.01-2.3-.88-2.32-3.5zM14.9 5.9c.6-.74 1.01-1.76.9-2.78-.87.04-1.93.58-2.56 1.31-.56.65-1.06 1.7-.93 2.7.97.08 1.97-.5 2.59-1.23z"/>
+        </svg>
+        <span>
+          <small>Descárgala en el</small>
+          <strong>App Store</strong>
+        </span>
+      </a>
+      <span class="fx-badge fx-badge--pronto">
+        <svg viewBox="0 0 24 24" width="21" height="21" fill="currentColor" aria-hidden="true">
+          <path d="M17.6 9.48l1.84-3.18a.4.4 0 0 0-.7-.4L16.87 9.1a11.4 11.4 0 0 0-9.75 0L5.25 5.9a.4.4 0 1 0-.7.4L6.4 9.48A10.8 10.8 0 0 0 1 17.9h22a10.8 10.8 0 0 0-5.4-8.42zM7 14.6a.9.9 0 1 1 0-1.8.9.9 0 0 1 0 1.8zm10 0a.9.9 0 1 1 0-1.8.9.9 0 0 1 0 1.8z"/>
+        </svg>
+        <span>
+          <small>Android</small>
+          <strong>Viene pronto</strong>
+        </span>
+      </span>
     </div>
   </div>
 </section>
@@ -157,93 +138,39 @@ const BLOQUES = [
 <script is:inline>
   (() => {
     const suave = matchMedia("(prefers-reduced-motion: reduce)").matches;
-
-    /* ---- Videos: la animación real de Pablo, solo si el navegador puede ---- */
     const probe = document.createElement("video");
     const hayAlfa = !!probe.canPlayType && probe.canPlayType('video/webm; codecs="vp9"') !== "";
-    if (hayAlfa && !suave) {
-      document.querySelectorAll(".fx-pablo video[data-src]").forEach((v) => {
-        v.src = v.dataset.src;
-        v.closest(".fx-pablo").classList.add("fx-pablo--video");
-        // Se reproduce solo cuando el bloque está a la vista: cuatro videos
-        // corriendo fuera de pantalla es batería quemada al cohete.
-        new IntersectionObserver(
-          ([e]) => (e.isIntersecting ? v.play?.().catch(() => {}) : v.pause?.()),
-          { rootMargin: "120px" }
-        ).observe(v);
-      });
-    }
+    if (!hayAlfa || suave) return;
 
-    /* ---- Parallax reactivo al scroll (pedido de Rodrigo, 19-ago) ----------
-       Como en la home de Duolingo: las piezas de la escena se desplazan EN
-       TIEMPO REAL con el scroll y, al volver arriba, regresan a su lugar. No
-       es una animación de entrada: es una función pura de la posición del
-       bloque en el viewport, así que es reversible por construcción.
-       Cada escena recibe --p ∈ [-1, 1] (−1 entrando desde abajo, 0 centrada,
-       +1 saliendo por arriba) y cada pieza lo multiplica por su --f. */
-    if (!suave) {
-      const escenas = [...document.querySelectorAll("[data-parallax]")];
-      if (escenas.length) {
-        let pedido = false;
-        const pintar = () => {
-          pedido = false;
-          const vh = innerHeight;
-          for (const esc of escenas) {
-            const r = esc.getBoundingClientRect();
-            if (r.bottom < -80 || r.top > vh + 80) continue; // fuera de vista
-            const p = (vh / 2 - (r.top + r.height / 2)) / (vh / 2 + r.height / 2);
-            esc.style.setProperty("--p", Math.max(-1, Math.min(1, p)).toFixed(4));
-          }
-        };
-        const alScroll = () => {
-          if (!pedido) {
-            pedido = true;
-            requestAnimationFrame(pintar); // 1 lectura por frame, nunca más
-          }
-        };
-        addEventListener("scroll", alScroll, { passive: true });
-        addEventListener("resize", alScroll, { passive: true });
-        pintar();
-      }
-    }
+    // Cada escena reproduce solo cuando está a la vista: cinco videos
+    // corriendo fuera de pantalla es batería quemada al cohete.
+    document.querySelectorAll(".fx-pablo video[data-src]").forEach((v) => {
+      v.src = v.dataset.src;
+      v.closest(".fx-pablo").classList.add("fx-pablo--video");
+      new IntersectionObserver(
+        ([e]) => (e.isIntersecting ? v.play?.().catch(() => {}) : v.pause?.()),
+        { rootMargin: "120px" }
+      ).observe(v);
+    });
   })();
 </script>
 
 <style>
-  .fx {
-    background: var(--bg-page, #f5f3ff);
-  }
-
+  /* Bloques centrados, alternando lila/blanco. */
   .fx__bloque {
-    max-width: 1080px;
-    margin-inline: auto;
-    padding: 88px 24px;
-    display: grid;
-    grid-template-columns: 1fr 1fr;
+    padding: 76px 24px 84px;
+    display: flex;
+    flex-direction: column;
     align-items: center;
-    gap: 56px;
-    border-bottom: 2px solid rgba(43, 44, 100, 0.07);
+    gap: 32px;
   }
 
-  .fx__bloque:last-child {
-    border-bottom: 0;
-  }
+  .fx__bloque--lila { background: #f5f3ff; }
+  .fx__bloque--blanco { background: #ffffff; }
 
-  /* Se alterna el lado sin reordenar el DOM: el texto va siempre primero para
-     lectores de pantalla; la escena solo cambia de columna. */
-  .fx__bloque--invertido .fx__texto {
-    order: 2;
-  }
-
-  .fx__eyebrow {
-    display: inline-block;
-    font-family: var(--font-display, "Outfit"), sans-serif;
-    font-weight: 700;
-    font-size: 13px;
-    letter-spacing: 0.08em;
-    text-transform: uppercase;
-    color: #8a6410;
-    margin-bottom: 10px;
+  .fx__texto {
+    max-width: 620px;
+    text-align: center;
   }
 
   .fx__titulo {
@@ -256,131 +183,68 @@ const BLOQUES = [
   }
 
   .fx__desc {
-    margin-top: 14px;
+    margin: 14px auto 0;
     font-size: 17px;
     line-height: 1.6;
     color: #56578f;
-    max-width: 46ch;
+    max-width: 52ch;
   }
 
-  /* ── Escena: Pablo grande flotando sobre el fondo, sin card (como Duo) ── */
+  /* Ola entre bloques: el corte de color nunca es una línea recta.
+     El path se pinta del color del bloque de ARRIBA y el contenedor toma el
+     del bloque de abajo, así la curva "muerde" hacia la sección siguiente. */
+  .fx-ola { line-height: 0; margin-top: -1px; }
+  .fx-ola svg { width: 100%; height: 72px; display: block; }
+
+  /* El <path> hereda el color del bloque de ARRIBA vía currentColor y el
+     contenedor pinta el de abajo, así la curva muerde hacia la sección
+     siguiente. Se usa `color` en vez de `fill` porque Astro scopea el
+     selector y `path { fill }` no siempre gana contra el atributo. */
+  .fx-ola svg path { fill: currentColor; }
+  .fx-ola[data-desde="lila"] { background: #ffffff; color: #f5f3ff; }
+  .fx-ola[data-desde="blanco"] { background: #f5f3ff; color: #ffffff; }
+
+  /* Slot de escena: hoy un Pablo animado; mañana el video de la escena
+     completa, que ocupa este mismo hueco sin tocar el layout. */
   .fx-escena {
     position: relative;
-    min-height: 300px;
+    width: min(560px, 100%);
     display: flex;
-    align-items: flex-end;
     justify-content: center;
-    /* --p lo escribe el script; en reposo (o sin JS) todo queda en su sitio */
-    --p: 0;
   }
 
   .fx-pablo {
     position: relative;
-    width: min(280px, 72%);
-    transform: translateY(calc(var(--p) * var(--f, 0px)));
-    will-change: transform;
+    width: 210px;
   }
 
   .fx-pablo img,
-  .fx-pablo video {
-    width: 100%;
-    height: auto;
-    display: block;
-  }
+  .fx-pablo video { width: 100%; height: auto; display: block; }
+  .fx-pablo video { position: absolute; inset: 0; opacity: 0; }
+  .fx-pablo--video video { opacity: 1; }
+  .fx-pablo--video img { opacity: 0; }
 
-  .fx-pablo video {
-    position: absolute;
-    inset: 0;
-    opacity: 0;
-  }
-
-  .fx-pablo--video video {
-    opacity: 1;
-  }
-
-  .fx-pablo--video img {
-    opacity: 0;
-  }
-
-  /* Sombra de contacto: ancla a Pablo al suelo de su escena. */
+  /* Sombra de contacto pegada a los pies. Los WebM se recortan anclados al
+     píxel más bajo del personaje, así que el borde inferior del video ES el
+     suelo: sin ese recorte la sombra flotaba lejos de Pablo. */
   .fx-sombra {
     position: absolute;
-    bottom: -6px;
+    bottom: -4px;
     left: 50%;
-    width: 52%;
-    height: 12px;
+    width: 50%;
+    height: 10px;
     transform: translateX(-50%);
-    background: rgba(43, 44, 100, 0.14);
+    background: rgba(43, 44, 100, 0.15);
     border-radius: 50%;
-    filter: blur(5px);
+    filter: blur(4px);
   }
 
-  /* Pose sin video: flota despacio para no quedarse muerta. */
-  .fx-pablo--flota img {
-    animation: fxFlota 4.4s ease-in-out infinite;
-    transform-origin: 50% 100%;
-  }
-
-  @keyframes fxFlota {
-    0%, 100% { transform: translateY(0) rotate(-1deg); }
-    50%      { transform: translateY(-9px) rotate(1deg); }
-  }
-
-  /* ── Piezas cerámicas: paleta fija del sistema, con canto sólido ── */
-  .fx-pieza {
-    position: absolute;
-    border-radius: 50%;
-    transform: translateY(calc(var(--p) * var(--f, 0px)));
-    will-change: transform;
-  }
-
-  /* Moneda: dorado con canto inferior sólido (extrusión, nunca glow). */
-  .fx-pieza--moneda {
-    width: 46px;
-    height: 46px;
-    top: 12%;
-    right: 14%;
-    background: #f5c723;
-    box-shadow: inset 0 -5px 0 0 #cf9a12;
-  }
-
-  .fx-pieza--lila {
-    width: 30px;
-    height: 30px;
-    bottom: 24%;
-    left: 8%;
-    background: #cdc4ec;
-    box-shadow: inset 0 -4px 0 0 #ab9fd8;
-  }
-
-  /* Anillo hueco, como los aros decorativos de la home de Duolingo. */
-  .fx-pieza--anillo {
-    width: 58px;
-    height: 58px;
-    top: 30%;
-    left: 4%;
-    background: transparent;
-    border: 7px solid #b9dfc0;
-    box-shadow: inset 0 -3px 0 0 #8fc49a;
-  }
-
-  .fx-pieza--chispa {
-    width: 20px;
-    height: 20px;
-    bottom: 12%;
-    right: 6%;
-    background: #f0b7a4;
-    box-shadow: inset 0 -3px 0 0 #d18f77;
-    border-radius: 7px;
-    rotate: 12deg;
-  }
-
-  /* ── Badges de descarga ── */
+  /* ── Badges de descarga (centrados) ── */
   .fx__badges {
-    margin-top: 24px;
     display: flex;
     flex-wrap: wrap;
     gap: 12px;
+    justify-content: center;
   }
 
   .fx-badge {
@@ -409,7 +273,6 @@ const BLOQUES = [
     box-shadow: 0 1px 0 0 #191a44;
   }
 
-  /* Android: etiqueta de estado, no botón — sin canto de presionable. */
   .fx-badge--pronto {
     background: transparent;
     border: 2px dashed rgba(43, 44, 100, 0.35);
@@ -433,35 +296,10 @@ const BLOQUES = [
     line-height: 1.15;
   }
 
-  /* ── Responsive ── */
-  @media (max-width: 860px) {
-    .fx__bloque {
-      grid-template-columns: 1fr;
-      gap: 22px;
-      padding: 56px 20px;
-    }
-    /* En una columna la escena va SIEMPRE bajo el texto. */
-    .fx__bloque--invertido .fx__texto {
-      order: 0;
-    }
-    .fx-escena {
-      min-height: 250px;
-    }
-    .fx-pablo {
-      width: min(218px, 64%);
-    }
-    .fx__desc {
-      font-size: 16px;
-    }
-  }
-
-  @media (prefers-reduced-motion: reduce) {
-    .fx-pablo,
-    .fx-pieza {
-      transform: none;
-    }
-    .fx-pablo--flota img {
-      animation: none;
-    }
+  @media (max-width: 640px) {
+    .fx__bloque { padding: 52px 18px 60px; gap: 26px; }
+    .fx__desc { font-size: 16px; }
+    .fx-ola svg { height: 44px; }
+    .fx-pablo { width: 176px; }
   }
 </style>
