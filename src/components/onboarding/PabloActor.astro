@@ -17,8 +17,13 @@ const base = "/onboarding/images/pablo/2d";
 
 <div class="pablo-actor" id="pabloActor" data-pose="saludando" aria-hidden="true">
   <div class="pablo-actor__cuerpo">
+    <!-- Capas de imagen: el estado base y el respaldo para poses sin video. -->
     <img class="pablo-actor__sprite is-activo" data-capa="a" src={`${base}/pablo-saludando.webp`} alt="" width="445" height="420" fetchpriority="high" />
     <img class="pablo-actor__sprite" data-capa="b" src={`${base}/pablo-saludando.webp`} alt="" width="445" height="420" loading="lazy" />
+    <!-- Capa de video: WebM VP9 con alfa real. Es la animación de verdad, con
+         los miembros articulados; las capas de imagen quedan de respaldo para
+         navegadores sin alfa en video (Safari < 16) y para poses aún sin clip. -->
+    <video class="pablo-actor__video" data-capa="video" muted autoplay loop playsinline preload="none" width="445" height="420"></video>
   </div>
   <span class="pablo-actor__sombra" aria-hidden="true"></span>
 </div>
@@ -30,9 +35,20 @@ const base = "/onboarding/images/pablo/2d";
 
     const cuerpo = actor.querySelector(".pablo-actor__cuerpo");
     const capas = [...actor.querySelectorAll(".pablo-actor__sprite")];
+    const video = actor.querySelector(".pablo-actor__video");
     const BASE = "/onboarding/images/pablo/2d";
     const POSES = ["saludando", "senalando", "explicando", "celebrando", "emocionado", "anotando"];
+
+    // Poses que ya tienen animación real (miembros articulados, generada con
+    // Kling sobre el render oficial y recortada por croma a WebM con alfa).
+    // Las que no están acá siguen con su sprite fijo + la física CSS.
+    const CON_VIDEO = new Set(["saludando", "anotando"]);
+
     const suave = window.matchMedia("(prefers-reduced-motion: reduce)");
+    // Safari < 16 no reproduce alfa en WebM: ahí el video mostraría un
+    // rectángulo negro, así que ni se intenta y manda el sprite.
+    const HAY_ALFA_EN_VIDEO =
+      !!video.canPlayType && video.canPlayType('video/webm; codecs="vp9"') !== "";
 
     // Precarga: cambiar de pose no debe costar un fotograma en blanco.
     POSES.forEach((p) => { const i = new Image(); i.src = `${BASE}/pablo-${p}.webp`; });
@@ -48,6 +64,40 @@ const base = "/onboarding/images/pablo/2d";
     /* ---- Pose: crossfade entre dos capas, nunca un swap seco ------------ */
     function ponerPose(pose) {
       if (!pose || pose === poseActual) return;
+
+      // Con animación disponible manda el video: es la misma criatura moviendo
+      // brazos, cabeza y párpados, no dos dibujos alternándose.
+      const animada = CON_VIDEO.has(pose) && HAY_ALFA_EN_VIDEO && !suave.matches;
+      if (animada) {
+        // play() justo después de load() se rechaza con AbortError: el navegador
+        // interpreta que una carga nueva interrumpió la reproducción. Hay que
+        // esperar a que haya datos y recién ahí arrancar.
+        const arrancar = () => {
+          video.play?.().then(
+            () => actor.classList.add("pablo-actor--animado"),
+            (e) => {
+              // Solo se cae al sprite si el navegador BLOQUEA la reproducción.
+              // Un AbortError es transitorio y se reintenta al siguiente evento.
+              if (e && e.name === "NotAllowedError") {
+                actor.classList.remove("pablo-actor--animado");
+              }
+            }
+          );
+        };
+        if (!video.currentSrc.endsWith(`pablo-${pose}.webm`)) {
+          video.src = `${BASE}/pablo-${pose}.webm`;
+          video.addEventListener("loadeddata", arrancar, { once: true });
+          video.load();
+        } else {
+          video.readyState >= 2
+            ? arrancar()
+            : video.addEventListener("loadeddata", arrancar, { once: true });
+        }
+        poseActual = pose;
+        return;
+      }
+      actor.classList.remove("pablo-actor--animado");
+
       const entra = capas[1 - capaViva];
       const sale = capas[capaViva];
       entra.src = `${BASE}/pablo-${pose}.webp`;
@@ -116,8 +166,13 @@ const base = "/onboarding/images/pablo/2d";
           burbuja.classList.remove("burbuja-entra");
           void burbuja.offsetWidth;
           burbuja.classList.add("burbuja-entra");
-          // Pablo gesticula en cada frase: alterna señalar/explicar.
-          if (!suave.matches && i > 0) ponerPose(i % 2 ? "explicando" : "senalando");
+          // Pablo gesticula en cada frase alternando poses fijas — pero solo si
+          // la pose actual NO tiene animación: cambiarla apagaría el video y
+          // volvería al sprite, que es justo lo que se quería eliminar. Con
+          // clip animado el movimiento ya lo pone el propio video.
+          if (!suave.matches && i > 0 && !CON_VIDEO.has(poseActual)) {
+            ponerPose(i % 2 ? "explicando" : "senalando");
+          }
         }, t);
         t += LEER(frase);
       });

@@ -2662,3 +2662,35 @@ body .topbar > div {
     padding-inline: 16px;
   }
 }
+
+/* --- 13.b Capa de video del actor --------------------------------------
+ * La animación real (miembros articulados) viaja como WebM VP9 con alfa.
+ * Ocupa el mismo hueco que los sprites y se enciende sola cuando la pose
+ * tiene clip; si el navegador no soporta alfa en video, o el usuario pidió
+ * menos movimiento, esta capa queda apagada y mandan los sprites. */
+.pablo-actor__video {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  object-position: bottom center;
+  opacity: 0;
+  transition: opacity 220ms linear;
+  pointer-events: none;
+}
+
+.pablo-actor--animado .pablo-actor__video {
+  opacity: 1;
+}
+
+/* Con video activo los sprites se apagan: si no, se ven los dos encimados. */
+.pablo-actor--animado .pablo-actor__sprite {
+  opacity: 0;
+}
+
+/* La animación ya trae su propio rebote y respiración: la respiración CSS
+ * encima se sumaría y daría un movimiento doble, mareado. */
+.pablo-actor--animado .pablo-actor__cuerpo {
+  animation: none;
+}
