@@ -41,7 +41,7 @@ const BLOQUES = [
     texto:
       "Cuéntale un gasto y listo: él lo anota, lo ordena y te dice cómo vas. Sin planillas ni cuentas a fin de mes.",
     escena: "presupuesto", // presupuesto flotante con barras en vivo
-    dim: { w: 512, h: 482 },
+    dim: { w: 512, h: 348 },
     ancho: 290,
     respaldo: "anotando",
   },
@@ -109,8 +109,8 @@ const BLOQUES = [
     <div class="fx__texto">
       <h2 class="fx__titulo">Pablo va<br />donde tú vas</h2>
       <p class="fx__desc">
-        En WhatsApp, en la web y en tu iPhone. Tu plata clara en el bolsillo,
-        estés donde estés.
+        En WhatsApp, en la web y en tu iPhone. <span class="highlight highlight--navy">Tu plata clara</span> en el
+        bolsillo, estés donde estés.
       </p>
     </div>
 
@@ -247,6 +247,8 @@ const BLOQUES = [
 
   /* Bloque navy (descarga): fondo azul oscuro de Pablo, texto claro. */
   .fx__bloque--navy { background: #2b2c64; }
+  .fx__bloque--navy .fx__titulo { color: #ffffff; }
+
   .fx__bloque--navy .fx__desc { color: rgba(255, 255, 255, 0.8); }
 
   .fx__texto {

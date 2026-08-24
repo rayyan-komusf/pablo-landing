@@ -39,7 +39,7 @@ const ICONOS = "/onboarding/images/iconos";
     <div class="lm__texto">
       <h2 class="lm__titulo">¿Todavía no estás listo?</h2>
       <p class="lm__desc">
-        Empieza por tu cuenta con la plantilla de presupuesto gratis de Pablo.
+        Empieza por tu cuenta con la plantilla de presupuesto <span class="highlight">gratis</span> de Pablo.
         Te la llevas hoy, y cuando quieras que él la llene por ti, ya sabes
         dónde encontrarlo.
       </p>
@@ -63,9 +63,9 @@ const ICONOS = "/onboarding/images/iconos";
       <img class="lm__pablo lm__pablo--curso" src={`${PABLO}/pablo-explicando.webp`} alt="" width="316" height="420" loading="lazy" />
     </div>
     <div class="lm__texto">
-      <h2 class="lm__titulo">Empieza tu camino al primer millón</h2>
+      <h2 class="lm__titulo lm__titulo--navy">Empieza tu camino al <span class="lm__oro">primer millón</span></h2>
       <p class="lm__desc">
-        El curso «Finanzas de un Futuro Millonario» viene incluido con tu plan
+        El curso «Finanzas de un Futuro Millonario» viene <span class="highlight">incluido con tu plan</span>
         de Pablo. Mira la primera clase gratis dejando tu correo y decide con
         calma.
       </p>
@@ -104,6 +104,11 @@ const ICONOS = "/onboarding/images/iconos";
     letter-spacing: -0.03em;
     color: #f5a623;
   }
+
+  /* El titular del curso va en azul oscuro y solo "primer millón" en
+     amarillo (Rodrigo, 24-ago). */
+  .lm__titulo--navy { color: #2b2c64; }
+  .lm__oro { color: #f5a623; }
 
   .lm__desc {
     margin: 13px auto 22px;
@@ -248,6 +253,9 @@ const ICONOS = "/onboarding/images/iconos";
   .lm-clase {
     position: relative;
     width: 250px;
+    /* La caja sigue el ratio real de la portada (1460×752): con alturas
+       fijas la imagen se estiraba o se recortaba (visible en tablet). */
+    aspect-ratio: 1460 / 752;
     border-radius: 18px;
     overflow: hidden;
     box-shadow: 0 5px 0 0 #191a44, 0 14px 20px -14px rgba(43, 44, 100, 0.45);
@@ -258,7 +266,8 @@ const ICONOS = "/onboarding/images/iconos";
 
   .lm-clase img {
     width: 100%;
-    height: auto;
+    height: 100%;
+    object-fit: cover;
     display: block;
   }
 
@@ -294,7 +303,7 @@ const ICONOS = "/onboarding/images/iconos";
     .lm-ola svg { height: 44px; }
     .lm__pablo { width: 124px; }
     .lm-plantilla { width: 146px; }
-    .lm-clase { width: 164px; height: 112px; }
+    .lm-clase { width: 186px; }
   }
 
   @media (prefers-reduced-motion: reduce) {

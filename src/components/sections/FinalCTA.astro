@@ -12,7 +12,7 @@ import { IS_LIVE, CTA } from '../../siteConfig';
     </div>
     <h2 class="fcta__title">¿Buscas tranquilidad<br />al manejar tu dinero?</h2>
     <p class="fcta__desc">
-      Pablo te ayuda a entender tus gastos, ahorrar mejor y dejar atrás el estrés financiero.
+      Pablo te ayuda a entender tus gastos, ahorrar mejor y <span class="highlight highlight--navy">dejar atrás el estrés</span> financiero.
       <strong>Todo desde WhatsApp, sin complicarte.</strong>
     </p>
     {IS_LIVE
@@ -64,7 +64,8 @@ import { IS_LIVE, CTA } from '../../siteConfig';
     font-size: clamp(26px, 3.4vw, 40px);
     line-height: 1.14;
     letter-spacing: -0.03em;
-    color: #f5a623;
+    /* Sobre navy el titular va en blanco (Rodrigo, 24-ago). */
+    color: #ffffff;
   }
 
   .fcta__desc {

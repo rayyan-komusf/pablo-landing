@@ -138,6 +138,11 @@ ol {
   z-index: 0;
 }
 
+/* Variante para fondos navy: el beige translúcido se ensucia sobre oscuro. */
+.highlight--navy::after {
+  background: rgba(245, 166, 35, 0.3) !important;
+}
+
 .highlight::after {
   content: '';
   position: absolute;
