@@ -63,7 +63,7 @@ const BLOQUES = [
     texto:
       "Pablo caza los gastos hormiga que se te escapan y te muestra a dónde va tu sueldo, en tiempo real.",
     escena: "soles",       // soldaditos-moneda marchando, Pablo pasa lista
-    dim: { w: 512, h: 328 },
+    dim: { w: 512, h: 270 },
     ancho: 330,
     respaldo: "anotando",
   },
@@ -116,9 +116,9 @@ const BLOQUES = [
 
     {/* Transición ícono→personaje atada al scroll (sin loop: se scrubbea). */}
     <div class="fx-escena" data-escena="celular" aria-hidden="true">
-      <div class="fx-pablo fx-pablo--escena" style="width:min(340px, 86vw); --pt:86.33%;">
+      <div class="fx-pablo fx-pablo--escena" style="width:min(340px, 86vw); --pt:94.53%;">
         <img src={`${PABLO}/pablo-saludando.webp`} alt="" width="445" height="420" loading="lazy" />
-        <video data-src={`${PABLO}/escena-celular.webm`} muted playsinline preload="none" width="512" height="442"></video>
+        <video data-src={`${PABLO}/escena-celular.webm`} muted playsinline preload="none" width="512" height="484"></video>
         <span class="fx-sombra"></span>
       </div>
     </div>
