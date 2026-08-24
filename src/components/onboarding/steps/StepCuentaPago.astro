@@ -3,11 +3,23 @@
      step del código: flow-suscripcion "checkout" da el token del registro de
      tarjeta, el widget se monta aquí y "confirmar" crea la suscripción (con
      el trial de la promo si aplica). Al pagar → puente de sesión a la app
-     (/auth/sesion → dashboard, ya premium). Fallback: pagar en la app. -->
+     (/auth/sesion → dashboard, ya premium). Sin sesión, el JS cae a
+     pabloCuentaIrAlPago() (pagar en la app); ya no hay botón visible. -->
 <section class="step !pb-0" data-step="step-cuenta-pago" aria-label="Pago seguro con Flow" aria-hidden="true">
   <div class="fuente-header">
     <div class="fuente-header__inner">
-      <div class="fuente-pablo" data-pablo-anclaje data-pose="anotando"></div>
+      <div class="fuente-pablo">
+        <picture>
+          <source srcset="/onboarding/images/pablo/pablo-anotando.webp" type="image/webp" />
+          <img
+            src="/onboarding/images/pablo/pablo-point.png"
+            alt=""
+            width="140"
+            height="140"
+            loading="lazy"
+          />
+        </picture>
+      </div>
       <div class="speech-bubble speech-bubble--side">
         ¡Correo verificado! Ahora sí, activemos tu plan
       </div>
@@ -16,7 +28,7 @@
 
   <div class="fuente-body flex-1 flex flex-col w-full mx-auto px-5 max-md:px-4 overflow-y-auto [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
     <div class="pago-card">
-      <p class="pago-resumen" id="pago-resumen" hidden></p>
+      <p class="pago-resumen" id="pago-resumen">Preparando tu plan…</p>
       <!-- Éxito: check verde animado (estilo iOS) antes de entrar a la app. -->
       <div class="pago-exito" id="pago-exito" hidden>
         <svg viewBox="0 0 56 56" class="pago-exito-check" role="img" aria-label="Pago exitoso">
@@ -37,43 +49,17 @@
         loading="lazy"
         hidden
       />
-      <!-- ══ Preparando ══
-           Este es el punto más caro del embudo: la persona ya decidió y solo
-           falta que no se le enfríe mientras Flow responde. En vez de un texto
-           quieto, Pablo baja al centro a revisar su moneda y debajo se pinta el
-           esqueleto del checkout real. Cuando el widget monta, ocupa
-           exactamente ese hueco: el cerebro ya estaba ahí. -->
-      <div class="pago-prep" id="pago-prep">
-        <!-- Pose anotando, ya no "buscando" (FB27): Rodrigo la vetó el 19-ago por
-             la regla de ojos — nada de pestañas ni brillos blancos. -->
-        <div class="pago-prep__pablo" data-pablo-anclaje data-pose="anotando"></div>
-
-        <!-- Una frase a la vez, cambiando cada ~1.9s. Nunca una lista: en una
-             pantalla de carga, ver varias frases juntas se lee como demora. -->
-        <p class="pago-prep__frase" id="pago-prep-frase" aria-live="polite">
-          <span data-prep-texto>Preparando tu plan</span><span class="pago-puntos" aria-hidden="true"><i></i><i></i><i></i></span>
-        </p>
-
-        <!-- Vista previa del checkout: mismas cajas, mismo orden y mismo alto
-             que el widget de Flow, en gris. No es decoración — evita el salto
-             de layout cuando el widget aparece. -->
-        <div class="pago-prev" aria-hidden="true">
-          <span class="pago-prev__label"></span>
-          <div class="pago-prev__campo pago-prev__campo--tarjeta"></div>
-          <div class="pago-prev__fila">
-            <div class="pago-prev__campo"></div>
-            <div class="pago-prev__campo"></div>
-          </div>
-          <div class="pago-prev__boton"></div>
-        </div>
+      <p class="pago-estado" id="pago-estado">Preparando el pago seguro…</p>
+      <!-- Pablito "cargando": sprite sheet animado mientras el widget/iframe
+           de Flow termina de cargar (mismo truco steps() del 404). -->
+      <div class="pago-cargando" id="pago-cargando" hidden>
+        <div class="pago-cargando-sprite" aria-hidden="true"></div>
       </div>
-
-      <p class="pago-estado" id="pago-estado" hidden></p>
       <div id="pago-widget"></div>
       <button type="button" class="btn-primary btn-continue" id="pago-reintentar" hidden onclick="pabloPagoReintentar()">
         Reintentar
       </button>
-      <p class="pago-nota"><img src="/onboarding/images/iconos/fi06_escudo.png" alt="" width="18" height="18" loading="lazy" class="pab-icono" /> Pago procesado por Flow. Pablo nunca ve tu tarjeta.</p>
+      <p class="pago-nota">🔒 Pago procesado por Flow. Pablo nunca ve tu tarjeta.</p>
     </div>
   </div>
 
@@ -87,10 +73,12 @@
         production: "https://www.flow.cl/app/elements/flow-1.1.0.min.js?20241202",
       };
       var NOMBRE_PLAN = { semanal: "Plan Semanal", mensual: "Plan Mensual", anual: "Plan Anual" };
+      // Anual 3→0 días (18-ago-2026, pedido de Sandra): cobro directo.
+      // Mismo valor que FLOW_PLANES en el backend.
       var PLANES = {
-        semanal: { texto: "Plan Semanal — S/.7 a la semana", trial: 0 },
-        mensual: { texto: "Plan Mensual — S/.20 al mes", trial: 3 },
-        anual: { texto: "Plan Anual — S/.200 al año", trial: 7 },
+        semanal: { texto: "Plan Semanal — S/.7 a la semana", trial: 0, monto: 7 },
+        mensual: { texto: "Plan Mensual — S/.20 al mes", trial: 3, monto: 20 },
+        anual: { texto: "Plan Anual — S/.200 al año", trial: 0, monto: 200 },
       };
       // Oferta Millonaria (misma ventana que Step18 y el backend): mensual 14
       // días, anual cobro directo. Fuera de la ventana no cambia nada.
@@ -111,65 +99,21 @@
       function planSlug() {
         return sessionStorage.getItem("pablo_plan_elegido") || "anual";
       }
-      /* Frases de la espera. Cortas, concretas y en el orden real de lo que
-         está pasando: cada una mata una objeción distinta (¿me cobran ya?,
-         ¿es seguro?, ¿puedo salirme?). Se muestra UNA a la vez. */
-      var FRASES_PREP = [
-        "Preparando tu plan",
-        "Abriendo tu prueba gratis",
-        "Nadie te cobra hoy",
-        "Cifrando la conexión",
-        "Cancelas cuando quieras",
-        "Ya casi",
-      ];
-      var prepTimer = null;
-
-      function prepArrancar() {
-        var caja = document.getElementById("pago-prep");
-        var span = document.querySelector("[data-prep-texto]");
-        if (!caja || !span) return;
-        caja.hidden = false;
-        // Pablo baja al centro a acompañar la espera.
-        window.pabloActorRevisar && window.pabloActorRevisar();
-        var i = 0;
-        span.textContent = FRASES_PREP[0];
-        clearInterval(prepTimer);
-        prepTimer = setInterval(function () {
-          i = (i + 1) % FRASES_PREP.length;
-          // Se desvanece, cambia y vuelve: sin el fundido el texto "salta".
-          span.parentElement.classList.add("pago-prep__frase--sale");
-          setTimeout(function () {
-            span.textContent = FRASES_PREP[i];
-            span.parentElement.classList.remove("pago-prep__frase--sale");
-          }, 220);
-        }, 1900);
-      }
-
-      function prepParar() {
-        clearInterval(prepTimer);
-        prepTimer = null;
-        var caja = document.getElementById("pago-prep");
-        if (caja) caja.hidden = true;
-        // …y vuelve a la esquina para dejarle la pantalla al checkout.
-        window.pabloActorRevisar && window.pabloActorRevisar();
-      }
-
       function setEstado(msg, esError) {
         var el = document.getElementById("pago-estado");
         if (!el) return;
         el.textContent = msg || "";
         el.hidden = !msg;
-        if (esError) prepParar();
         el.classList.toggle("pago-estado--error", Boolean(esError));
         // Pablito triste acompaña los errores.
         var triste = document.getElementById("pago-triste");
         if (triste) triste.hidden = !esError;
       }
       function mostrarExito() {
-        prepParar();
         var widget = document.getElementById("pago-widget");
         if (widget) widget.innerHTML = "";
         setEstado("");
+        setCargando(false);
         setReintentar(false);
         var exito = document.getElementById("pago-exito");
         if (exito) exito.hidden = false;
@@ -178,16 +122,47 @@
         var btn = document.getElementById("pago-reintentar");
         if (btn) btn.hidden = !visible;
       }
+      function setCargando(visible) {
+        var el = document.getElementById("pago-cargando");
+        if (el) el.hidden = !visible;
+      }
+      /* El mount de Flow inyecta un iframe que tarda en pintar: el Pablito
+         cargando se queda hasta el load del iframe (con tope por si el
+         widget no usa iframe o el load ya pasó). */
+      function ocultarCargandoConElWidget(contenedor) {
+        var intentos = 0;
+        (function esperar() {
+          var iframe = contenedor && contenedor.querySelector("iframe");
+          if (iframe) {
+            iframe.addEventListener("load", function () {
+              setCargando(false);
+            }, { once: true });
+            setTimeout(function () {
+              setCargando(false);
+            }, 5000);
+          } else if (++intentos < 40) {
+            setTimeout(esperar, 150);
+          } else {
+            setCargando(false);
+          }
+        })();
+      }
       function pintarResumen() {
-        var p = PLANES[planSlug()] || PLANES.anual;
+        var slug = planSlug();
+        var p = PLANES[slug] || PLANES.anual;
         var el = document.getElementById("pago-resumen");
         if (el) {
-          el.hidden = false;
           el.textContent =
             p.texto +
             (p.trial > 0
-              ? " · " + p.trial + " días gratis, cancela cuando quieras"
-              : " · se cobra hoy, cancela cuando quieras");
+              ? " · " + p.trial + " días gratis. Registras tu tarjeta y no se cobra hasta el día " +
+                (p.trial + 1) + ". Cancelas cuando quieras."
+              : " · se cobra hoy, cancela cuando quieras") +
+            // Garantía SOLO del anual, anclada al inicio de la prueba (el
+            // cobro es al día 3; sin el ancla la lectura es reclamable).
+            (slug === "anual"
+              ? " Garantía de satisfacción de 14 días desde que empiezas tu prueba: te devolvemos el 100%, sin preguntas."
+              : "");
         }
       }
 
@@ -245,24 +220,6 @@
         }
       }
 
-      /* El rotador se ata a que la PANTALLA se muestre, no al flujo de pago.
-         Antes solo arrancaba dentro de pabloPagoArrancar: si el checkout
-         fallaba antes de llegar ahí (sin sesión, red caída), el bloque quedaba
-         visible con la primera frase congelada para siempre — justo la
-         sensación de "se colgó" que esta pantalla tiene que evitar. */
-      var pantallaPago = document.querySelector('[data-step="step-cuenta-pago"]');
-      if (pantallaPago) {
-        new MutationObserver(function () {
-          if (pantallaPago.classList.contains("active")) {
-            var caja = document.getElementById("pago-prep");
-            if (caja && !caja.hidden) prepArrancar();
-          } else {
-            prepParar();
-          }
-        }).observe(pantallaPago, { attributes: true, attributeFilter: ["class"] });
-        if (pantallaPago.classList.contains("active")) prepArrancar();
-      }
-
       window.pabloPagoArrancar = async function () {
         if (enCurso) return;
         enCurso = true;
@@ -270,8 +227,8 @@
         var exito = document.getElementById("pago-exito");
         if (exito) exito.hidden = true;
         pintarResumen();
-        prepArrancar();
-        setEstado("");
+        setCargando(true);
+        setEstado("Preparando el pago seguro…");
 
         try {
           var sesion = await window.pabloCuentaAsegurarSesion();
@@ -280,8 +237,21 @@
             return;
           }
 
+          // Huella del clic del anuncio: el pago ocurre en usapablo.com, donde
+          // la cookie _fbc SÍ existe. Es la única oportunidad de capturarla —
+          // el webhook del cobro llega días después y sin navegador. Para
+          // TikTok igual, pero el ttclid va CRUDO (sin envoltorio fb.1.<ts>).
+          var fb = window.pabloFbCookies ? window.pabloFbCookies() : {};
+          var tt = window.pabloTtClic ? window.pabloTtClic() : {};
           var registro = await flowSuscripcion(
-            { accion: "checkout", plan: NOMBRE_PLAN[planSlug()] || NOMBRE_PLAN.anual },
+            {
+              accion: "checkout",
+              plan: NOMBRE_PLAN[planSlug()] || NOMBRE_PLAN.anual,
+              fbc: fb.fbc || undefined,
+              fbp: fb.fbp || undefined,
+              ttclid: tt.ttclid || undefined,
+              ttp: tt.ttp || undefined,
+            },
             sesion.access_token
           );
           if (registro.__status === 409) {
@@ -298,7 +268,6 @@
 
           var contenedor = document.getElementById("pago-widget");
           if (contenedor) contenedor.innerHTML = "";
-          prepParar();
           setEstado("");
 
           var flow = window.Flow();
@@ -306,6 +275,26 @@
             style: { backgroundColor: "transparent" },
           });
           subscribe.mount("#pago-widget", registro.token);
+          // InitiateCheckout en el momento exacto en que se abre el widget:
+          // sin él, el tramo "vio los planes → registró tarjeta" es caja negra.
+          try {
+            var pIC = PLANES[planSlug()] || PLANES.anual;
+            if (window.fbq) {
+              window.fbq("track", "InitiateCheckout", {
+                value: pIC.monto,
+                currency: "PEN",
+                content_name: NOMBRE_PLAN[planSlug()] || NOMBRE_PLAN.anual,
+              });
+            }
+            if (window.ttq) {
+              window.ttq.track("InitiateCheckout", {
+                value: pIC.monto,
+                currency: "PEN",
+                content_name: NOMBRE_PLAN[planSlug()] || NOMBRE_PLAN.anual,
+              });
+            }
+          } catch (eIC) { /* medir nunca bloquea el pago */ }
+          ocultarCargandoConElWidget(contenedor);
           // El widget de Flow devuelve un "thenable" propio, no una Promise
           // real (su .then no encadena .catch): Promise.resolve lo asimila.
           Promise.resolve(flow.handleCardSubscribed(subscribe))
@@ -320,6 +309,7 @@
                 setTimeout(irALaAppPagado, 1600);
               } else {
                 setEstado((res && res.error) || "El pago no se completó, intenta de nuevo.", true);
+                setCargando(false);
                 setReintentar(true);
                 enCurso = false;
               }
@@ -327,12 +317,14 @@
             .catch(function (e) {
               console.error("[Pablo] Widget de Flow:", e);
               setEstado("El pago no se completó, intenta de nuevo.", true);
+              setCargando(false);
               setReintentar(true);
               enCurso = false;
             });
         } catch (e) {
           console.error("[Pablo] Pago embebido falló:", e);
           setEstado(e && e.message ? e.message : "No pudimos iniciar el pago", true);
+          setCargando(false);
           setReintentar(true);
           enCurso = false;
         }

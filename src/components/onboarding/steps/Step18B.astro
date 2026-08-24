@@ -5,10 +5,10 @@
   <div class="pw">
     <div class="pw__scroll">
       <div class="pw-head">
-        <h2 class="pw-head__titulo">
-          Empieza gratis<span class="pw-head__dias" data-pw-dias>&nbsp;3 días</span>
+        <h2 class="pw-head__titulo" data-pw-titulo>
+          Empieza gratis<span class="pw-head__dias">&nbsp;3 días</span>
         </h2>
-        <p class="pw-head__sub">
+        <p class="pw-head__sub" data-pw-sub>
           Sin tarjeta hoy y sin compromiso. Tú decides si sigues.
         </p>
       </div>
@@ -19,14 +19,14 @@
         <li class="pw-linea__hito pw-linea__hito--hoy">
           <span class="pw-linea__punto" aria-hidden="true"></span>
           <span class="pw-linea__cuando">Hoy</span>
-          <span class="pw-linea__que">Desbloqueas Pablo completo. <strong>No pagas nada.</strong></span>
+          <span class="pw-linea__que" data-pw-hoy-que>Desbloqueas Pablo completo. <strong>No pagas nada.</strong></span>
         </li>
-        <li class="pw-linea__hito">
+        <li class="pw-linea__hito" data-pw-hito-aviso>
           <span class="pw-linea__punto" aria-hidden="true"></span>
           <span class="pw-linea__cuando" data-pw-dia-aviso>En 2 días</span>
           <span class="pw-linea__que">Pablo te avisa por WhatsApp que tu prueba termina mañana.</span>
         </li>
-        <li class="pw-linea__hito">
+        <li class="pw-linea__hito" data-pw-hito-cobro>
           <span class="pw-linea__punto" aria-hidden="true"></span>
           <span class="pw-linea__cuando" data-pw-dia-cobro>En 3 días</span>
           <span class="pw-linea__que" data-pw-cobro>Empieza tu plan: <strong>S/.20 al mes</strong>. Cancelas cuando quieras.</span>
@@ -81,7 +81,9 @@
           <span class="pw-plan__nombre">12 meses</span>
           <span class="pw-plan__precio">S/.200</span>
           <span class="pw-plan__unidad">S/.3.84 por semana</span>
-          <span class="pw-plan__gratis">7 días gratis</span>
+          <!-- El anual perdió su trial el 18-ago-2026 (cobro directo): acá va
+               la garantía, que es lo que reemplaza a la prueba. -->
+          <span class="pw-plan__gratis">Garantía 14 días</span>
         </button>
       </div>
 
@@ -90,8 +92,8 @@
         <span class="arrow" aria-hidden="true">→</span>
       </button>
 
-      <p class="pw-hoy">
-        <strong>Hoy pagas S/.0.</strong> <span data-pw-luego>Luego S/.20 al mes, y cancelas cuando quieras.</span>
+      <p class="pw-hoy" data-pw-hoy>
+        <strong>Hoy pagas S/.0.</strong> Luego S/.20 al mes, y cancelas cuando quieras.
       </p>
       <button class="pw-planes" onclick="pabloOpenPlans()">Ver todos los planes</button>
     </div>
@@ -164,7 +166,7 @@
           <span class="text-[10px] font-body uppercase tracking-widest text-navy-soft mt-1">meses</span>
           <span class="font-display font-bold text-[18px] text-navy mt-2">S/. 200</span>
           <span class="text-[10px] font-body text-navy-soft leading-tight">S/. 3.84 /sem</span>
-          <span class="text-[10px] font-body font-bold text-amber mt-1" data-pm-hide>7 días gratis</span>
+          <span class="text-[10px] font-body font-bold text-amber mt-1">Garantía 14 días</span>
         </button>
       </div>
       <!-- CTA del modal -->
@@ -190,14 +192,16 @@
       ctaLabel: "Empezar mis 3 días gratis",
     },
     anual: {
-      trialDays: 7,
-      ctaLabel: "Empieza tu prueba gratuita de 7 días",
+      // 7→0 el 18-ago-2026 (pedido de Sandra): cobro directo, sin prueba.
+      // En sync con FLOW_PLANES (_shared/flow.ts del backend).
+      trialDays: 0,
+      ctaLabel: "Quiero el Plan Anual",
     },
   };
   let planSeleccionado = "mensual";
 
   // Misma ventana de la Oferta Millonaria que step-18 (si revive, el mensual
-  // pasa a 14 días y el anual a cobro directo).
+  // pasa a 14 días; el anual ya es cobro directo siempre).
   const enPromoMillonaria = (() => {
     const ahora = Date.now();
     return (
@@ -208,16 +212,9 @@
   if (enPromoMillonaria) {
     planes.mensual.trialDays = 14;
     planes.mensual.ctaLabel = "Empieza tu prueba gratuita de 14 días";
-    planes.anual.trialDays = 0;
-    planes.anual.ctaLabel = "Quiero el Plan Anual";
     document.querySelectorAll("[data-pm-swap]").forEach((el) => {
       el.textContent = el.getAttribute("data-pm-swap");
     });
-    document.querySelectorAll("[data-pm-hide]").forEach((el) => {
-      el.hidden = true;
-    });
-    const label = document.getElementById("plansCtaLabel");
-    if (label) label.textContent = planes.anual.ctaLabel;
   }
 
   function abrirPlanes() {
@@ -254,22 +251,47 @@
     window.pabloNext();
   }
 
-  /* El calendario se ajusta al plan elegido: prometer el día equivocado en la
-     pantalla del cobro es lo peor que puede pasar acá. */
+  /* Todo lo que depende del plan elegido se pinta acá (título, calendario y
+     línea del cobro): prometer el día equivocado en la pantalla del cobro es
+     lo peor que puede pasar acá. Con trialDays 0 (anual, cobro directo desde
+     el 18-ago-2026) el calendario de prueba no aplica: se colapsa a "Hoy" y
+     la garantía de 14 días toma el lugar de la prueba. */
   function pintarLinea(plan) {
     var p = planes[plan] || planes.mensual;
     var dias = p.trialDays;
+    var directo = dias === 0;
+    var titulo = document.querySelector("[data-pw-titulo]");
+    var sub = document.querySelector("[data-pw-sub]");
+    var hoyQue = document.querySelector("[data-pw-hoy-que]");
+    var hitoAviso = document.querySelector("[data-pw-hito-aviso]");
+    var hitoCobro = document.querySelector("[data-pw-hito-cobro]");
     var aviso = document.querySelector("[data-pw-dia-aviso]");
     var cobro = document.querySelector("[data-pw-dia-cobro]");
     var texto = document.querySelector("[data-pw-cobro]");
+    var hoy = document.querySelector("[data-pw-hoy]");
+    if (hitoAviso) hitoAviso.hidden = directo;
+    if (hitoCobro) hitoCobro.hidden = directo;
+    if (directo) {
+      if (titulo) titulo.textContent = "Empieza hoy con el Plan Anual";
+      if (sub) sub.textContent = "Cancela la renovación en cualquier momento.";
+      if (hoyQue)
+        hoyQue.innerHTML =
+          "Desbloqueas Pablo completo por 12 meses. <strong>Pagas S/.200 hoy.</strong>";
+      if (hoy)
+        hoy.innerHTML =
+          "<strong>Garantía de 14 días:</strong> si Pablo no es para ti, te devolvemos el 100% de tu dinero.";
+      return;
+    }
+    if (titulo)
+      titulo.innerHTML =
+        'Empieza gratis<span class="pw-head__dias">&nbsp;' + dias + " días</span>";
+    if (sub) sub.textContent = "Sin tarjeta hoy y sin compromiso. Tú decides si sigues.";
+    if (hoyQue) hoyQue.innerHTML = "Desbloqueas Pablo completo. <strong>No pagas nada.</strong>";
     if (aviso) aviso.textContent = dias > 1 ? "En " + (dias - 1) + (dias - 1 === 1 ? " día" : " días") : "Mañana";
     if (cobro) cobro.textContent = "En " + dias + (dias === 1 ? " día" : " días");
-    if (texto) {
-      texto.innerHTML =
-        plan === "anual"
-          ? "Empieza tu plan: <strong>S/.200 al año</strong>. Cancelas cuando quieras."
-          : "Empieza tu plan: <strong>S/.20 al mes</strong>. Cancelas cuando quieras.";
-    }
+    if (texto) texto.innerHTML = "Empieza tu plan: <strong>S/.20 al mes</strong>. Cancelas cuando quieras.";
+    if (hoy)
+      hoy.innerHTML = "<strong>Hoy pagas S/.0.</strong> Luego S/.20 al mes, y cancelas cuando quieras.";
   }
 
   const pantalla18b = document.querySelector('[data-step="step-18b"]');
@@ -297,13 +319,6 @@
     var cta = document.querySelector("[data-pw-cta-label]");
     if (cta) cta.textContent = planes[plan].ctaLabel;
     pintarLinea(plan);
-    var luego = document.querySelector("[data-pw-luego]");
-    if (luego) {
-      luego.textContent =
-        plan === "anual"
-          ? "Luego S/.200 al año, y cancelas cuando quieras."
-          : "Luego S/.20 al mes, y cancelas cuando quieras.";
-    }
     window.pabloTrack?.("onboarding_plan_selected", { plan: plan, origen: "paywall" });
   }
   window.pabloElegirPlanPaywall = elegirPlanPaywall;

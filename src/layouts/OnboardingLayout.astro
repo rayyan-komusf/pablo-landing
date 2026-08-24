@@ -5,6 +5,8 @@
 import PostHogSnippet from "../components/PostHogSnippet.astro";
 import Atribucion from "../components/Atribucion.astro";
 import PabloActor from "../components/onboarding/PabloActor.astro";
+import MetaPixel from "../components/MetaPixel.astro";
+import TikTokPixel from "../components/TikTokPixel.astro";
 const base = "/onboarding";
 ---
 
@@ -41,52 +43,14 @@ const base = "/onboarding";
          ?v= : cache-busting manual — subirlo al cambiar custom.css para que
          producción no sirva una versión cacheada con markup nuevo. -->
     <link rel="stylesheet" href={`${base}/styles/base.css`} />
-    <link rel="stylesheet" href={`${base}/styles/custom.css?v=38`} />
+    <link rel="stylesheet" href={`${base}/styles/custom.css?v=39`} />
     <!-- Primer toque de marketing → localStorage (viaja en el signup) -->
     <Atribucion />
     <!-- Meta Pixel (Facebook/Instagram Ads) -->
-    <script is:inline>
-      !(function (f, b, e, v, n, t, s) {
-        if (f.fbq) return;
-        n = f.fbq = function () {
-          n.callMethod
-            ? n.callMethod.apply(n, arguments)
-            : n.queue.push(arguments);
-        };
-        if (!f._fbq) f._fbq = n;
-        n.push = n;
-        n.loaded = !0;
-        n.version = "2.0";
-        n.queue = [];
-        t = b.createElement(e);
-        t.async = !0;
-        t.src = v;
-        s = b.getElementsByTagName(e)[0];
-        s.parentNode.insertBefore(t, s);
-      })(
-        window,
-        document,
-        "script",
-        "https://connect.facebook.net/en_US/fbevents.js",
-      );
-      // Solo se inicializa en el dominio de producción. En localhost, LAN y
-      // previews el stub de fbq queda definido (los fbq(...) del onboarding no
-      // revientan) pero no se envía nada: probar el flujo no debe inyectar
-      // PageView ni OnboardingStep falsos en la medición real.
-      if (/^(www\.)?usapablo\.com$/.test(location.hostname)) {
-        fbq("init", "1723759659073430");
-        fbq("track", "PageView");
-      }
-    </script>
-    <noscript>
-      <img
-        height="1"
-        width="1"
-        style="display:none"
-        src="https://www.facebook.com/tr?id=1723759659073430&ev=PageView&noscript=1"
-      />
-    </noscript>
-    <!-- End Meta Pixel -->
+    <MetaPixel />
+    <!-- TikTok Pixel: acá disparan CompleteRegistration y el pago embebido,
+         sin él no habría cookie _ttp ni eventos del onboarding -->
+    <TikTokPixel />
 
     <!-- PostHog (pageviews manuales: cada pantalla emite onboarding_screen_viewed) -->
     <PostHogSnippet capturePageview={false} />

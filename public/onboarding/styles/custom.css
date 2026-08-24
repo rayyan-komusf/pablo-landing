@@ -943,7 +943,9 @@ body .topbar > div {
   width: 100%;
   max-width: 760px;
   margin-inline: auto;
-  margin-top: 90px; /* el gap grande entre burbuja y opciones */
+  /* El gap grande entre burbuja y opciones, solo cuando hay altura de
+   * sobra: en laptops chicas se achica solo para no obligar a scrollear. */
+  margin-top: min(90px, 10svh);
 }
 
 .option-card--pill {
@@ -1057,8 +1059,10 @@ body .topbar > div {
  * Todo con font-size + em para escalar uniformemente al reducir --w
  * (mismo patrón que HeroPhone.astro del hero de la landing) */
 .iphone {
-  --w: 340px;
-  font-size: 14px; /* base: cambia en mobile para escalar todo el interior */
+  /* Escala con la altura disponible también en desktop (mismo patrón que el
+   * override mobile): con 340px fijos el demo desbordaba en laptops chicas. */
+  --w: clamp(200px, calc((100svh - 300px) / 1.82), 340px);
+  font-size: calc(var(--w) * 0.0412); /* proporcional: escala todo el interior */
   position: relative;
   width: var(--w);
   max-width: 92vw;
@@ -1687,8 +1691,60 @@ body .topbar > div {
   color: #c0392b;
   font-weight: 600;
 }
+/* El widget/iframe de Flow, siempre centrado y a lo ancho de la card
+   (Flow inyecta un iframe con ancho propio: se fuerza a fluido). */
+#pago-widget {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  width: 100%;
+  overflow: hidden;
+}
 #pago-widget:not(:empty) {
   min-height: 240px;
+}
+#pago-widget iframe {
+  display: block;
+  width: 100% !important;
+  max-width: 100% !important;
+  min-width: 0 !important;
+  margin: 0 auto;
+  border: 0;
+}
+
+/* Pablito "cargando" mientras el widget de Flow termina de montar: sprite
+   sheet horizontal de 4 celdas animado con steps(4). Igual que el 404:
+   background-position en px (con % los pasos no caen en los bordes de
+   celda) y tamaño derivado de una sola variable. */
+.pago-cargando {
+  display: flex;
+  justify-content: center;
+  padding: 10px 0;
+}
+.pago-cargando[hidden] {
+  display: none;
+}
+.pago-cargando-sprite {
+  --pablo-carga: 96px;
+  width: var(--pablo-carga);
+  height: var(--pablo-carga);
+  background-image: url("/onboarding/images/pablo/pablo-cargando.webp");
+  background-repeat: no-repeat;
+  background-size: calc(var(--pablo-carga) * 4) var(--pablo-carga);
+  animation: pago-cargando-ciclo 0.7s steps(4) infinite;
+}
+@keyframes pago-cargando-ciclo {
+  from {
+    background-position-x: 0;
+  }
+  to {
+    background-position-x: calc(var(--pablo-carga) * -4);
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .pago-cargando-sprite {
+    animation: none;
+  }
 }
 .pago-nota {
   font-size: 12px;
@@ -1766,6 +1822,148 @@ body .topbar > div {
 .pago-triste[hidden] {
   display: none;
 }
+
+/* >> Bloque de main (compactacion anti-scroll, ago-2026).
+ * Va ANTES de las secciones 6+ de esta rama a proposito: donde ambos
+ * tocan lo mismo (pills, tiles, nuevo-1), ganan los valores medidos
+ * de la auditoria de pantalla unica (mas abajo). */
+/* ===== Compactación anti-scroll (ago 2026) =============================
+ * En viewports cortos (laptops chicas y móviles) varios steps desbordaban
+ * y obligaban a scrollear para llegar al contenido/CTA. Aquí el contenido
+ * se aprieta según la altura real; en pantallas altas nada cambia. */
+
+/* Desktop de poca altura: mascota, header, pills y footer más compactos */
+@media (min-width: 561px) and (max-height: 860px) {
+  .fuente-pablo,
+  .fuente-pablo img {
+    width: 108px;
+    height: 108px;
+  }
+  .fuente-header__inner {
+    padding: 8px 20px 10px;
+    gap: 12px;
+  }
+  .fuente-grid {
+    gap: 14px;
+  }
+  .option-card--pill {
+    min-height: 62px;
+    padding: 12px 18px;
+  }
+  .fuente-body {
+    padding-bottom: 14px;
+  }
+  .duo-footer {
+    padding: 12px 24px;
+  }
+}
+
+/* Step 17 (social proof): las celdas de logos y las tarjetas de testimonios
+ * eran más altas de lo que aportan — compactas caben sin scroll en laptop. */
+[data-step="step-17"] > div {
+  gap: 12px;
+  padding-top: 8px;
+}
+[data-step="step-17"] h2 {
+  font-size: 20px;
+}
+[data-step="step-17"] .grid.grid-cols-3 > div {
+  min-height: 48px;
+  padding: 6px 12px;
+}
+[data-step="step-17"] .grid.grid-cols-1 > div {
+  padding: 12px 14px;
+}
+[data-step="step-17"] .grid.grid-cols-1 p {
+  font-size: 12px;
+  line-height: 1.5;
+}
+
+/* Step 18 (paywall default): logo y título ceden en pantallas cortas */
+@media (max-height: 820px) {
+  [data-om-default] {
+    padding-top: 6px;
+    padding-bottom: 12px;
+  }
+  [data-om-default] img.w-\[72px\] {
+    width: 44px;
+    height: 44px;
+  }
+  [data-om-default] h2 {
+    font-size: 20px;
+    line-height: 1.2;
+  }
+  .om-paywall__inner {
+    padding-bottom: 24px;
+  }
+  .om-paywall__logo {
+    width: 46px;
+    height: 46px;
+  }
+}
+
+/* Step nuevo-1 (grid de gente): el cuadro de puntos (cuadrado: su alto sigue
+ * a su ancho) escala con la altura disponible y la zona aprieta sus gaps */
+@media (max-height: 860px) {
+  .nuevo1-zona {
+    margin-top: 12px;
+    gap: 12px;
+  }
+  [data-step="step-nuevo-1"] .duo-card {
+    max-width: min(320px, calc(100svh - 470px));
+  }
+  .nuevo1-leyenda {
+    gap: 6px;
+  }
+}
+
+/* Móvil: pills, tiles y donut más compactos (antes casi todo scrolleaba) */
+@media (max-width: 560px) {
+  .fuente-grid {
+    margin-top: 20px;
+    gap: 12px;
+  }
+  .option-card--pill {
+    min-height: 54px;
+    padding: 8px 12px;
+    gap: 10px;
+  }
+  .option-card--pill .option-icon {
+    font-size: 20px;
+  }
+  /* El tamaño vive en el wrapper del donut (el svg es w-full/h-full) */
+  [data-step="step-10"] .flex.justify-center > div {
+    width: 128px;
+    height: 128px;
+  }
+  [data-step="step-10"] > div {
+    gap: 8px;
+  }
+  [data-step="step-10"] .cat-card {
+    padding: 6px 12px;
+  }
+  [data-step="step-nuevo-1"] .duo-card {
+    max-width: min(280px, calc(100svh - 500px));
+    padding: 10px;
+  }
+}
+@media (max-width: 479.9px) {
+  .primer-body {
+    padding-top: 72px;
+    gap: 16px;
+  }
+  .options-grid {
+    gap: 14px;
+    padding-bottom: 20px;
+  }
+  .option-card--tile {
+    min-height: 156px;
+    padding: 16px 12px;
+  }
+  .option-card--tile .option-icon {
+    font-size: 44px;
+    margin-bottom: 4px;
+  }
 
 /* ============================================================
  * 6. LENGUAJE VISUAL DE LA APP APLICADO AL ONBOARDING (r7)
@@ -3564,5 +3762,4 @@ body .topbar > div {
   [data-step="step-fuente"] .fuente-grid {
     grid-template-columns: repeat(2, minmax(0, 1fr));
     gap: 10px;
-  }
-}
+  }}

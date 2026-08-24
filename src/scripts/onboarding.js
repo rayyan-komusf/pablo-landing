@@ -254,6 +254,11 @@ class OnboardingEngine {
         if (this.currentStepId === "step-analizando") this.next();
       }, 1300);
     }
+    // El pago embebido de Flow arranca al ENTRAR al step (también cubre la
+    // recarga de página: antes solo lo disparaba el step del código y al
+    // recargar nadie montaba el widget). pabloPagoArrancar deduplica con su
+    // guard interno si el step del código ya lo llamó.
+    if (stepId === "step-cuenta-pago") window.pabloPagoArrancar?.();
 
     // Preguntas con CTA condicionado: la clave es la respuesta que habilita
     // Continuar (comparación con undefined: hasDebt=false también habilita).
@@ -482,6 +487,9 @@ class OnboardingEngine {
     try {
       const did = window.posthog?.get_distinct_id?.();
       if (did) url += `?ph_did=${encodeURIComponent(did)}`;
+      // Huella del clic de Meta (_fbc/_fbp): un miembro que vuelve puede
+      // terminar comprando otro plan, y sin esto esa venta queda huérfana.
+      if (window.pabloConFbc) url = window.pabloConFbc(url);
     } catch {}
     window.location.href = url;
   }

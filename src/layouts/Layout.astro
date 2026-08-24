@@ -5,6 +5,8 @@ import CountdownBanner from "../components/CountdownBanner.astro";
 import MonedaPopup from "../components/MonedaPopup.astro";
 import PostHogSnippet from "../components/PostHogSnippet.astro";
 import Atribucion from "../components/Atribucion.astro";
+import MetaPixel from "../components/MetaPixel.astro";
+import TikTokPixel from "../components/TikTokPixel.astro";
 import { IS_LIVE } from "../siteConfig";
 
 interface Props {
@@ -34,6 +36,47 @@ const ogImage = `${siteUrl}/Logo.png`;
 <html lang="es">
   <head>
     <meta charset="UTF-8" />
+
+    <!-- Modo pauta (Sandra 10-ago-2026): con utm_medium=paid el mensual es el
+         único plan visible en #planes (las reglas CSS viven en Pricing.astro).
+         EN LÍNEA y ANTES de los estilos a propósito: si la clase llega después
+         del primer render, todos ven los S/.200 por un instante — justo lo que
+         se quiere evitar. sessionStorage (no localStorage): sobrevive la
+         navegación interna y muere al cerrar la pestaña. No cambia URLs: los
+         anuncios siguen apuntando a https://www.usapablo.com/. -->
+    <script is:inline>
+      (function () {
+        try {
+          var esPauta =
+            new URLSearchParams(location.search).get("utm_medium") === "paid" ||
+            sessionStorage.getItem("pablo_pauta") === "1";
+          if (!esPauta) return;
+          sessionStorage.setItem("pablo_pauta", "1");
+          document.documentElement.classList.add("pauta");
+        } catch (e) {
+          /* sin storage no hay modo pauta: se ven los tres planes */
+        }
+      })();
+    </script>
+
+    <!-- Diferir terceros que no escriben la _fbc (Sandra 10-ago-2026): GTM,
+         TikTok y PostHog cargan tras el load + requestIdleCallback. El pixel
+         de Meta NO se difiere: escribe la cookie _fbc y de él depende toda la
+         atribución. Los stubs quedan en línea, así lo que se dispare antes de
+         la carga real se encola y no se pierde. -->
+    <script is:inline>
+      window.pabloDiferir = function (fn) {
+        var idle = function () {
+          if ("requestIdleCallback" in window) {
+            requestIdleCallback(fn, { timeout: 2000 });
+          } else {
+            setTimeout(fn, 200);
+          }
+        };
+        if (document.readyState === "complete") idle();
+        else window.addEventListener("load", idle);
+      };
+    </script>
 
     <!-- Nuevo visitante → los CTAs llevan al primer onboarding.
          El onboarding marca localStorage.pablo_intro_vista cuando el usuario
@@ -108,11 +151,8 @@ const ogImage = `${siteUrl}/Logo.png`;
       rel="stylesheet"
     />
 
-    <!-- Google tag (gtag.js) -->
-    <script
-      is:inline
-      async
-      src="https://www.googletagmanager.com/gtag/js?id=G-F36V5SDW1T"></script>
+    <!-- Google tag (gtag.js) — diferido: el stub encola y el script externo
+         entra tras el primer render (pabloDiferir). -->
     <script is:inline>
       window.dataLayer = window.dataLayer || [];
       function gtag() {
@@ -120,119 +160,25 @@ const ogImage = `${siteUrl}/Logo.png`;
       }
       gtag("js", new Date());
 
-      // Mismo criterio que los pixels: fuera de usapablo.com no se configura,
-      // así las sesiones de desarrollo no entran en GA4.
-      if (/^(www\.)?usapablo\.com$/.test(location.hostname)) gtag("config", "G-F36V5SDW1T");
+      gtag("config", "G-F36V5SDW1T");
+
+      window.pabloDiferir(function () {
+        var s = document.createElement("script");
+        s.async = true;
+        s.src = "https://www.googletagmanager.com/gtag/js?id=G-F36V5SDW1T";
+        document.head.appendChild(s);
+      });
     </script>
     <!-- End Google tag -->
 
     <!-- Meta Pixel (Facebook/Instagram Ads) -->
-    <script is:inline>
-      !(function (f, b, e, v, n, t, s) {
-        if (f.fbq) return;
-        n = f.fbq = function () {
-          n.callMethod
-            ? n.callMethod.apply(n, arguments)
-            : n.queue.push(arguments);
-        };
-        if (!f._fbq) f._fbq = n;
-        n.push = n;
-        n.loaded = !0;
-        n.version = "2.0";
-        n.queue = [];
-        t = b.createElement(e);
-        t.async = !0;
-        t.src = v;
-        s = b.getElementsByTagName(e)[0];
-        s.parentNode.insertBefore(t, s);
-      })(
-        window,
-        document,
-        "script",
-        "https://connect.facebook.net/en_US/fbevents.js",
-      );
-      // Solo se inicializa en el dominio de producción. En localhost, LAN y
-      // previews el stub de fbq queda definido (los fbq(...) del onboarding no
-      // revientan) pero no se envía nada: probar el flujo no debe inyectar
-      // PageView ni OnboardingStep falsos en la medición real.
-      if (/^(www\.)?usapablo\.com$/.test(location.hostname)) {
-        fbq("init", "1723759659073430");
-        fbq("track", "PageView");
-      }
-    </script>
-    <noscript>
-      <img
-        height="1"
-        width="1"
-        style="display:none"
-        src="https://www.facebook.com/tr?id=1723759659073430&ev=PageView&noscript=1"
-      />
-    </noscript>
-    <!-- End Meta Pixel -->
+    <MetaPixel />
 
-    <!-- TikTok Pixel Code Start -->
-    <script is:inline>
-      !(function (w, d, t) {
-        w.TiktokAnalyticsObject = t;
-        var ttq = (w[t] = w[t] || []);
-        ((ttq.methods = [
-          "page",
-          "track",
-          "identify",
-          "instances",
-          "debug",
-          "on",
-          "off",
-          "once",
-          "ready",
-          "alias",
-          "group",
-          "enableCookie",
-          "disableCookie",
-          "holdConsent",
-          "revokeConsent",
-          "grantConsent",
-        ]),
-          (ttq.setAndDefer = function (t, e) {
-            t[e] = function () {
-              t.push([e].concat(Array.prototype.slice.call(arguments, 0)));
-            };
-          }));
-        for (var i = 0; i < ttq.methods.length; i++)
-          ttq.setAndDefer(ttq, ttq.methods[i]);
-        ((ttq.instance = function (t) {
-          for (var e = ttq._i[t] || [], n = 0; n < ttq.methods.length; n++)
-            ttq.setAndDefer(e, ttq.methods[n]);
-          return e;
-        }),
-          (ttq.load = function (e, n) {
-            var r = "https://analytics.tiktok.com/i18n/pixel/events.js",
-              o = n && n.partner;
-            ((ttq._i = ttq._i || {}),
-              (ttq._i[e] = []),
-              (ttq._i[e]._u = r),
-              (ttq._t = ttq._t || {}),
-              (ttq._t[e] = +new Date()),
-              (ttq._o = ttq._o || {}),
-              (ttq._o[e] = n || {}));
-            n = document.createElement("script");
-            ((n.type = "text/javascript"),
-              (n.async = !0),
-              (n.src = r + "?sdkid=" + e + "&lib=" + t));
-            e = document.getElementsByTagName("script")[0];
-            e.parentNode.insertBefore(n, e);
-          }));
-        // Mismo criterio que el pixel de Meta: fuera de usapablo.com no se carga.
-        if (/^(www\.)?usapablo\.com$/.test(location.hostname)) {
-          ttq.load("D7C1JVBC77UFLDKDR4JG");
-          ttq.page();
-        }
-      })(window, document, "ttq");
-    </script>
-    <!-- TikTok Pixel Code End -->
+    <!-- TikTok Pixel (TikTok Ads) -->
+    <TikTokPixel />
 
-    <!-- PostHog -->
-    <PostHogSnippet />
+    <!-- PostHog (diferido: init tras el primer render, ver PostHogSnippet) -->
+    <PostHogSnippet defer />
   </head>
   <body>
     {!hideBanner && <CountdownBanner />}

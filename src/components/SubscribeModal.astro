@@ -499,13 +499,19 @@ import iconPremiumRaw from '../assets/icon-premium.svg?raw';
 
   // El pago vive en la app (usapablo.app + Flow): como navegamos por JS, el
   // decorador global de <a> no aplica y el ph_did se agrega aquí a mano.
+  // Lo mismo con la huella del clic de Meta (_fbc/_fbp): sin ella la venta
+  // llega a Meta sin anuncio al que atribuirla (ver MetaPixel.astro).
   function conPhDid(url: string): string {
     try {
       const did = (window as any).posthog?.get_distinct_id?.();
-      if (!did) return url;
-      const u = new URL(url);
-      u.searchParams.set('ph_did', did);
-      return u.toString();
+      let salida = url;
+      if (did) {
+        const u = new URL(url);
+        u.searchParams.set('ph_did', did);
+        salida = u.toString();
+      }
+      const conFbc = (window as any).pabloConFbc;
+      return conFbc ? conFbc(salida) : salida;
     } catch {
       return url;
     }
