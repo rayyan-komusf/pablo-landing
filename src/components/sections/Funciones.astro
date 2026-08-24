@@ -9,13 +9,17 @@ import { APP_STORE_URL } from '../../siteConfig';
 // ⚠️ LAS ESCENAS SON UN SLOT ÚNICO. Se intentó armarlas con primitivas CSS
 // (una cama de divs, soldaditos marchando, una pista de carrera) y el
 // resultado eran "piezas juntadas", no una animación: cada elemento se movía
-// por su cuenta y nada se leía como una sola pieza. Cada bloque declara ahora
-// UN solo hueco `[data-escena]` que espera UN video WebM con alfa — la escena
-// completa, animada de una sola pieza. Mientras ese video no exista, cae al
-// clip actual de Pablo solo, que sí se ve bien.
+// por su cuenta y nada se leía como una sola pieza. Cada bloque declara
+// UN solo hueco `[data-escena]` que toca UN video WebM con alfa — la escena
+// completa, animada de una sola pieza.
 //
-// El brief para producir esos cinco videos está en
-// `docs/brief-animaciones-landing.md`.
+// Los cinco videos existen desde el 19-ago-2026 (brief en
+// `docs/brief-animaciones-landing.md`, pipeline reproducible en
+// `Projects/Pablo/visual assets/pablo_anim_landing/`). El clip de Pablo solo
+// queda como respaldo estático para navegadores sin alfa VP9 (Safari < 16) y
+// prefers-reduced-motion. La escena "celular" no es un loop: es la
+// transición ícono→personaje atada al scroll (por eso su WebM se encodea con
+// keyframes densos, `-g 8`, para poder scrubbearla en ambas direcciones).
 const PABLO = "/onboarding/images/pablo/2d";
 
 const BLOQUES = [
@@ -25,7 +29,9 @@ const BLOQUES = [
     titulo: "Un amigo que sabe de plata, no otra app de banco",
     texto:
       "Pablo te responde al toque y en cristiano, como un pata que sabe del tema. Sin jerga financiera, sin sermones y sin hacerte sentir mal por un gasto.",
-    escena: "cama",      // pendiente: Pablo echado en su cama con el celular
+    escena: "cama",      // Pablo cambia de postura en su cama con "pops"
+    dim: { w: 512, h: 490 },
+    ancho: 290,
     respaldo: "saludando",
   },
   {
@@ -34,7 +40,9 @@ const BLOQUES = [
     titulo: "Tú vive tu vida, Pablo lleva las cuentas",
     texto:
       "Cada gasto que le cuentas mueve tu presupuesto al instante. Nada de planillas, ni de fuerza de voluntad, ni de acordarte a fin de mes.",
-    escena: "presupuesto", // pendiente: presupuesto 3D flotante moviéndose
+    escena: "presupuesto", // presupuesto flotante con barras en vivo
+    dim: { w: 512, h: 468 },
+    ancho: 290,
     respaldo: "anotando",
   },
   {
@@ -43,7 +51,9 @@ const BLOQUES = [
     titulo: "Cuidar tu plata por fin se siente bien",
     texto:
       "Cada día que registras suma racha, y cada sol que ordenas te acerca. Pablo corre contigo hacia tu libertad financiera, un día a la vez.",
-    escena: "corriendo",   // pendiente: corriendo hacia la meta inalcanzable
+    escena: "corriendo",   // corriendo hacia la meta que nunca se acerca
+    dim: { w: 512, h: 438 },
+    ancho: 250,
     respaldo: "emocionado",
   },
   {
@@ -52,7 +62,9 @@ const BLOQUES = [
     titulo: "Cada sol encuentra su lugar",
     texto:
       "Mientras le escribes por WhatsApp, Pablo pasa lista: caza los gastos hormiga que se te escapan y te muestra a dónde va tu sueldo de verdad.",
-    escena: "soles",       // pendiente: soldaditos-moneda marchando
+    escena: "soles",       // soldaditos-moneda marchando, Pablo pasa lista
+    dim: { w: 512, h: 328 },
+    ancho: 330,
     respaldo: "anotando",
   },
 ];
@@ -69,11 +81,15 @@ const BLOQUES = [
             <p class="fx__desc">{b.texto}</p>
           </div>
 
-          {/* Slot de escena: un solo video con alfa cuando exista. */}
+          {/* Slot de escena: el video de la escena completa; el Pablo solo
+              del respaldo queda como imagen estática si no hay alfa. */}
           <div class="fx-escena" data-escena={b.escena} aria-hidden="true">
-            <div class="fx-pablo">
+            <div
+              class="fx-pablo fx-pablo--escena"
+              style={`width:min(${b.ancho}px, 80vw); --pt:${((b.dim.h / b.dim.w) * 100).toFixed(2)}%;`}
+            >
               <img src={`${PABLO}/pablo-${b.respaldo}.webp`} alt="" width="445" height="420" loading={i === 0 ? "eager" : "lazy"} />
-              <video data-src={`${PABLO}/pablo-${b.respaldo}.webm`} muted loop playsinline preload="none" width="445" height="420"></video>
+              <video data-src={`${PABLO}/escena-${b.escena}.webm`} muted loop playsinline preload="none" width={b.dim.w} height={b.dim.h}></video>
               <span class="fx-sombra"></span>
             </div>
           </div>
@@ -98,10 +114,11 @@ const BLOQUES = [
       </p>
     </div>
 
+    {/* Transición ícono→personaje atada al scroll (sin loop: se scrubbea). */}
     <div class="fx-escena" data-escena="celular" aria-hidden="true">
-      <div class="fx-pablo">
+      <div class="fx-pablo fx-pablo--escena" style="width:min(270px, 80vw); --pt:127.34%;">
         <img src={`${PABLO}/pablo-saludando.webp`} alt="" width="445" height="420" loading="lazy" />
-        <video data-src={`${PABLO}/pablo-saludando.webm`} muted loop playsinline preload="none" width="445" height="420"></video>
+        <video data-src={`${PABLO}/escena-celular.webm`} muted playsinline preload="none" width="512" height="652"></video>
         <span class="fx-sombra"></span>
       </div>
     </div>
@@ -145,8 +162,62 @@ const BLOQUES = [
     // Cada escena reproduce solo cuando está a la vista: cinco videos
     // corriendo fuera de pantalla es batería quemada al cohete.
     document.querySelectorAll(".fx-pablo video[data-src]").forEach((v) => {
+      const escena = v.closest("[data-escena]")?.dataset.escena;
+      const marco = v.closest(".fx-pablo");
       v.src = v.dataset.src;
-      v.closest(".fx-pablo").classList.add("fx-pablo--video");
+      // El respaldo se oculta recién cuando hay un frame decodificado: si la
+      // descarga se cae a mitad (señal móvil que se va sin cerrar la
+      // conexión), el PNG sigue puesto en vez de dejar el hueco vacío. El
+      // error duro (404, deploy a medias) también nos regresa al respaldo.
+      v.addEventListener("loadeddata", () => marco.classList.add("fx-pablo--video"), { once: true });
+      v.addEventListener("error", () => marco.classList.remove("fx-pablo--video"), { once: true });
+
+      if (escena === "celular") {
+        // La transición va atada al scroll: de ícono a personaje al bajar,
+        // y de vuelta al subir. No se reproduce: se scrubbea currentTime
+        // siguiendo el avance del bloque por el viewport, con un lerp para
+        // que el arrastre se sienta líquido y no a saltos. El clip (~170KB)
+        // recién se descarga al acercarse el bloque — es el último de la
+        // página y quien rebota desde el hero no tiene por qué pagarlo.
+        const bloque = v.closest(".fx__bloque");
+        let objetivo = 0;
+        let activo = false;
+        const mide = () => {
+          const r = bloque.getBoundingClientRect();
+          const vh = innerHeight;
+          objetivo = Math.min(1, Math.max(0, (vh - r.top) / (vh + r.height * 0.6)));
+        };
+        const paso = () => {
+          if (!activo) return;
+          const d = v.duration;
+          if (d) {
+            const t = objetivo * (d - 0.05);
+            if (Math.abs(t - v.currentTime) > 0.02) {
+              v.currentTime += (t - v.currentTime) * 0.22;
+            }
+          }
+          requestAnimationFrame(paso);
+        };
+        addEventListener("scroll", mide, { passive: true });
+        new IntersectionObserver(
+          ([e]) => {
+            if (e.isIntersecting && !activo) {
+              if (v.preload !== "auto") {
+                v.preload = "auto";
+                v.load();
+              }
+              activo = true;
+              mide();
+              requestAnimationFrame(paso);
+            } else if (!e.isIntersecting) {
+              activo = false;
+            }
+          },
+          { rootMargin: "200px" }
+        ).observe(v);
+        return;
+      }
+
       new IntersectionObserver(
         ([e]) => (e.isIntersecting ? v.play?.().catch(() => {}) : v.pause?.()),
         { rootMargin: "120px" }
@@ -223,6 +294,31 @@ const BLOQUES = [
   .fx-pablo video { position: absolute; inset: 0; opacity: 0; }
   .fx-pablo--video video { opacity: 1; }
   .fx-pablo--video img { opacity: 0; }
+
+  /* Las escenas tienen cada una su propio aspecto, que viene inline como
+     `--pt` y se aplica como padding-top de un ::before EN FLUJO. Dos trampas
+     evitadas a propósito: aspect-ratio colapsaría la caja a alto 0 en
+     Safari ≤ 14 / Chrome < 88 (justo los navegadores que dependen del
+     respaldo estático), y el padding porcentual directo en el wrapper se
+     mediría contra el ancho del PADRE flex (560px), no contra el propio
+     wrapper — el ::before sí resuelve contra el wrapper. El video llena el
+     hueco exacto y el respaldo de Pablo solo se cuelga del piso, centrado,
+     para que la sombra siga en su sitio. */
+  .fx-pablo--escena::before {
+    content: "";
+    display: block;
+    padding-top: var(--pt);
+  }
+  .fx-pablo--escena img {
+    position: absolute;
+    bottom: 0;
+    left: 50%;
+    width: auto;
+    height: 100%;
+    transform: translateX(-50%);
+  }
+  .fx-pablo--escena video { height: 100%; }
+  .fx-pablo--escena .fx-sombra { width: 64%; }
 
   /* Sombra de contacto pegada a los pies. Los WebM se recortan anclados al
      píxel más bajo del personaje, así que el borde inferior del video ES el
