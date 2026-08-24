@@ -89,9 +89,13 @@ function progressFor(stepId) {
   return Math.round((i / (STEP_ORDER.length - 1)) * 100);
 }
 
-/** Pantalla desde la que un visitante recurrente retoma el flujo. */
-const RETURNING_START_STEP = "step-5";
-const INTRO_SEEN_KEY = "pablo_intro_vista";
+/** Marca de "ya llegó a la nota" (step-18). Es LA condición para saltarse el
+ * onboarding (Rodrigo, 20-ago): antes bastaba pasar la primera pregunta y un
+ * visitante que volvía caía directo en pantallas de pago que nunca vio. Ahora
+ * quien no llegó a la nota siempre arranca desde el inicio (sus respuestas se
+ * conservan), y quien sí llegó retoma en la nota o donde se quedó. */
+const NOTA_VISTA_KEY = "pablo_nota_vista";
+const RETURNING_START_STEP = "step-18";
 
 /* ------------------------------------------------------------------ */
 /* Métricas (PostHog)                                                  */
@@ -170,15 +174,16 @@ class OnboardingEngine {
       } catch {}
     }
 
-    // Visitante recurrente (ya vio el intro en una visita anterior):
-    // entra directo a la antesala de las preguntas.
-    const introSeen = localStorage.getItem(INTRO_SEEN_KEY) === "1";
-    const initial = savedStep || (introSeen ? RETURNING_START_STEP : STEP_ORDER[0]);
+    // Reanudación gateada por la nota: sin esa marca, ni el paso guardado ni
+    // ningún atajo aplican — se entra por el principio, con las respuestas
+    // anteriores ya cargadas.
+    const notaVista = localStorage.getItem(NOTA_VISTA_KEY) === "1";
+    const initial = notaVista ? (savedStep || RETURNING_START_STEP) : STEP_ORDER[0];
 
     this.goTo(initial);
     this.bindGlobalHandlers();
     track("onboarding_started", {
-      is_returning_user: introSeen,
+      is_returning_user: notaVista,
       initial_step_id: initial,
       is_resumed_session: !!savedStep,
     });
@@ -258,9 +263,9 @@ class OnboardingEngine {
       this.gateCta(stepId, this.answers[GATED[stepId]] !== undefined);
     }
 
-    // El intro queda visto cuando el usuario llega a la antesala de preguntas.
-    if (STEP_ORDER.indexOf(stepId) >= STEP_ORDER.indexOf(RETURNING_START_STEP)) {
-      localStorage.setItem(INTRO_SEEN_KEY, "1");
+    // La marca de reanudación nace recién al llegar a la nota (step-18).
+    if (stepId === "step-18") {
+      localStorage.setItem(NOTA_VISTA_KEY, "1");
     }
 
     track("onboarding_screen_viewed", {
@@ -471,6 +476,25 @@ class OnboardingEngine {
    * delay; la animación vive en custom.css (confettiBurst).
    */
   initFiesta() {
+    // El texto celebra LO QUE eligió (venimos directo de la primera pregunta):
+    // sin esto decía "¡Excelente elección!" después del saludo y no se
+    // entendía qué elección (reporte de Rodrigo, 20-ago).
+    const FRASES = {
+      "gastos-hormiga": "¡Cazar gastos hormiga! Buena elección.",
+      ahorrar: "¡Ahorrar más! Buena elección.",
+      metas: "¡Avanzar hacia tus metas! Buena elección.",
+      automatizar: "¡Automatizar tu plata! Buena elección.",
+      deudas: "¡Ordenar tus deudas! Buena elección.",
+      educacion: "¡Aprender de plata! Buena elección.",
+    };
+    const fiesta = document.querySelector('[data-step="step-fiesta"]');
+    if (fiesta) {
+      const frase = FRASES[this.answers.mainGoal] ?? "¡Buena elección!";
+      fiesta.dataset.pabloDice = JSON.stringify([frase, "Vamos a lograrlo juntos."]);
+      const burbuja = fiesta.querySelector("[data-pablo-burbuja]");
+      if (burbuja) burbuja.textContent = frase;
+    }
+
     const stage = document.querySelector('[data-step="step-fiesta"] .fiesta-confetti');
     if (!stage) return;
     if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
@@ -575,7 +599,7 @@ class OnboardingEngine {
       });
 
     const check = (value) => {
-      const card = document.querySelector(`[data-step="step-16"] [onclick*="'${value}'"]`);
+      const card = document.querySelector(`[data-step="step-16"] [data-fn="${value}"]`);
       if (card) {
         card.setAttribute("aria-checked", "true");
         card.classList.add("selected");

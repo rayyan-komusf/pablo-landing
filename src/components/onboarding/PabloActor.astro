@@ -37,7 +37,7 @@ const base = "/onboarding/images/pablo/2d";
     const capas = [...actor.querySelectorAll(".pablo-actor__sprite")];
     const video = actor.querySelector(".pablo-actor__video");
     const BASE = "/onboarding/images/pablo/2d";
-    const POSES = ["saludando", "senalando", "explicando", "celebrando", "emocionado", "anotando", "buscando"];
+    const POSES = ["saludando", "senalando", "explicando", "celebrando", "emocionado", "anotando", "buscando", "empatico"];
 
     // Poses que ya tienen animación real (miembros articulados, generada con
     // Kling sobre el render oficial y recortada por croma a WebM con alfa).
@@ -158,7 +158,9 @@ const base = "/onboarding/images/pablo/2d";
       // quien quiera adelantarse (auto-avance ≠ secuestrar al usuario).
       footer?.classList.add("duo-footer--esperando");
 
-      const LEER = (t) => Math.min(4200, Math.max(1500, 380 + t.length * 46));
+      // Más rápido de lo que se lee en voz alta: así se siente conversación y
+      // no una espera (Rodrigo se quedó esperando a que Pablo termine, 20-ago).
+      const LEER = (t) => Math.min(2400, Math.max(850, 260 + t.length * 27));
       let t = 0;
       frases.forEach((frase, i) => {
         luego(() => {

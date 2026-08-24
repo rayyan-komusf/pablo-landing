@@ -48,8 +48,18 @@
    * cambiar font-size y el iPhone se escala uniformemente (isla, status,
    * mensajes, input — todo mantiene proporciones perfectas). */
   .hphone {
-    --w: 340px;
-    font-size: 14px; /* base: cambia en mobile desde el Hero */
+    /* El ancho también se limita por ALTURA disponible: con --w fijo en 340px
+     * el teléfono mide ~700px de alto y en laptops de ventana baja se cortaba
+     * contra el navbar (reporte de Rodrigo con captura, 20-ago). 2.06 es la
+     * proporción alto/ancho medida del mockup; 150px = navbar + respiración. */
+    /* Proporción MEDIDA en el DOM: 680px de alto a 277px de ancho = 2.455
+     * (la 2.06 estimada dejaba el teléfono 60px pasado por abajo a 720px de
+     * ventana). 170px = navbar 72 + respiración arriba y abajo. */
+    --w: min(340px, calc((100svh - 160px) / 2.1));
+    /* La tipografía interna escala CON el ancho (14px cuando --w=340): todo
+     * el teléfono está maquetado en em, así que sin esto el alto quedaba
+     * clavado en ~680px aunque el ancho bajara — y seguía cortándose. */
+    font-size: calc(var(--w) / 24.3);
     position: relative;
     width: var(--w);
     max-width: 88vw;

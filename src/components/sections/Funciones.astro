@@ -26,42 +26,42 @@ const BLOQUES = [
   {
     id: "companero",
     tono: "lila",
-    titulo: "Un amigo que sabe de plata, no otra app de banco",
+    titulo: ["Un amigo que sabe de plata,", "no otra app de banco"],
     texto:
-      "Pablo te responde al toque y en cristiano, como un pata que sabe del tema. Sin jerga financiera, sin sermones y sin hacerte sentir mal por un gasto.",
+      "Pablo te responde al toque, como un amigo. Sin términos raros, sin sermones y sin culparte por un gasto.",
     escena: "cama",      // Pablo cambia de postura en su cama con "pops"
-    dim: { w: 512, h: 490 },
+    dim: { w: 512, h: 560 },
     ancho: 290,
     respaldo: "saludando",
   },
   {
     id: "sin-esfuerzo",
     tono: "blanco",
-    titulo: "Tú vive tu vida, Pablo lleva las cuentas",
+    titulo: ["Tú vive tu vida,", "Pablo lleva las cuentas"],
     texto:
-      "Cada gasto que le cuentas mueve tu presupuesto al instante. Nada de planillas, ni de fuerza de voluntad, ni de acordarte a fin de mes.",
+      "Cuéntale un gasto y listo: él lo anota, lo ordena y te dice cómo vas. Sin planillas ni cuentas a fin de mes.",
     escena: "presupuesto", // presupuesto flotante con barras en vivo
-    dim: { w: 512, h: 468 },
+    dim: { w: 512, h: 482 },
     ancho: 290,
     respaldo: "anotando",
   },
   {
     id: "motivacion",
     tono: "lila",
-    titulo: "Cuidar tu plata por fin se siente bien",
+    titulo: ["Cuidar tu plata", "por fin se siente bien"],
     texto:
-      "Cada día que registras suma racha, y cada sol que ordenas te acerca. Pablo corre contigo hacia tu libertad financiera, un día a la vez.",
+      "Cada registro suma racha y cada sol te acerca a tu meta. Avanzas jugando, con Pablo corriendo a tu lado.",
     escena: "corriendo",   // corriendo hacia la meta que nunca se acerca
-    dim: { w: 512, h: 438 },
+    dim: { w: 512, h: 492 },
     ancho: 250,
     respaldo: "emocionado",
   },
   {
     id: "claridad",
     tono: "blanco",
-    titulo: "Cada sol encuentra su lugar",
+    titulo: ["Cada sol", "encuentra su lugar"],
     texto:
-      "Mientras le escribes por WhatsApp, Pablo pasa lista: caza los gastos hormiga que se te escapan y te muestra a dónde va tu sueldo de verdad.",
+      "Pablo caza los gastos hormiga que se te escapan y te muestra a dónde va tu sueldo, en tiempo real.",
     escena: "soles",       // soldaditos-moneda marchando, Pablo pasa lista
     dim: { w: 512, h: 328 },
     ancho: 330,
@@ -77,7 +77,7 @@ const BLOQUES = [
       <>
         <div class:list={["fx__bloque", `fx__bloque--${b.tono}`]} id={b.id}>
           <div class="fx__texto">
-            <h2 class="fx__titulo">{b.titulo}</h2>
+            <h2 class="fx__titulo">{b.titulo[0]}<br />{b.titulo[1]}</h2>
             <p class="fx__desc">{b.texto}</p>
           </div>
 
@@ -95,7 +95,7 @@ const BLOQUES = [
           </div>
         </div>
 
-        <div class="fx-ola" data-desde={b.tono} aria-hidden="true">
+        <div class="fx-ola" data-desde={i === BLOQUES.length - 1 ? "blanco-navy" : b.tono} aria-hidden="true">
           <svg viewBox="0 0 1440 80" preserveAspectRatio="none">
             <path d="M0,46 C240,80 500,16 760,50 C1010,82 1240,26 1440,54 L1440,0 L0,0 Z" />
           </svg>
@@ -105,20 +105,20 @@ const BLOQUES = [
   }
 
   {/* ── Descarga: todo centrado ── */}
-  <div class="fx__bloque fx__bloque--lila" id="descarga">
+  <div class="fx__bloque fx__bloque--navy" id="descarga">
     <div class="fx__texto">
-      <h2 class="fx__titulo">Pablo va donde tú vas</h2>
+      <h2 class="fx__titulo">Pablo va<br />donde tú vas</h2>
       <p class="fx__desc">
-        En WhatsApp, en la web y ahora también en tu iPhone. Descarga la app y
-        ten tu plata clara en el bolsillo, estés donde estés.
+        En WhatsApp, en la web y en tu iPhone. Tu plata clara en el bolsillo,
+        estés donde estés.
       </p>
     </div>
 
     {/* Transición ícono→personaje atada al scroll (sin loop: se scrubbea). */}
     <div class="fx-escena" data-escena="celular" aria-hidden="true">
-      <div class="fx-pablo fx-pablo--escena" style="width:min(270px, 80vw); --pt:127.34%;">
+      <div class="fx-pablo fx-pablo--escena" style="width:min(340px, 86vw); --pt:84.77%;">
         <img src={`${PABLO}/pablo-saludando.webp`} alt="" width="445" height="420" loading="lazy" />
-        <video data-src={`${PABLO}/escena-celular.webm`} muted playsinline preload="none" width="512" height="652"></video>
+        <video data-src={`${PABLO}/escena-celular.webm`} muted playsinline preload="none" width="512" height="434"></video>
         <span class="fx-sombra"></span>
       </div>
     </div>
@@ -149,6 +149,12 @@ const BLOQUES = [
         </span>
       </span>
     </div>
+  </div>
+
+  <div class="fx-ola" data-desde="navy" aria-hidden="true">
+    <svg viewBox="0 0 1440 80" preserveAspectRatio="none">
+      <path d="M0,50 C250,18 520,78 780,44 C1030,14 1250,66 1440,40 L1440,0 L0,0 Z" />
+    </svg>
   </div>
 </section>
 
@@ -239,18 +245,26 @@ const BLOQUES = [
   .fx__bloque--lila { background: #f5f3ff; }
   .fx__bloque--blanco { background: #ffffff; }
 
+  /* Bloque navy (descarga): fondo azul oscuro de Pablo, texto claro. */
+  .fx__bloque--navy { background: #2b2c64; }
+  .fx__bloque--navy .fx__desc { color: rgba(255, 255, 255, 0.8); }
+
   .fx__texto {
     max-width: 620px;
     text-align: center;
   }
 
+  /* Headlines de subsección (Rodrigo, 20-ago): Outfit, su amarillo CTA y las
+   * letras un grado más juntas. ⚠️ #F5A623 sobre blanco/lila NO pasa AA
+   * (≈1.97:1) — decisión explícita del fundador copiando el patrón Duolingo
+   * (titulares verdes sobre blanco); queda reportado. Sobre navy sí pasa. */
   .fx__titulo {
     font-family: var(--font-display, "Outfit"), sans-serif;
     font-weight: 700;
     font-size: clamp(26px, 3.4vw, 40px);
     line-height: 1.14;
-    letter-spacing: -0.02em;
-    color: #2b2c64;
+    letter-spacing: -0.03em;
+    color: #f5a623;
   }
 
   .fx__desc {
@@ -274,6 +288,9 @@ const BLOQUES = [
   .fx-ola svg path { fill: currentColor; }
   .fx-ola[data-desde="lila"] { background: #ffffff; color: #f5f3ff; }
   .fx-ola[data-desde="blanco"] { background: #f5f3ff; color: #ffffff; }
+  /* frontera hacia el bloque navy de descarga y su salida a testimonios */
+  .fx-ola[data-desde="blanco-navy"] { background: #2b2c64; color: #ffffff; }
+  .fx-ola[data-desde="navy"] { background: #f2efff; color: #2b2c64; }
 
   /* Slot de escena: hoy un Pablo animado; mañana el video de la escena
      completa, que ocupa este mismo hueco sin tocar el layout. */

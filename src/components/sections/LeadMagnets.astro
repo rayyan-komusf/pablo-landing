@@ -17,12 +17,22 @@ const ICONOS = "/onboarding/images/iconos";
   <!-- ── Plantilla gratis (blanco) ── -->
   <div class="lm__bloque lm__bloque--blanco" id="plantilla-gratis">
     <div class="lm__escena" aria-hidden="true">
+      <!-- Mini-réplica animada de la plantilla real "Reparte tu ingreso del
+           mes": donut de 3 grupos + tablas Esenciales/Futuro/Estilo de vida,
+           con las barras llenándose en loop. -->
       <div class="lm-plantilla">
-        <span class="lm-plantilla__cab"></span>
-        <span class="lm-plantilla__fila" style="--w: 84%"></span>
-        <span class="lm-plantilla__fila" style="--w: 62%"></span>
-        <span class="lm-plantilla__fila" style="--w: 74%"></span>
-        <span class="lm-plantilla__fila" style="--w: 48%"></span>
+        <div class="lm-plantilla__head">
+          <img src="/onboarding/images/pablo/pablo-logo.png" alt="" width="18" height="18" />
+          <span class="lm-plantilla__marca">Pablo</span>
+        </div>
+        <div class="lm-plantilla__cuerpo">
+          <span class="lm-plantilla__donut"></span>
+          <div class="lm-plantilla__tablas">
+            <span class="lm-tabla" style="--c:#e8837a"><i style="--w:78%"></i><i style="--w:56%"></i><i style="--w:64%"></i></span>
+            <span class="lm-tabla" style="--c:#7b92ef"><i style="--w:52%"></i><i style="--w:38%"></i></span>
+            <span class="lm-tabla" style="--c:#4aa85c"><i style="--w:66%"></i><i style="--w:44%"></i><i style="--w:30%"></i></span>
+          </div>
+        </div>
       </div>
       <img class="lm__pablo" src={`${PABLO}/pablo-senalando.webp`} alt="" width="343" height="420" loading="lazy" />
     </div>
@@ -44,10 +54,11 @@ const ICONOS = "/onboarding/images/iconos";
   <!-- ── El curso (lila) ── -->
   <div class="lm__bloque lm__bloque--lila" id="camino-al-millon">
     <div class="lm__escena" aria-hidden="true">
+      <!-- Portada real del curso (el mapa "Camino al Millón") con marco
+           cerámico y botón de play encima, como una clase esperándote. -->
       <div class="lm-clase">
-        <span class="lm-clase__play"></span>
-        <span class="lm-clase__linea" style="--w: 70%"></span>
-        <span class="lm-clase__linea" style="--w: 46%"></span>
+        <img src="/cursos/camino-al-millon.webp" alt="" width="480" height="270" loading="lazy" />
+        <span class="lm-clase__play" aria-hidden="true"></span>
       </div>
       <img class="lm__pablo lm__pablo--curso" src={`${PABLO}/pablo-explicando.webp`} alt="" width="316" height="420" loading="lazy" />
     </div>
@@ -90,8 +101,8 @@ const ICONOS = "/onboarding/images/iconos";
     font-weight: 700;
     font-size: clamp(24px, 3vw, 36px);
     line-height: 1.15;
-    letter-spacing: -0.02em;
-    color: #2b2c64;
+    letter-spacing: -0.03em;
+    color: #f5a623;
   }
 
   .lm__desc {
@@ -153,67 +164,129 @@ const ICONOS = "/onboarding/images/iconos";
     50%      { transform: translateY(-7px) rotate(1deg); }
   }
 
-  /* La plantilla: hoja cerámica con filas, inclinada como recién impresa. */
+  /* Mini-plantilla animada: réplica del template real en chiquito. */
   .lm-plantilla {
-    width: 170px;
-    padding: 16px 14px 18px;
-    background: #ffffff;
+    width: 230px;
+    background: #fff;
     border-radius: 18px;
+    padding: 12px;
     box-shadow: 0 5px 0 0 #d9d4ec, 0 14px 20px -14px rgba(43, 44, 100, 0.35);
-    transform: rotate(-4deg);
+    transform: rotate(-3deg);
+    margin-bottom: 22px;
+  }
+
+  .lm-plantilla__head {
     display: flex;
-    flex-direction: column;
-    gap: 9px;
-    margin-bottom: 24px;
-  }
-
-  .lm-plantilla__cab {
-    width: 58%;
-    height: 12px;
-    border-radius: 6px;
-    background: #f5c723;
-    box-shadow: inset 0 -3px 0 0 #cf9a12;
-    margin-bottom: 3px;
-  }
-
-  .lm-plantilla__fila {
-    width: var(--w);
-    height: 9px;
-    border-radius: 5px;
-    background: rgba(43, 44, 100, 0.1);
-  }
-
-  /* La clase: tarjeta de video con play, como un aula esperándote. */
-  .lm-clase {
-    width: 190px;
-    height: 128px;
-    background: #2b2c64;
-    border-radius: 18px;
-    box-shadow: 0 5px 0 0 #191a44, 0 14px 20px -14px rgba(43, 44, 100, 0.45);
-    transform: rotate(3deg);
-    display: flex;
-    flex-direction: column;
     align-items: center;
-    justify-content: center;
-    gap: 9px;
-    margin-bottom: 30px;
+    gap: 6px;
+    margin-bottom: 9px;
+  }
+
+  .lm-plantilla__head img { border-radius: 5px; }
+
+  .lm-plantilla__marca {
+    font-family: var(--font-display, "Outfit"), sans-serif;
+    font-weight: 700;
+    font-size: 12px;
+    color: #2b2c64;
+  }
+
+  .lm-plantilla__cuerpo {
+    display: flex;
+    gap: 10px;
+    align-items: flex-start;
+  }
+
+  /* Donut de 3 grupos (esenciales/futuro/estilo de vida) girando suave. */
+  .lm-plantilla__donut {
+    width: 62px;
+    height: 62px;
+    border-radius: 50%;
+    flex-shrink: 0;
+    background: conic-gradient(#e8837a 0 52%, #7b92ef 52% 71%, #4aa85c 71% 100%);
+    -webkit-mask: radial-gradient(circle, transparent 0 17px, #000 18px);
+    mask: radial-gradient(circle, transparent 0 17px, #000 18px);
+    animation: lmGira 9s linear infinite;
+  }
+
+  @keyframes lmGira { to { transform: rotate(360deg); } }
+
+  .lm-plantilla__tablas {
+    display: flex;
+    flex-direction: column;
+    gap: 7px;
+    flex: 1;
+  }
+
+  .lm-tabla {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    border-left: 3px solid var(--c);
+    padding-left: 6px;
+  }
+
+  .lm-tabla i {
+    display: block;
+    height: 7px;
+    border-radius: 4px;
+    background: color-mix(in srgb, var(--c) 28%, #fff);
+    width: 0;
+    animation: lmLlena 5.5s cubic-bezier(0.3, 1.2, 0.5, 1) infinite;
+  }
+
+  .lm-tabla i:nth-child(2) { animation-delay: 0.35s; }
+  .lm-tabla i:nth-child(3) { animation-delay: 0.7s; }
+
+  @keyframes lmLlena {
+    0%, 6%    { width: 0; }
+    34%, 82%  { width: var(--w); }
+    96%, 100% { width: 0; }
+  }
+
+  /* La clase: portada real con marco cerámico y play encima. */
+  .lm-clase {
+    position: relative;
+    width: 250px;
+    border-radius: 18px;
+    overflow: hidden;
+    box-shadow: 0 5px 0 0 #191a44, 0 14px 20px -14px rgba(43, 44, 100, 0.45);
+    transform: rotate(2.5deg);
+    margin-bottom: 26px;
+    border: 3px solid #2b2c64;
+  }
+
+  .lm-clase img {
+    width: 100%;
+    height: auto;
+    display: block;
   }
 
   .lm-clase__play {
-    width: 0;
-    height: 0;
-    border-top: 14px solid transparent;
-    border-bottom: 14px solid transparent;
-    border-left: 22px solid #f5a623;
-    margin-left: 5px;
-    filter: drop-shadow(0 2px 0 #c97f0c);
+    position: absolute;
+    inset: 0;
+    margin: auto;
+    width: 46px;
+    height: 46px;
+    border-radius: 50%;
+    background: rgba(43, 44, 100, 0.85);
+    animation: lmLate 2.4s ease-in-out infinite;
   }
 
-  .lm-clase__linea {
-    width: var(--w);
-    height: 7px;
-    border-radius: 4px;
-    background: rgba(255, 255, 255, 0.22);
+  .lm-clase__play::after {
+    content: "";
+    position: absolute;
+    left: 55%;
+    top: 50%;
+    transform: translate(-50%, -50%);
+    border-top: 9px solid transparent;
+    border-bottom: 9px solid transparent;
+    border-left: 14px solid #f5a623;
+  }
+
+  @keyframes lmLate {
+    0%, 100% { transform: scale(1); }
+    50%      { transform: scale(1.09); }
   }
 
   @media (max-width: 640px) {
