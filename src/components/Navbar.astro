@@ -60,6 +60,13 @@ import logoImg from '../assets/Logo.png';
     align-items: center;
     gap: 8px;
     flex-shrink: 0;
+    position: relative;
+  }
+
+  .navbar__logo::before {
+    content: "";
+    position: absolute;
+    inset: -4px 0;
   }
 
   .logo-img {
