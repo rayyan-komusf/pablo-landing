@@ -1,29 +1,6 @@
-<!-- Pregunta inicial: se muestra antes del saludo "¡Hola, soy Pablo!" -->
+<!-- Pregunta inicial: viene DESPUÉS del saludo (Rodrigo, 24-ago); al elegir
+     se auto-avanza (el runtime avanza solo en preguntas de opción única). -->
 <section class="step !pb-0 relative" data-step="step-primer" aria-label="Pregunta inicial - Objetivo principal" aria-hidden="true">
-  <!-- Header tipo Duolingo: barra blanca con logo y acceso a la app -->
-  <header class="duo-header">
-    <div class="duo-header__inner">
-      <button
-        class="btn-exit duo-header__exit"
-        onclick="pabloExitDirect()"
-        aria-label="Salir del onboarding"
-        title="Salir"
-      >
-        ✕
-      </button>
-      <a class="duo-header__brand" href="/" aria-label="Ir al inicio de Pablo">
-        <img src="/onboarding/images/pablo/pablo-logo.png" alt="" width="34" height="34" loading="eager" />
-        <span>Pablo</span>
-      </a>
-      <button
-        class="duo-header__link"
-        onclick="pabloGoApp('step-primer')"
-        aria-label="Iniciar sesión si ya eres miembro"
-      >
-        ¿Ya eres miembro?
-      </button>
-    </div>
-  </header>
 
   <div class="primer-body flex-1 flex flex-col w-full mx-auto px-5 max-md:px-4 overflow-y-auto [scrollbar-width:none] [&::-webkit-scrollbar]:hidden vcenter">
     <!-- Título centrado, estilo selector de Duolingo -->
@@ -35,32 +12,32 @@
     <!-- Opciones: cuadrícula de tarjetas cuadradas (auto-avance al elegir) -->
     <div class="options-grid" role="radiogroup" aria-label="Selecciona tu objetivo principal">
       <button class="option-card option-card--tile" role="radio" aria-checked="false"
-        onclick="pabloSelect(this, 'mainGoal', 'gastos-hormiga'); setTimeout(() => pabloNext(), 250);">
+        onclick="pabloSelect(this, 'mainGoal', 'gastos-hormiga');">
         <span class="option-icon"><img src="/onboarding/images/iconos/an01_hormiga.png" alt="" width="30" height="30" loading="lazy" /></span>
         <span class="option-label">Controlar mis gastos hormiga</span>
       </button>
       <button class="option-card option-card--tile" role="radio" aria-checked="false"
-        onclick="pabloSelect(this, 'mainGoal', 'ahorrar'); setTimeout(() => pabloNext(), 250);">
+        onclick="pabloSelect(this, 'mainGoal', 'ahorrar');">
         <span class="option-icon"><img src="/onboarding/images/iconos/ui12_bolsa_dinero.png" alt="" width="30" height="30" loading="lazy" /></span>
         <span class="option-label">Ahorrar más para el futuro</span>
       </button>
       <button class="option-card option-card--tile" role="radio" aria-checked="false"
-        onclick="pabloSelect(this, 'mainGoal', 'metas'); setTimeout(() => pabloNext(), 250);">
+        onclick="pabloSelect(this, 'mainGoal', 'metas');">
         <span class="option-icon"><img src="/onboarding/images/iconos/t03_metas_bullseye.png" alt="" width="30" height="30" loading="lazy" /></span>
         <span class="option-label">Avanzar hacia mis metas</span>
       </button>
       <button class="option-card option-card--tile" role="radio" aria-checked="false"
-        onclick="pabloSelect(this, 'mainGoal', 'automatizar'); setTimeout(() => pabloNext(), 250);">
+        onclick="pabloSelect(this, 'mainGoal', 'automatizar');">
         <span class="option-icon"><img src="/onboarding/images/iconos/t06_recurrentes.png" alt="" width="30" height="30" loading="lazy" /></span>
         <span class="option-label">Automatizar mis finanzas</span>
       </button>
       <button class="option-card option-card--tile" role="radio" aria-checked="false"
-        onclick="pabloSelect(this, 'mainGoal', 'deudas'); setTimeout(() => pabloNext(), 250);">
+        onclick="pabloSelect(this, 'mainGoal', 'deudas');">
         <span class="option-icon"><img src="/onboarding/images/iconos/ac03_tarjeta_credito.png" alt="" width="30" height="30" loading="lazy" /></span>
         <span class="option-label">Gestionar mis deudas</span>
       </button>
       <button class="option-card option-card--tile" role="radio" aria-checked="false"
-        onclick="pabloSelect(this, 'mainGoal', 'educacion'); setTimeout(() => pabloNext(), 250);">
+        onclick="pabloSelect(this, 'mainGoal', 'educacion');">
         <span class="option-icon"><img src="/onboarding/images/iconos/gm06_educacion_birrete.png" alt="" width="30" height="30" loading="lazy" /></span>
         <span class="option-label">Educarme financieramente</span>
       </button>

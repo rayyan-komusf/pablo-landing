@@ -12,9 +12,9 @@
 
 /** Orden lineal de pantallas; las ramificaciones se resuelven en resolveNextStep. */
 const STEP_ORDER = [
+  "entry", // ¡Hola, soy Pablo! (la presentación va ANTES de la pregunta — Rodrigo, 24-ago)
   "step-primer", // Pregunta inicial: "Quiero que Pablo me ayude a…"
-  "entry", // ¡Hola, soy Pablo!
-  "step-fiesta", // Celebración con confetti: "¡Que empiece la fiesta!"
+  "step-fiesta", // Reacción a la elección ("¡Cazar gastos hormiga!") con confetti
   "step-fuente", // ¿Cómo supiste de Pablo?
   "step-porque", // ¿Por qué quieres [objetivo]? (burbuja reactiva)
   "step-2", // No tienes que ser millonario…
@@ -35,10 +35,12 @@ const STEP_ORDER = [
   "step-14", // Pregunta 8: cash flow
   "step-15", // Pregunta 9: meta de ahorro
   "step-nuevo-4", // Animación meta de ahorro
+  "step-analizando", // Pablo "analizando" ~1.3s antes de mostrar el diagnóstico
   "step-resumen", // Diagnóstico: lo que Pablo aprendió + la persona lo acepta
   "step-16", // Funciones para ti (checkboxes automáticos)
   "step-17", // Testimonios
-  "step-18", // Paywall / prueba gratuita
+  "step-18", // Paywall 1/2: la nota de Rodrigo (solo el mensaje)
+  "step-18b", // Paywall 2/2: calendario del cobro + planes
   "step-cuenta-nombre", // Registro (1/5): nombre
   "step-cuenta-correo", // Registro (2/5): correo
   "step-cuenta-password", // Registro (3/5): contraseña → crea la cuenta + envía el código
@@ -71,10 +73,12 @@ const STEP_FLAGS = {
   "step-14": { showTopbar: true, showSkip: true },
   "step-15": { showTopbar: true, showSkip: true },
   "step-nuevo-4": { showTopbar: true, showSkip: true },
+  "step-analizando": { showTopbar: true, showSkip: false },
   "step-resumen": { showTopbar: true, showSkip: false },
   "step-16": { showTopbar: true, showSkip: false },
   "step-17": { showTopbar: true, showSkip: true },
   "step-18": { showTopbar: true, showSkip: false },
+  "step-18b": { showTopbar: true, showSkip: false },
   "step-cuenta-nombre": { showTopbar: true, showSkip: false },
   "step-cuenta-correo": { showTopbar: true, showSkip: false },
   "step-cuenta-password": { showTopbar: true, showSkip: false },
@@ -243,6 +247,13 @@ class OnboardingEngine {
     if (stepId === "step-16") this.initStep16();
     if (stepId === "step-fiesta") this.initFiesta();
     if (stepId === "step-porque") this.initPorque();
+    // Pablo "analizando": pantalla de transición, avanza sola (1.3s).
+    if (stepId === "step-analizando") {
+      clearTimeout(this._analizando);
+      this._analizando = setTimeout(() => {
+        if (this.currentStepId === "step-analizando") this.next();
+      }, 1300);
+    }
 
     // Preguntas con CTA condicionado: la clave es la respuesta que habilita
     // Continuar (comparación con undefined: hasDebt=false también habilita).
@@ -257,7 +268,6 @@ class OnboardingEngine {
       "step-12": "hasDebt",
       "step-14": "cashFlow",
       "step-15": "hasSavingsGoal",
-      "step-resumen": "diagnosticoAceptado",
     };
     if (GATED[stepId]) {
       this.gateCta(stepId, this.answers[GATED[stepId]] !== undefined);
@@ -383,6 +393,19 @@ class OnboardingEngine {
       bubble.classList.remove("bubble-react");
       void bubble.offsetWidth; // reinicia la animación CSS
       bubble.classList.add("bubble-react");
+    }
+    // Auto-avance (Rodrigo, 24-ago): elegir una opción única YA es la
+    // respuesta; obligar a presionar Continuar en cada pregunta es fricción.
+    // Con burbuja reactiva se da un respiro para leerla; sin burbuja, un
+    // beat corto para ver la selección marcada. El timeout se guarda para
+    // cancelarlo si la persona re-elige rápido (no avanzar dos veces).
+    if (!el.classList.contains("checkbox")) {
+      clearTimeout(this._autoNext);
+      const espera = bubbleText ? 900 : 300;
+      const desde = this.currentStepId;
+      this._autoNext = setTimeout(() => {
+        if (this.currentStepId === desde) this.next();
+      }, espera);
     }
   }
 

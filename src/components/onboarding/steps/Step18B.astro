@@ -1,0 +1,315 @@
+<!-- Paywall 2/2 (Rodrigo, 24-ago): el calendario honesto del cobro y los
+     planes. Separado de la nota para que TODO entre en una pantalla de móvil.
+     La lógica de planes vive acá (el CTA de la página 1 solo hace next). -->
+<section class="step !pb-0" data-step="step-18b" aria-label="Empieza tu prueba gratuita" aria-hidden="true">
+  <div class="pw">
+    <div class="pw__scroll">
+      <div class="pw-head">
+        <h2 class="pw-head__titulo">
+          Empieza gratis<span class="pw-head__dias" data-pw-dias>&nbsp;3 días</span>
+        </h2>
+        <p class="pw-head__sub">
+          Sin tarjeta hoy y sin compromiso. Tú decides si sigues.
+        </p>
+      </div>
+
+      <!-- Calendario honesto: la objeción real acá no es el precio, es
+           "¿me van a cobrar sin avisarme?". -->
+      <ol class="pw-linea" data-pw-linea>
+        <li class="pw-linea__hito pw-linea__hito--hoy">
+          <span class="pw-linea__punto" aria-hidden="true"></span>
+          <span class="pw-linea__cuando">Hoy</span>
+          <span class="pw-linea__que">Desbloqueas Pablo completo. <strong>No pagas nada.</strong></span>
+        </li>
+        <li class="pw-linea__hito">
+          <span class="pw-linea__punto" aria-hidden="true"></span>
+          <span class="pw-linea__cuando" data-pw-dia-aviso>En 2 días</span>
+          <span class="pw-linea__que">Pablo te avisa por WhatsApp que tu prueba termina mañana.</span>
+        </li>
+        <li class="pw-linea__hito">
+          <span class="pw-linea__punto" aria-hidden="true"></span>
+          <span class="pw-linea__cuando" data-pw-dia-cobro>En 3 días</span>
+          <span class="pw-linea__que" data-pw-cobro>Empieza tu plan: <strong>S/.20 al mes</strong>. Cancelas cuando quieras.</span>
+        </li>
+      </ol>
+
+      <p class="pw-legal">
+        <a href="/terminos">Términos</a> · <a href="/privacidad">Privacidad</a>
+      </p>
+    </div>
+
+    <!-- Zona de decisión. Revisada 19-ago contra 8 paywalls reales de Mobbin
+         (Beside, Fixtured, Hatch, Calm Sleep, Tide Guide, Yubo, BitePal, KOHO),
+         la misma fuente del video que pasó Rodrigo. Tres patrones que se
+         repetían y acá faltaban:
+
+         1. 6 de los 8 muestran los planes EN la pantalla, no detrás de un
+            link. El "Ver todos los planes" escondía la decisión y obligaba a
+            abrir un modal para comparar.
+         2. Casi todos matan la objeción del cobro con una línea explícita —
+            "Due today $0.00" (Beside), "No payment now" (BitePal). Decir
+            "cancela cuando quieras" no es lo mismo que decir que hoy no se
+            cobra nada.
+         3. El precio se enmarca por día o por semana, no solo por mes.
+
+         El mensual sigue siendo el héroe (preseleccionado); el anual queda
+         visible como upgrade, con su ahorro real. -->
+    <div class="pw-cierre">
+      <div class="pw-planes-fila" role="radiogroup" aria-label="Elige tu plan">
+        <button
+          type="button"
+          class="pw-plan pw-plan--activo"
+          data-pw-plan="mensual"
+          role="radio"
+          aria-checked="true"
+          onclick="pabloElegirPlanPaywall(this, 'mensual')"
+        >
+          <span class="pw-plan__nombre">1 mes</span>
+          <span class="pw-plan__precio">S/.20</span>
+          <span class="pw-plan__unidad">S/.5 por semana</span>
+          <span class="pw-plan__gratis">3 días gratis</span>
+        </button>
+        <button
+          type="button"
+          class="pw-plan"
+          data-pw-plan="anual"
+          role="radio"
+          aria-checked="false"
+          onclick="pabloElegirPlanPaywall(this, 'anual')"
+        >
+          <span class="pw-plan__ahorro">Ahorra 45%</span>
+          <span class="pw-plan__nombre">12 meses</span>
+          <span class="pw-plan__precio">S/.200</span>
+          <span class="pw-plan__unidad">S/.3.84 por semana</span>
+          <span class="pw-plan__gratis">7 días gratis</span>
+        </button>
+      </div>
+
+      <button class="btn-primary pw-cta" onclick="pabloStartTrial()">
+        <span data-pw-cta-label>Empezar mis 3 días gratis</span>
+        <span class="arrow" aria-hidden="true">→</span>
+      </button>
+
+      <p class="pw-hoy">
+        <strong>Hoy pagas S/.0.</strong> <span data-pw-luego>Luego S/.20 al mes, y cancelas cuando quieras.</span>
+      </p>
+      <button class="pw-planes" onclick="pabloOpenPlans()">Ver todos los planes</button>
+    </div>
+  </div>
+
+  <!-- Modal: todos los planes -->
+  <div
+    id="plansModal"
+    class="fixed inset-0 z-[100] hidden items-end justify-center min-[480px]:items-center"
+    role="dialog"
+    aria-modal="true"
+    aria-label="Todos los planes"
+  >
+    <!-- Backdrop -->
+    <div class="plans-backdrop absolute inset-0 bg-[rgba(43,44,100,0.55)]" onclick="pabloClosePlans()"></div>
+    <!-- Sheet -->
+    <div class="plans-sheet relative w-full max-w-[420px] bg-lila rounded-t-[28px] min-[480px]:rounded-[28px] min-[480px]:mx-4 px-5 pt-5 pb-7 flex flex-col gap-4">
+      <!-- Header -->
+      <div class="flex items-center justify-between">
+        <h3 class="font-display font-bold text-[20px] text-navy">Elige tu plan</h3>
+        <button
+          class="w-9 h-9 rounded-full bg-white flex items-center justify-center text-navy text-[16px] leading-none shadow-soft"
+          onclick="pabloClosePlans()"
+          aria-label="Cerrar"
+        >
+          ✕
+        </button>
+      </div>
+      <!-- Cards de planes -->
+      <div class="grid grid-cols-3 gap-2 pt-3">
+        <!-- 1 semana -->
+        <button
+          type="button"
+          class="plan-card relative flex flex-col items-center rounded-[18px] px-2 pt-5 pb-4 bg-white"
+          data-plan="semanal"
+          onclick="pabloSelectPlan(this, 'semanal')"
+          aria-pressed="false"
+        >
+          <span class="font-display font-bold text-[26px] text-navy leading-none">1</span>
+          <span class="text-[10px] font-body uppercase tracking-widest text-navy-soft mt-1">semana</span>
+          <span class="font-display font-bold text-[18px] text-navy mt-2">S/. 7</span>
+          <span class="text-[10px] font-body text-navy-soft leading-tight">S/. 1 /día</span>
+          <span class="text-[10px] font-body font-bold text-amber mt-1">3 días gratis</span>
+        </button>
+        <!-- 1 mes -->
+        <button
+          type="button"
+          class="plan-card selected relative flex flex-col items-center rounded-[18px] px-2 pt-5 pb-4 bg-white"
+          data-plan="mensual"
+          onclick="pabloSelectPlan(this, 'mensual')"
+          aria-pressed="true"
+        >
+          <span class="plan-badge absolute -top-[10px] left-1/2 -translate-x-1/2 whitespace-nowrap text-[9px] font-display font-bold tracking-wide text-navy px-2 py-[3px]">EL MÁS ELEGIDO</span>
+          <span class="font-display font-bold text-[26px] text-navy leading-none">1</span>
+          <span class="text-[10px] font-body uppercase tracking-widest text-navy-soft mt-1">mes</span>
+          <span class="font-display font-bold text-[18px] text-navy mt-2">S/. 20</span>
+          <span class="text-[10px] font-body text-navy-soft leading-tight">S/. 5 /semana</span>
+          <span class="text-[10px] font-body font-bold text-amber mt-1" data-pm-swap="14 días gratis">3 días gratis</span>
+        </button>
+        <!-- 12 meses -->
+        <button
+          type="button"
+          class="plan-card relative flex flex-col items-center rounded-[18px] px-2 pt-5 pb-4 bg-white"
+          data-plan="anual"
+          onclick="pabloSelectPlan(this, 'anual')"
+          aria-pressed="false"
+        >
+          <span class="plan-badge absolute -top-[10px] left-1/2 -translate-x-1/2 whitespace-nowrap text-[9px] font-display font-bold tracking-wide text-navy px-2 py-[3px]">AHORRA 45%</span>
+          <span class="font-display font-bold text-[26px] text-navy leading-none">12</span>
+          <span class="text-[10px] font-body uppercase tracking-widest text-navy-soft mt-1">meses</span>
+          <span class="font-display font-bold text-[18px] text-navy mt-2">S/. 200</span>
+          <span class="text-[10px] font-body text-navy-soft leading-tight">S/. 3.84 /sem</span>
+          <span class="text-[10px] font-body font-bold text-amber mt-1" data-pm-hide>7 días gratis</span>
+        </button>
+      </div>
+      <!-- CTA del modal -->
+      <button class="btn-primary w-full text-[16px] py-[14px] mt-1" onclick="pabloStartTrial()">
+        <span id="plansCtaLabel">Empezar mis 3 días gratis</span>
+        <span class="arrow" aria-hidden="true">→</span>
+      </button>
+      <p class="text-[12px] text-center font-body text-navy-soft -mt-2">Cancela en cualquier momento</p>
+    </div>
+  </div>
+</section>
+
+<script is:inline type="module">
+  // Elegir plan no redirige: sigue al registro paso a paso (steps cuenta-*).
+  const planes = {
+    semanal: {
+      // ⚠️ Depende de que el Plan Semanal de Flow tenga trial_period_days = 3.
+      trialDays: 3,
+      ctaLabel: "Empezar mis 3 días gratis",
+    },
+    mensual: {
+      trialDays: 3, // definido en el plan de Flow, no acá
+      ctaLabel: "Empezar mis 3 días gratis",
+    },
+    anual: {
+      trialDays: 7,
+      ctaLabel: "Empieza tu prueba gratuita de 7 días",
+    },
+  };
+  let planSeleccionado = "mensual";
+
+  // Misma ventana de la Oferta Millonaria que step-18 (si revive, el mensual
+  // pasa a 14 días y el anual a cobro directo).
+  const enPromoMillonaria = (() => {
+    const ahora = Date.now();
+    return (
+      ahora >= Date.parse("2026-07-23T20:40:00-05:00") &&
+      ahora < Date.parse("2026-07-30T00:00:00-05:00")
+    );
+  })();
+  if (enPromoMillonaria) {
+    planes.mensual.trialDays = 14;
+    planes.mensual.ctaLabel = "Empieza tu prueba gratuita de 14 días";
+    planes.anual.trialDays = 0;
+    planes.anual.ctaLabel = "Quiero el Plan Anual";
+    document.querySelectorAll("[data-pm-swap]").forEach((el) => {
+      el.textContent = el.getAttribute("data-pm-swap");
+    });
+    document.querySelectorAll("[data-pm-hide]").forEach((el) => {
+      el.hidden = true;
+    });
+    const label = document.getElementById("plansCtaLabel");
+    if (label) label.textContent = planes.anual.ctaLabel;
+  }
+
+  function abrirPlanes() {
+    const modal = document.getElementById("plansModal");
+    modal?.classList.remove("hidden");
+    modal?.classList.add("flex");
+    window.pabloTrack?.("onboarding_plans_opened", {});
+  }
+
+  function cerrarPlanes() {
+    const modal = document.getElementById("plansModal");
+    modal?.classList.add("hidden");
+    modal?.classList.remove("flex");
+  }
+
+  function seleccionarPlan(el, plan) {
+    planSeleccionado = plan;
+    document.querySelectorAll("#plansModal .plan-card").forEach((card) => {
+      card.classList.remove("selected");
+      card.setAttribute("aria-pressed", "false");
+    });
+    el.classList.add("selected");
+    el.setAttribute("aria-pressed", "true");
+    const label = document.getElementById("plansCtaLabel");
+    if (label) label.textContent = planes[plan].ctaLabel;
+    window.pabloTrack?.("onboarding_plan_selected", { plan });
+  }
+
+  function iniciarPrueba(plan = planSeleccionado) {
+    if (!planes[plan]) return;
+    sessionStorage.setItem("pablo_plan_elegido", plan);
+    window.pabloTrack?.("onboarding_trial_started", { plan });
+    cerrarPlanes();
+    window.pabloNext();
+  }
+
+  /* El calendario se ajusta al plan elegido: prometer el día equivocado en la
+     pantalla del cobro es lo peor que puede pasar acá. */
+  function pintarLinea(plan) {
+    var p = planes[plan] || planes.mensual;
+    var dias = p.trialDays;
+    var aviso = document.querySelector("[data-pw-dia-aviso]");
+    var cobro = document.querySelector("[data-pw-dia-cobro]");
+    var texto = document.querySelector("[data-pw-cobro]");
+    if (aviso) aviso.textContent = dias > 1 ? "En " + (dias - 1) + (dias - 1 === 1 ? " día" : " días") : "Mañana";
+    if (cobro) cobro.textContent = "En " + dias + (dias === 1 ? " día" : " días");
+    if (texto) {
+      texto.innerHTML =
+        plan === "anual"
+          ? "Empieza tu plan: <strong>S/.200 al año</strong>. Cancelas cuando quieras."
+          : "Empieza tu plan: <strong>S/.20 al mes</strong>. Cancelas cuando quieras.";
+    }
+  }
+
+  const pantalla18b = document.querySelector('[data-step="step-18b"]');
+  if (pantalla18b) {
+    new MutationObserver(() => {
+      if (pantalla18b.classList.contains("active")) pintarLinea(planSeleccionado);
+    }).observe(pantalla18b, { attributes: true, attributeFilter: ["class"] });
+    if (pantalla18b.classList.contains("active")) pintarLinea(planSeleccionado);
+  }
+
+  document.addEventListener("keydown", (e) => {
+    if (e.key === "Escape") cerrarPlanes();
+  });
+
+  /* Selector inline del paywall: escribe el MISMO planSeleccionado que el
+     modal (una sola fuente de verdad). */
+  function elegirPlanPaywall(el, plan) {
+    if (!planes[plan]) return;
+    planSeleccionado = plan;
+    document.querySelectorAll("[data-pw-plan]").forEach(function (b) {
+      var activo = b === el;
+      b.classList.toggle("pw-plan--activo", activo);
+      b.setAttribute("aria-checked", String(activo));
+    });
+    var cta = document.querySelector("[data-pw-cta-label]");
+    if (cta) cta.textContent = planes[plan].ctaLabel;
+    pintarLinea(plan);
+    var luego = document.querySelector("[data-pw-luego]");
+    if (luego) {
+      luego.textContent =
+        plan === "anual"
+          ? "Luego S/.200 al año, y cancelas cuando quieras."
+          : "Luego S/.20 al mes, y cancelas cuando quieras.";
+    }
+    window.pabloTrack?.("onboarding_plan_selected", { plan: plan, origen: "paywall" });
+  }
+  window.pabloElegirPlanPaywall = elegirPlanPaywall;
+
+  window.pabloOpenPlans = abrirPlanes;
+  window.pabloClosePlans = cerrarPlanes;
+  window.pabloSelectPlan = seleccionarPlan;
+  window.pabloStartTrial = iniciarPrueba;
+</script>

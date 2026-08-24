@@ -65,25 +65,14 @@
       <!-- Lectura en una frase, armada con sus propias respuestas. -->
       <p class="res-lectura" data-res-lectura></p>
 
-      <!-- La aceptación. No es decorativa: hasta que no la marque, el CONTINUAR
-           sigue apagado. Que lo diga con su dedo es lo que convierte el
-           diagnóstico en algo suyo. -->
-      <button
-        type="button"
-        class="res-acepto"
-        data-res-acepto
-        aria-pressed="false"
-        onclick="pabloResumenAceptar(this)"
-      >
-        <span class="res-acepto__check" aria-hidden="true"></span>
-        <span class="res-acepto__texto">Sí, así estoy hoy</span>
-      </button>
     </div>
   </div>
 
+  <!-- El CTA ES la aceptación (Rodrigo, 24-ago): decir "Sí soy" avanza y
+       guarda el diagnóstico como aceptado, sin un checkbox aparte. -->
   <footer class="duo-footer cta-footer">
-    <button class="btn-primary btn-continue disabled" disabled onclick="pabloNext()" aria-label="Continuar">
-      Continuar
+    <button class="btn-primary btn-continue" onclick="pabloResumenSiSoy()" aria-label="Sí soy, continuar">
+      Sí soy
     </button>
   </footer>
 </section>
@@ -180,6 +169,45 @@
       caja.hidden = false;
     }
 
+    /* Entrada escalonada (Rodrigo, 24-ago): el diagnóstico se ARMA frente a
+       la persona — radar que se abre, barras que crecen una por una, la
+       lectura y el CTA al final. Los estados iniciales se fijan inline y se
+       liberan tras doble rAF: si el primer estilo computado ya trae el estado
+       final (pantalla venía de display:none), el navegador se salta la
+       transición y todo aparece pintado de golpe. */
+    function animarEntrada() {
+      var reduce = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+      var area = document.querySelector("[data-radar-area]");
+      var puntos = document.querySelectorAll(".res-radar__punto");
+      var barras = document.querySelectorAll(".res-eje:not([hidden]) [data-res-barra]");
+      var lectura = document.querySelector("[data-res-lectura]");
+      var cta = document.querySelector('[data-step="step-resumen"] .cta-footer');
+      if (reduce) return;
+
+      if (area) { area.style.transform = "scale(0.06)"; area.style.opacity = "0"; }
+      puntos.forEach(function (pt) { pt.style.opacity = "0"; });
+      barras.forEach(function (b) { b.style.width = "0px"; });
+      if (lectura) { lectura.style.opacity = "0"; lectura.style.transform = "translateY(8px)"; lectura.style.transition = "opacity 420ms ease, transform 420ms ease"; }
+      if (cta) { cta.style.opacity = "0"; cta.style.transition = "opacity 380ms ease"; }
+
+      requestAnimationFrame(function () {
+        requestAnimationFrame(function () {
+          // radar primero (los estilos inline se sueltan y el CSS de .active anima)
+          if (area) { area.style.transform = ""; area.style.opacity = ""; }
+          setTimeout(function () { puntos.forEach(function (pt) { pt.style.opacity = ""; }); }, 500);
+          // barras una por una
+          barras.forEach(function (b, i) {
+            setTimeout(function () { b.style.width = ""; }, 650 + i * 320);
+          });
+          var fin = 650 + barras.length * 320;
+          setTimeout(function () {
+            if (lectura) { lectura.style.opacity = "1"; lectura.style.transform = "translateY(0)"; }
+          }, fin + 150);
+          setTimeout(function () { if (cta) cta.style.opacity = "1"; }, fin + 500);
+        });
+      });
+    }
+
     function pintar() {
       var r = leerRespuestas();
       pintarRadar(r);
@@ -226,34 +254,18 @@
         ? "Hoy <strong>" + partes.slice(0, 2).join("</strong> y <strong>") + "</strong>."
         : "Ordenar tu plata es más fácil cuando alguien lleva la cuenta contigo.";
 
-      // Si ya había aceptado antes, la pantalla vuelve marcada.
-      var btn = document.querySelector("[data-res-acepto]");
-      if (btn && r.diagnosticoAceptado === true) {
-        btn.setAttribute("aria-pressed", "true");
-        btn.classList.add("res-acepto--si");
-      }
-
       window.pabloTrack &&
         window.pabloTrack("onboarding_resumen_visto", { ejes: vivos });
+
+      animarEntrada();
     }
 
-    // Aceptar habilita el CONTINUAR. Es el gate de esta pantalla.
-    window.pabloResumenAceptar = function (el) {
-      var marcado = el.getAttribute("aria-pressed") === "true";
-      var ahora = !marcado;
-      el.setAttribute("aria-pressed", String(ahora));
-      el.classList.toggle("res-acepto--si", ahora);
-      // La aceptación se guarda como respuesta: así el motor la reconoce en su
-      // mapa GATED y el CONTINUAR sigue habilitado si la persona va y vuelve.
+    // "Sí soy" acepta y avanza en un solo gesto.
+    window.pabloResumenSiSoy = function () {
       if (window.onboarding && window.onboarding.setAnswer) {
-        window.onboarding.setAnswer("diagnosticoAceptado", ahora);
+        window.onboarding.setAnswer("diagnosticoAceptado", true);
       }
-      var cta = document.querySelector('[data-step="step-resumen"] .cta-footer .btn-primary');
-      if (cta) {
-        cta.classList.toggle("disabled", !ahora);
-        if (ahora) cta.removeAttribute("disabled");
-        else cta.setAttribute("disabled", "");
-      }
+      window.pabloNext();
     };
 
     // Se pinta cuando la pantalla se activa (las respuestas ya están dadas).
