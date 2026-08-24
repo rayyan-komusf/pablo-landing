@@ -30,7 +30,7 @@ const BLOQUES = [
     texto:
       "Pablo te responde al toque, como un amigo. Sin términos raros, sin sermones y sin culparte por un gasto.",
     escena: "cama",      // Pablo cambia de postura en su cama con "pops"
-    dim: { w: 512, h: 560 },
+    dim: { w: 512, h: 508 },
     ancho: 290,
     respaldo: "saludando",
   },
@@ -52,7 +52,7 @@ const BLOQUES = [
     texto:
       "Cada registro suma racha y cada sol te acerca a tu meta. Avanzas jugando, con Pablo corriendo a tu lado.",
     escena: "corriendo",   // corriendo hacia la meta que nunca se acerca
-    dim: { w: 512, h: 492 },
+    dim: { w: 512, h: 330 },
     ancho: 250,
     respaldo: "emocionado",
   },
@@ -116,9 +116,9 @@ const BLOQUES = [
 
     {/* Transición ícono→personaje atada al scroll (sin loop: se scrubbea). */}
     <div class="fx-escena" data-escena="celular" aria-hidden="true">
-      <div class="fx-pablo fx-pablo--escena" style="width:min(340px, 86vw); --pt:84.77%;">
+      <div class="fx-pablo fx-pablo--escena" style="width:min(340px, 86vw); --pt:86.33%;">
         <img src={`${PABLO}/pablo-saludando.webp`} alt="" width="445" height="420" loading="lazy" />
-        <video data-src={`${PABLO}/escena-celular.webm`} muted playsinline preload="none" width="512" height="434"></video>
+        <video data-src={`${PABLO}/escena-celular.webm`} muted playsinline preload="none" width="512" height="442"></video>
         <span class="fx-sombra"></span>
       </div>
     </div>
@@ -407,6 +407,12 @@ const BLOQUES = [
     font-family: var(--font-display, "Outfit"), sans-serif;
     font-size: 16px;
     line-height: 1.15;
+  }
+
+  /* A 320px el primer titular ("Un amigo que sabe de plata,") no entra a
+     26px y el <br> deja una tercera línea viuda. */
+  @media (max-width: 360px) {
+    .fx__titulo { font-size: 22px; }
   }
 
   @media (max-width: 640px) {
