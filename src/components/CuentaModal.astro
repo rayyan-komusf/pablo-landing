@@ -2,17 +2,17 @@
 // Modal reutilizable de "crear cuenta y pagar" (Pricing del home y oferta).
 // TODO ocurre acá, sin salir de la página (pedido de Rodrigo 29-jul):
 //   1. cuenta contra Supabase Auth (anon key)
-//   2. código de 6 dígitos (edge function verificar-correo — con la
-//      confirmación de Supabase activada el signup no da tokens y el código
-//      es lo que desbloquea el login)
-//   3. PAGO embebido con el widget de Flow (elements), mismo patrón que
+//   2. PAGO embebido con el widget de Flow (elements), mismo patrón que
 //      StepCuentaPago del onboarding: flow-suscripcion "checkout" da el token
 //      del registro de tarjeta y "confirmar" crea la suscripción.
 //   4. pagado → /gracias?plan=X (su botón entra a la app ya logueado).
-// El puente a la app (usapablo.app/auth/sesion#tokens) quedó SOLO como
-// respaldo: si el widget no puede montarse o la persona elige "pagar dentro
-// de la app". Los días de prueba salen de TRIAL, con la misma ventana de la
-// promo que usan Step18, StepCuentaPago y el backend.
+// SIN verificación de correo antes del pago (Rodrigo, 25-ago): el código se
+// movió a la app (botón "Verificar correo" en el perfil). ⚠️ Requiere apagar
+// "Confirm email" en Supabase Auth; con él activado el signup no da tokens y
+// el flujo degrada al pago clásico dentro de la app. El puente a la app
+// (usapablo.app/auth/sesion#tokens) queda SOLO como respaldo automático si
+// el widget no puede montarse. Los días de prueba salen de TRIAL, con la
+// misma ventana de la promo que usan Step18, StepCuentaPago y el backend.
 // Abrir con: window.abrirCuentaPablo('semanal'|'mensual'|'anual').
 ---
 
@@ -26,7 +26,7 @@
 >
   <div class="cuenta-card">
     <button class="cuenta-close" id="cuenta-close" aria-label="Cerrar">✕</button>
-    <img class="cuenta-mascota" src="/onboarding/images/pablo/pablo-wave.png" alt="" width="80" height="80" loading="lazy" />
+    <img class="cuenta-mascota cuenta-mascota--cara" src="/onboarding/images/pablo/pablo-logo.png" alt="" width="64" height="64" loading="lazy" />
     <h3 class="cuenta-titulo" id="cuenta-titulo">Crea tu cuenta</h3>
     <p class="cuenta-sub" id="cuenta-sub">Creas tu cuenta y continúas al pago de forma 100% segura.</p>
     <form id="cuenta-form" novalidate>
@@ -35,22 +35,6 @@
       <input id="cuenta-password" class="cuenta-input" type="password" placeholder="Crea una contraseña (mín. 6)" autocomplete="new-password" maxlength="72" required />
       <p class="cuenta-error" id="cuenta-error" hidden></p>
       <button class="cuenta-btn" id="cuenta-enviar" type="submit">Crear cuenta y continuar</button>
-    </form>
-    <!-- Fase 2: código de verificación del correo (antes del pago). -->
-    <form id="cuenta-codigo-form" hidden novalidate>
-      <p class="cuenta-codigo-hint" id="cuenta-codigo-hint">Te enviamos un código a tu correo.</p>
-      <input
-        id="cuenta-codigo"
-        class="cuenta-input cuenta-input-codigo"
-        type="text"
-        inputmode="numeric"
-        autocomplete="one-time-code"
-        placeholder="······"
-        maxlength="6"
-      />
-      <p class="cuenta-error" id="cuenta-codigo-error" hidden></p>
-      <button class="cuenta-btn" id="cuenta-verificar" type="submit">Verificar y continuar</button>
-      <button type="button" class="cuenta-reenviar" id="cuenta-reenviar">¿No te llegó? Reenviar código</button>
     </form>
     <!-- Fase 3: pago EN ESTA MISMA PÁGINA (pedido de Rodrigo 29-jul). Mismo
          patrón del widget embebido de Flow que StepCuentaPago del onboarding:
@@ -68,8 +52,15 @@
       </div>
       <p class="cuenta-pago-estado" id="cuenta-pago-estado">Preparando el pago seguro…</p>
       <div id="cuenta-pago-widget"></div>
+      <div class="cuenta-cupon">
+        <button type="button" class="cuenta-reenviar" id="cuenta-cupon-toggle">¿Tienes un cupón de descuento?</button>
+        <div class="cuenta-cupon-fila" id="cuenta-cupon-fila" hidden>
+          <input id="cuenta-cupon-input" class="cuenta-input" type="text" placeholder="Escribe tu cupón" maxlength="40" autocomplete="off" autocapitalize="characters" spellcheck="false" />
+          <button type="button" class="cuenta-btn cuenta-cupon-aplicar" id="cuenta-cupon-aplicar">Aplicar</button>
+        </div>
+        <p class="cuenta-cupon-msg" id="cuenta-cupon-msg" hidden></p>
+      </div>
       <button type="button" class="cuenta-btn" id="cuenta-pago-reintentar" hidden>Reintentar</button>
-      <button type="button" class="cuenta-reenviar" id="cuenta-pago-enapp">Prefiero pagar dentro de la app</button>
     </div>
     <p class="cuenta-legal">
       Al crear tu cuenta aceptas los
@@ -89,7 +80,6 @@
     var SUPA = "https://mezpfnagkubumzbromsh.supabase.co";
     var ANON = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im1lenBmbmFna3VidW16YnJvbXNoIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjM0NDM3NDMsImV4cCI6MjA3OTAxOTc0M30.HsTSJqkzslq4HWxLlIvuFwudrFzkemHELgsi54vIJDw";
     var APP = "https://usapablo.app";
-    var COOLDOWN_S = 60;
     var FLOW_SCRIPTS = {
       sandbox: "https://sandbox.flow.cl/app/elements/flow-1.1.0.min.js?20241202",
       production: "https://www.flow.cl/app/elements/flow-1.1.0.min.js?20241202",
@@ -115,12 +105,8 @@
     var overlay = document.getElementById("cuenta-modal");
     if (!overlay) return;
     var form = document.getElementById("cuenta-form");
-    var formCodigo = document.getElementById("cuenta-codigo-form");
     var btn = document.getElementById("cuenta-enviar");
-    var btnVerificar = document.getElementById("cuenta-verificar");
-    var reenviarEl = document.getElementById("cuenta-reenviar");
     var errorEl = document.getElementById("cuenta-error");
-    var errorCodigoEl = document.getElementById("cuenta-codigo-error");
     var tituloEl = document.getElementById("cuenta-titulo");
     var subEl = document.getElementById("cuenta-sub");
     var loginEl = document.getElementById("cuenta-login");
@@ -129,7 +115,6 @@
     var pagoEstadoEl = document.getElementById("cuenta-pago-estado");
     var pagoExitoEl = document.getElementById("cuenta-pago-exito");
     var pagoReintentarEl = document.getElementById("cuenta-pago-reintentar");
-    var pagoEnAppEl = document.getElementById("cuenta-pago-enapp");
 
     var PLANES = {
       semanal: {
@@ -159,10 +144,11 @@
     // activada, el login recién funciona después de verificar el código.
     var pendiente = null;
     var tokens = null;
-    var cooldownHasta = 0;
-    var cooldownTimer = null;
     var flowScriptPromise = null;
     var pagoEnCurso = false;
+    // Cupón (Rodrigo, 25-ago): viaja como `cupon` en el checkout. CONTRATO
+    // para el backend: responder `cupon: { valido, mensaje? }` si lo procesa.
+    var cuponAplicado = null;
 
     function abrir(plan) {
       planActual = PLANES[plan] ? plan : "anual";
@@ -172,7 +158,6 @@
       if (btn) btn.textContent = cfg.label;
       if (loginEl) loginEl.href = APP + "/pricing?plan=" + cfg.slug;
       form.hidden = false;
-      formCodigo.hidden = true;
       // Si cerraron el modal a media compra y vuelven a abrirlo, la fase de
       // pago arranca limpia (widget desmontado, sin estado viejo).
       if (pagoEl) pagoEl.hidden = true;
@@ -221,19 +206,6 @@
       var data = {}; try { data = await res.json(); } catch (e) {}
       return { ok: res.ok, data: data };
     }
-    async function verificarCorreo(body) {
-      try {
-        var res = await fetch(SUPA + "/functions/v1/verificar-correo", {
-          method: "POST",
-          headers: { "Content-Type": "application/json", apikey: ANON },
-          body: JSON.stringify(body),
-        });
-        var data = {}; try { data = await res.json(); } catch (e) {}
-        return data || {};
-      } catch (e) {
-        return { error: "No pudimos conectar con el servidor" };
-      }
-    }
 
     function guardarTokens(t) {
       tokens = t;
@@ -252,8 +224,9 @@
       guardarTokens({ access_token: r.data.access_token, refresh_token: r.data.refresh_token || "" });
       return tokens;
     }
-    /* RESPALDO: pagar dentro de la app (la pasarela cobra allá). Se usa solo
-     * si el widget embebido no puede montarse o si la persona lo elige. */
+    /* RESPALDO: pagar dentro de la app (la pasarela cobra allá). Solo
+     * automático, cuando no hay sesión o el widget no puede montarse — el
+     * botón "Prefiero pagar dentro de la app" se borró (Rodrigo, 25-ago). */
     async function irAlPago() {
       var cfg = PLANES[planActual];
       var s = await asegurarSesion();
@@ -347,7 +320,6 @@
       if (tituloEl) tituloEl.textContent = "Activa tu " + cfg.nombre;
       if (subEl) subEl.textContent = "Último paso: tus datos de pago. Nunca salimos de esta página.";
       form.hidden = true;
-      formCodigo.hidden = true;
       if (pagoEl) pagoEl.hidden = false;
       arrancarPago();
     }
@@ -373,6 +345,7 @@
           {
             accion: "checkout",
             plan: PLANES[planActual].nombre,
+            cupon: cuponAplicado || undefined,
             fbc: fb.fbc || undefined,
             fbp: fb.fbp || undefined,
             ttclid: tt.ttclid || undefined,
@@ -380,6 +353,7 @@
           },
           sesion.access_token
         );
+        if (cuponAplicado) pintarCupon(registro.cupon);
         if (registro.__status === 409) { await irALaAppLogueado(); return; }
         if (!registro.token || !registro.entorno) {
           throw new Error(registro.error || "No pudimos iniciar el pago");
@@ -428,7 +402,6 @@
               if (window.fbq) fbq("trackCustom", "PagoFlowExitoso", { plan: planActual });
               if (contenedor) contenedor.innerHTML = "";
               pagoEstado("");
-              if (pagoEnAppEl) pagoEnAppEl.hidden = true;
               if (pagoExitoEl) pagoExitoEl.hidden = false;
               setTimeout(alGracias, 1500);
             } else {
@@ -457,35 +430,46 @@
         arrancarPago();
       });
     }
-    if (pagoEnAppEl) {
-      pagoEnAppEl.addEventListener("click", function () { irAlPago(); });
-    }
-
-    function pintarCooldown() {
-      if (!reenviarEl) return;
-      var falta = Math.ceil((cooldownHasta - Date.now()) / 1000);
-      if (falta > 0) {
-        reenviarEl.setAttribute("disabled", "");
-        reenviarEl.textContent = "Reenviar código en " + falta + "s";
+    /* ─── Cupones ─── */
+    function pintarCupon(info) {
+      var msg = document.getElementById("cuenta-cupon-msg");
+      if (!msg) return;
+      msg.hidden = false;
+      if (info && typeof info.valido === "boolean") {
+        msg.textContent = info.mensaje || (info.valido ? "¡Cupón aplicado!" : "Ese cupón no es válido.");
+        msg.classList.toggle("cuenta-cupon-msg--error", !info.valido);
+        if (!info.valido) cuponAplicado = null;
       } else {
-        reenviarEl.removeAttribute("disabled");
-        reenviarEl.textContent = "¿No te llegó? Reenviar código";
-        if (cooldownTimer) { clearInterval(cooldownTimer); cooldownTimer = null; }
+        msg.textContent = "Cupón guardado: se validará al procesar el pago.";
+        msg.classList.remove("cuenta-cupon-msg--error");
       }
     }
-    function arrancarCooldown() {
-      cooldownHasta = Date.now() + COOLDOWN_S * 1000;
-      if (!cooldownTimer) cooldownTimer = setInterval(pintarCooldown, 1000);
-      pintarCooldown();
+    var cuponToggleEl = document.getElementById("cuenta-cupon-toggle");
+    if (cuponToggleEl) {
+      cuponToggleEl.addEventListener("click", function () {
+        var fila = document.getElementById("cuenta-cupon-fila");
+        if (!fila) return;
+        fila.hidden = false;
+        cuponToggleEl.hidden = true;
+        var input = document.getElementById("cuenta-cupon-input");
+        if (input) input.focus();
+      });
     }
-    function mostrarFaseCodigo() {
-      if (tituloEl) tituloEl.textContent = "Revisa tu correo 📬";
-      if (subEl && pendiente) subEl.textContent = "Escribe el código de 6 dígitos que enviamos a " + pendiente.email + " (mira también el spam).";
-      form.hidden = true;
-      formCodigo.hidden = false;
-      if (errorCodigoEl) errorCodigoEl.hidden = true;
-      setTimeout(function () { var c = document.getElementById("cuenta-codigo"); if (c) c.focus(); }, 60);
+    var cuponAplicarEl = document.getElementById("cuenta-cupon-aplicar");
+    if (cuponAplicarEl) {
+      cuponAplicarEl.addEventListener("click", function () {
+        var input = document.getElementById("cuenta-cupon-input");
+        var codigo = ((input && input.value) || "").trim().toUpperCase();
+        if (!codigo) return;
+        cuponAplicado = codigo;
+        try { window.posthog && window.posthog.capture("cuenta_modal_cupon_aplicado", { plan: planActual, cupon: codigo }); } catch (e) {}
+        cuponAplicarEl.disabled = true;
+        // El checkout se rehace con el cupón puesto (mismo camino que Reintentar).
+        pagoEnCurso = false;
+        Promise.resolve(arrancarPago()).finally(function () { cuponAplicarEl.disabled = false; });
+      });
     }
+
 
     form.addEventListener("submit", async function (e) {
       e.preventDefault();
@@ -529,59 +513,17 @@
           guardarTokens({ access_token: r.data.access_token, refresh_token: r.data.refresh_token || "" });
         }
 
-        // Verificación del correo por código ANTES del pago.
-        btn.textContent = "Enviándote un código a tu correo…";
-        var envio = await verificarCorreo({ accion: "enviar", email: correo });
-        if (envio && envio.ya_verificado) {
-          btn.textContent = "¡Listo! Un momento…";
-          mostrarFasePago();
-          return;
-        }
-        try { window.posthog && window.posthog.capture("cuenta_modal_codigo_enviado", { plan: planActual, ok: !!(envio && envio.ok) }); } catch (e3) {}
-        btn.disabled = false; btn.textContent = cfg.label;
-        if (envio && envio.error) mostrarError(errorCodigoEl, envio.error);
-        arrancarCooldown();
-        mostrarFaseCodigo();
+        // SIN verificación de correo antes del pago (Rodrigo, 25-ago): el
+        // código vive ahora en el perfil de la app. Directo a la fase de pago;
+        // si el login no es posible aún, arrancarPago degrada al respaldo.
+        btn.textContent = "¡Listo! Un momento…";
+        mostrarFasePago();
       } catch (err) {
         mostrarError(errorEl, "No pudimos conectar con el servidor. Revisa tu internet e intenta de nuevo.");
         btn.disabled = false; btn.textContent = cfg.label;
       }
     });
 
-    formCodigo.addEventListener("submit", async function (e) {
-      e.preventDefault();
-      if (errorCodigoEl) errorCodigoEl.hidden = true;
-      var input = document.getElementById("cuenta-codigo");
-      var codigo = ((input && input.value) || "").replace(/\D/g, "");
-      if (!/^\d{6}$/.test(codigo)) return mostrarError(errorCodigoEl, "El código son los 6 dígitos del correo.");
-
-      btnVerificar.disabled = true; btnVerificar.textContent = "Verificando…";
-      var res = await verificarCorreo({ accion: "verificar", email: pendiente ? pendiente.email : "", codigo: codigo });
-      if (res && (res.ok || res.ya_verificado)) {
-        try { window.posthog && window.posthog.capture("cuenta_modal_correo_verificado", { plan: planActual }); } catch (e4) {}
-        if (window.fbq) fbq("trackCustom", "CorreoVerificado", { plan: planActual });
-        btnVerificar.textContent = "¡Verificado! Un momento…";
-        mostrarFasePago();
-        return;
-      }
-      mostrarError(errorCodigoEl, (res && res.error) || "No pudimos verificar el código, intenta de nuevo.");
-      btnVerificar.disabled = false; btnVerificar.textContent = "Verificar y continuar";
-    });
-
-    document.getElementById("cuenta-codigo").addEventListener("input", function () {
-      this.value = this.value.replace(/\D/g, "").slice(0, 6);
-      if (errorCodigoEl) errorCodigoEl.hidden = true;
-    });
-
-    reenviarEl.addEventListener("click", async function () {
-      if (Date.now() < cooldownHasta) return;
-      if (errorCodigoEl) errorCodigoEl.hidden = true;
-      arrancarCooldown();
-      var res = await verificarCorreo({ accion: "enviar", email: pendiente ? pendiente.email : "" });
-      if (res && res.ya_verificado) { mostrarFasePago(); return; }
-      if (res && res.error) mostrarError(errorCodigoEl, res.error);
-      try { window.posthog && window.posthog.capture("cuenta_modal_codigo_reenviado", { plan: planActual, ok: !!(res && res.ok) }); } catch (e5) {}
-    });
   })();
 </script>
 
@@ -632,6 +574,14 @@
     font-size: 15px;
   }
   .cuenta-mascota { display: block; margin: 0 auto 4px; }
+  .cuenta-mascota--cara { border-radius: 16px; margin-bottom: 10px; }
+  .cuenta-cupon { display: flex; flex-direction: column; gap: 8px; }
+  .cuenta-cupon-fila { display: flex; gap: 8px; }
+  .cuenta-cupon-fila[hidden] { display: none; }
+  .cuenta-cupon-fila .cuenta-input { flex: 1; min-width: 0; text-transform: uppercase; }
+  .cuenta-cupon-aplicar { width: auto; margin-top: 0; padding: 12px 18px; }
+  .cuenta-cupon-msg { margin: 0; font-size: 0.8rem; font-weight: 600; color: #2c7a4b; }
+  .cuenta-cupon-msg--error { color: #d64545; }
   .cuenta-titulo {
     font-family: var(--font-heading);
     font-weight: 700;
@@ -645,8 +595,8 @@
     line-height: 1.5;
     margin-bottom: 18px;
   }
-  #cuenta-form, #cuenta-codigo-form { display: flex; flex-direction: column; gap: 12px; }
-  #cuenta-codigo-form[hidden], #cuenta-form[hidden] { display: none; }
+  #cuenta-form { display: flex; flex-direction: column; gap: 12px; }
+  #cuenta-form[hidden] { display: none; }
   .cuenta-input {
     width: 100%;
     font-family: var(--font-body);
@@ -663,14 +613,6 @@
     border-color: var(--color-amber);
     box-shadow: 0 0 0 3px rgba(245, 166, 35, 0.18);
   }
-  .cuenta-input-codigo {
-    text-align: center;
-    font-size: 24px;
-    font-weight: 700;
-    letter-spacing: 0.45em;
-    text-indent: 0.45em;
-  }
-  .cuenta-codigo-hint { font-size: 0.85rem; color: var(--color-body); margin: 0; }
   .cuenta-reenviar {
     background: none;
     border: none;

@@ -45,15 +45,31 @@ const base = "/onboarding/images/pablo/2d";
     const CON_VIDEO = new Set(["saludando", "anotando", "buscando", "emocionado"]);
 
     const suave = window.matchMedia("(prefers-reduced-motion: reduce)");
-    // Safari < 16 no reproduce alfa en WebM: ahí el video mostraría un
-    // rectángulo negro, así que ni se intenta y manda el sprite.
-    const HAY_ALFA_EN_VIDEO =
-      !!video.canPlayType && video.canPlayType('video/webm; codecs="vp9"') !== "";
+    // Safari (iOS y macOS) decodifica WebM VP9 pero pinta el alfa NEGRO, así
+    // que cada pose se ofrece en dos formatos: HEVC con alfa (.mov hvc1)
+    // primero — Safari lo transparenta — y el WebM para Chrome, que no
+    // reproduce QuickTime. El navegador elige solo; sin probes.
+    const ponerFuentes = (pose) => {
+      video.innerHTML = "";
+      const mov = document.createElement("source");
+      mov.src = `${BASE}/pablo-${pose}.mov`;
+      mov.type = 'video/quicktime; codecs="hvc1"';
+      const wm = document.createElement("source");
+      wm.src = `${BASE}/pablo-${pose}.webm`;
+      wm.type = "video/webm";
+      video.append(mov, wm);
+      // Si ni el .mov ni el .webm juegan (error en el ÚLTIMO source), se
+      // vuelve al sprite fijo en vez de dejar un Pablo congelado en negro.
+      wm.addEventListener("error", () => actor.classList.remove("pablo-actor--animado"), { once: true });
+    };
 
     // Precarga: cambiar de pose no debe costar un fotograma en blanco.
     POSES.forEach((p) => { const i = new Image(); i.src = `${BASE}/pablo-${p}.webp`; });
 
-    let poseActual = "saludando";
+    // Arranca en null a propósito: así la PRIMERA pose (saludando) también
+    // pasa por ponerPose y carga su animación — con "saludando" de inicio el
+    // early-return dejaba a Pablo como sprite fijo hasta el primer cambio.
+    let poseActual = null;
     let capaViva = 0;
     let timers = [];
     let ultimoPaso = null;
@@ -67,7 +83,7 @@ const base = "/onboarding/images/pablo/2d";
 
       // Con animación disponible manda el video: es la misma criatura moviendo
       // brazos, cabeza y párpados, no dos dibujos alternándose.
-      const animada = CON_VIDEO.has(pose) && HAY_ALFA_EN_VIDEO && !suave.matches;
+      const animada = CON_VIDEO.has(pose) && !suave.matches;
       if (animada) {
         // play() justo después de load() se rechaza con AbortError: el navegador
         // interpreta que una carga nueva interrumpió la reproducción. Hay que
@@ -84,8 +100,9 @@ const base = "/onboarding/images/pablo/2d";
             }
           );
         };
-        if (!video.currentSrc.endsWith(`pablo-${pose}.webm`)) {
-          video.src = `${BASE}/pablo-${pose}.webm`;
+        if (video.dataset.pose !== pose) {
+          video.dataset.pose = pose;
+          ponerFuentes(pose);
           video.addEventListener("loadeddata", arrancar, { once: true });
           video.load();
         } else {

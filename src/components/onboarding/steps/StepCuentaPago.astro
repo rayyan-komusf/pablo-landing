@@ -6,24 +6,18 @@
      (/auth/sesion → dashboard, ya premium). Sin sesión, el JS cae a
      pabloCuentaIrAlPago() (pagar en la app); ya no hay botón visible. -->
 <section class="step !pb-0" data-step="step-cuenta-pago" aria-label="Pago seguro con Flow" aria-hidden="true">
-  <div class="fuente-header">
-    <div class="fuente-header__inner">
-      <div class="fuente-pablo">
-        <picture>
-          <source srcset="/onboarding/images/pablo/pablo-anotando.webp" type="image/webp" />
-          <img
-            src="/onboarding/images/pablo/pablo-point.png"
-            alt=""
-            width="140"
-            height="140"
-            loading="lazy"
-          />
-        </picture>
-      </div>
-      <div class="speech-bubble speech-bubble--side">
-        ¡Correo verificado! Ahora sí, activemos tu plan
-      </div>
-    </div>
+  <!-- Arriba SOLO la cara de Pablo (Rodrigo, 25-ago): fuera la ilustración
+       grande y fuera la burbuja — ya no hay verificación previa que anunciar
+       y esta pantalla es para pagar, no para conversar. -->
+  <div class="pago-header">
+    <img
+      class="pago-cara"
+      src="/onboarding/images/pablo/pablo-logo.png"
+      alt=""
+      width="64"
+      height="64"
+      loading="lazy"
+    />
   </div>
 
   <div class="fuente-body flex-1 flex flex-col w-full mx-auto px-5 max-md:px-4 overflow-y-auto [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
@@ -56,12 +50,112 @@
         <div class="pago-cargando-sprite" aria-hidden="true"></div>
       </div>
       <div id="pago-widget"></div>
+      <!-- Cupones (Rodrigo, 25-ago): el código viaja en el checkout de
+           flow-suscripcion como `cupon`. El backend decide si es válido. -->
+      <div class="pago-cupon">
+        <button type="button" class="pago-cupon-toggle" id="pago-cupon-toggle" onclick="pabloPagoCuponToggle()">
+          ¿Tienes un cupón de descuento?
+        </button>
+        <div class="pago-cupon-fila" id="pago-cupon-fila" hidden>
+          <input
+            id="pago-cupon-input"
+            class="pago-cupon-input"
+            type="text"
+            placeholder="Escribe tu cupón"
+            maxlength="40"
+            autocomplete="off"
+            autocapitalize="characters"
+            spellcheck="false"
+          />
+          <button type="button" class="pago-cupon-aplicar" id="pago-cupon-aplicar" onclick="pabloPagoCuponAplicar()">
+            Aplicar
+          </button>
+        </div>
+        <p class="pago-cupon-msg" id="pago-cupon-msg" hidden></p>
+      </div>
       <button type="button" class="btn-primary btn-continue" id="pago-reintentar" hidden onclick="pabloPagoReintentar()">
         Reintentar
       </button>
       <p class="pago-nota">🔒 Pago procesado por Flow. Pablo nunca ve tu tarjeta.</p>
     </div>
   </div>
+
+  <style>
+    .pago-header {
+      display: flex;
+      justify-content: center;
+      padding: 18px 0 4px;
+    }
+    .pago-cara {
+      width: 64px;
+      height: 64px;
+      border-radius: 18px;
+    }
+
+    .pago-cupon {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      margin-top: 2px;
+    }
+    .pago-cupon-toggle {
+      background: none;
+      border: none;
+      cursor: pointer;
+      font-family: var(--font-body);
+      font-size: 13px;
+      font-weight: 700;
+      color: #56578f;
+      text-decoration: underline;
+      padding: 2px;
+      align-self: center;
+    }
+    .pago-cupon-fila {
+      display: flex;
+      gap: 8px;
+    }
+    .pago-cupon-fila[hidden] { display: none; }
+    .pago-cupon-input {
+      flex: 1;
+      min-width: 0;
+      font-family: var(--font-body);
+      font-size: 14px;
+      font-weight: 700;
+      color: #2b2c64;
+      text-transform: uppercase;
+      background: #fff;
+      border: 2px solid #e5e0f5;
+      border-radius: 12px;
+      padding: 10px 12px;
+      outline: none;
+    }
+    .pago-cupon-input:focus {
+      border-color: #f5a623;
+      box-shadow: 0 0 0 3px rgba(245, 166, 35, 0.18);
+    }
+    .pago-cupon-aplicar {
+      border: none;
+      cursor: pointer;
+      border-radius: 12px;
+      padding: 10px 16px;
+      font-family: var(--font-body);
+      font-weight: 800;
+      font-size: 13px;
+      color: #2b2c64;
+      background: #ffd66e;
+      box-shadow: 0 3px 0 0 #d9a53a;
+    }
+    .pago-cupon-aplicar:active { transform: translateY(2px); box-shadow: 0 1px 0 0 #d9a53a; }
+    .pago-cupon-aplicar:disabled { opacity: 0.6; cursor: wait; }
+    .pago-cupon-msg {
+      margin: 0;
+      font-size: 12.5px;
+      font-weight: 600;
+      text-align: center;
+      color: #2c7a4b;
+    }
+    .pago-cupon-msg--error { color: #d64545; }
+  </style>
 
   <script is:inline>
     (function () {
@@ -95,6 +189,12 @@
 
       var flowScriptPromise = null;
       var enCurso = false;
+      // Cupón aplicado (Rodrigo, 25-ago). Viaja como `cupon` en el checkout;
+      // CONTRATO para el backend (Ryan): si flow-suscripcion lo procesa,
+      // que responda `cupon: { valido: boolean, mensaje?: string }` — acá se
+      // pinta tal cual. Sin ese campo en la respuesta se muestra el neutro
+      // "se validará al procesar el pago".
+      var cuponAplicado = null;
 
       function planSlug() {
         return sessionStorage.getItem("pablo_plan_elegido") || "anual";
@@ -157,11 +257,11 @@
             (p.trial > 0
               ? " · " + p.trial + " días gratis. Registras tu tarjeta y no se cobra hasta el día " +
                 (p.trial + 1) + ". Cancelas cuando quieras."
-              : " · se cobra hoy, cancela cuando quieras") +
-            // Garantía SOLO del anual, anclada al inicio de la prueba (el
-            // cobro es al día 3; sin el ancla la lectura es reclamable).
+              : " · se cobra hoy, cancela cuando quieras.") +
+            // Garantía SOLO del anual; sin trial (18-ago-2026) el ancla es
+            // la compra — anclarla a una prueba que ya no existe es reclamable.
             (slug === "anual"
-              ? " Garantía de satisfacción de 14 días desde que empiezas tu prueba: te devolvemos el 100%, sin preguntas."
+              ? " Garantía de satisfacción de 14 días desde tu compra: te devolvemos el 100%, sin preguntas."
               : "");
         }
       }
@@ -247,6 +347,7 @@
             {
               accion: "checkout",
               plan: NOMBRE_PLAN[planSlug()] || NOMBRE_PLAN.anual,
+              cupon: cuponAplicado || undefined,
               fbc: fb.fbc || undefined,
               fbp: fb.fbp || undefined,
               ttclid: tt.ttclid || undefined,
@@ -254,6 +355,7 @@
             },
             sesion.access_token
           );
+          if (cuponAplicado) pintarCupon(registro.cupon);
           if (registro.__status === 409) {
             // Ya tiene una suscripción activa: nada que cobrar.
             irALaAppPagado();
@@ -333,6 +435,49 @@
       window.pabloPagoReintentar = function () {
         window.pabloTrack?.("onboarding_pago_flow_reintento", { plan: planSlug() });
         window.pabloPagoArrancar();
+      };
+
+      /* ─── Cupones ─── */
+      function pintarCupon(info) {
+        var msg = document.getElementById("pago-cupon-msg");
+        if (!msg) return;
+        msg.hidden = false;
+        if (info && typeof info.valido === "boolean") {
+          msg.textContent = info.mensaje || (info.valido ? "¡Cupón aplicado!" : "Ese cupón no es válido.");
+          msg.classList.toggle("pago-cupon-msg--error", !info.valido);
+          if (!info.valido) cuponAplicado = null;
+        } else {
+          // El backend todavía no responde por el cupón: se informa sin
+          // prometer un descuento que no podemos confirmar.
+          msg.textContent = "Cupón guardado: se validará al procesar el pago.";
+          msg.classList.remove("pago-cupon-msg--error");
+        }
+      }
+      window.pabloPagoCuponToggle = function () {
+        var fila = document.getElementById("pago-cupon-fila");
+        var toggle = document.getElementById("pago-cupon-toggle");
+        if (!fila) return;
+        fila.hidden = !fila.hidden;
+        if (!fila.hidden) {
+          if (toggle) toggle.hidden = true;
+          var input = document.getElementById("pago-cupon-input");
+          if (input) input.focus();
+        }
+      };
+      window.pabloPagoCuponAplicar = function () {
+        var input = document.getElementById("pago-cupon-input");
+        var btn = document.getElementById("pago-cupon-aplicar");
+        var codigo = ((input && input.value) || "").trim().toUpperCase();
+        if (!codigo) return;
+        cuponAplicado = codigo;
+        window.pabloTrack?.("onboarding_pago_cupon_aplicado", { plan: planSlug(), cupon: codigo });
+        if (btn) btn.disabled = true;
+        // El checkout se rehace con el cupón puesto: el widget se vuelve a
+        // montar con el token nuevo (mismo camino que Reintentar).
+        enCurso = false;
+        Promise.resolve(window.pabloPagoArrancar()).finally(function () {
+          if (btn) btn.disabled = false;
+        });
       };
     })();
   </script>
