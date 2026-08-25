@@ -3577,7 +3577,9 @@ body .topbar > div {
   transform-origin: center;
   transform: scale(0.06);
   opacity: 0;
-  transition: transform 950ms cubic-bezier(0.22, 1.3, 0.4, 1) 180ms, opacity 400ms ease 180ms;
+  /* 950→1600ms (Rodrigo, r7): el hexágono tarda un poco más en armarse,
+     así el diagnóstico se siente calculado y no impreso de golpe. */
+  transition: transform 1600ms cubic-bezier(0.22, 1.15, 0.35, 1) 200ms, opacity 620ms ease 200ms;
 }
 
 .step.active[data-step="step-resumen"] .res-radar__area {
@@ -3768,3 +3770,63 @@ body .topbar > div {
     grid-template-columns: repeat(2, minmax(0, 1fr));
     gap: 10px;
   }}
+
+/* ============================================================
+ * 15. Pills de una sola talla (ronda 7, 25-ago)
+ * ============================================================
+ * Rodrigo: "hay algunas letras que se están saliendo del botón […] y que
+ * todos los botones sean del mismo tamaño". Medido en step-fuente: había
+ * TRES alturas distintas (47/63/64px) y las 8 etiquetas se salían del
+ * borde derecho. Dos causas y dos arreglos:
+ *
+ * 1. Alturas: solo los íconos que son <img> recibían el tile cerámico de
+ *    48px (§6.1 `:has(img)`); los logos de marca son <svg> y quedaban a
+ *    26px. Ahora TODO ícono de una pill reserva la misma caja de 48px —
+ *    los logos de marca sin tinte cerámico detrás, que sobre un logo de
+ *    color se vería sucio. Y `grid-auto-rows: 1fr` iguala las filas entre
+ *    sí, así la pill más alta define a todas.
+ *
+ * 2. Texto fuera del botón: la etiqueta no tenía `min-width: 0`, así que
+ *    en flex crecía por encima del ancho de la tarjeta en vez de partirse.
+ *    Ahora envuelve en dos líneas ("Facebook/Instagram",
+ *    "Noticias/artículos/blog") y las barras son punto de corte válido. */
+
+.fuente-grid {
+  grid-auto-rows: 1fr;
+  align-items: stretch;
+}
+
+.option-card--pill {
+  display: flex;
+  align-items: center;
+  height: 100%;
+  text-align: left;
+}
+
+/* Caja del ícono: la MISMA para todos. Los <img> de la librería llevan su
+   tile cerámico de color (§6.1); los logos de marca (<svg>) van sobre un tile
+   NEUTRO — un tinte de color detrás del rojo de YouTube o del degradado de
+   Instagram se ve sucio, pero sin caja la fila perdía el sistema. */
+.option-card--pill .option-icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex: 0 0 auto;
+  width: 48px;
+  height: 48px;
+}
+
+.option-card--pill .option-icon:has(svg) {
+  border-radius: var(--pab-r-tile);
+  corner-shape: squircle;
+  background: #ffffff;
+  border: 1.5px solid var(--pab-border);
+  box-shadow: 0 var(--pab-drop-sm) 0 0 var(--pab-border);
+}
+
+.option-card--pill .option-label {
+  flex: 1 1 auto;
+  min-width: 0;             /* sin esto el texto desborda la tarjeta */
+  overflow-wrap: anywhere;  /* "Noticias/artículos/blog" parte por la barra */
+  line-height: 1.25;
+}

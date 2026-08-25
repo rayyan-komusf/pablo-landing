@@ -110,7 +110,7 @@ const BLOQUES = [
   {/* ── Descarga: todo centrado ── */}
   <div class="fx__bloque fx__bloque--navy" id="descarga">
     <div class="fx__texto">
-      <h2 class="fx__titulo">Pablo va <br />donde tú vas</h2>
+      <h2 class="fx__titulo fx__titulo--una-linea">Pablo va donde tú vas</h2>
       <p class="fx__desc">
         En WhatsApp, en la web y en tu iPhone. <span class="highlight highlight--navy">Tu plata clara</span> en el
         bolsillo, estés donde estés.
@@ -287,6 +287,13 @@ const BLOQUES = [
     line-height: 1.14;
     letter-spacing: -0.03em;
     color: #f5a623;
+  }
+
+  /* "Pablo va donde tú vas" en UNA sola línea (Rodrigo, r7): sin <br> y sin
+     que el balanceo la parta; el tamaño cede lo necesario en móvil. */
+  .fx__titulo--una-linea {
+    text-wrap: nowrap;
+    font-size: clamp(21px, 6.4vw, 40px);
   }
 
   .fx__desc {

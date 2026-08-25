@@ -245,12 +245,14 @@ class OnboardingEngine {
     if (stepId === "step-16") this.initStep16();
     if (stepId === "step-fiesta") this.initFiesta();
     if (stepId === "step-porque") this.initPorque();
-    // Pablo "analizando": pantalla de transición, avanza sola (1.3s).
+    // Pablo "analizando": pantalla de transición, avanza sola. 1.3→2.4s
+    // (Rodrigo, r7): "que tarde 2 segundos mejor o un poco más, que la
+    // persona sienta que en verdad estamos calculando sus resultados".
     if (stepId === "step-analizando") {
       clearTimeout(this._analizando);
       this._analizando = setTimeout(() => {
         if (this.currentStepId === "step-analizando") this.next();
-      }, 1300);
+      }, 2400);
     }
     // El pago embebido de Flow arranca al ENTRAR al step (también cubre la
     // recarga de página: antes solo lo disparaba el step del código y al

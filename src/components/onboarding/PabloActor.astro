@@ -159,6 +159,42 @@ const base = "/onboarding/images/pablo/2d";
       // …y se suelta hacia su sitio con rebote (masa, no interpolación lineal).
       actor.style.transition = "transform 620ms cubic-bezier(.34,1.56,.64,1)";
       actor.style.transform = "none";
+      viajeHasta = performance.now() + 700;
+    }
+
+    /* ---- Pegado permanente al anclaje -----------------------------------
+     * `viajarA` calcula el sitio UNA vez al entrar al step, pero el layout
+     * sigue moviéndose después: la burbuja aparece y empuja la fila, las
+     * fuentes terminan de cargar, un tile cambia de alto. El actor se
+     * quedaba con la posición vieja — medido con Playwright: hasta 19px de
+     * desfase en 21 de los 33 pasos (Rodrigo, r7: "Pablo no siempre sale
+     * alineado en el medio").
+     *
+     * Ahora un rAF lo re-pega a su anclaje en cuanto detecta que la caja se
+     * movió. Durante el FLIP (700ms) no corrige, para no pelear con la
+     * animación de entrada, y salta sin transición: es una corrección de
+     * sitio, no un viaje. */
+    let viajeHasta = 0;
+    function pegarAlAnclaje() {
+      requestAnimationFrame(pegarAlAnclaje);
+      if (performance.now() < viajeHasta) return;
+      if (actor.classList.contains("pablo-actor--fuera")) return;
+      const step = document.querySelector(".step.active");
+      const anclaje = step && anclajeDe(step);
+      if (!anclaje) return;
+      const d = anclaje.getBoundingClientRect();
+      if (!d.width) return;
+      const yaX = parseFloat(actor.style.left) || 0;
+      const yaY = parseFloat(actor.style.top) || 0;
+      const yaW = parseFloat(actor.style.width) || 0;
+      if (Math.abs(yaX - d.left) < 0.5 && Math.abs(yaY - d.top) < 0.5 && Math.abs(yaW - d.width) < 0.5) return;
+      actor.style.transition = "none";
+      actor.style.width = `${d.width}px`;
+      actor.style.height = `${d.height}px`;
+      actor.style.left = `${d.left}px`;
+      actor.style.top = `${d.top}px`;
+      void actor.offsetWidth;
+      actor.style.transition = "";
     }
 
     /* ---- Burbujas encadenadas + auto-avance ----------------------------- */
@@ -275,5 +311,9 @@ const base = "/onboarding/images/pablo/2d";
 
     // El motor arranca al final del body; se espera a que pinte el primer step.
     requestAnimationFrame(() => requestAnimationFrame(() => alCambiarPaso(true)));
+
+    // Y desde acá el actor se mantiene pegado a su anclaje pase lo que pase
+    // con el layout (ver pegarAlAnclaje).
+    requestAnimationFrame(pegarAlAnclaje);
   })();
 </script>

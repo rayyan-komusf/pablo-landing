@@ -1,4 +1,11 @@
-<!-- Testimonios y menciones -->
+---
+// Testimonios y menciones. El bloque de testimonios ES el carrusel de la
+// landing (Rodrigo, r7: "que acá entre el carrusel de testimonios que
+// tenemos en la landing page") — misma fuente de datos (data/testimonios.ts)
+// y mismo foco central, en vez de tres tarjetas fijas duplicadas a mano.
+import TestimonialsCarousel from '../../sections/TestimonialsCarousel.astro';
+---
+
 <section class="step !pb-0 relative" data-step="step-17" aria-label="Testimonios y menciones" aria-hidden="true">
   <div class="flex flex-col flex-1 gap-5 w-full max-w-[560px] mx-auto px-5 pt-4 pb-24 md:pb-8 overflow-y-auto [scrollbar-width:none] [&::-webkit-scrollbar]:hidden vcenter">
     <!-- Título -->
@@ -35,52 +42,10 @@
     <p class="text-center text-sm font-semibold font-body text-amber">
       Más de 200 peruanos ya usan y aman a Pablo
     </p>
-    <!-- Testimonios -->
-    <div class="testi-fila grid grid-cols-1 md:grid-cols-3 gap-3">
-      <div class="bg-white rounded-3xl p-4 shadow-card flex flex-col gap-3">
-        <p class="text-[13px] max-md:text-[11px] leading-relaxed italic flex-1 font-body text-navy">
-          "Es una interfaz muy dinámica y la ia hace correctamente lo que uno le dice."
-        </p>
-        <div class="border-t pt-3 border-[var(--color-lila-deep)]">
-          <div class="flex items-center gap-2">
-            <div class="flex flex-col">
-              <span class="testi-estrellas" role="img" aria-label="5 de 5 estrellas"><img src="/onboarding/images/iconos/ui10_estrella.png" alt="" width="15" height="15" loading="lazy" /><img src="/onboarding/images/iconos/ui10_estrella.png" alt="" width="15" height="15" loading="lazy" /><img src="/onboarding/images/iconos/ui10_estrella.png" alt="" width="15" height="15" loading="lazy" /><img src="/onboarding/images/iconos/ui10_estrella.png" alt="" width="15" height="15" loading="lazy" /><img src="/onboarding/images/iconos/ui10_estrella.png" alt="" width="15" height="15" loading="lazy" /></span>
-              <span class="text-xs font-display font-bold text-navy">Nagelly M.</span>
-              <span class="text-[10px] text-navy-soft">Perú</span>
-            </div>
-          </div>
-        </div>
-      </div>
-      <div class="bg-white rounded-3xl p-4 shadow-card flex flex-col gap-3">
-        <p class="text-[13px] max-md:text-[11px] leading-relaxed italic flex-1 font-body text-navy">
-          "Es muy fácil usarlo. Me ayuda a ver donde va cada sol, ordenar mis finanzas y ponerle
-          límites a mis gastos hormigas."
-        </p>
-        <div class="border-t pt-3 border-[var(--color-lila-deep)]">
-          <div class="flex items-center gap-2">
-            <div class="flex flex-col">
-              <span class="testi-estrellas" role="img" aria-label="5 de 5 estrellas"><img src="/onboarding/images/iconos/ui10_estrella.png" alt="" width="15" height="15" loading="lazy" /><img src="/onboarding/images/iconos/ui10_estrella.png" alt="" width="15" height="15" loading="lazy" /><img src="/onboarding/images/iconos/ui10_estrella.png" alt="" width="15" height="15" loading="lazy" /><img src="/onboarding/images/iconos/ui10_estrella.png" alt="" width="15" height="15" loading="lazy" /><img src="/onboarding/images/iconos/ui10_estrella.png" alt="" width="15" height="15" loading="lazy" /></span>
-              <span class="text-xs font-display font-bold text-navy">Gabriela C.</span>
-              <span class="text-[10px] text-navy-soft">Perú</span>
-            </div>
-          </div>
-        </div>
-      </div>
-      <div class="bg-white rounded-3xl p-4 shadow-card flex flex-col gap-3">
-        <p class="text-[13px] max-md:text-[11px] leading-relaxed italic flex-1 font-body text-navy">
-          "Antes, me sentía como un niño que no tenía autocontrol de su dinero. Usando a Pablo, no
-          solo me ahorré el 30-40% en gastos hormigas."
-        </p>
-        <div class="border-t pt-3 border-[var(--color-lila-deep)]">
-          <div class="flex items-center gap-2">
-            <div class="flex flex-col">
-              <span class="testi-estrellas" role="img" aria-label="5 de 5 estrellas"><img src="/onboarding/images/iconos/ui10_estrella.png" alt="" width="15" height="15" loading="lazy" /><img src="/onboarding/images/iconos/ui10_estrella.png" alt="" width="15" height="15" loading="lazy" /><img src="/onboarding/images/iconos/ui10_estrella.png" alt="" width="15" height="15" loading="lazy" /><img src="/onboarding/images/iconos/ui10_estrella.png" alt="" width="15" height="15" loading="lazy" /><img src="/onboarding/images/iconos/ui10_estrella.png" alt="" width="15" height="15" loading="lazy" /></span>
-              <span class="text-xs font-display font-bold text-navy">Eduardo S.</span>
-              <span class="text-[10px] text-navy-soft">Perú</span>
-            </div>
-          </div>
-        </div>
-      </div>
+    <!-- Testimonios: el carrusel de la landing, a sangre completa (se sale
+         del padding lateral a propósito para que se vea el desfile). -->
+    <div class="onb-testi-carrusel">
+      <TestimonialsCarousel />
     </div>
   </div>
 
@@ -90,3 +55,20 @@
     </button>
   </footer>
 </section>
+
+<style>
+  /* El carrusel mide su centro contra el ancho de la VENTANA, así que tiene
+     que ocupar todo el ancho: se escapa del padding del step con márgenes
+     negativos desde el centro. Sin esto la tarjeta "en foco" queda
+     descentrada respecto a la pista. */
+  .onb-testi-carrusel {
+    width: 100vw;
+    margin-inline: calc(50% - 50vw);
+  }
+
+  /* En el onboarding el carrusel vive en una pantalla corta: menos aire que
+     en la landing, para no forzar scroll. */
+  .onb-testi-carrusel :global(.carrusel__track) {
+    padding: 14px 0 22px;
+  }
+</style>

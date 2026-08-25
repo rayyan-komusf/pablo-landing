@@ -152,26 +152,42 @@ import { TESTIMONIOS } from '../../data/testimonios';
       base = r0.left + offset + r0.width / 2 - window.innerWidth / 2;
     };
 
-    medir();
-    indice = Math.max(0, Math.ceil(-base / espaciado));
-    offset = base + indice * espaciado;
-    aplicar(false);
+    // Arranque: si el carrusel nace OCULTO (en el onboarding vive dentro de un
+    // .step inactivo, que está display:none), todo mide 0 y el cálculo del
+    // centro sale infinito — la pista quedaba corrida y ninguna tarjeta tomaba
+    // el foco. Se inicializa recién cuando el elemento tiene ancho real, y se
+    // reintenta con ResizeObserver hasta que lo tenga.
+    let arrancado = false;
+    const arrancar = () => {
+      if (arrancado) return;
+      medir();
+      if (!espaciado || !Number.isFinite(espaciado)) return;
+      arrancado = true;
+      indice = Math.max(0, Math.ceil(-base / espaciado));
+      offset = base + indice * espaciado;
+      aplicar(false);
+    };
+
+    arrancar();
+    if (!arrancado) new ResizeObserver(arrancar).observe(carrusel);
 
     new IntersectionObserver((entradas) => {
       visible = entradas.some((e) => e.isIntersecting);
+      if (visible) arrancar();
     }).observe(carrusel);
 
     carrusel.addEventListener('mouseenter', () => (pausado = true));
     carrusel.addEventListener('mouseleave', () => (pausado = false));
 
     window.addEventListener('resize', () => {
+      if (!arrancado) return arrancar();
       medir();
       offset = base + indice * espaciado;
       aplicar(false);
     });
 
     setInterval(() => {
-      if (!visible || pausado) return;
+      if (!visible || pausado || !arrancado) return;
       indice += 1;
       offset = base + indice * espaciado;
       aplicar(true);
@@ -190,7 +206,7 @@ import { TESTIMONIOS } from '../../data/testimonios';
     }, 1500);
 
     const actualizar = () => {
-      if (visible) {
+      if (visible && arrancado) {
         const centro = window.innerWidth / 2;
         for (const card of cards) {
           const r = card.getBoundingClientRect();
