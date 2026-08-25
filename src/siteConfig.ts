@@ -91,16 +91,14 @@ export const APP_URL = 'https://usapablo.app/';
 //  Estos links llevan a usapablo.app/pricing con el plan preseleccionado;
 //  la app pide registro/login y retoma el checkout (hoy Stripe por API;
 //  cuando Flow vuelva, el mismo /pricing lo usa vía su switch de pasarela).
-//  Los trials los define la PASARELA (mensual 3 días; anual SIN prueba
-//  desde el 18-ago-2026, pedido de Sandra), no este archivo.
-//  ⚠️ 19-ago: Rodrigo pidió que el SEMANAL también tenga 3 días de prueba y que
-//  la promo principal sea "3 días gratis" con el MENSUAL. La web ya lo dice.
-//  Para que sea verdad hace falta poner trial_period_days = 3 en el Plan
-//  Semanal de Flow (hoy está en 0): si no, se le promete al usuario 3 días
-//  gratis y se le cobra S/.7 al instante.
+//  Los trials los define la PASARELA (semanal y mensual 3 días; anual SIN
+//  prueba desde el 18-ago-2026, pedido de Sandra), no este archivo.
+//  El SEMANAL a 3 días (pedido de Rodrigo, 19-ago) quedó resuelto el 24-ago:
+//  FLOW_PLANES (_shared/flow.ts) manda trial_period_days = 3 en el Plan
+//  Semanal, así que la promesa de "3 días gratis" de la web ya es verdad.
 // ============================================================
 export const CHECKOUT_URLS = {
-  weekly: 'https://usapablo.app/pricing?plan=semanal',   // S/.7/semana — 3 días gratis (pendiente en Flow)
+  weekly: 'https://usapablo.app/pricing?plan=semanal',   // S/.7/semana — 3 días gratis
   monthly: 'https://usapablo.app/pricing?plan=mensual',  // S/.20/mes — 3 días gratis
   annual_trial: 'https://usapablo.app/pricing?plan=anual',    // S/.200/año — cobro directo (3→0 el 18-ago-2026, pedido de Sandra)
   annual_no_trial: 'https://usapablo.app/pricing?plan=anual', // mismo plan; el trial lo define la pasarela
