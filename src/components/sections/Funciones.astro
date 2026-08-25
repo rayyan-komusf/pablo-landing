@@ -29,7 +29,7 @@ const BLOQUES = [
     titulo: ["Un amigo que sabe de plata,", "no otra app de banco"],
     texto:
       "Pablo te responde al toque, como un amigo. Sin términos raros, sin sermones y sin culparte por un gasto.",
-    escena: "cama",      // Pablo en su cama con "pops" + mesita, ventana y sombra (25-ago)
+    escena: "cama",      // Pablo en su cama con "pops" + mesita y ventana (25-ago, sin sombra)
     dim: { w: 680, h: 520 },
     ancho: 380,
     respaldo: "saludando",
@@ -62,7 +62,7 @@ const BLOQUES = [
     titulo: ["Cada sol", "encuentra su lugar"],
     texto:
       "Pablo caza los gastos hormiga que se te escapan y te muestra a dónde va tu sueldo, en tiempo real.",
-    escena: "soles",       // soldaditos-moneda marchando, Pablo pasa lista
+    escena: "soles",       // fila de monedas desfilando hacia Pablo, que las anota (8fps nativo)
     dim: { w: 512, h: 270 },
     ancho: 330,
     respaldo: "anotando",
@@ -93,7 +93,10 @@ const BLOQUES = [
             >
               <img src={`${PABLO}/pablo-${b.respaldo}.webp`} alt="" width="445" height="420" loading={i === 0 ? "eager" : "lazy"} />
               <video data-src={`${PABLO}/escena-${b.escena}.webm`} muted loop playsinline preload="none" width={b.dim.w} height={b.dim.h}></video>
-              <span class="fx-sombra"></span>
+              {/* La cama trae su propio suelo y va corrida en el lienzo: la
+                  elipse de contacto la hacía flotar en vez de anclarla
+                  (Rodrigo la pidió fuera, 25-ago). */}
+              {b.escena !== "cama" && <span class="fx-sombra"></span>}
             </div>
           </div>
         </div>
