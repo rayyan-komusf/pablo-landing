@@ -1,0 +1,172 @@
+---
+// Banner que baja desde arriba al hacer scroll.
+//
+// Patrón pedido por Rodrigo (19-ago): arriba del todo la página no lleva
+// navegación — solo la marca y el hero, para que la primera pantalla tenga una
+// sola cosa que hacer. Los links viven en el footer. Pero apenas el visitante
+// pasa el hero, baja una barra simple con el CTA y ya no lo suelta: sin importar
+// dónde esté leyendo, "Desbloquea a Pablo" está a un toque.
+//
+// Nota: verificado en es.duolingo.com — su home NO tiene esta barra (repiten el
+// CTA dentro de cada sección). Esto es la variante que pidió Rodrigo.
+---
+
+<div class="banner-sticky" id="bannerSticky" data-oculto>
+  <div class="banner-sticky__inner">
+    <a href="/" class="banner-sticky__marca">
+      <img src="/onboarding/images/pablo/pablo-logo.png" alt="" width="30" height="30" />
+      <span>Pablo</span>
+    </a>
+
+    <a href="/onboarding" class="banner-sticky__cta" data-cta-banner>
+      Desbloquea a Pablo
+    </a>
+  </div>
+</div>
+
+<script is:inline>
+  (() => {
+    // ⚠️ Este componente se monta ANTES de <main> y el script corre al parsear:
+    // en ese momento #hero todavía NO existe en el DOM, el querySelector daba
+    // null y el script se retiraba sin observar nada — el banner quedaba oculto
+    // para siempre (el bug que reportó Rodrigo: "no hay ningún banner cuando
+    // bajo"). Todo se difiere a DOMContentLoaded.
+    const iniciar = () => {
+    const barra = document.getElementById("bannerSticky");
+    if (!barra) return;
+
+    // Aparece cuando el hero ya salió de cuadro. Se usa un centinela con
+    // IntersectionObserver en vez de escuchar 'scroll': el observer no corre en
+    // el hilo principal en cada píxel, así que la página no se traba al bajar.
+    const hero = document.querySelector("#hero") || document.querySelector("main > *");
+    if (!hero) return;
+
+    const decidir = (heroVisible) => barra.toggleAttribute("data-oculto", heroVisible);
+
+    const io = new IntersectionObserver(
+      ([e]) => decidir(e.isIntersecting),
+      { rootMargin: "-120px 0px 0px 0px", threshold: 0 }
+    );
+    io.observe(hero);
+
+    // Respaldo por scroll. El observer es la vía principal (no corre en el hilo
+    // principal en cada píxel), pero hay contextos donde no entrega callbacks
+    // — pestaña en segundo plano, WebViews antiguos — y ahí la barra se
+    // quedaría escondida para siempre. Este listener es pasivo y se limita a
+    // leer una posición ya calculada, así que no cuesta scroll fluido.
+    const porScroll = () => decidir(hero.getBoundingClientRect().bottom > 120);
+    addEventListener("scroll", porScroll, { passive: true });
+    porScroll();
+
+    barra.querySelector("[data-cta-banner]")?.addEventListener("click", () => {
+      window.posthog?.capture?.("banner_sticky_cta_clicked", {
+        scroll_y: Math.round(window.scrollY),
+      });
+    });
+    };
+
+    document.readyState === "loading"
+      ? document.addEventListener("DOMContentLoaded", iniciar, { once: true })
+      : iniciar();
+  })();
+</script>
+
+<style>
+  .banner-sticky {
+    position: fixed;
+    inset: 0 0 auto 0;
+    z-index: 90;
+    background: rgba(255, 255, 255, 0.92);
+    backdrop-filter: saturate(150%) blur(12px);
+    border-bottom: 2px solid rgba(43, 44, 100, 0.1);
+    transform: translateY(0);
+    transition: transform 320ms cubic-bezier(0.22, 1, 0.36, 1);
+  }
+
+  /* Escondido = fuera de cuadro, no display:none. Así entra deslizándose. */
+  .banner-sticky[data-oculto] {
+    transform: translateY(-102%);
+  }
+
+  .banner-sticky__inner {
+    max-width: 1120px;
+    margin-inline: auto;
+    padding: 9px 20px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 16px;
+  }
+
+  .banner-sticky__marca {
+    display: inline-flex;
+    align-items: center;
+    gap: 9px;
+    font-family: var(--font-display, "Outfit"), sans-serif;
+    font-weight: 700;
+    font-size: 17px;
+    color: #2b2c64;
+    text-decoration: none;
+    position: relative;
+  }
+
+  .banner-sticky__marca::before {
+    content: "";
+    position: absolute;
+    inset: -7px 0;
+  }
+
+  .banner-sticky__marca img {
+    border-radius: 9px;
+  }
+
+  /* Mismo botón de juguete del resto del sistema: cara amarilla, canto sólido
+     más oscuro abajo y sombra de contacto. Nunca halo difuso. */
+  .banner-sticky__cta {
+    display: inline-flex;
+    align-items: center;
+    min-height: 44px;
+    padding: 11px 20px;
+    border-radius: 16px;
+    background: #f5a623;
+    box-shadow: 0 4px 0 0 #c97f0c, 0 6px 10px -6px rgba(43, 44, 100, 0.4);
+    font-family: var(--font-display, "Outfit"), sans-serif;
+    font-weight: 700;
+    font-size: 15px;
+    letter-spacing: -0.01em;
+    color: #2b2c64;
+    text-decoration: none;
+    transition: transform 120ms ease, box-shadow 120ms ease;
+  }
+
+  @media (hover: hover) {
+    .banner-sticky__cta:hover {
+      transform: translateY(-1px);
+      box-shadow: 0 5px 0 0 #c97f0c, 0 8px 12px -6px rgba(43, 44, 100, 0.42);
+    }
+  }
+
+  .banner-sticky__cta:active {
+    transform: translateY(3px);
+    box-shadow: 0 1px 0 0 #c97f0c, 0 2px 5px -3px rgba(43, 44, 100, 0.4);
+  }
+
+  @media (max-width: 560px) {
+    .banner-sticky__inner {
+      padding: 8px 14px;
+    }
+    .banner-sticky__cta {
+      padding: 10px 15px;
+      font-size: 14px;
+    }
+    .banner-sticky__marca span {
+      display: none; /* en móvil manda el CTA; la marca queda como ícono */
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .banner-sticky {
+      transition: none;
+    }
+  }
+</style>

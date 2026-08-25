@@ -2,12 +2,7 @@
 <section class="step !pb-0" data-step="step-14" aria-label="Pregunta 8 - Flujo de dinero" aria-hidden="true">
   <div class="fuente-header">
     <div class="fuente-header__inner">
-      <div class="fuente-pablo">
-        <picture>
-          <source srcset="/onboarding/images/pablo/pablo-anotando.webp" type="image/webp" />
-          <img src="/onboarding/images/pablo/pablo-point.png" alt="" width="140" height="140" loading="lazy" />
-        </picture>
-      </div>
+      <div class="fuente-pablo" data-pablo-anclaje data-pose="anotando"></div>
       <div class="speech-bubble speech-bubble--side">¿Se te acaba el dinero antes de que llegue tu próximo pago?</div>
     </div>
   </div>
@@ -16,17 +11,17 @@
     <div class="fuente-grid" role="radiogroup" aria-label="Selecciona tu situación">
       <button class="option-card option-card--pill" role="radio" aria-checked="false"
         onclick="pabloSelect(this, 'cashFlow', 'siempre')">
-        <span class="option-icon">😰</span>
+        <span class="option-icon"><img src="/onboarding/images/iconos/ui09_alerta.png" alt="" width="30" height="30" loading="lazy" /></span>
         <span class="option-label text-left">Sí</span>
       </button>
       <button class="option-card option-card--pill" role="radio" aria-checked="false"
         onclick="pabloSelect(this, 'cashFlow', 'a-veces')">
-        <span class="option-icon">🤷</span>
+        <span class="option-icon"><img src="/onboarding/images/iconos/t09_ayuda.png" alt="" width="30" height="30" loading="lazy" /></span>
         <span class="option-label text-left">De vez en cuando</span>
       </button>
       <button class="option-card option-card--pill" role="radio" aria-checked="false"
         onclick="pabloSelect(this, 'cashFlow', 'nunca')">
-        <span class="option-icon">🛡️</span>
+        <span class="option-icon"><img src="/onboarding/images/iconos/fi06_escudo.png" alt="" width="30" height="30" loading="lazy" /></span>
         <span class="option-label text-left">No, siempre guardo una parte</span>
       </button>
     </div>

@@ -1,0 +1,280 @@
+<!-- Diagnóstico: lo que Pablo aprendió en el cuestionario.
+     Pantalla nueva (19-ago, pedido de Rodrigo): el paywall metía el resumen,
+     la oferta y los planes en una sola pantalla. Ahora el tramo final se parte
+     en tres momentos, cada uno con un solo trabajo:
+
+       1. ESTA — te devuelvo lo que me contaste, con una gráfica, y TÚ me
+          confirmas que es así. La aceptación es lo que hace que lo siguiente
+          se lea como consecuencia y no como venta.
+       2. step-16 — estas son las funciones que te van a ayudar con eso.
+       3. step-18 — la oferta.
+
+     Regla dura: la gráfica se arma SOLO con respuestas reales. Cada barra
+     existe únicamente si su pregunta fue contestada. Si no hay ninguna, la
+     pantalla cae a una versión honesta sin diagnóstico inventado. -->
+<section class="step !pb-0" data-step="step-resumen" aria-label="Tu diagnóstico" aria-hidden="true">
+  <div class="fuente-header">
+    <div class="fuente-header__inner">
+      <div class="fuente-pablo" data-pablo-anclaje data-pose="anotando"></div>
+      <div class="speech-bubble speech-bubble--side" data-res-burbuja>
+        Ya te escuché. Esto es lo que veo hoy en tu plata
+      </div>
+    </div>
+  </div>
+
+  <div class="fuente-body flex-1 flex flex-col w-full mx-auto px-5 max-md:px-4 overflow-y-auto [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
+    <div class="res">
+      <!-- Radar de fortalezas y debilidades: 6 ejes fijos, se pintan SOLO los
+           valores de preguntas respondidas. Se abre desde el centro al entrar
+           (la entrada futurista que pidió Rodrigo). -->
+      <div class="res-radar" data-res-radar hidden aria-hidden="true">
+        <svg viewBox="-30 -26 260 252">
+          <g data-radar-malla></g>
+          <polygon class="res-radar__area" data-radar-area points="" />
+          <g data-radar-puntos></g>
+          <g data-radar-etiquetas></g>
+        </svg>
+      </div>
+
+      <!-- Gráfica: tres ejes con el nivel de HOY. Las barras crecen al entrar
+           y cada una lleva la etiqueta de lo que la persona respondió. -->
+      <div class="res-grafica" data-res-grafica hidden>
+        <div class="res-eje" data-res-eje="claridad">
+          <span class="res-eje__cab">
+            <span class="res-eje__nombre">Claridad de tus gastos</span>
+            <span class="res-eje__valor" data-res-etiqueta></span>
+          </span>
+          <span class="res-pista"><i data-res-barra></i></span>
+        </div>
+        <div class="res-eje" data-res-eje="mes">
+          <span class="res-eje__cab">
+            <span class="res-eje__nombre">Cómo llegas a fin de mes</span>
+            <span class="res-eje__valor" data-res-etiqueta></span>
+          </span>
+          <span class="res-pista"><i data-res-barra></i></span>
+        </div>
+        <div class="res-eje" data-res-eje="plan">
+          <span class="res-eje__cab">
+            <span class="res-eje__nombre">Tu plan de ahorro</span>
+            <span class="res-eje__valor" data-res-etiqueta></span>
+          </span>
+          <span class="res-pista"><i data-res-barra></i></span>
+        </div>
+      </div>
+
+      <!-- Lectura en una frase, armada con sus propias respuestas. -->
+      <p class="res-lectura" data-res-lectura></p>
+
+    </div>
+  </div>
+
+  <!-- El CTA ES la aceptación (Rodrigo, 24-ago): decir "Sí soy" avanza y
+       guarda el diagnóstico como aceptado, sin un checkbox aparte. -->
+  <footer class="duo-footer cta-footer">
+    <button class="btn-primary btn-continue" onclick="pabloResumenSiSoy()" aria-label="Sí soy, continuar">
+      Sí soy
+    </button>
+  </footer>
+</section>
+
+<script is:inline>
+  (function () {
+    // Niveles de HOY: 0 = mal, 1 = regular, 2 = bien. La barra se pinta con
+    // el color del estado, así que un diagnóstico malo se ve rojo sin que
+    // haga falta decirlo.
+    var CLARIDAD = {
+      siempre: [15, "Casi nunca sabes"],
+      "a-veces": [50, "A veces se pierde"],
+      "bajo-control": [88, "Bajo control"],
+    };
+    var MES = {
+      siempre: [18, "Llegas justo"],
+      "a-veces": [52, "Algunos meses justo"],
+      nunca: [90, "Llegas cómodo"],
+    };
+    var PLAN = {
+      si: [85, "Ya tienes meta"],
+      "quiero-empezar": [35, "Quieres empezar"],
+      "todavia-no": [12, "Todavía sin meta"],
+    };
+
+    function leerRespuestas() {
+      try {
+        return Object.assign(
+          {},
+          JSON.parse(localStorage.getItem("pablo_answers_v1") || "{}"),
+          JSON.parse(sessionStorage.getItem("pablo_answers") || "{}")
+        );
+      } catch (e) {
+        return {};
+      }
+    }
+
+    /* Radar: 6 ejes fijos del panorama financiero. Cada eje solo aporta un
+       punto si su pregunta fue respondida; con menos de 3 respuestas el radar
+       no se muestra (sin datos no se dibuja nada que parezca un diagnóstico). */
+    var EJES_RADAR = [
+      { nombre: "Claridad",  valor: function (r) { return ({ siempre: 0.2, "a-veces": 0.55, "bajo-control": 0.92 })[r.moneyClarity]; } },
+      { nombre: "Fin de mes", valor: function (r) { return ({ siempre: 0.22, "a-veces": 0.55, nunca: 0.9 })[r.cashFlow]; } },
+      { nombre: "Ahorro",    valor: function (r) { return ({ si: 0.85, "quiero-empezar": 0.4, "todavia-no": 0.15 })[r.hasSavingsGoal]; } },
+      { nombre: "Deudas",    valor: function (r) { return r.hasDebt === true ? 0.3 : r.hasDebt === false ? 0.9 : undefined; } },
+      { nombre: "Hábito",    valor: function (r) { return ({ "primera-vez": 0.25, manual: 0.5, excel: 0.6, app: 0.7 })[r.budgetingExp]; } },
+      { nombre: "Calma",     valor: function (r) { var n = r.stressLevel; return typeof n === "number" ? Math.max(0.12, 1 - n / 5) : undefined; } },
+    ];
+
+    function pintarRadar(r) {
+      var caja = document.querySelector("[data-res-radar]");
+      if (!caja) return;
+      var datos = EJES_RADAR.map(function (e) { return { nombre: e.nombre, v: e.valor(r) }; });
+      var vivos = datos.filter(function (d) { return typeof d.v === "number"; });
+      if (vivos.length < 3) { caja.hidden = true; return; }
+
+      var CX = 100, CY = 100, R = 88, N = datos.length;
+      function punto(i, f) {
+        var ang = -Math.PI / 2 + (i * 2 * Math.PI) / N;
+        return [CX + Math.cos(ang) * R * f, CY + Math.sin(ang) * R * f];
+      }
+      // malla (3 anillos hexagonales) + ejes
+      var malla = caja.querySelector("[data-radar-malla]");
+      var anillos = [0.33, 0.66, 1].map(function (f) {
+        var pts = datos.map(function (_, i) { return punto(i, f).map(function (n) { return n.toFixed(1); }).join(","); }).join(" ");
+        return '<polygon class="res-radar__malla" points="' + pts + '" />';
+      }).join("");
+      var ejes = datos.map(function (_, i) {
+        var p = punto(i, 1);
+        return '<line class="res-radar__eje" x1="' + CX + '" y1="' + CY + '" x2="' + p[0].toFixed(1) + '" y2="' + p[1].toFixed(1) + '" />';
+      }).join("");
+      malla.innerHTML = anillos + ejes;
+
+      // área: los ejes sin respuesta colapsan al centro (no aportan forma)
+      var area = datos.map(function (d, i) {
+        var f = typeof d.v === "number" ? d.v : 0.02;
+        return punto(i, f).map(function (n) { return n.toFixed(1); }).join(",");
+      }).join(" ");
+      caja.querySelector("[data-radar-area]").setAttribute("points", area);
+
+      var puntos = caja.querySelector("[data-radar-puntos]");
+      puntos.innerHTML = datos.map(function (d, i) {
+        if (typeof d.v !== "number") return "";
+        var p = punto(i, d.v);
+        return '<circle class="res-radar__punto" cx="' + p[0].toFixed(1) + '" cy="' + p[1].toFixed(1) + '" r="4" style="transition-delay:' + (300 + i * 110) + 'ms" />';
+      }).join("");
+
+      var etiquetas = caja.querySelector("[data-radar-etiquetas]");
+      etiquetas.innerHTML = datos.map(function (d, i) {
+        var p = punto(i, 1.17);
+        return '<text class="res-radar__etiqueta" x="' + p[0].toFixed(1) + '" y="' + (parseFloat(p[1]) + 3).toFixed(1) + '">' + d.nombre + "</text>";
+      }).join("");
+
+      caja.hidden = false;
+    }
+
+    /* Entrada escalonada (Rodrigo, 24-ago): el diagnóstico se ARMA frente a
+       la persona — radar que se abre, barras que crecen una por una, la
+       lectura y el CTA al final. Los estados iniciales se fijan inline y se
+       liberan tras doble rAF: si el primer estilo computado ya trae el estado
+       final (pantalla venía de display:none), el navegador se salta la
+       transición y todo aparece pintado de golpe. */
+    function animarEntrada() {
+      var reduce = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+      var area = document.querySelector("[data-radar-area]");
+      var puntos = document.querySelectorAll(".res-radar__punto");
+      var barras = document.querySelectorAll(".res-eje:not([hidden]) [data-res-barra]");
+      var lectura = document.querySelector("[data-res-lectura]");
+      var cta = document.querySelector('[data-step="step-resumen"] .cta-footer');
+      if (reduce) return;
+
+      if (area) { area.style.transform = "scale(0.06)"; area.style.opacity = "0"; }
+      puntos.forEach(function (pt) { pt.style.opacity = "0"; });
+      barras.forEach(function (b) { b.style.width = "0px"; });
+      if (lectura) { lectura.style.opacity = "0"; lectura.style.transform = "translateY(8px)"; lectura.style.transition = "opacity 420ms ease, transform 420ms ease"; }
+      if (cta) { cta.style.opacity = "0"; cta.style.transition = "opacity 380ms ease"; }
+
+      requestAnimationFrame(function () {
+        requestAnimationFrame(function () {
+          // radar primero (los estilos inline se sueltan y el CSS de .active anima)
+          if (area) { area.style.transform = ""; area.style.opacity = ""; }
+          setTimeout(function () { puntos.forEach(function (pt) { pt.style.opacity = ""; }); }, 500);
+          // barras una por una
+          barras.forEach(function (b, i) {
+            setTimeout(function () { b.style.width = ""; }, 650 + i * 320);
+          });
+          var fin = 650 + barras.length * 320;
+          setTimeout(function () {
+            if (lectura) { lectura.style.opacity = "1"; lectura.style.transform = "translateY(0)"; }
+          }, fin + 150);
+          setTimeout(function () { if (cta) cta.style.opacity = "1"; }, fin + 500);
+        });
+      });
+    }
+
+    function pintar() {
+      var r = leerRespuestas();
+      pintarRadar(r);
+      var grafica = document.querySelector("[data-res-grafica]");
+      var lectura = document.querySelector("[data-res-lectura]");
+      if (!grafica || !lectura) return;
+
+      var ejes = {
+        claridad: CLARIDAD[r.moneyClarity],
+        mes: MES[r.cashFlow],
+        plan: PLAN[r.hasSavingsGoal],
+      };
+      var vivos = 0;
+
+      Object.keys(ejes).forEach(function (clave) {
+        var caja = grafica.querySelector('[data-res-eje="' + clave + '"]');
+        var dato = ejes[clave];
+        if (!caja) return;
+        if (!dato) {
+          // Sin respuesta no se inventa un nivel: el eje simplemente no existe.
+          caja.hidden = true;
+          return;
+        }
+        caja.hidden = false;
+        vivos++;
+        var pct = dato[0];
+        caja.querySelector("[data-res-etiqueta]").textContent = dato[1];
+        var barra = caja.querySelector("[data-res-barra]");
+        barra.style.setProperty("--pct", pct + "%");
+        barra.dataset.nivel = pct < 35 ? "bajo" : pct < 70 ? "medio" : "alto";
+      });
+
+      grafica.hidden = vivos === 0;
+
+      // La frase de lectura se arma con lo que de verdad contestó.
+      var partes = [];
+      if (r.hasDebt === true) partes.push("estás pagando una deuda");
+      if (r.moneyClarity === "siempre") partes.push("se te pierde de vista a dónde va tu plata");
+      else if (r.moneyClarity === "a-veces") partes.push("a veces se te escapa a dónde va tu plata");
+      if (r.cashFlow === "siempre") partes.push("sueles llegar justo a fin de mes");
+      else if (r.cashFlow === "a-veces") partes.push("algunos meses llegas justo");
+
+      lectura.innerHTML = partes.length
+        ? "Hoy <strong>" + partes.slice(0, 2).join("</strong> y <strong>") + "</strong>."
+        : "Ordenar tu plata es más fácil cuando alguien lleva la cuenta contigo.";
+
+      window.pabloTrack &&
+        window.pabloTrack("onboarding_resumen_visto", { ejes: vivos });
+
+      animarEntrada();
+    }
+
+    // "Sí soy" acepta y avanza en un solo gesto.
+    window.pabloResumenSiSoy = function () {
+      if (window.onboarding && window.onboarding.setAnswer) {
+        window.onboarding.setAnswer("diagnosticoAceptado", true);
+      }
+      window.pabloNext();
+    };
+
+    // Se pinta cuando la pantalla se activa (las respuestas ya están dadas).
+    var pantalla = document.querySelector('[data-step="step-resumen"]');
+    if (pantalla) {
+      new MutationObserver(function () {
+        if (pantalla.classList.contains("active")) pintar();
+      }).observe(pantalla, { attributes: true, attributeFilter: ["class"] });
+      if (pantalla.classList.contains("active")) pintar();
+    }
+  })();
+</script>

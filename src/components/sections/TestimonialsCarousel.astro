@@ -49,7 +49,9 @@ import { TESTIMONIOS } from '../../data/testimonios';
 
   .carrusel__grupo {
     display: flex;
-    align-items: center; /* cada tarjeta con la altura de SU texto: sin espacio blanco de relleno */
+    /* Todas las tarjetas del mismo tamaño y ratio (Rodrigo, 24-ago): stretch
+       las iguala a la más alta y el autor ancla abajo. */
+    align-items: stretch;
   }
 
   .tc-card {
@@ -79,6 +81,7 @@ import { TESTIMONIOS } from '../../data/testimonios';
   }
 
   .tc-author {
+    margin-top: auto;
     display: flex;
     flex-direction: column;
     gap: 1px;

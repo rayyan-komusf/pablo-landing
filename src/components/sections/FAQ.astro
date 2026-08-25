@@ -10,7 +10,7 @@ const faqs = [
   {
     question: "¿Cómo protege Pablo mis datos?",
     answer:
-      "Tus datos están protegidos con encriptacion. No compartimos tu información con terceros.",
+      "Tus datos están protegidos con encriptación. No compartimos tu información con terceros.",
   },
   {
     question: "¿Necesito instalar algo?",
@@ -22,6 +22,34 @@ const faqs = [
     answer:
       "Solo haz clic en 'Desbloquea a Pablo' y estarás chateando con Pablo en segundos. Sin formularios, sin tarjeta de crédito.",
   },
+  // Las 5 de abajo salen de preguntas REALES medidas en los DMs de Pablo
+  // (21.230 mensajes analizados): pago con Yape (15 personas lo pidieron),
+  // confusión de moneda (18 casos), Android, cancelación y qué pasa tras pagar.
+  {
+    question: "¿Puedo pagar con Yape o Plin?",
+    answer:
+      "Por ahora los planes se pagan con tarjeta de débito o crédito. El pago lo procesa Flow, una pasarela segura: Pablo nunca ve los datos de tu tarjeta.",
+  },
+  {
+    question: "¿Los precios son en soles o en dólares?",
+    answer:
+      "En soles peruanos, siempre. Pablo está hecho en Perú y para el Perú: nada de sorpresas por tipo de cambio.",
+  },
+  {
+    question: "¿Funciona en Android?",
+    answer:
+      "Sí: Pablo vive en WhatsApp, así que funciona en cualquier celular. Además tienes el panel web, la app para iPhone ya está en el App Store y la de Android viene pronto.",
+  },
+  {
+    question: "¿Puedo cancelar cuando quiera?",
+    answer:
+      "Sí, desde tu perfil en la app, en dos toques y sin preguntas. Y si cancelas durante tu prueba gratis, no se te cobra nada.",
+  },
+  {
+    question: "Ya pagué, ¿y ahora qué?",
+    answer:
+      "Entras directo a tu cuenta y Pablo te guía para registrar tu primer gasto por WhatsApp. En menos de un minuto ya está trabajando contigo.",
+  },
 ];
 ---
 
@@ -31,7 +59,7 @@ const faqs = [
       <h2 class="section-title faq__title">
         ¿Tienes preguntas? Tenemos las respuestas
       </h2>
-      <p class="faq__subtitle">Todo lo que necesitas saber sobre Pablo</p>
+      <p class="faq__subtitle"><span class="highlight">Todo</span> lo que necesitas saber sobre Pablo</p>
     </div>
 
     <div class="faq__list" role="list">

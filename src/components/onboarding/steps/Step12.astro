@@ -2,12 +2,7 @@
 <section class="step !pb-0" data-step="step-12" aria-label="Pregunta 6 - Deudas" aria-hidden="true">
   <div class="fuente-header">
     <div class="fuente-header__inner">
-      <div class="fuente-pablo">
-        <picture>
-          <source srcset="/onboarding/images/pablo/pablo-anotando.webp" type="image/webp" />
-          <img src="/onboarding/images/pablo/pablo-point.png" alt="" width="140" height="140" loading="lazy" />
-        </picture>
-      </div>
+      <div class="fuente-pablo" data-pablo-anclaje data-pose="anotando"></div>
       <div class="speech-bubble speech-bubble--side">¿Actualmente estás endeudado?</div>
     </div>
   </div>
@@ -16,12 +11,12 @@
     <div class="fuente-grid" role="radiogroup" aria-label="¿Tienes deudas actualmente?">
       <button class="option-card option-card--pill" role="radio" aria-checked="false"
         onclick="pabloSelect(this, 'hasDebt', true)">
-        <span class="option-icon">💳</span>
+        <span class="option-icon"><img src="/onboarding/images/iconos/ac03_tarjeta_credito.png" alt="" width="30" height="30" loading="lazy" /></span>
         <span class="option-label text-left">Sí</span>
       </button>
       <button class="option-card option-card--pill" role="radio" aria-checked="false"
         onclick="pabloSelect(this, 'hasDebt', false)">
-        <span class="option-icon">✨</span>
+        <span class="option-icon"><img src="/onboarding/images/iconos/ui06_doble_check.png" alt="" width="30" height="30" loading="lazy" /></span>
         <span class="option-label text-left">¡Nop!</span>
       </button>
     </div>

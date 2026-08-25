@@ -4,6 +4,121 @@
  */
 
 /* ============================================================
+ * 0. TOKENS DEL DESIGN SYSTEM DE PABLO (paridad con la app)
+ * ============================================================
+ * La app (pablo-finance-pal) define estos valores en src/index.css y
+ * src/lib/ceramica.ts. Acá NO se puede importar ese CSS, así que se
+ * replican los VALORES tal cual (fuente de verdad:
+ * design-system/08-tokens-ios.md).
+ *
+ * Reglas duras que gobiernan todo lo de abajo:
+ *  · Profundidad = extrusión SÓLIDA inferior (canto) + nada más.
+ *    JAMÁS halo difuso ni glow: si ves `0 8px 16px -6px …`, está mal.
+ *  · Esquina squircle (corner-shape), con el radio circular como fallback.
+ *  · Radios: campos 14 · tiles/botones/chips 16 · cards 24 · heros 32.
+ *  · Acento de marca = navy. CTA = amarillo. Colores de elemento = cerámica.
+ * ============================================================ */
+
+:root {
+  /* — Superficies y tinta — */
+  --pab-card: #ffffff;
+  --pab-card-edge: #d9d7e5; /* canto de las cards blancas */
+  --pab-border: #dcdae7;
+  --pab-ink: #2b194d; /* --foreground / tinta sobre cerámica */
+  --pab-ink-soft: #6a6487; /* --muted-foreground (5.06:1 sobre el lila) */
+
+  /* — CTA amarillo — */
+  --pab-primary: #f9b81f;
+  --pab-primary-edge: #c78d05;
+  --pab-primary-ink: #201339; /* texto sobre amarillo: nunca blanco */
+  --pab-primary-strong: #d5920b; /* links/íconos chicos donde el amarillo se lava */
+  /* Ámbar para TEXTO. Ni #fba920 (1.82:1 sobre el lila) ni --primary-strong
+   * (2.24:1) pasan AA: como texto el amarillo se lava contra el lila. Este
+   * ocre sí (4.85:1 sobre lila, 6.24:1 sobre blanco) y mantiene la familia.
+   * El amarillo vivo se queda para RELLENOS (CTA, progreso, insignias). */
+  --pab-amber-texto: #8f5b07;
+
+  /* — Acento de marca (navy) — */
+  --pab-accent: #2b2c64;
+  --pab-accent-edge: #191a3e;
+
+  /* — Neutro deshabilitado — */
+  --pab-neutral: #e2e0eb;
+  --pab-neutral-edge: #cbc8da;
+
+  /* — Semánticos — */
+  --pab-success: #20b670;
+  --pab-success-texto: #178250; /* 4.83:1 sobre blanco; #20b670 da 2.63:1 */
+  --pab-destructive: #dd3c3c;
+  --pab-destructive-texto: #c02f2f; /* 5.69:1 sobre blanco; #dd3c3c da 4.39:1 */
+
+  /* — Radios del sistema — */
+  --pab-r-field: 14px;
+  --pab-r-tile: 16px;
+  --pab-r-card: 24px;
+  --pab-r-hero: 32px;
+
+  /* — Drops de la extrusión (spec iOS) — */
+  --pab-drop-sm: 3px; /* cards */
+  --pab-drop: 4px; /* botones, pills, chips */
+  --pab-drop-lg: 6px; /* heros */
+
+  /* — Cerámica: las 8 tintas (ceramica.ts). Nivel `claro` + su canto para
+       los tiles de ícono, que viven sobre cards blancas. — */
+  --cer-1: #f9e6e9;
+  --cer-1-edge: #eea5b1; /* rosa */
+  --cer-2: #faf5e6;
+  --cer-2-edge: #efdca4; /* ámbar */
+  --cer-3: #e8f7f0;
+  --cer-3-edge: #aee5cb; /* esmeralda */
+  --cer-4: #e7f3f9;
+  --cer-4-edge: #a6d5ed; /* cielo */
+  --cer-5: #ece7f8;
+  --cer-5-edge: #bca7ec; /* lila */
+  --cer-6: #faeee6;
+  --cer-6-edge: #efc3a4; /* durazno */
+  --cer-7: #e8f7f6;
+  --cer-7-edge: #aee5df; /* menta */
+  --cer-8: #e6eaf9;
+  --cer-8-edge: #a5b3ee; /* índigo */
+
+  /* Padding lateral del .step. Existe como variable porque el footer y el
+   * header de pregunta van a sangre y necesitan cancelarlo con margen
+   * negativo; hardcodear -24px desbordaba 6px por lado a 320px. */
+  --step-pad-x: 24px;
+}
+
+@media (max-width: 360px) {
+  :root {
+    --step-pad-x: 18px;
+  }
+}
+
+/* ------------------------------------------------------------
+ * Esquina continua de Apple. CSS no tiene un radio continuo
+ * nativo; `corner-shape: squircle` es la mejor aproximación
+ * (Chrome 139+). Los navegadores sin soporte ignoran la línea y
+ * se quedan con la esquina circular: no hace falta @supports.
+ * Excluidos a propósito los círculos y las píldoras.
+ * ------------------------------------------------------------ */
+[class*="rounded-"]:not([class*="rounded-full"]):not([class*="rounded-none"]),
+.option-card,
+.duo-card,
+.btn-primary,
+.speech-bubble,
+.cuenta-input,
+.slider-caja,
+.pago-card,
+.om-nota,
+.om-paywall__lista,
+.om-paywall__total,
+.plan-card,
+.plans-sheet,
+.demo-tip {
+  corner-shape: squircle;
+}
+
+/* ============================================================
  * 1. Animaciones del onboarding
  * base.css referencia stepIn / topbarFloat / msgSlide / phoneSlide
  * pero nunca las definió, así que las transiciones no animaban.
@@ -147,59 +262,86 @@
  * con vida, mascota con idle bounce y entrada escalonada.
  * ============================================================ */
 
-/* --- 4.1 Botón primario "3D": reborde inferior que se hunde al tocar --- */
-/* El sello Duolingo: el botón tiene un borde sólido debajo (ledge) y al
- * presionar baja y el ledge se comprime, dando feedback físico. */
+/* --- 4.1 Botón de juguete matte (el CTA amarillo) ---------------------
+ * Anatomía del sistema: cara amarilla plana + canto sólido debajo. Al
+ * presionar la cara baja exactamente el drop y el canto desaparece, o sea
+ * aterriza sobre su propia base. Sin gradiente de brillo, sin halo. */
 .btn-primary {
-  box-shadow:
-    0 5px 0 0 #c9820a,
-    0 10px 18px -4px rgba(43, 44, 100, 0.28);
+  background: var(--pab-primary);
+  color: var(--pab-primary-ink);
+  border-radius: var(--pab-r-tile); /* botones = 16, no píldora */
+  box-shadow: 0 var(--pab-drop) 0 0 var(--pab-primary-edge);
   transition:
     transform 0.12s var(--ease-soft),
     box-shadow 0.12s var(--ease-soft);
 }
 
-.btn-primary:hover {
-  transform: translateY(-1px);
-  box-shadow:
-    0 6px 0 0 #c9820a,
-    0 13px 22px -4px rgba(43, 44, 100, 0.3);
+/* El levantamiento solo con mouse: en táctil se quedaba pegado tras el tap */
+@media (hover: hover) {
+  .btn-primary:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 calc(var(--pab-drop) + 1px) 0 0 var(--pab-primary-edge);
+  }
 }
 
 .btn-primary:active {
-  transform: translateY(4px);
-  box-shadow:
-    0 1px 0 0 #c9820a,
-    0 3px 8px -2px rgba(43, 44, 100, 0.25);
+  transform: translateY(var(--pab-drop));
+  box-shadow: 0 0 0 0 var(--pab-primary-edge);
 }
 
-/* --- 4.2 Option cards: reborde 3D + rebote elástico al seleccionar --- */
+.btn-primary:focus-visible {
+  outline: 3px solid var(--pab-accent);
+  outline-offset: 3px;
+}
+
+/* Deshabilitado: cara Y canto neutros. Antes el canto ámbar sobrevivía por
+ * orden de cascada y el botón gris salía con una repisa amarilla debajo. */
+.btn-primary.disabled,
+.btn-primary[disabled] {
+  background: var(--pab-neutral);
+  /* #575173 sobre #e2e0eb = 5.69:1. Con --muted-foreground eran 4.25:1. */
+  color: #575173;
+  box-shadow: 0 var(--pab-drop) 0 0 var(--pab-neutral-edge);
+  transform: none;
+}
+
+/* La flechita del CTA: navy sobre amarillo, como el acento de la app */
+.btn-primary .arrow {
+  background: var(--pab-accent);
+  color: #fff;
+}
+
+/* --- 4.2 Option cards: card blanca con canto sólido -------------------
+ * Radio 24 (regla del sistema: TODAS las cards comparten 24) y borde de
+ * 2px como las cards de la app. */
 .option-card {
-  box-shadow:
-    0 3px 0 0 #cfc7e2,
-    0 4px 10px -3px rgba(43, 44, 100, 0.1);
+  background: var(--pab-card);
+  border: 2px solid var(--pab-border);
+  border-radius: var(--pab-r-card);
+  color: var(--pab-ink);
+  box-shadow: 0 var(--pab-drop) 0 0 var(--pab-card-edge);
   transition:
     border-color 0.13s var(--ease-soft),
     transform 0.13s var(--ease-soft),
     box-shadow 0.13s var(--ease-soft);
 }
 
-.option-card:hover {
-  transform: translateY(-2px);
-  box-shadow:
-    0 5px 0 0 #cfc7e2,
-    0 9px 16px -4px rgba(43, 44, 100, 0.14);
+@media (hover: hover) {
+  .option-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 calc(var(--pab-drop) + 2px) 0 0 var(--pab-card-edge);
+    border-color: var(--pab-card-edge);
+  }
 }
 
 .option-card:active {
-  transform: translateY(1px);
-  box-shadow: 0 2px 0 0 #cfc7e2;
+  transform: translateY(var(--pab-drop));
+  box-shadow: 0 0 0 0 var(--pab-card-edge);
 }
 
 .option-card.selected {
-  box-shadow:
-    0 3px 0 0 var(--color-ambar-deep),
-    0 6px 14px -4px rgba(245, 158, 11, 0.32);
+  border-color: var(--pab-primary);
+  box-shadow: 0 var(--pab-drop) 0 0 var(--pab-primary-edge);
   animation: optionPop 0.34s var(--ease-clay);
 }
 
@@ -250,38 +392,18 @@
   }
 }
 
-/* --- 4.4 Barra de progreso con vida: gruesa como Duolingo + brillo --- */
+/* --- 4.4 Barra de progreso: gruesa, plana y matte ---------------------
+ * Se eliminan el gradiente y el barrido de brillo: el sistema es matte,
+ * nada de gloss ni glow. El relleno es amarillo plano con su canto. */
 .progress-track {
   height: 14px;
+  background: var(--pab-neutral);
 }
 
 .progress-fill {
   position: relative;
-  overflow: hidden;
-}
-
-.progress-fill::after {
-  content: "";
-  position: absolute;
-  inset: 0;
-  background: linear-gradient(
-    90deg,
-    transparent,
-    rgba(255, 255, 255, 0.55),
-    transparent
-  );
-  transform: translateX(-100%);
-  animation: progressShine 2.4s ease-in-out infinite;
-}
-
-@keyframes progressShine {
-  0% {
-    transform: translateX(-100%);
-  }
-  60%,
-  to {
-    transform: translateX(100%);
-  }
+  background: var(--pab-primary);
+  box-shadow: inset 0 -3px 0 0 var(--pab-primary-edge);
 }
 
 /* --- 4.5 Pablo con vida: idle bounce suave (no toca los transforms
@@ -342,33 +464,12 @@
   aspect-ratio: 1 / 1;
   min-height: 0;
   padding: 22px 12px;
-  border-radius: 16px;
-  background: var(--color-white);
-  border: 2px solid #e5e5e5;
-  border-bottom-width: 4px; /* el "ledge" sutil que usa Duolingo */
-  box-shadow: none;
-}
-
-.option-card--tile:hover {
-  transform: none;
-  background: #f7f7f7;
-  border-color: #e5e5e5;
-  box-shadow: none;
-}
-
-.option-card--tile:active {
-  transform: translateY(2px);
-  border-bottom-width: 2px;
-  box-shadow: none;
+  /* radio, borde, canto y hundimiento los hereda de .option-card */
 }
 
 .option-card--tile.selected {
   background: var(--color-lila-light);
-  border: 2px solid var(--color-ambar);
-  border-bottom-width: 4px;
-  border-bottom-color: var(--color-ambar-deep);
   padding: 22px 12px;
-  box-shadow: none;
 }
 
 /* La tile no usa el radio circular; la selección se ve por el borde */
@@ -376,7 +477,8 @@
   display: none;
 }
 
-/* Icono grande y plano, sin caja de color (como las banderas de Duolingo) */
+/* Icono grande, en su propio tile cerámico (anatomía de la app: card
+ * blanca + tile de color con el ícono de la librería adentro) */
 .option-card--tile .option-icon {
   font-size: 44px;
   line-height: 1;
@@ -389,11 +491,7 @@
   font-weight: 700;
   font-size: 15px;
   line-height: 1.3;
-  color: #4b4b4b;
-}
-
-.option-card--tile.selected .option-label {
-  color: var(--color-navy);
+  color: var(--pab-ink);
 }
 
 /* Desktop: 3 columnas dimensionadas para que las 2 filas + título entren
@@ -456,7 +554,7 @@
   right: 0;
   z-index: 20;
   background: var(--color-white);
-  border-bottom: 2px solid #e5e5e5;
+  border-bottom: 2px solid var(--pab-border);
 }
 
 .duo-header__inner {
@@ -483,12 +581,14 @@
   object-fit: contain;
 }
 
+/* Logotipo como el oficial de la marca: "Pablo" navy con mayúscula, no el
+ * "pablo" amarillo en minúsculas que reportó Rodrigo (20-ago). */
 .duo-header__brand span {
   font-family: var(--font-display);
   font-weight: 800;
   font-size: 24px;
   letter-spacing: -0.02em;
-  color: var(--color-ambar-deep);
+  color: var(--pab-ink, #2b2c64);
 }
 
 .duo-header__link {
@@ -497,7 +597,7 @@
   font-size: 13px;
   letter-spacing: 0.06em;
   text-transform: uppercase;
-  color: #9b9b9b;
+  color: var(--pab-ink-soft);
   background: none;
   border: none;
   cursor: pointer;
@@ -537,9 +637,10 @@ body {
 
 .slider-caja {
   background: var(--color-white);
-  border: 2px solid #e5e5e5;
-  border-radius: 16px;
+  border: 2px solid var(--pab-border);
+  border-radius: var(--pab-r-card);
   padding: 16px 20px;
+  box-shadow: 0 var(--pab-drop-sm) 0 0 var(--pab-card-edge);
 }
 
 /* Footer tipo Duolingo: línea divisoria + CONTINUAR a la derecha.
@@ -550,28 +651,32 @@ body {
 .duo-footer {
   position: sticky;
   bottom: 0;
-  margin-inline: -24px;
-  border-top: 2px solid #e5e5e5;
+  /* A sangre: cancela el padding lateral del .step, que cambia por
+   * breakpoint. Con -24px fijo desbordaba 6px por lado a 320px. */
+  margin-inline: calc(-1 * var(--step-pad-x));
+  border-top: 2px solid var(--pab-border);
   background: var(--color-white);
-  padding: 18px 24px;
+  padding: 18px var(--step-pad-x);
   flex-direction: row;
   justify-content: flex-end;
   align-items: center;
   z-index: 10;
 }
 
+/* Sentence case, como los botones de la app ("Guardar cambios"): el
+ * versalitas + tracking era el único resto tipográfico ajeno al sistema. */
 .duo-footer .btn-continue {
   width: auto;
   min-width: 220px;
   max-width: 300px;
-  text-transform: uppercase;
-  letter-spacing: 0.08em;
-  font-size: 15px;
+  text-transform: none;
+  letter-spacing: -0.01em;
+  font-size: 17px;
 }
 
 @media (max-width: 640px) {
   .duo-footer {
-    padding: 14px 16px;
+    padding: 14px var(--step-pad-x);
   }
   .duo-footer .btn-continue {
     width: 100%;
@@ -583,13 +688,13 @@ body {
 .speech-bubble {
   position: relative;
   background: var(--color-white);
-  border: 2px solid #e5e5e5;
-  border-radius: 16px;
-  padding: 12px 20px;
+  border: 2px solid var(--pab-border);
+  border-radius: var(--pab-r-card);
+  padding: 14px 20px;
   font-family: var(--font-display);
   font-weight: 700;
   font-size: 17px;
-  color: var(--color-navy);
+  color: var(--pab-ink);
   max-width: 480px;
   text-align: center;
   line-height: 1.45;
@@ -604,7 +709,7 @@ body {
   font-size: 13px;
   letter-spacing: 0.06em;
   text-transform: uppercase;
-  color: #9b9b9b;
+  color: var(--pab-ink-soft);
   background: none;
   border: none;
   cursor: pointer;
@@ -625,8 +730,8 @@ body {
   width: 14px;
   height: 14px;
   background: var(--color-white);
-  border-right: 2px solid #e5e5e5;
-  border-bottom: 2px solid #e5e5e5;
+  border-right: 2px solid var(--pab-border);
+  border-bottom: 2px solid var(--pab-border);
   transform: translateX(-50%) rotate(45deg);
 }
 
@@ -637,8 +742,8 @@ body {
   top: 50%;
   border-right: none;
   border-top: none;
-  border-left: 2px solid #e5e5e5;
-  border-bottom: 2px solid #e5e5e5;
+  border-left: 2px solid var(--pab-border);
+  border-bottom: 2px solid var(--pab-border);
   transform: translateY(-50%) rotate(45deg);
 }
 
@@ -674,13 +779,8 @@ body {
   justify-content: center;
 }
 
-.duo-stage__pablo img {
-  max-width: 100%;
-  max-height: 100%;
-  object-fit: contain;
-  animation: pabloBob 3.4s var(--ease-soft) infinite;
-  transform-origin: center bottom;
-}
+/* El sprite ya no vive dentro del anclaje (lo pone PabloActor); la caja solo
+ * reserva el sitio al que Pablo viaja. */
 
 @media (max-width: 640px) {
   .duo-stage__pablo {
@@ -749,15 +849,17 @@ body {
   max-width: 1024px;
   gap: 0; /* espaciado manual: header → gap grande → grid */
   padding-top: 0; /* nada de franja sobre el header sticky */
-  padding-bottom: 24px; /* el footer sticky va en flujo, tras el contenido */
+  /* 96px ≥ alto del footer sticky: el contenido scrollea POR DETRÁS del
+   * footer, y con 24px la última línea quedaba tapada (la leyenda de
+   * "100 peruanos" ilegible que reportó Rodrigo). */
+  padding-bottom: 96px;
   min-height: 0;
 }
 
-/* El contenido arranca arriba (no centrado verticalmente), como Duolingo */
-.step[data-step="step-fuente"] .vcenter > :first-child,
-.step[data-step="step-porque"] .vcenter > :first-child {
-  margin-top: 0;
-}
+/* El contenido arranca arriba (no centrado verticalmente), como Duolingo.
+ * El imán superior de la sección 12 ya lo hace para las 20 pantallas con
+ * .fuente-body; esta regla solo sobrevivía con más especificidad y dejaba
+ * step-fuente/step-porque 24px más pegadas que sus hermanas. */
 
 /* La topbar acompaña el ancho Duolingo */
 body .topbar > div {
@@ -784,8 +886,9 @@ body .topbar > div {
 
 @media (max-width: 560px) {
   .fuente-header {
-    margin-inline: -24px;
-    border-bottom: 2px solid #e5e5e5;
+    margin-inline: calc(-1 * var(--step-pad-x));
+    border-bottom: 2px solid var(--pab-border);
+    padding-inline: 0;
   }
 }
 
@@ -797,36 +900,14 @@ body .topbar > div {
   height: 140px;
 }
 
-.fuente-pablo picture {
-  display: flex;
-  width: 100%;
-  height: 100%;
-}
+/* La caja de la esquina ya no contiene <img>: es el anclaje al que viaja el
+ * Pablo persistente. Conserva sus medidas porque son las que definen el
+ * tamaño de Pablo en las pantallas de pregunta. */
 
-.fuente-pablo img {
-  width: 140px;
-  height: 140px;
-  object-fit: contain;
-  animation: pabloBob 3.4s var(--ease-soft) infinite;
-}
-
-/* La mascota "viaja": aparece grande al centro del escenario y se desliza
- * hasta su sitio junto a la pregunta (patrón Duolingo del lápiz). Después
- * retoma su flotación normal. */
-.step.active[data-step="step-fuente"] .fuente-pablo img {
-  animation:
-    fuentePabloIn 0.9s var(--ease-clay) backwards,
-    pabloBob 3.4s var(--ease-soft) 1.1s infinite;
-}
-
-@keyframes fuentePabloIn {
-  0% {
-    transform: translate(min(240px, 30vw), 28vh) scale(2);
-  }
-  to {
-    transform: translate(0, 0) scale(1);
-  }
-}
+/* El "viaje" de la mascota hacia su sitio ya no es un keyframe de step-fuente:
+ * lo hace el FLIP de PabloActor, y por eso ocurre en TODAS las transiciones y
+ * no solo en esta. Antes, además, era una animación de entrada — o sea que
+ * Pablo igual se desmontaba y volvía a aparecer. */
 
 /* Las opciones entran DESPUÉS de que la mascota aterriza */
 .step.active[data-step="step-fuente"] .fuente-grid > .option-card:nth-child(1) {
@@ -868,51 +949,26 @@ body .topbar > div {
 }
 
 .option-card--pill {
-  background: var(--color-white);
-  border: 2px solid #e5e5e5;
-  border-bottom-width: 4px;
-  border-radius: 16px;
-  box-shadow: none;
   min-height: 76px;
-  padding: 16px 20px;
-  gap: 14px;
+  padding: 14px 16px;
+  gap: 12px;
+  /* radio 24, borde 2px, canto y hundimiento vienen de .option-card */
 }
 
 .option-card--pill .option-icon {
   font-size: 26px;
 }
 
-.option-card--pill:hover {
-  transform: none;
-  background: #f7f7f7;
-  border-color: #e5e5e5;
-  box-shadow: none;
-}
-
-.option-card--pill:active {
-  transform: translateY(2px);
-  border-bottom-width: 2px;
-  box-shadow: none;
-}
-
 .option-card--pill.selected {
   background: var(--color-lila-light);
-  border: 2px solid var(--color-ambar);
-  border-bottom-width: 4px;
-  border-bottom-color: var(--color-ambar-deep);
   padding: 14px 16px;
-  box-shadow: none;
 }
 
 .option-card--pill .option-label {
   font-family: var(--font-display);
   font-weight: 700;
   font-size: 16px;
-  color: #4b4b4b;
-}
-
-.option-card--pill.selected .option-label {
-  color: var(--color-navy);
+  color: var(--pab-ink);
 }
 
 @media (max-width: 560px) {
@@ -1365,7 +1421,7 @@ body .topbar > div {
 }
 
 .wa-input__campo input:disabled {
-  color: #9b9b9b;
+  color: var(--pab-ink-soft);
 }
 
 /* Overlay de grabación */
@@ -1464,10 +1520,9 @@ body .topbar > div {
 /* Tarjeta genérica estilo Duolingo (reemplaza las sombras clay) */
 .duo-card {
   background: var(--color-white);
-  border: 2px solid #e5e5e5;
-  border-bottom-width: 4px;
-  border-radius: 20px;
-  box-shadow: none;
+  border: 2px solid var(--pab-border);
+  border-radius: var(--pab-r-card);
+  box-shadow: 0 var(--pab-drop-sm) 0 0 var(--pab-card-edge);
 }
 
 /* Leyenda del grid "No estás solo" */
@@ -1520,14 +1575,13 @@ body .topbar > div {
   }
 }
 
-/* Los WebP/GIF animados de Pablito traen el fondo blanqueado a #fff puro
- * (se optimizaron cuando el onboarding era blanco). Sobre el lila actual
- * dejaban un cuadro blanco: multiply funde el blanco con CUALQUIER fondo
- * (el resto de colores apenas se oscurece sobre un lila tan claro). */
-.duo-stage__pablo img,
-.fuente-pablo img {
-  mix-blend-mode: multiply;
-}
+/* mix-blend-mode: multiply RETIRADO (19-ago).
+ * Existía para tapar el fondo BLANCO OPACO de pablo-anotando.webp y
+ * pablo-saludando.webp sobre el lila. El efecto colateral era que multiplicaba
+ * también el cuerpo de Pablo: el crema #FBF3E4 salía grisáceo y sucio — el
+ * "no se ve como Pablo para nada" que reportó Rodrigo.
+ * Los sprites del set 2D ya se sirven con canal alfa recortado, así que no hace
+ * falta ningún blend: Pablo se ve con su color real. */
 
 /* --- 5. Registro de cuenta (steps cuenta-nombre/correo/password) ---
  * Inputs estilo Duo: card blanca redondeada, borde que se enciende en foco.
@@ -1769,6 +1823,10 @@ body .topbar > div {
   display: none;
 }
 
+/* >> Bloque de main (compactacion anti-scroll, ago-2026).
+ * Va ANTES de las secciones 6+ de esta rama a proposito: donde ambos
+ * tocan lo mismo (pills, tiles, nuevo-1), ganan los valores medidos
+ * de la auditoria de pantalla unica (mas abajo). */
 /* ===== Compactación anti-scroll (ago 2026) =============================
  * En viewports cortos (laptops chicas y móviles) varios steps desbordaban
  * y obligaban a scrollear para llegar al contenido/CTA. Aquí el contenido
@@ -1906,4 +1964,1802 @@ body .topbar > div {
     font-size: 44px;
     margin-bottom: 4px;
   }
+
+/* ============================================================
+ * 6. LENGUAJE VISUAL DE LA APP APLICADO AL ONBOARDING (r7)
+ * ============================================================
+ * Ronda 7 (18-ago-2026). Rodrigo: "con este mismo estilo y diseño y
+ * correcciones, quiero que lo apliques a todo el onboarding de la landing
+ * page… asegurándose que sea 100% responsive y siguiendo el design system".
+ *
+ * Todo lo de acá replica valores de la app (§0) — no hay estilo inventado.
+ * ============================================================ */
+
+/* --- 6.1 Tile cerámico del ícono ------------------------------------
+ * Anatomía de una fila de la app: card blanca + tile de color con el
+ * ícono de la librería adentro. El tile lleva su propio canto sólido
+ * (nivel `claro` + `cantoClaro` de ceramica.ts), radio 16 y ≥44px de
+ * lado, así que además resuelve el área táctil. Solo aplica cuando el
+ * ícono es un asset de la librería: si quedara un emoji, no se enmarca. */
+.option-icon:has(img) {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  width: 48px;
+  height: 48px;
+  border-radius: var(--pab-r-tile);
+  corner-shape: squircle;
+  background: var(--cer-5);
+  border: 1.5px solid var(--cer-5-edge);
+  box-shadow: 0 var(--pab-drop-sm) 0 0 var(--cer-5-edge);
 }
+
+.option-icon img {
+  width: 30px;
+  height: 30px;
+  object-fit: contain;
+  display: block;
+}
+
+/* Cerámica por posición (ceramicaPorIndice): en una lista corta ningún
+ * vecino repite tinta. 8 tintas → hasta 8 opciones sin repetir. */
+.option-card:nth-child(8n + 1) .option-icon:has(img) {
+  background: var(--cer-1);
+  border-color: var(--cer-1-edge);
+  box-shadow: 0 var(--pab-drop-sm) 0 0 var(--cer-1-edge);
+}
+.option-card:nth-child(8n + 2) .option-icon:has(img) {
+  background: var(--cer-2);
+  border-color: var(--cer-2-edge);
+  box-shadow: 0 var(--pab-drop-sm) 0 0 var(--cer-2-edge);
+}
+.option-card:nth-child(8n + 3) .option-icon:has(img) {
+  background: var(--cer-3);
+  border-color: var(--cer-3-edge);
+  box-shadow: 0 var(--pab-drop-sm) 0 0 var(--cer-3-edge);
+}
+.option-card:nth-child(8n + 4) .option-icon:has(img) {
+  background: var(--cer-4);
+  border-color: var(--cer-4-edge);
+  box-shadow: 0 var(--pab-drop-sm) 0 0 var(--cer-4-edge);
+}
+.option-card:nth-child(8n + 5) .option-icon:has(img) {
+  background: var(--cer-5);
+  border-color: var(--cer-5-edge);
+  box-shadow: 0 var(--pab-drop-sm) 0 0 var(--cer-5-edge);
+}
+.option-card:nth-child(8n + 6) .option-icon:has(img) {
+  background: var(--cer-6);
+  border-color: var(--cer-6-edge);
+  box-shadow: 0 var(--pab-drop-sm) 0 0 var(--cer-6-edge);
+}
+.option-card:nth-child(8n + 7) .option-icon:has(img) {
+  background: var(--cer-7);
+  border-color: var(--cer-7-edge);
+  box-shadow: 0 var(--pab-drop-sm) 0 0 var(--cer-7-edge);
+}
+.option-card:nth-child(8n + 8) .option-icon:has(img) {
+  background: var(--cer-8);
+  border-color: var(--cer-8-edge);
+  box-shadow: 0 var(--pab-drop-sm) 0 0 var(--cer-8-edge);
+}
+
+/* En las tarjetas cuadradas del step-primer el tile es el protagonista */
+.option-card--tile .option-icon:has(img) {
+  width: 84px;
+  height: 84px;
+  border-radius: var(--pab-r-card);
+  margin-bottom: 10px;
+}
+
+.option-card--tile .option-icon img {
+  width: 54px;
+  height: 54px;
+}
+
+/* Íconos fuera de una option-card (títulos, listas de beneficios) */
+.pab-icono {
+  width: 28px;
+  height: 28px;
+  object-fit: contain;
+  display: inline-block;
+  vertical-align: -6px;
+}
+
+/* --- 6.2 Campos de formulario (radio 14) ---------------------------- */
+.cuenta-input {
+  border-radius: var(--pab-r-field);
+  border: 2px solid var(--pab-border);
+  color: var(--pab-ink);
+  /* extrusión sólida, sin halo */
+  box-shadow: 0 2px 0 0 var(--pab-card-edge);
+  min-height: 52px;
+}
+
+/* El foco del sistema es NAVY (--ring), no ámbar */
+.cuenta-input:focus {
+  border-color: var(--pab-accent);
+  box-shadow: 0 2px 0 0 var(--pab-accent-edge);
+}
+
+.cuenta-input::placeholder {
+  color: var(--pab-ink-soft);
+}
+
+.cuenta-hint {
+  color: var(--pab-ink-soft);
+}
+
+.cuenta-error {
+  color: var(--pab-destructive);
+}
+
+/* Link secundario: 44px de alto real sin inflar la columna */
+.cuenta-link {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 44px;
+  color: var(--pab-accent);
+}
+
+/* --- 6.3 Slider de estrés: matte y con área táctil de 44px ---------- */
+.stress-slider {
+  /* La pista sigue midiendo 8px, pero el control ocupa 44 de alto para
+   * que el pulgar tenga dónde caer (WCAG 2.5.5). */
+  height: 44px;
+  padding-block: 18px;
+  background: none;
+}
+
+.stress-slider::-webkit-slider-runnable-track {
+  height: 8px;
+  border-radius: 9999px;
+  background: linear-gradient(
+    to right,
+    var(--pab-primary) 0%,
+    var(--pab-primary) var(--fill),
+    var(--pab-neutral) var(--fill),
+    var(--pab-neutral) 100%
+  );
+}
+
+.stress-slider::-moz-range-track {
+  height: 8px;
+  border-radius: 9999px;
+  background: linear-gradient(
+    to right,
+    var(--pab-primary) 0%,
+    var(--pab-primary) var(--fill),
+    var(--pab-neutral) var(--fill),
+    var(--pab-neutral) 100%
+  );
+}
+
+/* Pulgar: cara blanca + canto sólido. Antes traía `0 2px 8px #fba92066`,
+ * o sea un glow ámbar — exactamente lo que el sistema prohíbe. */
+.stress-slider::-webkit-slider-thumb {
+  border: 3px solid var(--pab-primary);
+  background: #fff;
+  box-shadow: 0 var(--pab-drop-sm) 0 0 var(--pab-primary-edge);
+  margin-top: -10px;
+}
+
+.stress-slider::-moz-range-thumb {
+  border: 3px solid var(--pab-primary);
+  background: #fff;
+  box-shadow: 0 var(--pab-drop-sm) 0 0 var(--pab-primary-edge);
+}
+
+/* --- 6.4 Chips (radio 16, cerámica) -------------------------------- */
+.demo-tip {
+  border-radius: var(--pab-r-tile);
+  background: var(--cer-5);
+  border: 1.5px solid var(--cer-5-edge);
+  color: var(--pab-ink);
+  box-shadow: 0 2px 0 0 var(--cer-5-edge);
+}
+
+/* --- 6.5 Cards del paywall y del pago ------------------------------ */
+.pago-card,
+.om-nota,
+.om-paywall__lista,
+.om-paywall__total {
+  border-radius: var(--pab-r-card);
+  border: 2px solid var(--pab-border);
+  box-shadow: 0 var(--pab-drop-sm) 0 0 var(--pab-card-edge);
+}
+
+.om-nota {
+  border-color: #f2e6c9;
+  box-shadow: 0 var(--pab-drop-sm) 0 0 #eddcb4;
+}
+
+/* El logo traía un drop-shadow difuso (halo) */
+.om-paywall__logo {
+  filter: none;
+}
+
+/* Tarjetas de plan: card presionable del sistema */
+.plan-card {
+  border: 2px solid var(--pab-border);
+  border-radius: var(--pab-r-card);
+  box-shadow: 0 var(--pab-drop-sm) 0 0 var(--pab-card-edge);
+  min-height: 44px;
+}
+
+@media (hover: hover) {
+  .plan-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 calc(var(--pab-drop-sm) + 2px) 0 0 var(--pab-card-edge);
+  }
+}
+
+.plan-card:active {
+  transform: translateY(var(--pab-drop-sm));
+  box-shadow: 0 0 0 0 var(--pab-card-edge);
+}
+
+.plan-card.selected {
+  border-color: var(--pab-primary);
+  box-shadow: 0 var(--pab-drop-sm) 0 0 var(--pab-primary-edge);
+}
+
+/* La insignia deja el gradiente: amarillo plano con su canto */
+.plan-badge {
+  background: var(--pab-primary);
+  border-radius: var(--pab-r-tile);
+  corner-shape: squircle;
+  color: var(--pab-primary-ink);
+  box-shadow: 0 2px 0 0 var(--pab-primary-edge);
+}
+
+/* Downsell y links legales: 44px de alto táctil */
+.om-paywall__downsell {
+  min-height: 44px;
+  color: var(--pab-ink-soft);
+}
+
+/* --- 6.6 Texto: nada justificado ----------------------------------- */
+/* A 320-393px el justificado abre ríos enormes entre palabras ("Empieza
+ * tu   prueba"). Red de seguridad además del markup. */
+.step [class~="text-justify"] {
+  text-align: left;
+}
+
+/* --- 6.7 Áreas táctiles del cromo (≥44px) -------------------------- */
+.btn-back,
+.btn-exit,
+.btn-exit-floating {
+  min-width: 44px;
+  min-height: 44px;
+}
+
+.duo-header__brand,
+.duo-header__link,
+.duo-footer__link,
+.btn-topbar-skip {
+  min-height: 44px;
+  display: inline-flex;
+  align-items: center;
+}
+
+/* Los links legales del paywall van en su propia fila: pueden crecer a 44
+ * sin mover nada de su alrededor. */
+[data-om-default] a[href] {
+  display: inline-flex;
+  align-items: center;
+  min-height: 44px;
+  padding-inline: 2px;
+}
+
+/* --- 6.8 320px: el móvil más chico ---------------------------------
+ * Nada de scroll horizontal y nada de texto cortado. Solo se aprieta el
+ * espaciado; los tamaños de fuente y los targets no bajan. */
+@media (max-width: 360px) {
+  .duo-header__inner {
+    padding-inline: 14px;
+    gap: 8px;
+  }
+  .duo-header__brand span {
+    font-size: 20px;
+  }
+  .duo-header__link {
+    font-size: 11px;
+    letter-spacing: 0.04em;
+  }
+  .fuente-header__inner {
+    padding: 10px 14px 12px;
+    gap: 10px;
+  }
+  .speech-bubble {
+    padding: 12px 14px;
+    font-size: 14px;
+  }
+  .options-grid {
+    gap: 14px;
+  }
+  .option-card--tile {
+    min-height: 190px;
+    padding: 20px 10px;
+  }
+  .option-card--tile .option-icon:has(img) {
+    width: 72px;
+    height: 72px;
+  }
+  .option-card--tile .option-icon img {
+    width: 46px;
+    height: 46px;
+  }
+  .option-card--pill {
+    padding: 12px 12px;
+    gap: 10px;
+    min-height: 68px;
+  }
+  .option-card--pill .option-label {
+    font-size: 15px;
+  }
+  .option-icon:has(img) {
+    width: 44px;
+    height: 44px;
+  }
+  .option-icon img {
+    width: 28px;
+    height: 28px;
+  }
+  .duo-footer .btn-continue {
+    font-size: 16px;
+    min-width: 0;
+  }
+  .demo-title {
+    font-size: 18px;
+  }
+}
+
+/* --- 6.9 Accesibilidad: sin movimiento si el usuario lo pidió ------ */
+@media (prefers-reduced-motion: reduce) {
+  .duo-stage__pablo img,
+  .fuente-pablo img,
+  .wa-input__btn:not(.wa-input__btn--off) {
+    animation: none !important;
+  }
+  .btn-primary,
+  .option-card,
+  .plan-card {
+    transition-duration: 0.01ms;
+  }
+}
+
+/* --- 6.10 Piezas puntuales que quedaban fuera del sistema ------------ */
+
+/* Ícono de librería suelto (chips, notas, filas de preview). El tamaño lo
+ * fijan los atributos width/height del <img>; acá solo la alineación. */
+.pab-icono {
+  object-fit: contain;
+  display: inline-block;
+  vertical-align: -0.22em;
+  flex-shrink: 0;
+}
+
+/* Chips del demo: el ícono y el texto en una sola línea */
+.demo-tip {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+
+/* Tile de categoría en el preview del panel (step-10): squircle 16 con su
+ * canto, igual que los tiles de categoría de la app — no un círculo. */
+.cat-tile {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 38px;
+  height: 38px;
+  border-radius: var(--pab-r-tile);
+  corner-shape: squircle;
+}
+
+/* Calificación de los testimonios: la estrella de la librería, no el glifo ★ */
+.testi-estrellas {
+  display: inline-flex;
+  align-items: center;
+  gap: 2px;
+}
+
+.testi-estrellas img {
+  width: 15px;
+  height: 15px;
+  object-fit: contain;
+  display: block;
+}
+
+/* Nota del pago: ícono + texto alineados */
+.pago-nota {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+}
+
+/* --- 6.11 Contraste AA del ámbar como texto ------------------------- */
+/* `.text-amber` de base.css es #f59e0b: 1.82:1 sobre el lila del onboarding
+ * y 2.15:1 sobre blanco — muy por debajo de AA en cualquier tamaño. Se
+ * reemplaza por el ocre del sistema (4.85:1 / 6.24:1). Medido, no a ojo. */
+.text-amber,
+.om-paywall__eyebrow,
+.om-nota__firma,
+.om-paywall__nombre b {
+  color: var(--pab-amber-texto);
+}
+
+.cuenta-link,
+.om-paywall__downsell {
+  color: var(--pab-accent);
+}
+
+/* --- 6.12 Últimas áreas táctiles ------------------------------------ */
+
+/* Los botones de foto/mic del mock de WhatsApp escalan con el teléfono (em),
+ * así que a 320-393px miden 22-27px. En vez de romper la proporción del
+ * mock, se extiende el área de toque con un pseudoelemento invisible: el
+ * dibujo no cambia y el dedo tiene ≥44px. */
+.wa-input__btn {
+  position: relative;
+}
+
+.wa-input__btn::after {
+  content: "";
+  position: absolute;
+  inset: -11px;
+}
+
+/* Nota: la extensión no puede pasar del borde de la pantalla del mock
+ * (.iphone__pantalla recorta con overflow:hidden), así que el alto llega a
+ * 44px y el ancho queda en ~33px en el botón pegado al borde. Es el máximo
+ * que permite un teléfono simulado de ~210px de ancho a 320px de viewport. */
+
+/* "Ver todos los planes" medía 19px de alto */
+[data-om-default] button.underline,
+#plansModal button.underline {
+  min-height: 44px;
+}
+
+/* ============================================================
+ * 12. Imán superior en las pantallas de pregunta
+ *
+ * Problema medido (1440×1000, rama diseno/onboarding-glowup):
+ * `.vcenter > :first-child { margin-top: auto }` centraba verticalmente el
+ * bloque de opciones, así que entre la pregunta y la primera opción quedaban
+ * 172px (step-6), 219px (step-7/9/14/15) y hasta 268px (step-11/12) de aire
+ * muerto, con el mismo hueco repetido abajo. La pregunta y su respuesta se
+ * leían como dos bloques sin relación.
+ *
+ * Las opciones ahora se pegan bajo la pregunta con un ritmo fijo y el aire
+ * sobrante se va TODO abajo (el `margin-bottom:auto` del .vcenter lo absorbe).
+ * Aplica a los 20 steps que usan .fuente-body de una sola vez.
+ *
+ * Los steps de cuenta también se pegan arriba a propósito: un campo centrado
+ * es justo el que tapa el teclado móvil; arriba queda siempre a la vista.
+ * ============================================================ */
+
+.fuente-body.vcenter > :first-child {
+  margin-top: 0;
+}
+
+.fuente-grid,
+.fuente-body.vcenter > :first-child {
+  margin-top: var(--pab-gap-pregunta, 40px);
+}
+
+@media (max-width: 560px) {
+  .fuente-grid,
+  .fuente-body.vcenter > :first-child {
+    margin-top: var(--pab-gap-pregunta-mobile, 24px);
+  }
+}
+
+/* ============================================================
+ * 13. Pablo persistente (ver src/components/onboarding/PabloActor.astro)
+ *
+ * REGLA DE ORO (Rodrigo, 19-ago): Pablo nunca desaparece de la pantalla.
+ * Solo se mueve, cambia de tamaño o cambia de pose. Por eso vive FUERA de los
+ * .step, en position:fixed, y viaja con FLIP entre los `[data-pablo-anclaje]`
+ * de cada pantalla. Al no desmontarse nunca, el parpadeo entre pantallas que
+ * reportó Rodrigo ("desapareció unos milisegundos y volvió diferente") deja de
+ * ser posible por construcción.
+ * ============================================================ */
+
+.pablo-actor {
+  position: fixed;
+  z-index: 30;
+  pointer-events: none;
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+  will-change: transform;
+}
+
+.pablo-actor__cuerpo {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  transform-origin: 50% 100%; /* pivota sobre los pies: peso, no centro geométrico */
+}
+
+.pablo-actor__sprite {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  object-position: bottom center;
+  opacity: 0;
+  transition: opacity 220ms linear;
+}
+
+.pablo-actor__sprite.is-activo {
+  opacity: 1;
+}
+
+/* Sombra de contacto: ancla a Pablo al suelo. Sin esto, al viajar parece que
+ * flota recortado sobre el fondo. Es sombra de contacto, nunca halo difuso. */
+.pablo-actor__sombra {
+  position: absolute;
+  bottom: -2px;
+  left: 50%;
+  width: 46%;
+  height: 10px;
+  transform: translateX(-50%);
+  background: rgba(43, 44, 100, 0.16);
+  border-radius: 50%;
+  filter: blur(4px);
+}
+
+/* Respiración permanente: aunque esté quieto, está vivo. */
+.pablo-actor:not(.pablo-actor--fuera) .pablo-actor__cuerpo {
+  animation: pabloRespira 3.2s var(--ease-soft, ease-in-out) infinite;
+}
+
+@keyframes pabloRespira {
+  0%, 100% { transform: translateY(0) scale(1, 1); }
+  50%      { transform: translateY(-5px) scale(0.995, 1.008); }
+}
+
+/* Squash & stretch al cambiar de pose: comprime al aterrizar y rebota.
+ * Es la diferencia entre "cambió la imagen" y "Pablo se movió". */
+.pablo-actor__cuerpo.pablo-impulso {
+  animation: pabloImpulso 560ms cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+@keyframes pabloImpulso {
+  0%   { transform: scale(1, 1); }
+  22%  { transform: scale(1.09, 0.90) translateY(4px); }  /* aplasta */
+  52%  { transform: scale(0.95, 1.07) translateY(-9px); } /* estira */
+  78%  { transform: scale(1.02, 0.98) translateY(1px); }
+  100% { transform: scale(1, 1); }
+}
+
+/* Salir de escena: se va hacia abajo, NO se apaga. Al volver, entra caminando
+ * desde donde se fue. */
+.pablo-actor--fuera {
+  transform: translateY(130%) scale(0.9);
+  transition: transform 480ms cubic-bezier(0.4, 0, 0.6, 1);
+  opacity: 0;
+}
+
+/* Bajada celebrando (step-10, step-nuevo-4): Pablo cae desde arriba del
+ * encuadre, aterriza con rebote y da un saltito — el patrón de Duo cuando
+ * te entrega un resultado. */
+.pablo-actor--celebra .pablo-actor__cuerpo {
+  animation: pabloAterriza 1150ms cubic-bezier(0.34, 1.4, 0.64, 1);
+}
+
+@keyframes pabloAterriza {
+  0%   { transform: translateY(-58vh) scale(0.86, 1.14); }
+  38%  { transform: translateY(0) scale(1.14, 0.86); }
+  54%  { transform: translateY(-26px) scale(0.94, 1.06); }
+  70%  { transform: translateY(0) scale(1.07, 0.93); }
+  84%  { transform: translateY(-9px) scale(0.98, 1.02); }
+  100% { transform: translateY(0) scale(1, 1); }
+}
+
+/* El anclaje solo reserva sitio: es una caja invisible que define dónde y de
+ * qué tamaño va Pablo en cada pantalla. */
+[data-pablo-anclaje] {
+  visibility: hidden;
+}
+
+/* Burbuja: entra desde el lado de Pablo con un pop corto, como si la soltara
+ * al hablar. */
+.burbuja-entra {
+  animation: burbujaPop 380ms cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+@keyframes burbujaPop {
+  0%   { opacity: 0; transform: translateY(8px) scale(0.94); }
+  60%  { opacity: 1; transform: translateY(0) scale(1.02); }
+  100% { opacity: 1; transform: translateY(0) scale(1); }
+}
+
+/* Mientras Pablo habla, el CONTINUAR baja de peso pero sigue clicable:
+ * el auto-avance no puede volverse un secuestro. */
+.duo-footer--esperando .btn-continue {
+  opacity: 0.5;
+  transition: opacity 260ms ease;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .pablo-actor:not(.pablo-actor--fuera) .pablo-actor__cuerpo,
+  .pablo-actor__cuerpo.pablo-impulso,
+  .pablo-actor--celebra .pablo-actor__cuerpo,
+  .burbuja-entra {
+    animation: none;
+  }
+  .pablo-actor {
+    transition: none;
+  }
+}
+
+/* Caja del Pablo que celebra en las pantallas de resultado (step-10). Se
+ * reserva encima del contenido y a la derecha, para que al aterrizar no tape
+ * la cifra que el usuario vino a leer. */
+.celebra-ancla {
+  width: 128px;
+  height: 128px;
+  margin: 4px auto -8px;
+}
+
+@media (max-width: 560px) {
+  .celebra-ancla {
+    width: 96px;
+    height: 96px;
+    margin: 0 auto -6px;
+  }
+}
+
+/* ============================================================
+ * 14. Paywall (step-18) — la fuga más grande del embudo
+ *
+ * Medición PostHog 30 días: 607 personas ven esta pantalla, 311 pasan al
+ * registro. Se van 296 — más que en las 13 pantallas de preguntas juntas (54).
+ *
+ * El layout anterior mezclaba todo en una columna que scrolleaba entera: el
+ * precio anual en 32px era el elemento más grande de la pantalla, y los links
+ * legales quedaban clavados a media página, entre la promesa y el precio.
+ *
+ * Ahora la pantalla se parte en dos: arriba scrollea el argumento, abajo queda
+ * fija la decisión. El precio baja a línea de apoyo — se lee después de saber
+ * qué se lleva, no antes.
+ * ============================================================ */
+
+.pw {
+  display: flex;
+  flex-direction: column;
+  flex: 1 1 auto;
+  width: 100%;
+  max-width: 460px;
+  margin-inline: auto;
+  min-height: 0;
+}
+
+.pw__scroll {
+  flex: 1 1 auto;
+  min-height: 0;
+  overflow-y: auto;
+  scrollbar-width: none;
+  padding: 6px 20px 18px;
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+}
+
+.pw__scroll::-webkit-scrollbar {
+  display: none;
+}
+
+/* --- Resumen personalizado ------------------------------------------- */
+.pw-resumen {
+  background: #fff;
+  border-radius: 24px;
+  padding: 16px 16px 15px;
+  box-shadow: 0 4px 0 0 var(--pab-card-edge, rgba(43, 44, 100, 0.14)),
+    0 6px 14px -6px rgba(43, 44, 100, 0.18);
+}
+
+.pw-resumen__titulo {
+  font-family: var(--font-display);
+  font-weight: 700;
+  font-size: 14px;
+  letter-spacing: -0.01em;
+  color: var(--pab-ink-soft, #5c5d86);
+  margin-bottom: 11px;
+}
+
+.pw-resumen__lista {
+  display: flex;
+  flex-direction: column;
+  gap: 9px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.pw-resumen__lista li {
+  display: flex;
+  align-items: flex-start;
+  gap: 11px;
+  font-family: var(--font-body);
+  font-size: 14.5px;
+  line-height: 1.45;
+  color: var(--pab-ink, #2b2c64);
+}
+
+.pw-resumen__lista img {
+  flex-shrink: 0;
+  margin-top: 1px;
+  object-fit: contain;
+}
+
+.pw-resumen__lista strong {
+  font-weight: 700;
+}
+
+.pw-resumen__cierre {
+  margin-top: 11px;
+  padding-top: 11px;
+  border-top: 2px solid rgba(43, 44, 100, 0.09);
+  font-family: var(--font-body);
+  font-size: 14.5px;
+  line-height: 1.45;
+  color: var(--pab-ink, #2b2c64);
+}
+
+/* Ámbar oscurecido a #9d6d0e: el #b57d10 daba 3.56:1 sobre blanco a 14.5px y
+ * AA exige 4.5:1 en texto normal. Medido, no estimado — ahora 4.54:1.
+ * El #b57d10 sí pasa en el titular de 34px (3.01:1 contra un mínimo de 3:1),
+ * así que ahí se queda. */
+.pw-resumen__cierre strong {
+  font-weight: 700;
+  color: #9d6d0e;
+}
+
+/* --- Encabezado: la promesa manda, el precio no aparece todavía ------- */
+.pw-head__titulo {
+  font-family: var(--font-display);
+  font-weight: 700;
+  font-size: 30px;
+  line-height: 1.1;
+  letter-spacing: -0.02em;
+  color: var(--pab-ink, #2b2c64);
+}
+
+.pw-head__dias {
+  color: #b57d10;
+  white-space: nowrap;
+}
+
+.pw-head__sub {
+  margin-top: 9px;
+  font-family: var(--font-body);
+  font-size: 14.5px;
+  line-height: 1.5;
+  color: var(--pab-ink-soft, #5c5d86);
+}
+
+/* --- Qué incluye ------------------------------------------------------ */
+.pw-incluye {
+  display: flex;
+  flex-direction: column;
+  gap: 13px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.pw-incluye li {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  font-family: var(--font-body);
+  font-size: 15px;
+  line-height: 1.4;
+  color: var(--pab-ink, #2b2c64);
+}
+
+.pw-incluye img {
+  flex-shrink: 0;
+  object-fit: contain;
+}
+
+.pw-garantia {
+  font-family: var(--font-body);
+  font-size: 13.5px;
+  line-height: 1.5;
+  color: var(--pab-ink-soft, #5c5d86);
+}
+
+.pw-garantia strong {
+  font-weight: 700;
+  color: var(--pab-ink, #2b2c64);
+}
+
+/* --- Zona de decisión: fija abajo ------------------------------------ */
+/* La transición hacia los planes se desvanece: el contenido no se corta contra
+ * el borde de la franja fija, se apaga al acercarse. La máscara vive en el
+ * área de scroll, así el degradado acompaña al texto mientras sube. */
+.pw__scroll {
+  -webkit-mask-image: linear-gradient(to bottom, #000 calc(100% - 34px), transparent 100%);
+  mask-image: linear-gradient(to bottom, #000 calc(100% - 34px), transparent 100%);
+}
+
+.pw-cierre {
+  flex-shrink: 0;
+  background: #fff;
+  border-top: 2px solid var(--pab-border, rgba(43, 44, 100, 0.12));
+  padding: 11px 18px calc(9px + env(safe-area-inset-bottom));
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+/* El precio ya no es el titular: es la letra chica de la decisión. */
+.pw-precio {
+  text-align: center;
+  font-family: var(--font-body);
+  font-size: 13.5px;
+  color: var(--pab-ink-soft, #5c5d86);
+}
+
+.pw-precio strong {
+  font-weight: 700;
+  color: var(--pab-ink, #2b2c64);
+}
+
+.pw-cta {
+  width: 100%;
+  font-size: 16px;
+  padding: 15px 18px;
+}
+
+.pw-planes,
+.pw-legal {
+  text-align: center;
+  font-family: var(--font-body);
+  font-size: 13px;
+  color: var(--pab-ink-soft, #5c5d86);
+}
+
+/* "Ver todos los planes" quedó con 19px de alto real al perder su regla propia
+ * en la refactorización del selector inline: por debajo de 44px deja de ser
+ * tocable con el dedo. Recupera el área táctil estirándose hacia el gap que ya
+ * deja el contenedor, para no engordar la franja fija. */
+.pw-planes {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  align-self: center;
+  min-height: 44px;
+  margin-top: -9px;
+  margin-bottom: -7px;
+  font-size: 12.5px;
+  text-decoration: underline;
+}
+
+/* --- Selector de plan inline (19-ago) ---
+ * Antes los planes vivían detrás de "Ver todos los planes". En 6 de los 8
+ * paywalls revisados en Mobbin los planes están EN la pantalla: esconder la
+ * comparación obliga a abrir un modal justo cuando la persona está decidiendo.
+ * El mensual va preseleccionado; el anual se ve al lado con su ahorro real. */
+.pw-planes-fila {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 9px;
+}
+
+.pw-plan {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0;
+  padding: 8px 8px 7px;
+  border-radius: 16px;
+  background: #fff;
+  border: 2px solid rgba(43, 44, 100, 0.14);
+  box-shadow: 0 3px 0 0 rgba(43, 44, 100, 0.1);
+  transition: border-color 140ms ease, box-shadow 140ms ease, background 140ms ease;
+}
+
+.pw-plan--activo {
+  border-color: #2b2c64;
+  background: #f7f5ff;
+  box-shadow: 0 3px 0 0 #2b2c64;
+}
+
+.pw-plan__nombre {
+  font-family: var(--font-body);
+  font-size: 12px;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  color: var(--pab-ink-soft, #5c5d86);
+}
+
+.pw-plan__precio {
+  font-family: var(--font-display);
+  font-weight: 700;
+  font-size: 19px;
+  line-height: 1.1;
+  color: var(--pab-ink, #2b2c64);
+}
+
+/* El precio por semana da escala: "S/.5 por semana" pesa menos en la cabeza
+ * que "S/.20 al mes", y es el encuadre que usaban casi todos los paywalls. */
+.pw-plan__unidad {
+  font-family: var(--font-body);
+  font-size: 11.5px;
+  color: var(--pab-ink-soft, #5c5d86);
+}
+
+/* #9d6d0e pasa sobre blanco (4.54:1) pero NO sobre el lila del plan activo
+ * (#f7f5ff), donde cae a 4.21:1. #916409 pasa en ambos fondos: 4.83 y 5.21. */
+.pw-plan__gratis {
+  margin-top: 3px;
+  font-family: var(--font-body);
+  font-weight: 700;
+  font-size: 11.5px;
+  color: #916409;
+}
+
+.pw-plan__ahorro {
+  position: absolute;
+  top: -9px;
+  left: 50%;
+  transform: translateX(-50%);
+  white-space: nowrap;
+  font-family: var(--font-display);
+  font-weight: 700;
+  font-size: 9.5px;
+  letter-spacing: 0.03em;
+  color: var(--pab-ink, #2b2c64);
+  background: #f5c723;
+  padding: 3px 8px;
+  border-radius: 999px;
+  box-shadow: 0 2px 0 0 #cf9a12;
+}
+
+/* La línea que mata la objeción del cobro. "Cancela cuando quieras" no dice lo
+ * mismo que "hoy no se te cobra nada": esto último es lo que aparecía, textual,
+ * en los paywalls que mejor resuelven ese momento. */
+.pw-hoy {
+  text-align: center;
+  font-family: var(--font-body);
+  font-size: 13px;
+  line-height: 1.45;
+  color: var(--pab-ink-soft, #5c5d86);
+}
+
+.pw-hoy strong {
+  font-weight: 700;
+  color: var(--pab-ink, #2b2c64);
+}
+
+@media (max-width: 360px) {
+  .pw-plan__precio { font-size: 18px; }
+  .pw-plan__unidad { font-size: 11px; }
+}
+
+/* Texto corrido, no flex: como fila flex el separador "·" se descolgaba a su
+ * propia línea encima de los enlaces. */
+.pw-legal {
+  font-size: 12px;
+  padding-bottom: 4px;
+}
+
+.pw-legal a {
+  color: inherit;
+  text-decoration: underline;
+}
+
+@media (min-width: 561px) {
+  .pw__scroll {
+    padding-inline: 24px;
+  }
+  .pw-head__titulo {
+    font-size: 34px;
+  }
+}
+
+@media (max-width: 360px) {
+  .pw-head__titulo {
+    font-size: 26px;
+  }
+  .pw__scroll {
+    gap: 18px;
+    padding-inline: 16px;
+  }
+  .pw-cierre {
+    padding-inline: 16px;
+  }
+}
+
+/* --- 13.b Capa de video del actor --------------------------------------
+ * La animación real (miembros articulados) viaja como WebM VP9 con alfa.
+ * Ocupa el mismo hueco que los sprites y se enciende sola cuando la pose
+ * tiene clip; si el navegador no soporta alfa en video, o el usuario pidió
+ * menos movimiento, esta capa queda apagada y mandan los sprites. */
+.pablo-actor__video {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  object-position: bottom center;
+  opacity: 0;
+  transition: opacity 220ms linear;
+  pointer-events: none;
+}
+
+.pablo-actor--animado .pablo-actor__video {
+  opacity: 1;
+}
+
+/* Con video activo los sprites se apagan: si no, se ven los dos encimados. */
+.pablo-actor--animado .pablo-actor__sprite {
+  opacity: 0;
+}
+
+/* La animación ya trae su propio rebote y respiración: la respiración CSS
+ * encima se sumaría y daría un movimiento doble, mareado. */
+.pablo-actor--animado .pablo-actor__cuerpo {
+  animation: none;
+}
+
+/* ============================================================
+ * 15. Preparando el pago (step-cuenta-pago)
+ *
+ * El punto más caro del embudo: la persona ya decidió, ya dio sus datos, y lo
+ * único que falta es que Flow responda. Antes acá había un texto quieto
+ * ("Preparando el pago seguro…") y Pablito arriba en la esquina, del mismo
+ * tamaño que en cualquier pregunta. Una espera muda en el paso del cobro se
+ * lee como que algo se colgó.
+ *
+ * Ahora: Pablo baja al centro y se agranda a revisar su moneda, una sola frase
+ * rota cada 1.9s matando una objeción distinta, y debajo se pinta el esqueleto
+ * del checkout real — cuando el widget de Flow monta, ocupa exactamente ese
+ * hueco, así que no hay salto de layout y el usuario siente que ya estaba ahí.
+ * ============================================================ */
+
+.pago-prep {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 14px;
+  padding: 4px 0 2px;
+}
+
+/* Anclaje al que viaja el Pablo persistente: más grande que en la esquina,
+ * para que el viaje se lea como "se acercó a ayudarte". */
+.pago-prep__pablo {
+  width: 132px;
+  height: 132px;
+  flex-shrink: 0;
+}
+
+.pago-prep__frase {
+  display: flex;
+  align-items: baseline;
+  gap: 1px;
+  font-family: var(--font-display);
+  font-weight: 700;
+  font-size: 16px;
+  color: var(--pab-ink, #2b2c64);
+  text-align: center;
+  min-height: 22px;
+  transition: opacity 200ms ease, transform 200ms ease;
+}
+
+.pago-prep__frase--sale {
+  opacity: 0;
+  transform: translateY(-4px);
+}
+
+/* Los tres puntos hacen una ola muy ligera, no un parpadeo: el movimiento
+ * continuo dice "sigue pasando algo", que es justo lo que hay que comunicar. */
+.pago-puntos {
+  display: inline-flex;
+  gap: 3px;
+  margin-left: 3px;
+}
+
+.pago-puntos i {
+  width: 4px;
+  height: 4px;
+  border-radius: 50%;
+  background: currentColor;
+  display: block;
+  animation: pagoOla 1.25s ease-in-out infinite;
+}
+
+.pago-puntos i:nth-child(2) { animation-delay: 0.14s; }
+.pago-puntos i:nth-child(3) { animation-delay: 0.28s; }
+
+@keyframes pagoOla {
+  0%, 60%, 100% { transform: translateY(0); opacity: 0.45; }
+  30%           { transform: translateY(-3px); opacity: 1; }
+}
+
+/* --- Esqueleto del checkout ---
+ * Mismas cajas, mismo orden y alto parecido al widget de Flow. El brillo que
+ * recorre las cajas es lo que separa "está cargando" de "está roto". */
+.pago-prev {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.pago-prev__label {
+  width: 42%;
+  height: 9px;
+  border-radius: 5px;
+}
+
+.pago-prev__campo {
+  height: 46px;
+  border-radius: 14px; /* radio de campo del sistema */
+  flex: 1;
+}
+
+.pago-prev__campo--tarjeta {
+  height: 52px;
+}
+
+.pago-prev__fila {
+  display: flex;
+  gap: 10px;
+}
+
+.pago-prev__boton {
+  height: 50px;
+  border-radius: 16px; /* radio de botón del sistema */
+  margin-top: 2px;
+}
+
+.pago-prev__label,
+.pago-prev__campo,
+.pago-prev__boton {
+  background: linear-gradient(
+    100deg,
+    rgba(43, 44, 100, 0.07) 30%,
+    rgba(43, 44, 100, 0.13) 45%,
+    rgba(43, 44, 100, 0.07) 60%
+  );
+  background-size: 280% 100%;
+  animation: pagoBrillo 1.6s linear infinite;
+}
+
+@keyframes pagoBrillo {
+  0%   { background-position: 180% 0; }
+  100% { background-position: -80% 0; }
+}
+
+@media (max-width: 560px) {
+  .pago-prep__pablo {
+    width: 108px;
+    height: 108px;
+  }
+  .pago-prep__frase {
+    font-size: 15px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .pago-puntos i,
+  .pago-prev__label,
+  .pago-prev__campo,
+  .pago-prev__boton {
+    animation: none;
+  }
+  .pago-prep__frase {
+    transition: none;
+  }
+}
+
+/* ============================================================
+ * 16. Diagnóstico (step-resumen) y nota + calendario del paywall
+ *
+ * El tramo final se partió en tres pantallas (Rodrigo, 19-ago). Antes el
+ * paywall cargaba con todo a la vez — resumen, promesa, planes y precio — y
+ * ninguna de las tres cosas se leía bien. Ahora:
+ *   step-resumen → te devuelvo lo que me contaste y TÚ lo aceptas
+ *   step-16      → estas son las funciones que te van a ayudar con eso
+ *   step-18      → la oferta
+ * ============================================================ */
+
+.res {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  width: 100%;
+  max-width: 460px;
+  margin-inline: auto;
+}
+
+/* --- La gráfica del diagnóstico --- */
+.res-grafica {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  background: #fff;
+  border-radius: 24px;
+  padding: 18px 16px 20px;
+  box-shadow: 0 4px 0 0 var(--pab-card-edge, rgba(43, 44, 100, 0.14)),
+    0 6px 14px -6px rgba(43, 44, 100, 0.18);
+}
+
+.res-eje__cab {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 10px;
+  margin-bottom: 7px;
+}
+
+.res-eje__nombre {
+  font-family: var(--font-body);
+  font-size: 13.5px;
+  color: var(--pab-ink-soft, #5c5d86);
+}
+
+.res-eje__valor {
+  font-family: var(--font-display);
+  font-weight: 700;
+  font-size: 13.5px;
+  color: var(--pab-ink, #2b2c64);
+  text-align: right;
+}
+
+.res-pista {
+  display: block;
+  height: 14px;
+  border-radius: 999px;
+  background: rgba(43, 44, 100, 0.08);
+  overflow: hidden;
+}
+
+/* La barra crece al entrar a la pantalla. El color dice el estado sin que
+ * haya que escribir "mal": rojo abajo, ámbar al medio, verde arriba. */
+.res-pista i {
+  display: block;
+  height: 100%;
+  width: 0;
+  border-radius: 999px;
+  transition: width 900ms cubic-bezier(0.34, 1.2, 0.64, 1) 120ms;
+}
+
+.step.active[data-step="step-resumen"] .res-pista i {
+  width: var(--pct, 0%);
+}
+
+.res-pista i[data-nivel="bajo"] { background: #d97066; box-shadow: inset 0 -3px 0 0 #b2544b; }
+.res-pista i[data-nivel="medio"] { background: #e8a33c; box-shadow: inset 0 -3px 0 0 #c07f22; }
+.res-pista i[data-nivel="alto"] { background: #4aa85c; box-shadow: inset 0 -3px 0 0 #368044; }
+
+.res-lectura {
+  font-family: var(--font-body);
+  font-size: 15px;
+  line-height: 1.5;
+  color: var(--pab-ink, #2b2c64);
+  text-align: center;
+}
+
+.res-lectura strong { font-weight: 700; }
+
+/* --- La aceptación --- */
+.res-acepto {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  width: 100%;
+  min-height: 56px;
+  padding: 14px 16px;
+  border-radius: 18px;
+  background: #fff;
+  border: 2px solid rgba(43, 44, 100, 0.14);
+  box-shadow: 0 4px 0 0 rgba(43, 44, 100, 0.1);
+  transition: border-color 140ms ease, box-shadow 140ms ease, background 140ms ease;
+}
+
+.res-acepto__check {
+  flex-shrink: 0;
+  width: 26px;
+  height: 26px;
+  border-radius: 9px;
+  border: 2px solid rgba(43, 44, 100, 0.22);
+  background: #fff;
+  position: relative;
+  transition: background 140ms ease, border-color 140ms ease;
+}
+
+.res-acepto__texto {
+  font-family: var(--font-display);
+  font-weight: 700;
+  font-size: 15.5px;
+  color: var(--pab-ink, #2b2c64);
+}
+
+.res-acepto--si {
+  border-color: #2b2c64;
+  background: #f7f5ff;
+  box-shadow: 0 4px 0 0 #2b2c64;
+}
+
+.res-acepto--si .res-acepto__check {
+  background: #2b2c64;
+  border-color: #2b2c64;
+}
+
+/* La palomita se dibuja sola al marcar. */
+.res-acepto--si .res-acepto__check::after {
+  content: "";
+  position: absolute;
+  left: 7px;
+  top: 3px;
+  width: 6px;
+  height: 12px;
+  border: solid #fff;
+  border-width: 0 2.5px 2.5px 0;
+  transform: rotate(45deg);
+  animation: resPalomita 220ms ease-out;
+}
+
+@keyframes resPalomita {
+  from { transform: rotate(45deg) scale(0.4); opacity: 0; }
+  to   { transform: rotate(45deg) scale(1); opacity: 1; }
+}
+
+/* ── La nota del paywall, tecleándose ── */
+.pw-nota {
+  background: #fff;
+  border-radius: 20px;
+  padding: 15px 16px 14px;
+  box-shadow: 0 4px 0 0 var(--pab-card-edge, rgba(43, 44, 100, 0.14));
+}
+
+.pw-nota__p {
+  font-family: "Caveat", var(--font-body);
+  font-size: 20px;
+  line-height: 1.35;
+  color: var(--pab-ink, #2b2c64);
+  min-height: 1.4em;
+}
+
+.pw-nota__p + .pw-nota__p { margin-top: 8px; }
+
+/* Cursor mientras se escribe esa línea; desaparece al terminarla. */
+.pw-nota__p--activa::after {
+  content: "";
+  display: inline-block;
+  width: 2px;
+  height: 0.95em;
+  margin-left: 2px;
+  background: currentColor;
+  vertical-align: -0.12em;
+  animation: pwCursor 0.75s steps(1) infinite;
+}
+
+@keyframes pwCursor {
+  0%, 50% { opacity: 1; }
+  51%, 100% { opacity: 0; }
+}
+
+.pw-nota__firma {
+  margin-top: 12px;
+  font-family: "Caveat", var(--font-body);
+  font-size: 22px;
+  line-height: 1.2;
+  color: var(--pab-ink, #2b2c64);
+  text-align: right;
+  opacity: 0;
+  transform: translateY(4px);
+  transition: opacity 420ms ease, transform 420ms ease;
+}
+
+/* La cuenta va debajo del nombre y en la tipografía del sistema: es un
+ * identificador real, no parte de la letra manuscrita. */
+.pw-nota__arroba {
+  display: block;
+  font-family: var(--font-body);
+  font-size: 12px;
+  color: var(--pab-ink-soft, #5c5d86);
+  margin-top: 1px;
+}
+
+.pw-nota__firma--lista { opacity: 1; transform: none; }
+
+/* ── El calendario de los 3 días ── */
+.pw-linea {
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.pw-linea__hito {
+  position: relative;
+  display: grid;
+  grid-template-columns: 26px 1fr;
+  grid-template-areas: "punto cuando" "linea que";
+  column-gap: 10px;
+  padding-bottom: 14px;
+}
+
+.pw-linea__hito:last-child { padding-bottom: 0; }
+
+/* El hilo que une los hitos: se dibuja desde el punto hacia abajo. */
+.pw-linea__hito:not(:last-child)::before {
+  content: "";
+  position: absolute;
+  left: 12px;
+  top: 20px;
+  bottom: 2px;
+  width: 2px;
+  background: rgba(43, 44, 100, 0.14);
+}
+
+.pw-linea__punto {
+  grid-area: punto;
+  width: 14px;
+  height: 14px;
+  margin: 3px auto 0;
+  border-radius: 50%;
+  background: #fff;
+  border: 3px solid rgba(43, 44, 100, 0.22);
+}
+
+/* Hoy es el único hito lleno: es el que ya está pasando. */
+.pw-linea__hito--hoy .pw-linea__punto {
+  background: #f5a623;
+  border-color: #c97f0c;
+}
+
+.pw-linea__cuando {
+  grid-area: cuando;
+  font-family: var(--font-display);
+  font-weight: 700;
+  font-size: 14px;
+  color: var(--pab-ink, #2b2c64);
+}
+
+.pw-linea__que {
+  grid-area: que;
+  font-family: var(--font-body);
+  font-size: 13.5px;
+  line-height: 1.45;
+  color: var(--pab-ink-soft, #5c5d86);
+  margin-top: 2px;
+}
+
+.pw-linea__que strong { font-weight: 700; color: var(--pab-ink, #2b2c64); }
+
+@media (max-width: 360px) {
+  .pw-nota__p { font-size: 19px; }
+  .res-acepto__texto { font-size: 14.5px; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .res-pista i { transition: none; }
+  .res-acepto--si .res-acepto__check::after { animation: none; }
+  .pw-nota__p--activa::after { animation: none; }
+  .pw-nota__firma { transition: none; }
+}
+
+/* Chips de menciones/patrocinios (step-17): mismo lenguaje cerámico del
+ * sistema — cara blanca, canto sólido inferior — y logos más grandes,
+ * como pidió Rodrigo (20-ago). */
+.patro-chip {
+  background: #fff;
+  border-radius: 18px;
+  padding: 14px 12px;
+  min-height: 92px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: 2px solid rgba(43, 44, 100, 0.08);
+  box-shadow: 0 4px 0 0 rgba(43, 44, 100, 0.1);
+}
+
+/* ============================================================
+ * 17. Escenas animadas del onboarding (step-10 / nuevo-2 / nuevo-4)
+ * Mismo lenguaje que la landing: UN video WebM con alfa por pantalla, con
+ * respaldo estático del render oficial. Sin hueco muerto sobre el título.
+ * ============================================================ */
+
+.onb-escena-zona {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 10px;
+  width: 100%;
+  max-width: 460px;
+  margin-inline: auto;
+  text-align: center;
+  padding-top: 8px;
+}
+
+.onb-escena-titulo {
+  font-family: var(--font-display);
+  font-weight: 700;
+  font-size: 26px;
+  line-height: 1.18;
+  letter-spacing: -0.02em;
+  color: var(--pab-ink, #2b2c64);
+}
+
+.onb-escena-sub {
+  font-family: var(--font-body);
+  font-size: 14.5px;
+  line-height: 1.5;
+  color: var(--pab-ink-soft, #5c5d86);
+  max-width: 40ch;
+}
+
+.onb-escena {
+  position: relative;
+  width: min(320px, 82vw);
+  margin-top: 10px;
+}
+
+.onb-escena img,
+.onb-escena video {
+  width: 100%;
+  height: auto;
+  display: block;
+}
+
+.onb-escena img {
+  /* el respaldo se centra con aire mientras no hay video */
+  max-width: 240px;
+  margin-inline: auto;
+}
+
+.onb-escena video {
+  display: none;
+}
+
+.onb-escena--video video { display: block; }
+.onb-escena--video img { display: none; }
+
+/* ============================================================
+ * 18. Radar del diagnóstico (step-resumen)
+ * Hexágono de fortalezas/debilidades que se ABRE al entrar (escala desde el
+ * centro, punto por punto) mientras las barras se llenan — la entrada
+ * "futurista" que pidió Rodrigo (20-ago).
+ * ============================================================ */
+
+.res-radar {
+  display: flex;
+  justify-content: center;
+  padding: 4px 0 2px;
+}
+
+.res-radar svg {
+  width: min(240px, 64vw);
+  height: auto;
+  overflow: visible;
+}
+
+.res-radar__malla {
+  fill: none;
+  stroke: rgba(43, 44, 100, 0.14);
+  stroke-width: 1.4;
+}
+
+.res-radar__eje {
+  stroke: rgba(43, 44, 100, 0.1);
+  stroke-width: 1.2;
+}
+
+.res-radar__area {
+  fill: rgba(245, 166, 35, 0.24);
+  stroke: #e79812;
+  stroke-width: 2.4;
+  stroke-linejoin: round;
+  transform-origin: center;
+  transform: scale(0.06);
+  opacity: 0;
+  transition: transform 950ms cubic-bezier(0.22, 1.3, 0.4, 1) 180ms, opacity 400ms ease 180ms;
+}
+
+.step.active[data-step="step-resumen"] .res-radar__area {
+  transform: scale(1);
+  opacity: 1;
+}
+
+.res-radar__punto {
+  fill: #f5a623;
+  stroke: #fff;
+  stroke-width: 1.6;
+  opacity: 0;
+  transition: opacity 260ms ease;
+}
+
+.step.active[data-step="step-resumen"] .res-radar__punto {
+  opacity: 1;
+}
+
+.res-radar__etiqueta {
+  font-family: var(--font-body);
+  font-size: 9.5px;
+  font-weight: 700;
+  fill: #5c5d86;
+  text-anchor: middle;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .res-radar__area { transition: none; transform: scale(1); opacity: 1; }
+  .res-radar__punto { transition: none; opacity: 1; }
+}
+
+/* ============================================================
+ * 19. Funciones "elegidas por Pablo" (step-16)
+ * Ya no son checkboxes que la persona marca: es Pablo diciéndole qué
+ * funciones le sirven según sus respuestas. Solo lectura.
+ * ============================================================ */
+
+.fn-lista .option-card {
+  pointer-events: none;
+  cursor: default;
+  opacity: 0.45;
+  transition: opacity 320ms ease, background 320ms ease, border-color 320ms ease;
+}
+
+.fn-lista .option-card.selected {
+  opacity: 1;
+}
+
+/* Etiqueta "Para ti" que aparece en las relevantes */
+.fn-lista .option-card .fn-parati {
+  margin-left: auto;
+  font-family: var(--font-display);
+  font-weight: 700;
+  font-size: 10.5px;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: #fff;
+  background: #2b2c64;
+  padding: 4px 9px;
+  border-radius: 999px;
+  opacity: 0;
+  transform: scale(0.7);
+  transition: opacity 240ms ease, transform 280ms cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+.fn-lista .option-card.selected .fn-parati {
+  opacity: 1;
+  transform: scale(1);
+}
+
+/* ══════════════════════════════════════════════════════════════════════
+   Pantalla única (Rodrigo, 24-ago): cada paso del onboarding entra
+   completo en un móvil real, sin scrollear para llegar al final. La regla
+   de la casa: columna de alto fijo + elemento elástico con suelo y techo.
+   Acá se compacta aire (paddings, gaps, mascota) y los gráficos escalan
+   con el alto disponible; el contenido nunca se recorta.
+   ══════════════════════════════════════════════════════════════════════ */
+
+/* La escena de la meta (video vertical 360×632) desbordaba a ancho fijo:
+   ahora la limita el alto disponible y el ancho se deriva del ratio. */
+.onb-escena {
+  width: auto;
+  max-width: min(320px, 82vw);
+}
+.onb-escena img,
+.onb-escena video {
+  max-height: min(44dvh, 470px);
+  width: auto;
+  height: auto;
+  margin-inline: auto;
+}
+
+/* La grilla de "100 peruanos" es cuadrada: su techo es el alto libre
+   (los puntos son fracciones del grid, escalan solos). */
+[data-step="step-nuevo-1"] .duo-card {
+  width: 100%;
+  max-width: min(320px, 42dvh);
+}
+[data-step="step-nuevo-1"] .nuevo1-zona { gap: 12px; }
+
+/* En alturas de móvil real se compacta lo que respiraba de más. */
+@media (max-height: 820px) {
+  .fuente-grid { margin-top: 18px; }
+  .option-card--pill { min-height: 56px; padding: 10px 14px; gap: 10px; }
+  .option-card--pill.selected { padding: 10px 14px; }
+  .option-card--pill .option-label { font-size: 14.5px; }
+  .options-grid { gap: 10px; padding-block: 4px; }
+  .option-card--tile { aspect-ratio: auto; padding: 12px 8px; }
+  .patro-chip { min-height: 60px; padding: 8px 10px; }
+  .patro-chip img { max-height: 40px; }
+  .fuente-header__inner { min-height: 0; padding: 8px 20px 10px; }
+  .fuente-pablo, .fuente-pablo img { width: 84px; height: 84px; }
+  /* Testimonios del step-17: tarjetas más densas */
+  [data-step="step-17"] .shadow-card { padding: 10px 14px; }
+  [data-step="step-17"] .shadow-card p { font-size: 12px; }
+}
+
+/* Segunda vuelta de la auditoría 390×740: lo que seguía desbordando. */
+@media (max-height: 820px) {
+  /* la grilla de 100 peruanos comparte pantalla con header, leyenda y CTA */
+  [data-step="step-nuevo-1"] .duo-card { max-width: min(300px, 34dvh); }
+  [data-step="step-nuevo-1"] .nuevo1-zona { gap: 8px; }
+  .nuevo1-leyenda { gap: 4px; font-size: 12.5px; }
+  /* la escena de la meta: título + sub + video + CTA */
+  .onb-escena img, .onb-escena video { max-height: min(38dvh, 420px); }
+  .onb-escena-zona { gap: 6px; }
+  .onb-escena { margin-top: 2px; }
+  .onb-escena-sub { font-size: 13.5px; }
+  /* pills en listas largas (porque: 6 opciones, step-6: 5) */
+  .option-card--pill { min-height: 48px; padding: 8px 12px; }
+  .option-card--pill.selected { padding: 8px 12px; }
+  .option-card--pill .option-label { font-size: 14px; }
+  .fuente-grid { margin-top: 10px; gap: 8px; }
+  /* tiles de la pregunta inicial */
+  .options-grid { gap: 8px; }
+  .option-card--tile { padding: 9px 6px; gap: 4px; }
+  .option-card--tile .option-label { font-size: 13px; line-height: 1.25; }
+  /* step-17: los testimonios pasan a carrusel horizontal con snap — el
+     scroll vertical hasta el CTA es lo prohibido, el swipe lateral no */
+  .testi-fila {
+    display: flex;
+    overflow-x: auto;
+    scroll-snap-type: x mandatory;
+    scrollbar-width: none;
+    margin-inline: -20px;
+    padding-inline: 20px;
+  }
+  .testi-fila::-webkit-scrollbar { display: none; }
+  .testi-fila > div {
+    min-width: 82%;
+    scroll-snap-align: center;
+  }
+}
+
+/* Tercera vuelta: el media de 479.9px de arriba fue diseñado para
+   "scrollear como Duolingo" (tiles de 210px, padding-top 90) y le gana a
+   la compactación general porque declara props que aquélla no tocaba. La
+   regla de pantalla única (24-ago) manda: en pantallas cortas se anula. */
+@media (max-height: 820px) {
+  /* el aire de 96px bajo el contenido era para scrollear con gusto; en
+     pantalla única ese aire ES el overflow */
+  .fuente-body { padding-bottom: 14px; }
+  /* listas de 6 opciones con texto a dos líneas (porque, funciones):
+     tipografía y mascota un punto más densas para cerrar los últimos px */
+  .option-card--pill .option-label { font-size: 13.5px; line-height: 1.25; }
+  .option-card--pill { padding: 6px 12px; gap: 9px; }
+  .option-card--pill.selected { padding: 6px 12px; }
+  .option-card--pill .option-icon { font-size: 22px; }
+  .option-card--pill .option-icon img { width: 26px; height: 26px; }
+  .fuente-pablo, .fuente-pablo img { width: 72px; height: 72px; }
+  .fuente-header__inner { padding: 6px 20px 8px; min-height: 0; }
+  .speech-bubble--side { font-size: 14px; }
+}
+
+@media (max-width: 479.9px) and (max-height: 820px) {
+  .primer-body { padding-top: 14px; padding-inline: 18px; }
+  .options-grid { gap: 8px; padding-bottom: 10px; }
+  .option-card--tile { min-height: 0; padding: 12px 8px; gap: 4px; }
+  .option-card--tile .option-icon { font-size: 34px; margin-bottom: 2px; }
+  .option-card--tile .option-label { font-size: 13px; }
+}
+
+/* 8 opciones en 1 columna no entran en ninguna pantalla: "cómo supiste
+   de Pablo" vuelve a 2 columnas compactas en móvil. */
+@media (max-width: 560px) {
+  [data-step="step-fuente"] .fuente-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 10px;
+  }}

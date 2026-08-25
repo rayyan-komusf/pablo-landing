@@ -54,7 +54,7 @@ export const CTA_CONFIG = {
   },
   live: {
     label: 'Desbloquea a Pablo',
-    href: '#planes',
+    href: '/planes',
   },
 } as const;
 
@@ -91,11 +91,24 @@ export const APP_URL = 'https://usapablo.app/';
 //  Estos links llevan a usapablo.app/pricing con el plan preseleccionado;
 //  la app pide registro/login y retoma el checkout (hoy Stripe por API;
 //  cuando Flow vuelva, el mismo /pricing lo usa vía su switch de pasarela).
-//  Los trials (mensual 3 días, anual SIN prueba desde el 18-ago-2026) los define la pasarela.
+//  Los trials los define la PASARELA (mensual 3 días; anual SIN prueba
+//  desde el 18-ago-2026, pedido de Sandra), no este archivo.
+//  ⚠️ 19-ago: Rodrigo pidió que el SEMANAL también tenga 3 días de prueba y que
+//  la promo principal sea "3 días gratis" con el MENSUAL. La web ya lo dice.
+//  Para que sea verdad hace falta poner trial_period_days = 3 en el Plan
+//  Semanal de Flow (hoy está en 0): si no, se le promete al usuario 3 días
+//  gratis y se le cobra S/.7 al instante.
 // ============================================================
 export const CHECKOUT_URLS = {
-  weekly: 'https://usapablo.app/pricing?plan=semanal',   // S/.7/semana — sin trial
+  weekly: 'https://usapablo.app/pricing?plan=semanal',   // S/.7/semana — 3 días gratis (pendiente en Flow)
   monthly: 'https://usapablo.app/pricing?plan=mensual',  // S/.20/mes — 3 días gratis
   annual_trial: 'https://usapablo.app/pricing?plan=anual',    // S/.200/año — cobro directo (3→0 el 18-ago-2026, pedido de Sandra)
   annual_no_trial: 'https://usapablo.app/pricing?plan=anual', // mismo plan; el trial lo define la pasarela
 };
+
+// URL de la app en el App Store (la pasó Rodrigo el 19-ago).
+export const APP_STORE_URL =
+  'https://apps.apple.com/pe/app/pablo-tu-compa%C3%B1ero-financiero/id6792320815';
+
+// Android todavía no sale: el badge es una etiqueta de estado, no un botón.
+export const ANDROID_DISPONIBLE = false;

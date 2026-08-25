@@ -6,18 +6,21 @@ import Footer from "../components/Footer.astro";
 const promos = [
   {
     title: "Crea con Pablo y gana",
+    image: "/crea%20con%20pablo%20y%20gana.jpeg",
     description: "Forma parte del club de creadores de Pablo, crea contenido a tu estilo, comparte tu código y gana mientras ayudas a más personas a llevar el control de su dinero con menos estrés.",
     href: "/trabaja-con-nosotros",
     available: true,
   },
   {
     title: "Pablo Points",
+    image: "/promo/pablo-points.webp",
     description: "Acumula puntos con cada acción y canjéalos por recompensas exclusivas.",
     href: null,
     available: false,
   },
   {
     title: "Pablo pone para la chancha",
+    image: "/promo/chancha-portada.webp",
     description: "Ahorra con un objetivo en mente y Pablo te ayuda a llegar más rápido.",
     href: "/pablo-pone-para-la-chancha",
     available: true,
@@ -42,7 +45,7 @@ const promos = [
           promo.available ? (
             <a href={promo.href} class="promo-card promo-card--active">
               <div class="promo-card__image">
-                <img src="/crea%20con%20pablo%20y%20gana.jpeg" alt={promo.title} loading="lazy" decoding="async" />
+                <img src={promo.image} alt={promo.title} loading="lazy" decoding="async" />
               </div>
               <div class="promo-card__body">
                 <h2 class="promo-card__title">{promo.title}</h2>
@@ -53,7 +56,7 @@ const promos = [
           ) : (
             <div class="promo-card promo-card--soon">
               <div class="promo-card__image">
-                <img src="/crea%20con%20pablo%20y%20gana.jpeg" alt={promo.title} loading="lazy" decoding="async" />
+                <img src={promo.image} alt={promo.title} loading="lazy" decoding="async" />
                 <span class="badge-soon">Próximamente</span>
               </div>
               <div class="promo-card__body">

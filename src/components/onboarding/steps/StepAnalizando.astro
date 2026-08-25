@@ -1,0 +1,45 @@
+<!-- Transición "Pablo está analizando" (Rodrigo, 24-ago): entre el cuestionario
+     y el diagnóstico hay un beat de 1.3s donde Pablo procesa lo que escuchó.
+     El avance es automático (ver el hook de step-analizando en onboarding.js);
+     no hay CTA a propósito — es una pantalla que respira, no una que pide. -->
+<section
+  class="step !pb-0"
+  data-step="step-analizando"
+  aria-label="Pablo está analizando tus respuestas"
+  aria-hidden="true"
+  data-pablo-dice='["Déjame ver…"]'
+>
+  <div class="duo-stage flex-1 flex flex-col items-center justify-center relative w-full px-6">
+    <div class="speech-bubble" data-pablo-burbuja aria-live="polite">Déjame ver…</div>
+    <div class="duo-stage__pablo" data-pablo-anclaje data-pose="buscando"></div>
+    <p class="anal-texto" role="status">
+      Analizando tus respuestas<span class="anal-puntos" aria-hidden="true"><i>.</i><i>.</i><i>.</i></span>
+    </p>
+  </div>
+</section>
+
+<style>
+  .anal-texto {
+    margin-top: 26px;
+    font-family: var(--font-display, "Outfit"), sans-serif;
+    font-weight: 700;
+    font-size: 18px;
+    color: #2b2c64;
+  }
+
+  .anal-puntos i {
+    font-style: normal;
+    animation: analPunto 1.1s ease-in-out infinite;
+  }
+  .anal-puntos i:nth-child(2) { animation-delay: 0.18s; }
+  .anal-puntos i:nth-child(3) { animation-delay: 0.36s; }
+
+  @keyframes analPunto {
+    0%, 100% { opacity: 0.25; }
+    45% { opacity: 1; }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .anal-puntos i { animation: none; }
+  }
+</style>

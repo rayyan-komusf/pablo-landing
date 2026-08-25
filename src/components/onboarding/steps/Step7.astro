@@ -2,12 +2,7 @@
 <section class="step !pb-0" data-step="step-7" aria-label="Pregunta 2 - Experiencia presupuestando" aria-hidden="true">
   <div class="fuente-header">
     <div class="fuente-header__inner">
-      <div class="fuente-pablo">
-        <picture>
-          <source srcset="/onboarding/images/pablo/pablo-anotando.webp" type="image/webp" />
-          <img src="/onboarding/images/pablo/pablo-point.png" alt="" width="140" height="140" loading="lazy" />
-        </picture>
-      </div>
+      <div class="fuente-pablo" data-pablo-anclaje data-pose="anotando"></div>
       <div class="speech-bubble speech-bubble--side">¿Es tu primera vez presupuestando?</div>
     </div>
   </div>
@@ -16,22 +11,22 @@
     <div class="fuente-grid" role="radiogroup" aria-label="Selecciona tu experiencia">
       <button class="option-card option-card--pill" role="radio" aria-checked="false"
         onclick="pabloSelect(this, 'budgetingExp', 'primera-vez')">
-        <span class="option-icon">🌱</span>
+        <span class="option-icon"><img src="/onboarding/images/iconos/ac05_inversion_planta.png" alt="" width="30" height="30" loading="lazy" /></span>
         <span class="option-label text-left">Sí, es mi primera vez</span>
       </button>
       <button class="option-card option-card--pill" role="radio" aria-checked="false"
         onclick="pabloSelect(this, 'budgetingExp', 'app')">
-        <span class="option-icon">📱</span>
+        <span class="option-icon"><img src="/onboarding/images/iconos/ac04_billetera_digital.png" alt="" width="30" height="30" loading="lazy" /></span>
         <span class="option-label text-left">He usado una app antes</span>
       </button>
       <button class="option-card option-card--pill" role="radio" aria-checked="false"
         onclick="pabloSelect(this, 'budgetingExp', 'excel')">
-        <span class="option-icon">📊</span>
+        <span class="option-icon"><img src="/onboarding/images/iconos/ui15_barras.png" alt="" width="30" height="30" loading="lazy" /></span>
         <span class="option-label text-left">He usado una plantilla de Excel</span>
       </button>
       <button class="option-card option-card--pill" role="radio" aria-checked="false"
         onclick="pabloSelect(this, 'budgetingExp', 'manual')">
-        <span class="option-icon">✍️</span>
+        <span class="option-icon"><img src="/onboarding/images/iconos/ui07_lapiz.png" alt="" width="30" height="30" loading="lazy" /></span>
         <span class="option-label text-left">He presupuestado manualmente</span>
       </button>
     </div>

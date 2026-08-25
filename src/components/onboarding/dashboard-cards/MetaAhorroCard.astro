@@ -91,7 +91,7 @@
 
   <!-- Tip de Pablo (patrón getPabloTip del GoalCard real) -->
   <div class="mcard__tip">
-    <span class="mcard__tip-emoji">🔥</span>
+    <span class="mcard__tip-emoji"><img src="/onboarding/images/iconos/t12_racha_fuego.png" alt="" width="16" height="16" loading="lazy" class="pab-icono" /></span>
     <span>¡Estás a punto de lograrlo! Un último empujón y llegas a tu meta.</span>
   </div>
 </article>
@@ -139,7 +139,7 @@
   }
 
   .mcard__icon {
-    color: #059669;
+    color: #178250;
     background: rgba(16, 185, 129, 0.15);
     padding: 8px;
     border-radius: 10px;
@@ -158,14 +158,17 @@
 
   .mcard__badge--activa {
     background: rgba(16, 185, 129, 0.15);
-    color: #059669;
+    /* 5.71:1 sobre el verde translúcido compuesto (#dbf5ec); con #178250
+       eran 4.21:1, justo por debajo de AA. */
+    color: #0f6b41;
     border: 1px solid rgba(16, 185, 129, 0.3);
   }
 
   .mcard__code {
     font-family: ui-monospace, "SF Mono", Menlo, monospace;
     font-size: 11px;
-    color: #6b7280;
+    /* 5.84:1 sobre el gris translúcido compuesto (#f2f2f2); #6b7280 daba 4.32:1 */
+    color: #575e69;
     background: rgba(0, 0, 0, 0.05);
     padding: 2px 8px;
     border-radius: 6px;
@@ -204,7 +207,7 @@
     font-family: var(--font-display, "Nunito", sans-serif);
     font-weight: 800;
     font-size: 20px;
-    color: #059669;
+    color: #178250;
   }
 
   .mcard__stats {
@@ -232,7 +235,7 @@
   }
 
   .mcard__stat-value--success {
-    color: #059669;
+    color: #178250;
   }
 
   .mcard__stat-sep {

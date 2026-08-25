@@ -2,12 +2,7 @@
 <section class="step !pb-0" data-step="step-11" aria-label="Pregunta 5 - Registro de transacciones" aria-hidden="true">
   <div class="fuente-header">
     <div class="fuente-header__inner">
-      <div class="fuente-pablo">
-        <picture>
-          <source srcset="/onboarding/images/pablo/pablo-anotando.webp" type="image/webp" />
-          <img src="/onboarding/images/pablo/pablo-point.png" alt="" width="140" height="140" loading="lazy" />
-        </picture>
-      </div>
+      <div class="fuente-pablo" data-pablo-anclaje data-pose="anotando"></div>
       <div class="speech-bubble speech-bubble--side">¿Cómo te gustaría registrar tus transacciones?</div>
     </div>
   </div>
@@ -16,12 +11,12 @@
     <div class="fuente-grid" role="radiogroup" aria-label="Selecciona tu preferencia">
       <button class="option-card option-card--pill" role="radio" aria-checked="false"
         onclick="pabloSelect(this, 'registrationPref', 'whatsapp')">
-        <span class="option-icon">💬</span>
+        <span class="option-icon"><img src="/onboarding/images/iconos/t07_whatsapp.png" alt="" width="30" height="30" loading="lazy" /></span>
         <span class="option-label text-left">Directamente desde WhatsApp</span>
       </button>
       <button class="option-card option-card--pill" role="radio" aria-checked="false"
         onclick="pabloSelect(this, 'registrationPref', 'app')">
-        <span class="option-icon">📱</span>
+        <span class="option-icon"><img src="/onboarding/images/iconos/ac04_billetera_digital.png" alt="" width="30" height="30" loading="lazy" /></span>
         <span class="option-label text-left">Manualmente desde la app</span>
       </button>
     </div>

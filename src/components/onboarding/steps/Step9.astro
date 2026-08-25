@@ -2,12 +2,7 @@
 <section class="step !pb-0" data-step="step-9" aria-label="Pregunta 4 - Claridad del dinero" aria-hidden="true">
   <div class="fuente-header">
     <div class="fuente-header__inner">
-      <div class="fuente-pablo">
-        <picture>
-          <source srcset="/onboarding/images/pablo/pablo-anotando.webp" type="image/webp" />
-          <img src="/onboarding/images/pablo/pablo-point.png" alt="" width="140" height="140" loading="lazy" />
-        </picture>
-      </div>
+      <div class="fuente-pablo" data-pablo-anclaje data-pose="anotando"></div>
       <div class="speech-bubble speech-bubble--side">¿Qué tan seguido sientes que no sabes a dónde se fue tu dinero?</div>
     </div>
   </div>
@@ -16,17 +11,17 @@
     <div class="fuente-grid" role="radiogroup" aria-label="Selecciona con qué frecuencia">
       <button class="option-card option-card--pill" role="radio" aria-checked="false"
         onclick="pabloSelect(this, 'moneyClarity', 'siempre')">
-        <span class="option-icon">🤯</span>
+        <span class="option-icon"><img src="/onboarding/images/iconos/ui09_alerta.png" alt="" width="30" height="30" loading="lazy" /></span>
         <span class="option-label text-left">Siempre</span>
       </button>
       <button class="option-card option-card--pill" role="radio" aria-checked="false"
         onclick="pabloSelect(this, 'moneyClarity', 'a-veces')">
-        <span class="option-icon">🤔</span>
+        <span class="option-icon"><img src="/onboarding/images/iconos/t09_ayuda.png" alt="" width="30" height="30" loading="lazy" /></span>
         <span class="option-label text-left">A veces, pero no siempre</span>
       </button>
       <button class="option-card option-card--pill" role="radio" aria-checked="false"
         onclick="pabloSelect(this, 'moneyClarity', 'bajo-control')">
-        <span class="option-icon">😎</span>
+        <span class="option-icon"><img src="/onboarding/images/iconos/ui06_doble_check.png" alt="" width="30" height="30" loading="lazy" /></span>
         <span class="option-label text-left">No, tengo todo bajo control</span>
       </button>
     </div>

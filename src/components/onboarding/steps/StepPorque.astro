@@ -7,18 +7,7 @@
        fuera de la zona de scroll, con línea límite de borde a borde -->
   <div class="fuente-header">
     <div class="fuente-header__inner">
-      <div class="fuente-pablo">
-        <picture>
-          <source srcset="/onboarding/images/pablo/pablo-anotando.webp" type="image/webp" />
-          <img
-            src="/onboarding/images/pablo/pablo-point.png"
-            alt=""
-            width="140"
-            height="140"
-            loading="lazy"
-          />
-        </picture>
-      </div>
+      <div class="fuente-pablo" data-pablo-anclaje data-pose="anotando"></div>
       <div class="speech-bubble speech-bubble--side" data-reactive-bubble aria-live="polite">
         ¿Por qué quieres mejorar tus finanzas?
       </div>
@@ -29,39 +18,39 @@
     <!-- Motivos (sin auto-avance: se confirma con Continuar) -->
     <div class="fuente-grid" role="radiogroup" aria-label="Selecciona tu motivo principal">
       <button class="option-card option-card--pill" role="radio" aria-checked="false"
-        data-bubble="La paz con tu dinero se siente increíble 🧘"
+        data-bubble="La paz con tu dinero se siente increíble"
         onclick="pabloSelect(this, 'goalReason', 'paz-mental')">
-        <span class="option-icon">🧘</span>
+        <span class="option-icon"><img src="/onboarding/images/iconos/sa06_corazon.png" alt="" width="30" height="30" loading="lazy" /></span>
         <span class="option-label text-left">Quiero sentir paz con mi dinero</span>
       </button>
       <button class="option-card option-card--pill" role="radio" aria-checked="false"
-        data-bubble="Se acabaron los sustos de fin de mes 😮‍💨"
+        data-bubble="Se acabaron los sustos de fin de mes"
         onclick="pabloSelect(this, 'goalReason', 'fin-de-mes')">
-        <span class="option-icon">😮‍💨</span>
+        <span class="option-icon"><img src="/onboarding/images/iconos/ui17_calendario.png" alt="" width="30" height="30" loading="lazy" /></span>
         <span class="option-label text-left">Llegar a fin de mes sin sustos</span>
       </button>
       <button class="option-card option-card--pill" role="radio" aria-checked="false"
-        data-bubble="¡Qué emoción! Vamos por eso 🎁"
+        data-bubble="¡Qué emoción! Vamos por eso"
         onclick="pabloSelect(this, 'goalReason', 'meta-importante')">
-        <span class="option-icon">🎁</span>
+        <span class="option-icon"><img src="/onboarding/images/iconos/gm10_regalo.png" alt="" width="30" height="30" loading="lazy" /></span>
         <span class="option-label text-left">Estoy ahorrando para algo importante</span>
       </button>
       <button class="option-card option-card--pill" role="radio" aria-checked="false"
-        data-bubble="Los hábitos pequeños hacen cambios grandes 🌱"
+        data-bubble="Los hábitos pequeños hacen cambios grandes"
         onclick="pabloSelect(this, 'goalReason', 'mejores-habitos')">
-        <span class="option-icon">🌱</span>
+        <span class="option-icon"><img src="/onboarding/images/iconos/ac05_inversion_planta.png" alt="" width="30" height="30" loading="lazy" /></span>
         <span class="option-label text-left">Construir mejores hábitos</span>
       </button>
       <button class="option-card option-card--pill" role="radio" aria-checked="false"
-        data-bubble="Eso es de admirar. Cuenta conmigo 🤝"
+        data-bubble="Eso es de admirar. Cuenta conmigo"
         onclick="pabloSelect(this, 'goalReason', 'familia')">
-        <span class="option-icon">👨‍👩‍👧</span>
+        <span class="option-icon"><img src="/onboarding/images/iconos/gm02_casa.png" alt="" width="30" height="30" loading="lazy" /></span>
         <span class="option-label text-left">Mi familia depende de mí</span>
       </button>
       <button class="option-card option-card--pill" role="radio" aria-checked="false"
-        data-bubble="¡Perfecto, vamos a por ello! ✨"
+        data-bubble="¡Perfecto, vamos a por ello!"
         onclick="pabloSelect(this, 'goalReason', 'otro')">
-        <span class="option-icon">✨</span>
+        <span class="option-icon"><img src="/onboarding/images/iconos/ui14_destellos.png" alt="" width="30" height="30" loading="lazy" /></span>
         <span class="option-label text-left">Otro motivo</span>
       </button>
     </div>

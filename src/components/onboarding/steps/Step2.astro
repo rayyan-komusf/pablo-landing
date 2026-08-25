@@ -1,19 +1,20 @@
-<!-- Mensaje intro 1 (estilo Duolingo: escenario compartido + burbuja) -->
-<section class="step !pb-0" data-step="step-2" aria-label="Paso 2" aria-hidden="true">
+<!-- Mensaje intro 1. El párrafo largo se partió en dos burbujas cortas que
+     salen una tras otra: Pablo conversa, no entrega un muro de texto. Al
+     terminar avanza solo (data-pablo-auto) — el usuario no tenía nada que
+     decidir aquí, así que pedirle un clic solo cortaba el ritmo. -->
+<section
+  class="step !pb-0"
+  data-step="step-2"
+  aria-label="Paso 2"
+  aria-hidden="true"
+  data-pablo-dice='["No tienes que ser millonario para liberarte del estrés financiero.","Solo necesitas tomar el control de tus gastos y tener un plan."]'
+  data-pablo-auto="true"
+>
   <div class="duo-stage flex-1 flex flex-col items-center justify-center relative w-full px-6">
-    <div class="speech-bubble" aria-live="polite">
-      No tienes que ser millonario para liberarte del estrés financiero. Solo necesitas tomar el
-      control de tus gastos y crear un plan para tu ahorro y deuda futura.
+    <div class="speech-bubble" data-pablo-burbuja aria-live="polite">
+      No tienes que ser millonario para liberarte del estrés financiero.
     </div>
-    <div class="duo-stage__pablo">
-      <img
-        src="/onboarding/images/pablo/pablo-point.png"
-        alt="Pablo"
-        width="240"
-        height="240"
-        loading="lazy"
-      />
-    </div>
+    <div class="duo-stage__pablo" data-pablo-anclaje data-pose="senalando"></div>
   </div>
 
   <footer class="duo-footer cta-footer">

@@ -1,0 +1,426 @@
+---
+import { APP_STORE_URL } from '../../siteConfig';
+// Recorrido de beneficios.
+//
+// Estructura (Rodrigo, 19-ago): título + descripción CENTRADOS, sin eyebrows;
+// bloques que alternan lila/blanco separados por olas, nunca por una línea
+// recta; y la descarga centrada al final del mismo flujo.
+//
+// ⚠️ LAS ESCENAS SON UN SLOT ÚNICO. Se intentó armarlas con primitivas CSS
+// (una cama de divs, soldaditos marchando, una pista de carrera) y el
+// resultado eran "piezas juntadas", no una animación: cada elemento se movía
+// por su cuenta y nada se leía como una sola pieza. Cada bloque declara
+// UN solo hueco `[data-escena]` que toca UN video WebM con alfa — la escena
+// completa, animada de una sola pieza.
+//
+// Los cinco videos existen desde el 19-ago-2026 (brief en
+// `docs/brief-animaciones-landing.md`, pipeline reproducible en
+// `Projects/Pablo/visual assets/pablo_anim_landing/`). El clip de Pablo solo
+// queda como respaldo estático para navegadores sin alfa VP9 (Safari < 16) y
+// prefers-reduced-motion. La escena "celular" no es un loop: es la
+// transición ícono→personaje atada al scroll (por eso su WebM se encodea con
+// keyframes densos, `-g 8`, para poder scrubbearla en ambas direcciones).
+const PABLO = "/onboarding/images/pablo/2d";
+
+const BLOQUES = [
+  {
+    id: "companero",
+    tono: "lila",
+    titulo: ["Un amigo que sabe de plata,", "no otra app de banco"],
+    texto:
+      "Pablo te responde al toque, como un amigo. Sin términos raros, sin sermones y sin culparte por un gasto.",
+    escena: "cama",      // Pablo cambia de postura en su cama con "pops"
+    dim: { w: 512, h: 508 },
+    ancho: 290,
+    respaldo: "saludando",
+  },
+  {
+    id: "sin-esfuerzo",
+    tono: "blanco",
+    titulo: ["Tú vive tu vida,", "Pablo lleva las cuentas"],
+    texto:
+      "Cuéntale un gasto y listo: él lo anota, lo ordena y te dice cómo vas. Sin planillas ni cuentas a fin de mes.",
+    escena: "presupuesto", // presupuesto flotante con barras en vivo
+    dim: { w: 512, h: 348 },
+    ancho: 290,
+    respaldo: "anotando",
+  },
+  {
+    id: "motivacion",
+    tono: "lila",
+    titulo: ["Cuidar tu plata", "por fin se siente bien"],
+    texto:
+      "Cada registro suma racha y cada sol te acerca a tu meta. Avanzas jugando, con Pablo corriendo a tu lado.",
+    escena: "corriendo",   // corriendo hacia la meta que nunca se acerca
+    dim: { w: 512, h: 330 },
+    ancho: 250,
+    respaldo: "emocionado",
+  },
+  {
+    id: "claridad",
+    tono: "blanco",
+    titulo: ["Cada sol", "encuentra su lugar"],
+    texto:
+      "Pablo caza los gastos hormiga que se te escapan y te muestra a dónde va tu sueldo, en tiempo real.",
+    escena: "soles",       // soldaditos-moneda marchando, Pablo pasa lista
+    dim: { w: 512, h: 270 },
+    ancho: 330,
+    respaldo: "anotando",
+  },
+];
+---
+
+
+<section class="fx" id="funciones" aria-label="Por qué Pablo">
+  {
+    BLOQUES.map((b, i) => (
+      <>
+        <div class:list={["fx__bloque", `fx__bloque--${b.tono}`]} id={b.id}>
+          <div class="fx__texto">
+            <h2 class="fx__titulo">{b.titulo[0]}<br />{b.titulo[1]}</h2>
+            <p class="fx__desc">{b.texto}</p>
+          </div>
+
+          {/* Slot de escena: el video de la escena completa; el Pablo solo
+              del respaldo queda como imagen estática si no hay alfa. */}
+          <div class="fx-escena" data-escena={b.escena} aria-hidden="true">
+            <div
+              class="fx-pablo fx-pablo--escena"
+              style={`width:min(${b.ancho}px, 80vw); --pt:${((b.dim.h / b.dim.w) * 100).toFixed(2)}%;`}
+            >
+              <img src={`${PABLO}/pablo-${b.respaldo}.webp`} alt="" width="445" height="420" loading={i === 0 ? "eager" : "lazy"} />
+              <video data-src={`${PABLO}/escena-${b.escena}.webm`} muted loop playsinline preload="none" width={b.dim.w} height={b.dim.h}></video>
+              <span class="fx-sombra"></span>
+            </div>
+          </div>
+        </div>
+
+        <div class="fx-ola" data-desde={i === BLOQUES.length - 1 ? "blanco-navy" : b.tono} aria-hidden="true">
+          <svg viewBox="0 0 1440 80" preserveAspectRatio="none">
+            <path d="M0,46 C240,80 500,16 760,50 C1010,82 1240,26 1440,54 L1440,0 L0,0 Z" />
+          </svg>
+        </div>
+      </>
+    ))
+  }
+
+  {/* ── Descarga: todo centrado ── */}
+  <div class="fx__bloque fx__bloque--navy" id="descarga">
+    <div class="fx__texto">
+      <h2 class="fx__titulo">Pablo va<br />donde tú vas</h2>
+      <p class="fx__desc">
+        En WhatsApp, en la web y en tu iPhone. <span class="highlight highlight--navy">Tu plata clara</span> en el
+        bolsillo, estés donde estés.
+      </p>
+    </div>
+
+    {/* Transición ícono→personaje atada al scroll (sin loop: se scrubbea). */}
+    <div class="fx-escena" data-escena="celular" aria-hidden="true">
+      <div class="fx-pablo fx-pablo--escena" style="width:min(340px, 86vw); --pt:94.53%;">
+        <img src={`${PABLO}/pablo-saludando.webp`} alt="" width="445" height="420" loading="lazy" />
+        <video data-src={`${PABLO}/escena-celular.webm`} muted playsinline preload="none" width="512" height="484"></video>
+        <span class="fx-sombra"></span>
+      </div>
+    </div>
+
+    <div class="fx__badges">
+      <a
+        class="fx-badge"
+        href={APP_STORE_URL}
+        target="_blank"
+        rel="noopener"
+        onclick="window.posthog?.capture?.('descarga_appstore_clicked')"
+      >
+        <svg viewBox="0 0 24 24" width="24" height="24" fill="currentColor" aria-hidden="true">
+          <path d="M17.05 12.54c-.02-2.2 1.8-3.26 1.88-3.31-1.02-1.5-2.62-1.7-3.19-1.72-1.36-.14-2.65.8-3.34.8-.69 0-1.75-.78-2.87-.76-1.48.02-2.84.86-3.6 2.18-1.53 2.66-.39 6.6 1.1 8.76.73 1.06 1.6 2.25 2.74 2.2 1.1-.04 1.52-.71 2.85-.71 1.33 0 1.7.71 2.87.69 1.18-.02 1.93-1.08 2.65-2.14.83-1.22 1.18-2.41 1.2-2.47-.03-.01-2.3-.88-2.32-3.5zM14.9 5.9c.6-.74 1.01-1.76.9-2.78-.87.04-1.93.58-2.56 1.31-.56.65-1.06 1.7-.93 2.7.97.08 1.97-.5 2.59-1.23z"/>
+        </svg>
+        <span>
+          <small>Descárgala en el</small>
+          <strong>App Store</strong>
+        </span>
+      </a>
+      <span class="fx-badge fx-badge--pronto">
+        <svg viewBox="0 0 24 24" width="21" height="21" fill="currentColor" aria-hidden="true">
+          <path d="M17.6 9.48l1.84-3.18a.4.4 0 0 0-.7-.4L16.87 9.1a11.4 11.4 0 0 0-9.75 0L5.25 5.9a.4.4 0 1 0-.7.4L6.4 9.48A10.8 10.8 0 0 0 1 17.9h22a10.8 10.8 0 0 0-5.4-8.42zM7 14.6a.9.9 0 1 1 0-1.8.9.9 0 0 1 0 1.8zm10 0a.9.9 0 1 1 0-1.8.9.9 0 0 1 0 1.8z"/>
+        </svg>
+        <span>
+          <small>Android</small>
+          <strong>Viene pronto</strong>
+        </span>
+      </span>
+    </div>
+  </div>
+
+  <div class="fx-ola" data-desde="navy" aria-hidden="true">
+    <svg viewBox="0 0 1440 80" preserveAspectRatio="none">
+      <path d="M0,50 C250,18 520,78 780,44 C1030,14 1250,66 1440,40 L1440,0 L0,0 Z" />
+    </svg>
+  </div>
+</section>
+
+<script is:inline>
+  (() => {
+    const suave = matchMedia("(prefers-reduced-motion: reduce)").matches;
+    const probe = document.createElement("video");
+    const hayAlfa = !!probe.canPlayType && probe.canPlayType('video/webm; codecs="vp9"') !== "";
+    if (!hayAlfa || suave) return;
+
+    // Cada escena reproduce solo cuando está a la vista: cinco videos
+    // corriendo fuera de pantalla es batería quemada al cohete.
+    document.querySelectorAll(".fx-pablo video[data-src]").forEach((v) => {
+      const escena = v.closest("[data-escena]")?.dataset.escena;
+      const marco = v.closest(".fx-pablo");
+      v.src = v.dataset.src;
+      // El respaldo se oculta recién cuando hay un frame decodificado: si la
+      // descarga se cae a mitad (señal móvil que se va sin cerrar la
+      // conexión), el PNG sigue puesto en vez de dejar el hueco vacío. El
+      // error duro (404, deploy a medias) también nos regresa al respaldo.
+      v.addEventListener("loadeddata", () => marco.classList.add("fx-pablo--video"), { once: true });
+      v.addEventListener("error", () => marco.classList.remove("fx-pablo--video"), { once: true });
+
+      if (escena === "celular") {
+        // La transición va atada al scroll: de ícono a personaje al bajar,
+        // y de vuelta al subir. No se reproduce: se scrubbea currentTime
+        // siguiendo el avance del bloque por el viewport, con un lerp para
+        // que el arrastre se sienta líquido y no a saltos. El clip (~170KB)
+        // recién se descarga al acercarse el bloque — es el último de la
+        // página y quien rebota desde el hero no tiene por qué pagarlo.
+        const bloque = v.closest(".fx__bloque");
+        let objetivo = 0;
+        let activo = false;
+        const mide = () => {
+          const r = bloque.getBoundingClientRect();
+          const vh = innerHeight;
+          objetivo = Math.min(1, Math.max(0, (vh - r.top) / (vh + r.height * 0.6)));
+        };
+        const paso = () => {
+          if (!activo) return;
+          const d = v.duration;
+          if (d) {
+            const t = objetivo * (d - 0.05);
+            if (Math.abs(t - v.currentTime) > 0.02) {
+              v.currentTime += (t - v.currentTime) * 0.22;
+            }
+          }
+          requestAnimationFrame(paso);
+        };
+        addEventListener("scroll", mide, { passive: true });
+        new IntersectionObserver(
+          ([e]) => {
+            if (e.isIntersecting && !activo) {
+              if (v.preload !== "auto") {
+                v.preload = "auto";
+                v.load();
+              }
+              activo = true;
+              mide();
+              requestAnimationFrame(paso);
+            } else if (!e.isIntersecting) {
+              activo = false;
+            }
+          },
+          { rootMargin: "200px" }
+        ).observe(v);
+        return;
+      }
+
+      new IntersectionObserver(
+        ([e]) => (e.isIntersecting ? v.play?.().catch(() => {}) : v.pause?.()),
+        { rootMargin: "120px" }
+      ).observe(v);
+    });
+  })();
+</script>
+
+<style>
+  /* Bloques centrados, alternando lila/blanco. */
+  .fx__bloque {
+    padding: 76px 24px 84px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 32px;
+  }
+
+  .fx__bloque--lila { background: #f5f3ff; }
+  .fx__bloque--blanco { background: #ffffff; }
+
+  /* Bloque navy (descarga): fondo azul oscuro de Pablo, texto claro. */
+  .fx__bloque--navy { background: #2b2c64; }
+  .fx__bloque--navy .fx__titulo { color: #ffffff; }
+
+  .fx__bloque--navy .fx__desc { color: rgba(255, 255, 255, 0.8); }
+
+  .fx__texto {
+    max-width: 620px;
+    text-align: center;
+  }
+
+  /* Headlines de subsección (Rodrigo, 20-ago): Outfit, su amarillo CTA y las
+   * letras un grado más juntas. ⚠️ #F5A623 sobre blanco/lila NO pasa AA
+   * (≈1.97:1) — decisión explícita del fundador copiando el patrón Duolingo
+   * (titulares verdes sobre blanco); queda reportado. Sobre navy sí pasa. */
+  .fx__titulo {
+    font-family: var(--font-display, "Outfit"), sans-serif;
+    font-weight: 700;
+    font-size: clamp(26px, 3.4vw, 40px);
+    line-height: 1.14;
+    letter-spacing: -0.03em;
+    color: #f5a623;
+  }
+
+  .fx__desc {
+    margin: 14px auto 0;
+    font-size: 17px;
+    line-height: 1.6;
+    color: #56578f;
+    max-width: 52ch;
+  }
+
+  /* Ola entre bloques: el corte de color nunca es una línea recta.
+     El path se pinta del color del bloque de ARRIBA y el contenedor toma el
+     del bloque de abajo, así la curva "muerde" hacia la sección siguiente. */
+  .fx-ola { line-height: 0; margin-top: -1px; }
+  .fx-ola svg { width: 100%; height: 72px; display: block; }
+
+  /* El <path> hereda el color del bloque de ARRIBA vía currentColor y el
+     contenedor pinta el de abajo, así la curva muerde hacia la sección
+     siguiente. Se usa `color` en vez de `fill` porque Astro scopea el
+     selector y `path { fill }` no siempre gana contra el atributo. */
+  .fx-ola svg path { fill: currentColor; }
+  .fx-ola[data-desde="lila"] { background: #ffffff; color: #f5f3ff; }
+  .fx-ola[data-desde="blanco"] { background: #f5f3ff; color: #ffffff; }
+  /* frontera hacia el bloque navy de descarga y su salida a testimonios */
+  .fx-ola[data-desde="blanco-navy"] { background: #2b2c64; color: #ffffff; }
+  .fx-ola[data-desde="navy"] { background: #f2efff; color: #2b2c64; }
+
+  /* Slot de escena: hoy un Pablo animado; mañana el video de la escena
+     completa, que ocupa este mismo hueco sin tocar el layout. */
+  .fx-escena {
+    position: relative;
+    width: min(560px, 100%);
+    display: flex;
+    justify-content: center;
+  }
+
+  .fx-pablo {
+    position: relative;
+    width: 210px;
+  }
+
+  .fx-pablo img,
+  .fx-pablo video { width: 100%; height: auto; display: block; }
+  .fx-pablo video { position: absolute; inset: 0; opacity: 0; }
+  .fx-pablo--video video { opacity: 1; }
+  .fx-pablo--video img { opacity: 0; }
+
+  /* Las escenas tienen cada una su propio aspecto, que viene inline como
+     `--pt` y se aplica como padding-top de un ::before EN FLUJO. Dos trampas
+     evitadas a propósito: aspect-ratio colapsaría la caja a alto 0 en
+     Safari ≤ 14 / Chrome < 88 (justo los navegadores que dependen del
+     respaldo estático), y el padding porcentual directo en el wrapper se
+     mediría contra el ancho del PADRE flex (560px), no contra el propio
+     wrapper — el ::before sí resuelve contra el wrapper. El video llena el
+     hueco exacto y el respaldo de Pablo solo se cuelga del piso, centrado,
+     para que la sombra siga en su sitio. */
+  .fx-pablo--escena::before {
+    content: "";
+    display: block;
+    padding-top: var(--pt);
+  }
+  .fx-pablo--escena img {
+    position: absolute;
+    bottom: 0;
+    left: 50%;
+    width: auto;
+    height: 100%;
+    transform: translateX(-50%);
+  }
+  .fx-pablo--escena video { height: 100%; }
+  .fx-pablo--escena .fx-sombra { width: 64%; }
+
+  /* Sombra de contacto pegada a los pies. Los WebM se recortan anclados al
+     píxel más bajo del personaje, así que el borde inferior del video ES el
+     suelo: sin ese recorte la sombra flotaba lejos de Pablo. */
+  .fx-sombra {
+    position: absolute;
+    bottom: -4px;
+    left: 50%;
+    width: 50%;
+    height: 10px;
+    transform: translateX(-50%);
+    background: rgba(43, 44, 100, 0.15);
+    border-radius: 50%;
+    filter: blur(4px);
+  }
+
+  /* ── Badges de descarga (centrados) ── */
+  .fx__badges {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 12px;
+    justify-content: center;
+  }
+
+  .fx-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 11px;
+    min-height: 56px;
+    padding: 10px 20px;
+    border-radius: 16px;
+    text-decoration: none;
+    background: #2b2c64;
+    color: #fff;
+    box-shadow: 0 4px 0 0 #191a44, 0 6px 10px -6px rgba(43, 44, 100, 0.4);
+    transition: transform 120ms ease, box-shadow 120ms ease;
+  }
+
+  @media (hover: hover) {
+    a.fx-badge:hover {
+      transform: translateY(-1px);
+      box-shadow: 0 5px 0 0 #191a44, 0 8px 12px -6px rgba(43, 44, 100, 0.42);
+    }
+  }
+
+  a.fx-badge:active {
+    transform: translateY(3px);
+    box-shadow: 0 1px 0 0 #191a44;
+  }
+
+  .fx-badge--pronto {
+    background: transparent;
+    border: 2px dashed rgba(43, 44, 100, 0.35);
+    color: #56578f;
+    box-shadow: none;
+    cursor: default;
+  }
+
+  .fx-badge small {
+    display: block;
+    font-size: 11px;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+    opacity: 0.75;
+  }
+
+  .fx-badge strong {
+    display: block;
+    font-family: var(--font-display, "Outfit"), sans-serif;
+    font-size: 16px;
+    line-height: 1.15;
+  }
+
+  /* A 320px el primer titular ("Un amigo que sabe de plata,") no entra a
+     26px y el <br> deja una tercera línea viuda. */
+  @media (max-width: 360px) {
+    .fx__titulo { font-size: 22px; }
+  }
+
+  @media (max-width: 640px) {
+    .fx__bloque { padding: 52px 18px 60px; gap: 26px; }
+    .fx__desc { font-size: 16px; }
+    .fx-ola svg { height: 44px; }
+    .fx-pablo { width: 176px; }
+  }
+</style>

@@ -1,0 +1,262 @@
+---
+// Pablo persistente del onboarding.
+//
+// Regla de oro (Rodrigo, 19-ago): Pablo NUNCA desaparece de la pantalla; solo
+// cambia de posición, de tamaño o de pose. Antes cada step tenía su propio
+// <img>: al cambiar de pantalla el elemento viejo se desmontaba y el nuevo
+// aparecía ya colocado, y se veía como un parpadeo con salto de pose.
+//
+// Ahora hay UN solo Pablo, montado fuera de los .step y con position:fixed, que
+// viaja entre "anclajes" (`[data-pablo-anclaje]`) con FLIP. Nunca se desmonta,
+// así que no hay parpadeo posible: se ve al mismo Pablo desplazándose.
+//
+// No toca el motor: observa qué .step tiene la clase `active` y usa las
+// globales públicas que el motor ya expone (window.pabloNext).
+const base = "/onboarding/images/pablo/2d";
+---
+
+<div class="pablo-actor" id="pabloActor" data-pose="saludando" aria-hidden="true">
+  <div class="pablo-actor__cuerpo">
+    <!-- Capas de imagen: el estado base y el respaldo para poses sin video. -->
+    <img class="pablo-actor__sprite is-activo" data-capa="a" src={`${base}/pablo-saludando.webp`} alt="" width="445" height="420" fetchpriority="high" />
+    <img class="pablo-actor__sprite" data-capa="b" src={`${base}/pablo-saludando.webp`} alt="" width="445" height="420" loading="lazy" />
+    <!-- Capa de video: WebM VP9 con alfa real. Es la animación de verdad, con
+         los miembros articulados; las capas de imagen quedan de respaldo para
+         navegadores sin alfa en video (Safari < 16) y para poses aún sin clip. -->
+    <video class="pablo-actor__video" data-capa="video" muted autoplay loop playsinline preload="none" width="445" height="420"></video>
+  </div>
+  <span class="pablo-actor__sombra" aria-hidden="true"></span>
+</div>
+
+<script is:inline>
+  (() => {
+    const actor = document.getElementById("pabloActor");
+    if (!actor) return;
+
+    const cuerpo = actor.querySelector(".pablo-actor__cuerpo");
+    const capas = [...actor.querySelectorAll(".pablo-actor__sprite")];
+    const video = actor.querySelector(".pablo-actor__video");
+    const BASE = "/onboarding/images/pablo/2d";
+    const POSES = ["saludando", "senalando", "explicando", "celebrando", "emocionado", "anotando", "buscando", "empatico"];
+
+    // Poses que ya tienen animación real (miembros articulados, generada con
+    // Kling sobre el render oficial y recortada por croma a WebM con alfa).
+    // Las que no están acá siguen con su sprite fijo + la física CSS.
+    const CON_VIDEO = new Set(["saludando", "anotando", "buscando", "emocionado"]);
+
+    const suave = window.matchMedia("(prefers-reduced-motion: reduce)");
+    // Safari < 16 no reproduce alfa en WebM: ahí el video mostraría un
+    // rectángulo negro, así que ni se intenta y manda el sprite.
+    const HAY_ALFA_EN_VIDEO =
+      !!video.canPlayType && video.canPlayType('video/webm; codecs="vp9"') !== "";
+
+    // Precarga: cambiar de pose no debe costar un fotograma en blanco.
+    POSES.forEach((p) => { const i = new Image(); i.src = `${BASE}/pablo-${p}.webp`; });
+
+    let poseActual = "saludando";
+    let capaViva = 0;
+    let timers = [];
+    let ultimoPaso = null;
+
+    const limpiar = () => { timers.forEach(clearTimeout); timers = []; };
+    const luego = (fn, ms) => { const t = setTimeout(fn, ms); timers.push(t); return t; };
+
+    /* ---- Pose: crossfade entre dos capas, nunca un swap seco ------------ */
+    function ponerPose(pose) {
+      if (!pose || pose === poseActual) return;
+
+      // Con animación disponible manda el video: es la misma criatura moviendo
+      // brazos, cabeza y párpados, no dos dibujos alternándose.
+      const animada = CON_VIDEO.has(pose) && HAY_ALFA_EN_VIDEO && !suave.matches;
+      if (animada) {
+        // play() justo después de load() se rechaza con AbortError: el navegador
+        // interpreta que una carga nueva interrumpió la reproducción. Hay que
+        // esperar a que haya datos y recién ahí arrancar.
+        const arrancar = () => {
+          video.play?.().then(
+            () => actor.classList.add("pablo-actor--animado"),
+            (e) => {
+              // Solo se cae al sprite si el navegador BLOQUEA la reproducción.
+              // Un AbortError es transitorio y se reintenta al siguiente evento.
+              if (e && e.name === "NotAllowedError") {
+                actor.classList.remove("pablo-actor--animado");
+              }
+            }
+          );
+        };
+        if (!video.currentSrc.endsWith(`pablo-${pose}.webm`)) {
+          video.src = `${BASE}/pablo-${pose}.webm`;
+          video.addEventListener("loadeddata", arrancar, { once: true });
+          video.load();
+        } else {
+          video.readyState >= 2
+            ? arrancar()
+            : video.addEventListener("loadeddata", arrancar, { once: true });
+        }
+        poseActual = pose;
+        return;
+      }
+      actor.classList.remove("pablo-actor--animado");
+
+      const entra = capas[1 - capaViva];
+      const sale = capas[capaViva];
+      entra.src = `${BASE}/pablo-${pose}.webp`;
+      const aplicar = () => {
+        entra.classList.add("is-activo");
+        sale.classList.remove("is-activo");
+        capaViva = 1 - capaViva;
+        poseActual = pose;
+        // Squash & stretch: el cambio de pose se siente como un impulso del
+        // cuerpo, no como que se cambió la imagen.
+        cuerpo.classList.remove("pablo-impulso");
+        void cuerpo.offsetWidth;
+        if (!suave.matches) cuerpo.classList.add("pablo-impulso");
+      };
+      entra.complete ? aplicar() : entra.addEventListener("load", aplicar, { once: true });
+    }
+
+    /* ---- Viaje: FLIP entre el sitio actual y el anclaje del step nuevo --- */
+    function viajarA(anclaje, primeraVez) {
+      const destino = anclaje.getBoundingClientRect();
+      const origen = actor.getBoundingClientRect();
+      // El anclaje define caja y tamaño; el actor se sitúa encima de él.
+      actor.style.width = `${destino.width}px`;
+      actor.style.height = `${destino.height}px`;
+      actor.style.left = `${destino.left}px`;
+      actor.style.top = `${destino.top}px`;
+
+      if (primeraVez || suave.matches || !origen.width) {
+        actor.style.transition = "none";
+        actor.style.transform = "none";
+        void actor.offsetWidth;
+        actor.style.transition = "";
+        return;
+      }
+      // Invert: se pinta donde estaba…
+      const dx = origen.left - destino.left;
+      const dy = origen.top - destino.top;
+      const es = origen.width / destino.width;
+      actor.style.transition = "none";
+      actor.style.transform = `translate(${dx}px, ${dy}px) scale(${es})`;
+      void actor.offsetWidth;
+      // …y se suelta hacia su sitio con rebote (masa, no interpolación lineal).
+      actor.style.transition = "transform 620ms cubic-bezier(.34,1.56,.64,1)";
+      actor.style.transform = "none";
+    }
+
+    /* ---- Burbujas encadenadas + auto-avance ----------------------------- */
+    function hablar(step) {
+      const burbuja = step.querySelector("[data-pablo-burbuja]");
+      if (!burbuja) return;
+      let frases;
+      try { frases = JSON.parse(step.dataset.pabloDice || "[]"); } catch { frases = []; }
+      if (!frases.length) return;
+
+      const auto = step.dataset.pabloAuto === "true";
+      const footer = step.querySelector(".duo-footer");
+      // Mientras Pablo habla, el CONTINUAR se atenúa; sigue clicable para
+      // quien quiera adelantarse (auto-avance ≠ secuestrar al usuario).
+      footer?.classList.add("duo-footer--esperando");
+
+      // Más rápido de lo que se lee en voz alta: así se siente conversación y
+      // no una espera (Rodrigo se quedó esperando a que Pablo termine, 20-ago).
+      const LEER = (t) => Math.min(2400, Math.max(850, 260 + t.length * 27));
+      let t = 0;
+      frases.forEach((frase, i) => {
+        luego(() => {
+          burbuja.textContent = frase;
+          burbuja.classList.remove("burbuja-entra");
+          void burbuja.offsetWidth;
+          burbuja.classList.add("burbuja-entra");
+          // Pablo gesticula en cada frase alternando poses fijas — pero solo si
+          // la pose actual NO tiene animación: cambiarla apagaría el video y
+          // volvería al sprite, que es justo lo que se quería eliminar. Con
+          // clip animado el movimiento ya lo pone el propio video.
+          if (!suave.matches && i > 0 && !CON_VIDEO.has(poseActual)) {
+            ponerPose(i % 2 ? "explicando" : "senalando");
+          }
+        }, t);
+        t += LEER(frase);
+      });
+
+      luego(() => {
+        footer?.classList.remove("duo-footer--esperando");
+        if (auto && !suave.matches && document.querySelector(".step.active") === step) {
+          window.pabloNext?.();
+        }
+      }, t);
+    }
+
+    /* Una pantalla puede declarar más de un sitio para Pablo — el pago tiene el
+     * de la esquina y el del centro mientras prepara el checkout. Gana el
+     * ÚLTIMO visible: así Pablo baja al centro a acompañar la espera y vuelve
+     * solo a la esquina cuando el widget de Flow ocupa ese hueco. */
+    function anclajeDe(step) {
+      const todos = [...step.querySelectorAll("[data-pablo-anclaje]")].filter(
+        (el) => el.offsetParent !== null || el.getClientRects().length > 0
+      );
+      return todos[todos.length - 1] || null;
+    }
+
+    /* Hook público: una pantalla que muestra u oculta un anclaje avisa para que
+     * Pablo se mueva, sin tener que tocar el motor ni este componente. */
+    window.pabloActorRevisar = () => {
+      const step = document.querySelector(".step.active");
+      const anclaje = step && anclajeDe(step);
+      if (!anclaje) return;
+      actor.classList.remove("pablo-actor--fuera");
+      ponerPose(anclaje.dataset.pose || "explicando");
+      viajarA(anclaje, false);
+    };
+
+    /* ---- Reacción al cambio de pantalla --------------------------------- */
+    function alCambiarPaso(primeraVez) {
+      const step = document.querySelector(".step.active");
+      if (!step || step === ultimoPaso) return;
+      ultimoPaso = step;
+      limpiar();
+
+      const anclaje = anclajeDe(step);
+      if (!anclaje) {
+        // Pantallas sin Pablo (demo, paywall): NO se oculta con display:none —
+        // se retira de escena hacia abajo, para que al volver entre caminando.
+        actor.classList.add("pablo-actor--fuera");
+        return;
+      }
+      actor.classList.remove("pablo-actor--fuera");
+      ponerPose(anclaje.dataset.pose || "explicando");
+      viajarA(anclaje, primeraVez);
+
+      // Pantallas de resultado: Pablo cae desde fuera del encuadre y aterriza
+      // celebrando lo que el usuario acaba de ver (patrón de Duo cuando te
+      // entrega un logro). No reemplaza al FLIP: se encima como capa interna.
+      actor.classList.remove("pablo-actor--celebra");
+      if (anclaje.dataset.pabloCelebra === "true" && !suave.matches) {
+        void actor.offsetWidth;
+        actor.classList.add("pablo-actor--celebra");
+      }
+
+      hablar(step);
+    }
+
+    // El motor no emite eventos, así que se observa la clase `active`.
+    // Observar en vez de parchear = cero cambios en onboarding.js.
+    const obs = new MutationObserver(() => alCambiarPaso(false));
+    document.querySelectorAll(".step").forEach((s) =>
+      obs.observe(s, { attributes: true, attributeFilter: ["class"] })
+    );
+
+    let reflow;
+    addEventListener("resize", () => {
+      clearTimeout(reflow);
+      reflow = setTimeout(() => {
+        const step = document.querySelector(".step.active");
+        const anclaje = step?.querySelector("[data-pablo-anclaje]");
+        if (anclaje) viajarA(anclaje, true);
+      }, 120);
+    });
+
+    // El motor arranca al final del body; se espera a que pinte el primer step.
+    requestAnimationFrame(() => requestAnimationFrame(() => alCambiarPaso(true)));
+  })();
+</script>

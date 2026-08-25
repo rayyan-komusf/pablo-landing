@@ -2,45 +2,43 @@
 <section class="step !pb-0" data-step="step-16" aria-label="Funciones personalizadas" aria-hidden="true">
   <div class="fuente-header">
     <div class="fuente-header__inner">
-      <div class="fuente-pablo">
-        <img src="/onboarding/images/pablo/pablo-wave.png" alt="" width="140" height="140" loading="lazy" />
-      </div>
-      <div class="speech-bubble speech-bubble--side">Marqué las funciones más útiles para ti según tus respuestas ✨</div>
+      <div class="fuente-pablo" data-pablo-anclaje data-pose="saludando"></div>
+      <div class="speech-bubble speech-bubble--side">Según lo que me contaste, esto es lo que más te va a ayudar</div>
     </div>
   </div>
 
   <div class="fuente-body flex-1 flex flex-col w-full mx-auto px-5 max-md:px-4 overflow-y-auto [scrollbar-width:none] [&::-webkit-scrollbar]:hidden vcenter">
-    <div class="fuente-grid" role="group" aria-label="Selecciona las funciones que te interesan">
-      <button class="option-card option-card--pill checkbox" role="checkbox" aria-checked="false" onclick="pabloToggle(this, 'whatsapp')">
-        <span class="option-radio"></span>
-        <span class="option-icon">📱</span>
+    <div class="fuente-grid fn-lista" role="list" aria-label="Funciones elegidas para ti" >
+      <div class="option-card option-card--pill checkbox" data-fn="whatsapp" role="listitem">
+        <span class="option-icon"><img src="/onboarding/images/iconos/t07_whatsapp.png" alt="" width="30" height="30" loading="lazy" /></span>
         <span class="option-label text-left">Registro por WhatsApp</span>
-      </button>
-      <button class="option-card option-card--pill checkbox" role="checkbox" aria-checked="false" onclick="pabloToggle(this, 'presupuesto')">
-        <span class="option-radio"></span>
-        <span class="option-icon">📊</span>
+        <span class="fn-parati">Para ti</span>
+      </div>
+      <div class="option-card option-card--pill checkbox" data-fn="presupuesto" role="listitem">
+        <span class="option-icon"><img src="/onboarding/images/iconos/t04_presupuesto_piechart.png" alt="" width="30" height="30" loading="lazy" /></span>
         <span class="option-label text-left">Presupuesto mensual</span>
-      </button>
-      <button class="option-card option-card--pill checkbox" role="checkbox" aria-checked="false" onclick="pabloToggle(this, 'deuda')">
-        <span class="option-radio"></span>
-        <span class="option-icon">💳</span>
+        <span class="fn-parati">Para ti</span>
+      </div>
+      <div class="option-card option-card--pill checkbox" data-fn="deuda" role="listitem">
+        <span class="option-icon"><img src="/onboarding/images/iconos/ac03_tarjeta_credito.png" alt="" width="30" height="30" loading="lazy" /></span>
         <span class="option-label text-left">Gestión de deuda</span>
-      </button>
-      <button class="option-card option-card--pill checkbox" role="checkbox" aria-checked="false" onclick="pabloToggle(this, 'categorias')">
-        <span class="option-radio"></span>
-        <span class="option-icon">🎯</span>
+        <span class="fn-parati">Para ti</span>
+      </div>
+      <div class="option-card option-card--pill checkbox" data-fn="categorias" role="listitem">
+        <span class="option-icon"><img src="/onboarding/images/iconos/t01_panel_gauge.png" alt="" width="30" height="30" loading="lazy" /></span>
         <span class="option-label text-left">Límite de categorías</span>
-      </button>
-      <button class="option-card option-card--pill checkbox" role="checkbox" aria-checked="false" onclick="pabloToggle(this, 'resumen')">
-        <span class="option-radio"></span>
-        <span class="option-icon">📈</span>
+        <span class="fn-parati">Para ti</span>
+      </div>
+      <div class="option-card option-card--pill checkbox" data-fn="resumen" role="listitem">
+        <span class="option-icon"><img src="/onboarding/images/iconos/ui15_barras.png" alt="" width="30" height="30" loading="lazy" /></span>
         <span class="option-label text-left">Resumen financiero visual</span>
-      </button>
-      <button class="option-card option-card--pill checkbox" role="checkbox" aria-checked="false" onclick="pabloToggle(this, 'metas')">
-        <span class="option-radio"></span>
-        <span class="option-icon">🚀</span>
+        <span class="fn-parati">Para ti</span>
+      </div>
+      <div class="option-card option-card--pill checkbox" data-fn="metas" role="listitem">
+        <span class="option-icon"><img src="/onboarding/images/iconos/t03_metas_bullseye.png" alt="" width="30" height="30" loading="lazy" /></span>
         <span class="option-label text-left">Trackeo de metas</span>
-      </button>
+        <span class="fn-parati">Para ti</span>
+      </div>
     </div>
   </div>
 
