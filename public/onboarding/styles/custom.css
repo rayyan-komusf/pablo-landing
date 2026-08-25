@@ -1964,6 +1964,11 @@ body .topbar > div {
     font-size: 44px;
     margin-bottom: 4px;
   }
+}
+/* ⚠️ La llave de arriba cierra el @media (max-width: 479.9px) del bloque de
+   main: en el merge del 25-ago se perdió y TODO lo que sigue (secciones 6-13,
+   incluido el actor de Pablo) quedó anidado solo-móvil — en desktop el actor
+   quedaba sin estilo (gigante, video en negro, scroll fantasma). */
 
 /* ============================================================
  * 6. LENGUAJE VISUAL DE LA APP APLICADO AL ONBOARDING (r7)
