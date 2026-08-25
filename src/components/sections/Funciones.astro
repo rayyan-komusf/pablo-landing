@@ -29,9 +29,9 @@ const BLOQUES = [
     titulo: ["Un amigo que sabe de plata,", "no otra app de banco"],
     texto:
       "Pablo te responde al toque, como un amigo. Sin términos raros, sin sermones y sin culparte por un gasto.",
-    escena: "cama",      // Pablo cambia de postura en su cama con "pops"
-    dim: { w: 512, h: 508 },
-    ancho: 290,
+    escena: "cama",      // Pablo en su cama con "pops" + mesita, ventana y sombra (25-ago)
+    dim: { w: 680, h: 520 },
+    ancho: 380,
     respaldo: "saludando",
   },
   {
@@ -80,7 +80,7 @@ const BLOQUES = [
             siendo columna centrada. */}
         <div class:list={["fx__bloque", `fx__bloque--${b.tono}`, i % 2 === 1 && "fx__bloque--invertido"]} id={b.id}>
           <div class="fx__texto">
-            <h2 class="fx__titulo">{b.titulo[0]}<br />{b.titulo[1]}</h2>
+            <h2 class="fx__titulo">{b.titulo[0]}{" "}<br />{b.titulo[1]}</h2>
             <p class="fx__desc">{b.texto}</p>
           </div>
 
@@ -110,7 +110,7 @@ const BLOQUES = [
   {/* ── Descarga: todo centrado ── */}
   <div class="fx__bloque fx__bloque--navy" id="descarga">
     <div class="fx__texto">
-      <h2 class="fx__titulo">Pablo va<br />donde tú vas</h2>
+      <h2 class="fx__titulo">Pablo va <br />donde tú vas</h2>
       <p class="fx__desc">
         En WhatsApp, en la web y en tu iPhone. <span class="highlight highlight--navy">Tu plata clara</span> en el
         bolsillo, estés donde estés.
@@ -322,7 +322,9 @@ const BLOQUES = [
     .fx__desc { margin-left: 0; }
 
     /* El <br> del título está pensado para el centrado de móvil; en columna
-       produce cortes huérfanos ("de plata," solo). Acá fluye natural. */
+       produce cortes huérfanos ("de plata," solo). Acá fluye natural — y el
+       markup lleva un espacio literal antes del <br> porque ocultarlo une
+       las palabras ("solencuentra"). */
     .fx__titulo br { display: none; }
     .fx__titulo { text-wrap: balance; }
 
