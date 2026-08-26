@@ -6,24 +6,18 @@
      (/auth/sesion → dashboard, ya premium). Sin sesión, el JS cae a
      pabloCuentaIrAlPago() (pagar en la app); ya no hay botón visible. -->
 <section class="step !pb-0" data-step="step-cuenta-pago" aria-label="Pago seguro con Flow" aria-hidden="true">
-  <div class="fuente-header">
-    <div class="fuente-header__inner">
-      <div class="fuente-pablo">
-        <picture>
-          <source srcset="/onboarding/images/pablo/pablo-anotando.webp" type="image/webp" />
-          <img
-            src="/onboarding/images/pablo/pablo-point.png"
-            alt=""
-            width="140"
-            height="140"
-            loading="lazy"
-          />
-        </picture>
-      </div>
-      <div class="speech-bubble speech-bubble--side">
-        ¡Correo verificado! Ahora sí, activemos tu plan
-      </div>
-    </div>
+  <!-- Arriba SOLO la cara de Pablo (Rodrigo, 25-ago): fuera la ilustración
+       grande y fuera la burbuja — ya no hay verificación previa que anunciar
+       y esta pantalla es para pagar, no para conversar. -->
+  <div class="pago-header">
+    <img
+      class="pago-cara"
+      src="/onboarding/images/pablo/pablo-logo.png"
+      alt=""
+      width="64"
+      height="64"
+      loading="lazy"
+    />
   </div>
 
   <div class="fuente-body flex-1 flex flex-col w-full mx-auto px-5 max-md:px-4 overflow-y-auto [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
@@ -89,6 +83,21 @@
       <p class="pago-nota">🔒 Pago procesado por Flow. Pablo nunca ve tu tarjeta.</p>
     </div>
   </div>
+
+  <style>
+    /* Header "solo la cara" (Rodrigo, 25-ago): sin ilustración grande ni
+       burbuja. El cupón se estiliza en custom.css. */
+    .pago-header {
+      display: flex;
+      justify-content: center;
+      padding: 18px 0 4px;
+    }
+    .pago-cara {
+      width: 64px;
+      height: 64px;
+      border-radius: 18px;
+    }
+  </style>
 
   <script is:inline>
     (function () {

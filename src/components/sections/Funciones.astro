@@ -29,9 +29,9 @@ const BLOQUES = [
     titulo: ["Un amigo que sabe de plata,", "no otra app de banco"],
     texto:
       "Pablo te responde al toque, como un amigo. Sin términos raros, sin sermones y sin culparte por un gasto.",
-    escena: "cama",      // Pablo cambia de postura en su cama con "pops"
-    dim: { w: 512, h: 508 },
-    ancho: 290,
+    escena: "cama",      // Pablo en su cama con "pops" + mesita y ventana (25-ago, sin sombra)
+    dim: { w: 680, h: 520 },
+    ancho: 380,
     respaldo: "saludando",
   },
   {
@@ -62,7 +62,7 @@ const BLOQUES = [
     titulo: ["Cada sol", "encuentra su lugar"],
     texto:
       "Pablo caza los gastos hormiga que se te escapan y te muestra a dónde va tu sueldo, en tiempo real.",
-    escena: "soles",       // soldaditos-moneda marchando, Pablo pasa lista
+    escena: "soles",       // fila de monedas desfilando hacia Pablo, que las anota (8fps nativo)
     dim: { w: 512, h: 270 },
     ancho: 330,
     respaldo: "anotando",
@@ -75,9 +75,12 @@ const BLOQUES = [
   {
     BLOQUES.map((b, i) => (
       <>
-        <div class:list={["fx__bloque", `fx__bloque--${b.tono}`]} id={b.id}>
+        {/* En desktop cada bloque alterna el lado del texto y la escena, como
+            la landing de Duolingo (pedido de Rodrigo, 25-ago). En móvil sigue
+            siendo columna centrada. */}
+        <div class:list={["fx__bloque", `fx__bloque--${b.tono}`, i % 2 === 1 && "fx__bloque--invertido"]} id={b.id}>
           <div class="fx__texto">
-            <h2 class="fx__titulo">{b.titulo[0]}<br />{b.titulo[1]}</h2>
+            <h2 class="fx__titulo">{b.titulo[0]}{" "}<br />{b.titulo[1]}</h2>
             <p class="fx__desc">{b.texto}</p>
           </div>
 
@@ -86,11 +89,14 @@ const BLOQUES = [
           <div class="fx-escena" data-escena={b.escena} aria-hidden="true">
             <div
               class="fx-pablo fx-pablo--escena"
-              style={`width:min(${b.ancho}px, 80vw); --pt:${((b.dim.h / b.dim.w) * 100).toFixed(2)}%;`}
+              style={`--w:${b.ancho}px; --pt:${((b.dim.h / b.dim.w) * 100).toFixed(2)}%;`}
             >
               <img src={`${PABLO}/pablo-${b.respaldo}.webp`} alt="" width="445" height="420" loading={i === 0 ? "eager" : "lazy"} />
               <video data-src={`${PABLO}/escena-${b.escena}.webm`} muted loop playsinline preload="none" width={b.dim.w} height={b.dim.h}></video>
-              <span class="fx-sombra"></span>
+              {/* La cama trae su propio suelo y va corrida en el lienzo: la
+                  elipse de contacto la hacía flotar en vez de anclarla
+                  (Rodrigo la pidió fuera, 25-ago). */}
+              {b.escena !== "cama" && <span class="fx-sombra"></span>}
             </div>
           </div>
         </div>
@@ -107,7 +113,7 @@ const BLOQUES = [
   {/* ── Descarga: todo centrado ── */}
   <div class="fx__bloque fx__bloque--navy" id="descarga">
     <div class="fx__texto">
-      <h2 class="fx__titulo">Pablo va<br />donde tú vas</h2>
+      <h2 class="fx__titulo fx__titulo--una-linea">Pablo va donde tú vas</h2>
       <p class="fx__desc">
         En WhatsApp, en la web y en tu iPhone. <span class="highlight highlight--navy">Tu plata clara</span> en el
         bolsillo, estés donde estés.
@@ -116,7 +122,7 @@ const BLOQUES = [
 
     {/* Transición ícono→personaje atada al scroll (sin loop: se scrubbea). */}
     <div class="fx-escena" data-escena="celular" aria-hidden="true">
-      <div class="fx-pablo fx-pablo--escena" style="width:min(340px, 86vw); --pt:94.53%;">
+      <div class="fx-pablo fx-pablo--escena" style="--w:340px; --pt:94.53%;">
         <img src={`${PABLO}/pablo-saludando.webp`} alt="" width="445" height="420" loading="lazy" />
         <video data-src={`${PABLO}/escena-celular.webm`} muted playsinline preload="none" width="512" height="484"></video>
         <span class="fx-sombra"></span>
@@ -161,22 +167,39 @@ const BLOQUES = [
 <script is:inline>
   (() => {
     const suave = matchMedia("(prefers-reduced-motion: reduce)").matches;
-    const probe = document.createElement("video");
-    const hayAlfa = !!probe.canPlayType && probe.canPlayType('video/webm; codecs="vp9"') !== "";
-    if (!hayAlfa || suave) return;
+    if (suave) return;
+
+    // Doble formato por escena: Safari (iOS y macOS) decodifica el WebM VP9
+    // pero pinta el canal alfa NEGRO (visto en iPhone, ago-2026). El primer
+    // <source> es HEVC con alfa (.mov hvc1), que Safari sí transparenta;
+    // Chrome no reproduce QuickTime y cae al WebM. El navegador elige solo,
+    // así que el probe de canPlayType ya no decide nada.
+    const conFormatos = (v) => {
+      const mov = document.createElement("source");
+      mov.src = v.dataset.src.replace(/\.webm$/, ".mov");
+      mov.type = 'video/quicktime; codecs="hvc1"';
+      const wm = document.createElement("source");
+      wm.src = v.dataset.src;
+      wm.type = "video/webm";
+      v.append(mov, wm);
+      return wm; // el último source: si ÉL falla, no hubo formato jugable
+    };
 
     // Cada escena reproduce solo cuando está a la vista: cinco videos
     // corriendo fuera de pantalla es batería quemada al cohete.
     document.querySelectorAll(".fx-pablo video[data-src]").forEach((v) => {
       const escena = v.closest("[data-escena]")?.dataset.escena;
       const marco = v.closest(".fx-pablo");
-      v.src = v.dataset.src;
+      const ultimoSource = conFormatos(v);
       // El respaldo se oculta recién cuando hay un frame decodificado: si la
       // descarga se cae a mitad (señal móvil que se va sin cerrar la
       // conexión), el PNG sigue puesto en vez de dejar el hueco vacío. El
-      // error duro (404, deploy a medias) también nos regresa al respaldo.
+      // error duro (404, deploy a medias, ningún formato jugable) también
+      // nos regresa al respaldo — con <source> hijos, el "no hay formato"
+      // dispara error en el ÚLTIMO source, no en el <video>.
       v.addEventListener("loadeddata", () => marco.classList.add("fx-pablo--video"), { once: true });
       v.addEventListener("error", () => marco.classList.remove("fx-pablo--video"), { once: true });
+      ultimoSource.addEventListener("error", () => marco.classList.remove("fx-pablo--video"), { once: true });
 
       if (escena === "celular") {
         // La transición va atada al scroll: de ícono a personaje al bajar,
@@ -269,12 +292,77 @@ const BLOQUES = [
     color: #f5a623;
   }
 
+  /* "Pablo va donde tú vas" en UNA sola línea (Rodrigo, r7): sin <br> y sin
+     que el balanceo la parta; el tamaño cede lo necesario en móvil. */
+  .fx__titulo--una-linea {
+    text-wrap: nowrap;
+    font-size: clamp(21px, 6.4vw, 40px);
+  }
+
   .fx__desc {
     margin: 14px auto 0;
     font-size: 17px;
     line-height: 1.6;
     color: #56578f;
     max-width: 52ch;
+  }
+
+  /* ── Desktop: dos columnas alternadas, como Duolingo ──────────────────
+     Pedido de Rodrigo (25-ago, con la landing de Duolingo de referencia):
+     en laptop el título NO va encima de la animación — texto a un lado,
+     escena al costado, y cada sección alterna el lado. Mismo tamaño para
+     todas: columnas gemelas de 460px y un min-height común. El fondo sigue
+     siendo full-bleed porque el grid vive en el propio bloque y se centra
+     con justify-content, no con max-width. */
+  @media (min-width: 1024px) {
+    .fx__bloque {
+      display: grid;
+      grid-template-columns: minmax(0, 460px) minmax(0, 460px);
+      justify-content: center;
+      align-items: center;
+      column-gap: clamp(48px, 7vw, 110px);
+      min-height: 540px;
+      padding: 72px 48px;
+    }
+
+    .fx__texto {
+      text-align: left;
+      max-width: 460px;
+    }
+    .fx__desc { margin-left: 0; }
+
+    /* El <br> del título está pensado para el centrado de móvil; en columna
+       produce cortes huérfanos ("de plata," solo). Acá fluye natural — y el
+       markup lleva un espacio literal antes del <br> porque ocultarlo une
+       las palabras ("solencuentra"). */
+    .fx__titulo br { display: none; }
+    .fx__titulo { text-wrap: balance; }
+
+    .fx__bloque--invertido .fx__texto { order: 2; }
+    .fx__bloque--invertido .fx-escena { order: 1; }
+
+    /* Las escenas crecen uniformes para habitar su columna. El tope en vw
+       evita que a 1024px las columnas se pisen. */
+    .fx-pablo--escena {
+      width: min(calc(var(--w, 210px) * 1.35), 36vw);
+    }
+
+    /* Descarga (navy): el texto y los badges comparten la columna izquierda;
+       el celular ocupa la derecha — cierra la alternancia tras "soles". */
+    .fx__bloque--navy {
+      grid-template-areas:
+        "texto escena"
+        "badges escena";
+      align-content: center;
+      row-gap: 4px;
+    }
+    .fx__bloque--navy .fx__texto { grid-area: texto; align-self: end; }
+    .fx__bloque--navy .fx-escena { grid-area: escena; }
+    .fx__bloque--navy .fx__badges {
+      grid-area: badges;
+      justify-content: flex-start;
+      align-self: start;
+    }
   }
 
   /* Ola entre bloques: el corte de color nunca es una línea recta.
@@ -323,6 +411,12 @@ const BLOQUES = [
      wrapper — el ::before sí resuelve contra el wrapper. El video llena el
      hueco exacto y el respaldo de Pablo solo se cuelga del piso, centrado,
      para que la sombra siga en su sitio. */
+  /* El ancho por escena viene como --w (inline). En móvil se respeta tal
+     cual; en desktop se escala uniforme para llenar su columna. */
+  .fx-pablo--escena {
+    width: min(var(--w, 210px), 80vw);
+  }
+
   .fx-pablo--escena::before {
     content: "";
     display: block;

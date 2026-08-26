@@ -39,15 +39,23 @@
     var caja = paso.querySelector("[data-onb-escena]");
     var v = caja && caja.querySelector("video");
     if (!v) return;
-    var probe = document.createElement("video");
-    var puede = !!probe.canPlayType && probe.canPlayType('video/webm; codecs="vp9"') !== "";
     var suave = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
-    if (!puede || suave) return;
+    if (suave) return;
     new MutationObserver(function () {
       var activo = paso.classList.contains("active");
       if (activo) {
-        if (!v.src) {
-          v.src = v.dataset.src;
+        if (!v.childElementCount) {
+          // Doble formato: Safari decodifica WebM VP9 pero pinta el alfa
+          // NEGRO (visto en iPhone, ago-2026). Primero HEVC con alfa (.mov
+          // hvc1) para Safari; Chrome no reproduce QuickTime y cae al WebM.
+          var mov = document.createElement("source");
+          mov.src = v.dataset.src.replace(/\.webm$/, ".mov");
+          mov.type = 'video/quicktime; codecs="hvc1"';
+          var wm = document.createElement("source");
+          wm.src = v.dataset.src;
+          wm.type = "video/webm";
+          v.appendChild(mov);
+          v.appendChild(wm);
           v.addEventListener("loadeddata", function () {
             caja.classList.add("onb-escena--video");
             v.play().catch(function () {});

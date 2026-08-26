@@ -194,12 +194,13 @@
         requestAnimationFrame(function () {
           // radar primero (los estilos inline se sueltan y el CSS de .active anima)
           if (area) { area.style.transform = ""; area.style.opacity = ""; }
-          setTimeout(function () { puntos.forEach(function (pt) { pt.style.opacity = ""; }); }, 500);
+          // Los vértices aparecen cuando el hexágono ya casi terminó de crecer.
+          setTimeout(function () { puntos.forEach(function (pt) { pt.style.opacity = ""; }); }, 1100);
           // barras una por una
           barras.forEach(function (b, i) {
-            setTimeout(function () { b.style.width = ""; }, 650 + i * 320);
+            setTimeout(function () { b.style.width = ""; }, 1350 + i * 320);
           });
-          var fin = 650 + barras.length * 320;
+          var fin = 1350 + barras.length * 320;
           setTimeout(function () {
             if (lectura) { lectura.style.opacity = "1"; lectura.style.transform = "translateY(0)"; }
           }, fin + 150);

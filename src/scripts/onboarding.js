@@ -41,11 +41,10 @@ const STEP_ORDER = [
   "step-17", // Testimonios
   "step-18", // Paywall 1/2: la nota de Rodrigo (solo el mensaje)
   "step-18b", // Paywall 2/2: calendario del cobro + planes
-  "step-cuenta-nombre", // Registro (1/5): nombre
-  "step-cuenta-correo", // Registro (2/5): correo
-  "step-cuenta-password", // Registro (3/5): contraseña → crea la cuenta + envía el código
-  "step-cuenta-codigo", // Registro (4/5): código de verificación del correo
-  "step-cuenta-pago", // Registro (5/5): pago embebido con el widget de Flow
+  "step-cuenta-nombre", // Registro (1/4): nombre
+  "step-cuenta-correo", // Registro (2/4): correo
+  "step-cuenta-password", // Registro (3/4): contraseña → crea la cuenta + envía el código
+  "step-cuenta-pago", // Registro (4/4): pago embebido con el widget de Flow
 ];
 
 /** Configuración de topbar por pantalla. */
@@ -82,7 +81,6 @@ const STEP_FLAGS = {
   "step-cuenta-nombre": { showTopbar: true, showSkip: false },
   "step-cuenta-correo": { showTopbar: true, showSkip: false },
   "step-cuenta-password": { showTopbar: true, showSkip: false },
-  "step-cuenta-codigo": { showTopbar: true, showSkip: false },
   "step-cuenta-pago": { showTopbar: true, showSkip: false },
 };
 
@@ -247,12 +245,14 @@ class OnboardingEngine {
     if (stepId === "step-16") this.initStep16();
     if (stepId === "step-fiesta") this.initFiesta();
     if (stepId === "step-porque") this.initPorque();
-    // Pablo "analizando": pantalla de transición, avanza sola (1.3s).
+    // Pablo "analizando": pantalla de transición, avanza sola. 1.3→2.4s
+    // (Rodrigo, r7): "que tarde 2 segundos mejor o un poco más, que la
+    // persona sienta que en verdad estamos calculando sus resultados".
     if (stepId === "step-analizando") {
       clearTimeout(this._analizando);
       this._analizando = setTimeout(() => {
         if (this.currentStepId === "step-analizando") this.next();
-      }, 1300);
+      }, 2400);
     }
     // El pago embebido de Flow arranca al ENTRAR al step (también cubre la
     // recarga de página: antes solo lo disparaba el step del código y al
