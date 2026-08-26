@@ -95,7 +95,6 @@
       <p class="cuenta-pago-estado" id="cuenta-pago-estado">Preparando el pago seguro…</p>
       <div id="cuenta-pago-widget"></div>
       <button type="button" class="cuenta-btn" id="cuenta-pago-reintentar" hidden>Reintentar</button>
-      <button type="button" class="cuenta-reenviar" id="cuenta-pago-enapp">Prefiero pagar dentro de la app</button>
     </div>
     <p class="cuenta-legal">
       Al crear tu cuenta aceptas los
@@ -155,7 +154,6 @@
     var pagoEstadoEl = document.getElementById("cuenta-pago-estado");
     var pagoExitoEl = document.getElementById("cuenta-pago-exito");
     var pagoReintentarEl = document.getElementById("cuenta-pago-reintentar");
-    var pagoEnAppEl = document.getElementById("cuenta-pago-enapp");
     var cuponToggleEl = document.getElementById("cuenta-cupon-toggle");
     var cuponFormEl = document.getElementById("cuenta-cupon-form");
     var cuponInputEl = document.getElementById("cuenta-cupon-input");
@@ -515,7 +513,6 @@
               if (window.fbq) fbq("trackCustom", "PagoFlowExitoso", { plan: planActual });
               if (contenedor) contenedor.innerHTML = "";
               pagoEstado("");
-              if (pagoEnAppEl) pagoEnAppEl.hidden = true;
               if (pagoExitoEl) pagoExitoEl.hidden = false;
               setTimeout(alGracias, 1500);
             } else {
@@ -544,10 +541,6 @@
         arrancarPago();
       });
     }
-    if (pagoEnAppEl) {
-      pagoEnAppEl.addEventListener("click", function () { irAlPago(); });
-    }
-
     /* Cupón: aplicar/quitar re-arman el pago (el checkout es quien valida el
      * código y lo deja pendiente en el backend). */
     if (cuponToggleEl) {
@@ -911,13 +904,32 @@
     padding: 2px;
     flex-shrink: 0;
   }
-  /* El widget de Flow se monta acá; le damos aire y un fondo neutro. */
+  /* El widget de Flow se monta acá; le damos aire y un fondo neutro.
+     ⚠️ El iframe que inyecta Flow puede quedar más alto que su caja (el form
+     quedaba cortado sin scroll interno y el botón de pagar inalcanzable,
+     25-ago-2026): se fuerza a flujo normal, ancho fluido y un alto mínimo
+     que cubre el formulario completo con su botón. */
+  #cuenta-pago-widget {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    width: 100%;
+  }
   #cuenta-pago-widget:not(:empty) {
     background: #ffffff;
     border: 1px solid #e7e3f6;
     border-radius: 14px;
     padding: 12px;
-    min-height: 180px;
+    min-height: 240px;
+  }
+  #cuenta-pago-widget iframe {
+    display: block;
+    position: static !important;
+    width: 100% !important;
+    max-width: 100% !important;
+    min-width: 0 !important;
+    min-height: 540px;
+    border: 0;
   }
   .cuenta-pago-exito {
     display: flex;
