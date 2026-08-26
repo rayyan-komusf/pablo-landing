@@ -29,6 +29,33 @@
   <div class="fuente-body flex-1 flex flex-col w-full mx-auto px-5 max-md:px-4 overflow-y-auto [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
     <div class="pago-card">
       <p class="pago-resumen" id="pago-resumen">Preparando tu plan…</p>
+      <!-- Cupón de descuento (código de la moneda u otros): se manda en el
+           checkout y Flow lo aplica al primer cobro. Aplicarlo re-arma el
+           widget con un checkout nuevo que ya lleva el código. -->
+      <div class="pago-cupon" id="pago-cupon">
+        <button type="button" class="pago-cupon-toggle" id="pago-cupon-toggle" onclick="pabloCuponToggle()">
+          ¿Tienes un código de descuento?
+        </button>
+        <form class="pago-cupon-form" id="pago-cupon-form" hidden novalidate onsubmit="return pabloCuponAplicar(event)">
+          <input
+            id="pago-cupon-input"
+            class="pago-cupon-input"
+            type="text"
+            inputmode="text"
+            autocomplete="off"
+            autocapitalize="characters"
+            spellcheck="false"
+            maxlength="24"
+            placeholder="MONEDA-XXXXXX"
+          />
+          <button type="submit" class="pago-cupon-aplicar">Aplicar</button>
+        </form>
+        <p class="pago-cupon-ok" id="pago-cupon-ok" hidden>
+          <span id="pago-cupon-ok-texto"></span>
+          <button type="button" class="pago-cupon-quitar" onclick="pabloCuponQuitar()">Quitar</button>
+        </p>
+        <p class="pago-cupon-error" id="pago-cupon-error" hidden></p>
+      </div>
       <!-- Éxito: check verde animado (estilo iOS) antes de entrar a la app. -->
       <div class="pago-exito" id="pago-exito" hidden>
         <svg viewBox="0 0 56 56" class="pago-exito-check" role="img" aria-label="Pago exitoso">
@@ -95,10 +122,90 @@
 
       var flowScriptPromise = null;
       var enCurso = false;
+      // % de descuento confirmado por el backend en el checkout vigente.
+      var cuponPct = null;
 
       function planSlug() {
         return sessionStorage.getItem("pablo_plan_elegido") || "anual";
       }
+      /* Código de descuento: llega por ?codigo= (lo captura onboarding.js) o
+       * se escribe a mano aquí. Vive en sessionStorage para sobrevivir
+       * recargas del step. */
+      function cuponActual() {
+        try {
+          return (sessionStorage.getItem("pablo_codigo_descuento") || "").trim().toUpperCase();
+        } catch (e) {
+          return "";
+        }
+      }
+      function cuponGuardar(codigo) {
+        try {
+          if (codigo) sessionStorage.setItem("pablo_codigo_descuento", codigo);
+          else sessionStorage.removeItem("pablo_codigo_descuento");
+        } catch (e) {}
+      }
+      function cuponError(msg) {
+        var el = document.getElementById("pago-cupon-error");
+        if (!el) return;
+        el.textContent = msg || "";
+        el.hidden = !msg;
+      }
+      function cuponPintar() {
+        var codigo = cuponActual();
+        var toggle = document.getElementById("pago-cupon-toggle");
+        var form = document.getElementById("pago-cupon-form");
+        var ok = document.getElementById("pago-cupon-ok");
+        var okTexto = document.getElementById("pago-cupon-ok-texto");
+        if (!toggle || !form || !ok) return;
+        if (codigo && cuponPct) {
+          toggle.hidden = true;
+          form.hidden = true;
+          ok.hidden = false;
+          if (okTexto) {
+            okTexto.textContent = "Código " + codigo + " aplicado: " +
+              (cuponPct >= 100 ? "tu primer cobro sale gratis." : cuponPct + "% de descuento en tu primer cobro.");
+          }
+        } else {
+          ok.hidden = true;
+          toggle.hidden = !form.hidden;
+        }
+      }
+      window.pabloCuponToggle = function () {
+        var toggle = document.getElementById("pago-cupon-toggle");
+        var form = document.getElementById("pago-cupon-form");
+        var input = document.getElementById("pago-cupon-input");
+        if (!toggle || !form) return;
+        toggle.hidden = true;
+        form.hidden = false;
+        if (input) {
+          input.value = cuponActual();
+          input.focus();
+        }
+      };
+      /* Aplicar/quitar re-arman el pago: el checkout es el único que valida el
+       * código y lo deja pendiente en el backend, así que hay que repetirlo. */
+      window.pabloCuponAplicar = function (ev) {
+        if (ev && ev.preventDefault) ev.preventDefault();
+        var input = document.getElementById("pago-cupon-input");
+        var codigo = ((input && input.value) || "").trim().toUpperCase();
+        if (!codigo) return false;
+        cuponError("");
+        cuponGuardar(codigo);
+        window.pabloTrack?.("onboarding_pago_cupon_aplicado", { plan: planSlug() });
+        enCurso = false;
+        window.pabloPagoArrancar();
+        return false;
+      };
+      window.pabloCuponQuitar = function () {
+        cuponGuardar("");
+        cuponPct = null;
+        cuponError("");
+        var form = document.getElementById("pago-cupon-form");
+        if (form) form.hidden = true;
+        cuponPintar();
+        enCurso = false;
+        window.pabloPagoArrancar();
+      };
       function setEstado(msg, esError) {
         var el = document.getElementById("pago-estado");
         if (!el) return;
@@ -157,11 +264,12 @@
             (p.trial > 0
               ? " · " + p.trial + " días gratis. Registras tu tarjeta y no se cobra hasta el día " +
                 (p.trial + 1) + ". Cancelas cuando quieras."
-              : " · se cobra hoy, cancela cuando quieras") +
-            // Garantía SOLO del anual, anclada al inicio de la prueba (el
-            // cobro es al día 3; sin el ancla la lectura es reclamable).
-            (slug === "anual"
-              ? " Garantía de satisfacción de 14 días desde que empiezas tu prueba: te devolvemos el 100%, sin preguntas."
+              : " · se cobra hoy, cancela cuando quieras.") +
+            // Descuento confirmado por el backend en el checkout vigente.
+            (cuponPct
+              ? cuponPct >= 100
+                ? " Tu primer cobro sale GRATIS con tu código de descuento."
+                : " Incluye tu " + cuponPct + "% de descuento en el primer cobro."
               : "");
         }
       }
@@ -243,17 +351,27 @@
           // TikTok igual, pero el ttclid va CRUDO (sin envoltorio fb.1.<ts>).
           var fb = window.pabloFbCookies ? window.pabloFbCookies() : {};
           var tt = window.pabloTtClic ? window.pabloTtClic() : {};
-          var registro = await flowSuscripcion(
-            {
-              accion: "checkout",
-              plan: NOMBRE_PLAN[planSlug()] || NOMBRE_PLAN.anual,
-              fbc: fb.fbc || undefined,
-              fbp: fb.fbp || undefined,
-              ttclid: tt.ttclid || undefined,
-              ttp: tt.ttp || undefined,
-            },
-            sesion.access_token
-          );
+          var codigo = cuponActual();
+          var datosCheckout = {
+            accion: "checkout",
+            plan: NOMBRE_PLAN[planSlug()] || NOMBRE_PLAN.anual,
+            codigo: codigo || undefined,
+            fbc: fb.fbc || undefined,
+            fbp: fb.fbp || undefined,
+            ttclid: tt.ttclid || undefined,
+            ttp: tt.ttp || undefined,
+          };
+          var registro = await flowSuscripcion(datosCheckout, sesion.access_token);
+          // Código rechazado (no existe, ya usado, no aplica al plan): el
+          // cupón nunca bloquea el pago — se avisa, se descarta y se repite
+          // el checkout sin él.
+          if (registro.__status === 400 && codigo && /c[oó]digo/i.test(registro.error || "")) {
+            cuponError(registro.error);
+            cuponGuardar("");
+            cuponPct = null;
+            datosCheckout.codigo = undefined;
+            registro = await flowSuscripcion(datosCheckout, sesion.access_token);
+          }
           if (registro.__status === 409) {
             // Ya tiene una suscripción activa: nada que cobrar.
             irALaAppPagado();
@@ -262,6 +380,10 @@
           if (!registro.token || !registro.entorno) {
             throw new Error(registro.error || "No pudimos iniciar el pago");
           }
+          // Descuento validado por el backend: reflejarlo en el resumen.
+          cuponPct = Number(registro.descuento_pct) || null;
+          pintarResumen();
+          cuponPintar();
 
           await cargarFlowScript(registro.entorno);
           if (typeof window.Flow !== "function") throw new Error("Widget de Flow no disponible");

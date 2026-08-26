@@ -59,6 +59,32 @@
          bridgea a la app para cobrar; el fallback sí sigue existiendo. -->
     <div id="cuenta-pago" hidden>
       <p class="cuenta-pago-resumen" id="cuenta-pago-resumen">Preparando tu plan…</p>
+      <!-- Cupón de descuento: mismo circuito que StepCuentaPago del onboarding
+           (se manda en el checkout; aplicarlo re-arma el widget). -->
+      <div class="cuenta-cupon">
+        <button type="button" class="cuenta-cupon-toggle" id="cuenta-cupon-toggle">
+          ¿Tienes un código de descuento?
+        </button>
+        <form class="cuenta-cupon-form" id="cuenta-cupon-form" hidden novalidate>
+          <input
+            id="cuenta-cupon-input"
+            class="cuenta-input"
+            type="text"
+            inputmode="text"
+            autocomplete="off"
+            autocapitalize="characters"
+            spellcheck="false"
+            maxlength="24"
+            placeholder="MONEDA-XXXXXX"
+          />
+          <button type="submit" class="cuenta-btn cuenta-cupon-aplicar">Aplicar</button>
+        </form>
+        <p class="cuenta-cupon-ok" id="cuenta-cupon-ok" hidden>
+          <span id="cuenta-cupon-ok-texto"></span>
+          <button type="button" class="cuenta-cupon-quitar" id="cuenta-cupon-quitar">Quitar</button>
+        </p>
+        <p class="cuenta-error" id="cuenta-cupon-error" hidden></p>
+      </div>
       <div class="cuenta-pago-exito" id="cuenta-pago-exito" hidden>
         <svg viewBox="0 0 56 56" class="cuenta-exito-check" role="img" aria-label="Pago exitoso">
           <circle cx="28" cy="28" r="26" class="cuenta-exito-circulo" transform="rotate(-90 28 28)"></circle>
@@ -130,6 +156,13 @@
     var pagoExitoEl = document.getElementById("cuenta-pago-exito");
     var pagoReintentarEl = document.getElementById("cuenta-pago-reintentar");
     var pagoEnAppEl = document.getElementById("cuenta-pago-enapp");
+    var cuponToggleEl = document.getElementById("cuenta-cupon-toggle");
+    var cuponFormEl = document.getElementById("cuenta-cupon-form");
+    var cuponInputEl = document.getElementById("cuenta-cupon-input");
+    var cuponOkEl = document.getElementById("cuenta-cupon-ok");
+    var cuponOkTextoEl = document.getElementById("cuenta-cupon-ok-texto");
+    var cuponQuitarEl = document.getElementById("cuenta-cupon-quitar");
+    var cuponErrorEl = document.getElementById("cuenta-cupon-error");
 
     var PLANES = {
       semanal: {
@@ -277,6 +310,45 @@
     function pagoReintentar(visible) {
       if (pagoReintentarEl) pagoReintentarEl.hidden = !visible;
     }
+    /* Código de descuento: llega por ?codigo= o se escribe a mano; vive en
+     * sessionStorage (misma clave que el onboarding) y el checkout lo valida. */
+    var cuponPct = null;
+    try {
+      var codigoUrl = (new URLSearchParams(window.location.search).get("codigo") || "").trim().toUpperCase();
+      if (codigoUrl) sessionStorage.setItem("pablo_codigo_descuento", codigoUrl);
+    } catch (e0) {}
+    function cuponActual() {
+      try {
+        return (sessionStorage.getItem("pablo_codigo_descuento") || "").trim().toUpperCase();
+      } catch (e) { return ""; }
+    }
+    function cuponGuardar(codigo) {
+      try {
+        if (codigo) sessionStorage.setItem("pablo_codigo_descuento", codigo);
+        else sessionStorage.removeItem("pablo_codigo_descuento");
+      } catch (e) {}
+    }
+    function cuponError(msg) {
+      if (!cuponErrorEl) return;
+      cuponErrorEl.textContent = msg || "";
+      cuponErrorEl.hidden = !msg;
+    }
+    function cuponPintar() {
+      if (!cuponToggleEl || !cuponFormEl || !cuponOkEl) return;
+      var codigo = cuponActual();
+      if (codigo && cuponPct) {
+        cuponToggleEl.hidden = true;
+        cuponFormEl.hidden = true;
+        cuponOkEl.hidden = false;
+        if (cuponOkTextoEl) {
+          cuponOkTextoEl.textContent = "Código " + codigo + " aplicado: " +
+            (cuponPct >= 100 ? "tu primer cobro sale gratis." : cuponPct + "% de descuento en tu primer cobro.");
+        }
+      } else {
+        cuponOkEl.hidden = true;
+        cuponToggleEl.hidden = !cuponFormEl.hidden;
+      }
+    }
     function pintarResumen() {
       if (!pagoResumenEl) return;
       var cfg = PLANES[planActual];
@@ -285,10 +357,12 @@
         cfg.resumen + (dias > 0
           ? " · " + dias + " días gratis. Registras tu tarjeta y no se cobra hasta el día " +
             (dias + 1) + ". Cancelas cuando quieras."
-          : " · se cobra hoy, cancela cuando quieras") +
-        // Garantía SOLO del anual; sin trial (18-ago-2026) el ancla es la compra.
-        (planActual === "anual"
-          ? " Garantía de satisfacción de 14 días desde tu compra: te devolvemos el 100%, sin preguntas."
+          : " · se cobra hoy, cancela cuando quieras.") +
+        // Descuento confirmado por el backend en el checkout vigente.
+        (cuponPct
+          ? cuponPct >= 100
+            ? " Tu primer cobro sale GRATIS con tu código de descuento."
+            : " Incluye tu " + cuponPct + "% de descuento en el primer cobro."
           : "");
     }
     function cargarFlowScript(entorno) {
@@ -369,21 +443,34 @@
         // ya no la vería. El ttclid va CRUDO, sin el envoltorio fb.1.<ts> de Meta.
         var fb = window.pabloFbCookies ? window.pabloFbCookies() : {};
         var tt = window.pabloTtClic ? window.pabloTtClic() : {};
-        var registro = await flowSuscripcion(
-          {
-            accion: "checkout",
-            plan: PLANES[planActual].nombre,
-            fbc: fb.fbc || undefined,
-            fbp: fb.fbp || undefined,
-            ttclid: tt.ttclid || undefined,
-            ttp: tt.ttp || undefined,
-          },
-          sesion.access_token
-        );
+        var codigoCupon = cuponActual();
+        var datosCheckout = {
+          accion: "checkout",
+          plan: PLANES[planActual].nombre,
+          codigo: codigoCupon || undefined,
+          fbc: fb.fbc || undefined,
+          fbp: fb.fbp || undefined,
+          ttclid: tt.ttclid || undefined,
+          ttp: tt.ttp || undefined,
+        };
+        var registro = await flowSuscripcion(datosCheckout, sesion.access_token);
+        // Código rechazado (no existe, ya usado, no aplica al plan): el cupón
+        // nunca bloquea el pago — avisar, descartarlo y repetir sin él.
+        if (registro.__status === 400 && codigoCupon && /c[oó]digo/i.test(registro.error || "")) {
+          cuponError(registro.error);
+          cuponGuardar("");
+          cuponPct = null;
+          datosCheckout.codigo = undefined;
+          registro = await flowSuscripcion(datosCheckout, sesion.access_token);
+        }
         if (registro.__status === 409) { await irALaAppLogueado(); return; }
         if (!registro.token || !registro.entorno) {
           throw new Error(registro.error || "No pudimos iniciar el pago");
         }
+        // Descuento validado por el backend: reflejarlo en el resumen.
+        cuponPct = Number(registro.descuento_pct) || null;
+        pintarResumen();
+        cuponPintar();
 
         await cargarFlowScript(registro.entorno);
         if (typeof window.Flow !== "function") throw new Error("El pago seguro no está disponible");
@@ -459,6 +546,42 @@
     }
     if (pagoEnAppEl) {
       pagoEnAppEl.addEventListener("click", function () { irAlPago(); });
+    }
+
+    /* Cupón: aplicar/quitar re-arman el pago (el checkout es quien valida el
+     * código y lo deja pendiente en el backend). */
+    if (cuponToggleEl) {
+      cuponToggleEl.addEventListener("click", function () {
+        cuponToggleEl.hidden = true;
+        if (cuponFormEl) cuponFormEl.hidden = false;
+        if (cuponInputEl) {
+          cuponInputEl.value = cuponActual();
+          cuponInputEl.focus();
+        }
+      });
+    }
+    if (cuponFormEl) {
+      cuponFormEl.addEventListener("submit", function (e) {
+        e.preventDefault();
+        var codigo = ((cuponInputEl && cuponInputEl.value) || "").trim().toUpperCase();
+        if (!codigo) return;
+        cuponError("");
+        cuponGuardar(codigo);
+        try { window.posthog && window.posthog.capture("cuenta_modal_cupon_aplicado", { plan: planActual }); } catch (e2) {}
+        pagoEnCurso = false;
+        arrancarPago();
+      });
+    }
+    if (cuponQuitarEl) {
+      cuponQuitarEl.addEventListener("click", function () {
+        cuponGuardar("");
+        cuponPct = null;
+        cuponError("");
+        if (cuponFormEl) cuponFormEl.hidden = true;
+        cuponPintar();
+        pagoEnCurso = false;
+        arrancarPago();
+      });
     }
 
     function pintarCooldown() {
@@ -737,6 +860,57 @@
     text-align: center;
   }
   .cuenta-pago-estado--error { color: #d64545; }
+  /* ─── Cupón de descuento ─── */
+  .cuenta-cupon { display: flex; flex-direction: column; gap: 8px; }
+  .cuenta-cupon-toggle {
+    background: none;
+    border: none;
+    cursor: pointer;
+    font-family: var(--font-body);
+    font-size: 0.85rem;
+    font-weight: 700;
+    color: var(--color-heading);
+    text-decoration: underline;
+    padding: 2px;
+    text-align: center;
+  }
+  .cuenta-cupon-form { display: flex; gap: 8px; }
+  .cuenta-cupon-form[hidden] { display: none !important; }
+  .cuenta-cupon-form .cuenta-input {
+    flex: 1;
+    min-width: 0;
+    text-transform: uppercase;
+    font-weight: 700;
+    letter-spacing: 0.06em;
+  }
+  .cuenta-cupon-aplicar { width: auto; margin-top: 0; padding: 12px 18px; white-space: nowrap; }
+  .cuenta-cupon-ok {
+    margin: 0;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 10px;
+    background: #eaf7ea;
+    border: 1px solid #cdeacd;
+    border-radius: 12px;
+    padding: 10px 13px;
+    font-size: 0.82rem;
+    font-weight: 700;
+    color: #1f7a33;
+  }
+  .cuenta-cupon-ok[hidden] { display: none !important; }
+  .cuenta-cupon-quitar {
+    background: none;
+    border: none;
+    cursor: pointer;
+    font-family: var(--font-body);
+    font-size: 0.8rem;
+    font-weight: 700;
+    color: #1f7a33;
+    text-decoration: underline;
+    padding: 2px;
+    flex-shrink: 0;
+  }
   /* El widget de Flow se monta acá; le damos aire y un fondo neutro. */
   #cuenta-pago-widget:not(:empty) {
     background: #ffffff;

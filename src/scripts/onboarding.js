@@ -647,11 +647,13 @@ class OnboardingEngine {
   }
 
   /**
-   * Lee ?plan= y ?oferta= de la URL y los deja en sessionStorage.
+   * Lee ?plan=, ?oferta= y ?codigo= de la URL y los deja en sessionStorage.
    *   plan=semanal|mensual|anual → "pablo_plan_elegido" (lo usa el registro y
    *     el checkout; step-18 lo respeta como selección por defecto).
    *   oferta=millonaria → "pablo_oferta_millonaria" = "1", que hace que el
    *     paywall final muestre el recap de la Oferta Millonaria completa.
+   *   codigo=MONEDA-XXXXXX → "pablo_codigo_descuento" (código de descuento;
+   *     el checkout embebido de StepCuentaPago lo manda a flow-suscripcion).
    */
   leerParametrosDeOferta() {
     try {
@@ -663,6 +665,8 @@ class OnboardingEngine {
       if (params.get("oferta") === "millonaria") {
         sessionStorage.setItem("pablo_oferta_millonaria", "1");
       }
+      const codigo = (params.get("codigo") || "").trim().toUpperCase();
+      if (codigo) sessionStorage.setItem("pablo_codigo_descuento", codigo);
     } catch {}
   }
 

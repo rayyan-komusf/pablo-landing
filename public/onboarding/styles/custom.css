@@ -1681,6 +1681,109 @@ body .topbar > div {
   text-align: center;
   margin: 0;
 }
+/* ─── Cupón de descuento del pago embebido (StepCuentaPago) ─── */
+.pago-cupon {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+.pago-cupon-toggle {
+  background: none;
+  border: none;
+  cursor: pointer;
+  font-family: inherit;
+  font-size: 13px;
+  font-weight: 700;
+  color: #2b2c64;
+  text-decoration: underline;
+  padding: 2px;
+  text-align: center;
+}
+.pago-cupon-toggle[hidden] {
+  display: none !important;
+}
+.pago-cupon-form {
+  display: flex;
+  gap: 8px;
+}
+.pago-cupon-form[hidden] {
+  display: none !important;
+}
+.pago-cupon-input {
+  flex: 1;
+  min-width: 0;
+  font-family: inherit;
+  font-size: 14px;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: #2b2c64;
+  background: #fff;
+  border: 2px solid rgba(43, 44, 100, 0.18);
+  border-radius: 12px;
+  padding: 10px 12px;
+  outline: none;
+}
+.pago-cupon-input:focus {
+  border-color: #f5a623;
+  box-shadow: 0 0 0 3px rgba(245, 166, 35, 0.18);
+}
+.pago-cupon-aplicar {
+  border: none;
+  cursor: pointer;
+  font-family: inherit;
+  font-size: 14px;
+  font-weight: 800;
+  color: #2b2c64;
+  background: linear-gradient(135deg, #f6b72b, #fea41b);
+  border-radius: 12px;
+  padding: 10px 16px;
+  box-shadow: 0 3px 0 0 #c9820a;
+  white-space: nowrap;
+}
+.pago-cupon-aplicar:active {
+  transform: translateY(2px);
+  box-shadow: 0 1px 0 0 #c9820a;
+}
+.pago-cupon-ok {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  margin: 0;
+  background: #eaf7ea;
+  border: 1px solid #cdeacd;
+  border-radius: 12px;
+  padding: 10px 13px;
+  font-size: 13px;
+  font-weight: 700;
+  color: #1f7a33;
+}
+.pago-cupon-ok[hidden] {
+  display: none !important;
+}
+.pago-cupon-quitar {
+  background: none;
+  border: none;
+  cursor: pointer;
+  font-family: inherit;
+  font-size: 12px;
+  font-weight: 700;
+  color: #1f7a33;
+  text-decoration: underline;
+  padding: 2px;
+  flex-shrink: 0;
+}
+.pago-cupon-error {
+  margin: 0;
+  font-size: 13px;
+  font-weight: 600;
+  color: #c0392b;
+  text-align: center;
+}
+.pago-cupon-error[hidden] {
+  display: none !important;
+}
 .pago-estado {
   font-size: 13px;
   color: rgba(43, 44, 100, 0.6);
