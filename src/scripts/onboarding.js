@@ -193,6 +193,9 @@ class OnboardingEngine {
   }
 
   next() {
+    // Guard anti-spam: mientras corre la animación de entrada (stepIn 0.4s) no
+    // se aceptan más avances, si no el usuario salta pasos machacando Continuar.
+    if (this.isTransitioning) return;
     if (document.activeElement instanceof HTMLElement) document.activeElement.blur();
     const nextId = this.resolveNextStep();
     if (nextId) {
@@ -207,6 +210,7 @@ class OnboardingEngine {
   }
 
   prev() {
+    if (this.isTransitioning) return;
     if (document.activeElement instanceof HTMLElement) document.activeElement.blur();
     const prevId = this.history.pop();
     if (prevId) {
@@ -237,6 +241,10 @@ class OnboardingEngine {
     el.classList.add("active");
     el.setAttribute("aria-hidden", "false");
     el.removeAttribute("inert");
+    // Bloquea nuevos avances/retrocesos hasta que termine la animación (0.4s).
+    this.isTransitioning = true;
+    clearTimeout(this._transLock);
+    this._transLock = setTimeout(() => { this.isTransitioning = false; }, 420);
     this.currentStepId = stepId;
     this.updateTopbar(flags);
     this.updateProgress(progressFor(stepId));
@@ -409,7 +417,17 @@ class OnboardingEngine {
       const espera = bubbleText ? 900 : 300;
       const desde = this.currentStepId;
       this._autoNext = setTimeout(() => {
-        if (this.currentStepId === desde) this.next();
+        if (this.currentStepId !== desde) return;
+        // Si el clic fue casi al entrar al paso, el guard anti-spam de next()
+        // (420ms desde goTo) aún puede estar activo y se tragaría este avance:
+        // un único reintento tras 200ms cae siempre fuera del lock.
+        if (this.isTransitioning) {
+          this._autoNext = setTimeout(() => {
+            if (this.currentStepId === desde) this.next();
+          }, 200);
+          return;
+        }
+        this.next();
       }, espera);
     }
   }

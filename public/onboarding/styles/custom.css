@@ -2909,7 +2909,19 @@ body .topbar > div {
   padding: 11px 18px calc(9px + env(safe-area-inset-bottom));
   display: flex;
   flex-direction: column;
+  align-items: center;
   gap: 8px;
+  /* A sangre: el .pw está limitado a 460px y centrado, así que su footer
+   * quedaba como una caja blanca angosta flotando sobre el lila. Con el
+   * full-bleed la franja llega de borde a borde (como .duo-footer del resto
+   * del onboarding) y solo su contenido se mantiene centrado a 460px. */
+  width: 100vw;
+  margin-left: 50%;
+  transform: translateX(-50%);
+}
+.pw-cierre > * {
+  width: 100%;
+  max-width: 460px;
 }
 
 /* El precio ya no es el titular: es la letra chica de la decisión. */

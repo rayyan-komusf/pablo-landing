@@ -133,6 +133,13 @@
       var enCurso = false;
       // % de descuento confirmado por el backend en el checkout vigente.
       var cuponPct = null;
+      // Cupón aceptado por el checkout. Los cupones de MONTO FIJO (ej. BETAANDROID1
+      // = S/20) devuelven descuento_pct null, así que cuponPct no basta para saber
+      // si se aplicó: este flag confirma la aceptación aunque no haya porcentaje.
+      var cuponAplicado = false;
+      // Meses gratis (cupón de monto fijo que cubre ≥1 período: p. ej. S/20 en el
+      // Mensual = 1 mes gratis → el backend lo honra como trial, no descuento).
+      var cuponMeses = 0;
 
       function planSlug() {
         return sessionStorage.getItem("pablo_plan_elegido") || "anual";
@@ -166,13 +173,17 @@
         var ok = document.getElementById("pago-cupon-ok");
         var okTexto = document.getElementById("pago-cupon-ok-texto");
         if (!toggle || !form || !ok) return;
-        if (codigo && cuponPct) {
+        if (codigo && (cuponAplicado || cuponPct)) {
           toggle.hidden = true;
           form.hidden = true;
           ok.hidden = false;
           if (okTexto) {
-            okTexto.textContent = "Código " + codigo + " aplicado: " +
-              (cuponPct >= 100 ? "tu primer cobro sale gratis." : cuponPct + "% de descuento en tu primer cobro.");
+            var detalle = cuponMeses > 0
+              ? (cuponMeses === 1 ? "1 mes gratis, luego cobras normal." : cuponMeses + " meses gratis, luego cobras normal.")
+              : cuponPct
+                ? (cuponPct >= 100 ? "tu primer cobro sale gratis." : cuponPct + "% de descuento en tu primer cobro.")
+                : "descuento aplicado a tu primer cobro.";
+            okTexto.textContent = "Código " + codigo + " aplicado: " + detalle;
           }
         } else {
           ok.hidden = true;
@@ -193,21 +204,33 @@
       };
       /* Aplicar/quitar re-arman el pago: el checkout es el único que valida el
        * código y lo deja pendiente en el backend, así que hay que repetirlo. */
-      window.pabloCuponAplicar = function (ev) {
+      window.pabloCuponAplicar = async function (ev) {
         if (ev && ev.preventDefault) ev.preventDefault();
         var input = document.getElementById("pago-cupon-input");
+        var btn = document.querySelector("#pago-cupon-form .pago-cupon-aplicar");
         var codigo = ((input && input.value) || "").trim().toUpperCase();
         if (!codigo) return false;
+        // Feedback inmediato: sin esto el botón no cambia y el usuario no sabe
+        // si el código se está validando (la ida al backend tarda 1-2s).
+        if (btn && btn.disabled) return false; // anti doble-submit
+        var textoOriginal = btn ? btn.textContent : "";
+        if (btn) { btn.disabled = true; btn.textContent = "Aplicando…"; }
         cuponError("");
         cuponGuardar(codigo);
         window.pabloTrack?.("onboarding_pago_cupon_aplicado", { plan: planSlug() });
         enCurso = false;
-        window.pabloPagoArrancar();
+        try {
+          await window.pabloPagoArrancar();
+        } finally {
+          if (btn) { btn.disabled = false; btn.textContent = textoOriginal || "Aplicar"; }
+        }
         return false;
       };
       window.pabloCuponQuitar = function () {
         cuponGuardar("");
         cuponPct = null;
+        cuponMeses = 0;
+        cuponAplicado = false;
         cuponError("");
         var form = document.getElementById("pago-cupon-form");
         if (form) form.hidden = true;
@@ -270,12 +293,19 @@
         if (el) {
           el.textContent =
             p.texto +
-            (p.trial > 0
-              ? " · " + p.trial + " días gratis. Registras tu tarjeta y no se cobra hasta el día " +
-                (p.trial + 1) + ". Cancelas cuando quieras."
-              : " · se cobra hoy, cancela cuando quieras.") +
-            // Descuento confirmado por el backend en el checkout vigente.
-            (cuponPct
+            // Un código de "meses gratis" (cupón de monto fijo) manda sobre el
+            // trial normal: el próximo cobro cae al terminar el mes gratis.
+            (cuponMeses > 0
+              ? (cuponMeses === 1
+                  ? " · 1 mes gratis. Registras tu tarjeta y no se cobra hasta dentro de 1 mes. Cancelas cuando quieras."
+                  : " · " + cuponMeses + " meses gratis. Registras tu tarjeta y no se cobra hasta dentro de " + cuponMeses + " meses. Cancelas cuando quieras.")
+              : p.trial > 0
+                ? " · " + p.trial + " días gratis. Registras tu tarjeta y no se cobra hasta el día " +
+                  (p.trial + 1) + ". Cancelas cuando quieras."
+                : " · se cobra hoy, cancela cuando quieras.") +
+            // Descuento porcentual confirmado por el backend (los de meses gratis
+            // no llevan %, ya se explicaron arriba).
+            (cuponMeses === 0 && cuponPct
               ? cuponPct >= 100
                 ? " Tu primer cobro sale GRATIS con tu código de descuento."
                 : " Incluye tu " + cuponPct + "% de descuento en el primer cobro."
@@ -378,6 +408,8 @@
             cuponError(registro.error);
             cuponGuardar("");
             cuponPct = null;
+            cuponMeses = 0;
+            cuponAplicado = false;
             datosCheckout.codigo = undefined;
             registro = await flowSuscripcion(datosCheckout, sesion.access_token);
           }
@@ -389,8 +421,13 @@
           if (!registro.token || !registro.entorno) {
             throw new Error(registro.error || "No pudimos iniciar el pago");
           }
-          // Descuento validado por el backend: reflejarlo en el resumen.
+          // Descuento validado por el backend: reflejarlo en el resumen. El
+          // código sobrevive al checkout solo si se aceptó (los rechazos lo
+          // limpian arriba), así que su presencia = cupón aplicado, aunque sea
+          // de monto fijo y no traiga porcentaje.
           cuponPct = Number(registro.descuento_pct) || null;
+          cuponMeses = Number(registro.meses_gratis) || 0;
+          cuponAplicado = !!cuponActual();
           pintarResumen();
           cuponPintar();
 
