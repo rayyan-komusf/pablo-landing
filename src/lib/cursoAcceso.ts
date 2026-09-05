@@ -35,25 +35,30 @@ type Tokens = {
   email?: string;
 };
 
+let tokensEnMemoria: Tokens | null = null;
+let renovacionEnCurso: Promise<string | null> | null = null;
+
 function leerTokens(): Tokens | null {
   try {
     const t = JSON.parse(localStorage.getItem(SESION_KEY) ?? "null");
-    return t?.access_token && t?.refresh_token ? (t as Tokens) : null;
+    tokensEnMemoria = t?.access_token && t?.refresh_token ? (t as Tokens) : null;
+    return tokensEnMemoria;
   } catch {
-    return null;
+    return tokensEnMemoria;
   }
 }
 
 function guardarTokens(data: any, email?: string) {
+  tokensEnMemoria = {
+    access_token: data.access_token,
+    refresh_token: data.refresh_token,
+    expires_at: Date.now() + (Number(data.expires_in) || 3600) * 1000,
+    email: email ?? data.user?.email,
+  };
   try {
     localStorage.setItem(
       SESION_KEY,
-      JSON.stringify({
-        access_token: data.access_token,
-        refresh_token: data.refresh_token,
-        expires_at: Date.now() + (Number(data.expires_in) || 3600) * 1000,
-        email: email ?? data.user?.email,
-      }),
+      JSON.stringify(tokensEnMemoria),
     );
   } catch {
     /* modo privado: la sesión durará lo que dure la página */
@@ -65,6 +70,7 @@ export const haySesionCurso = (): boolean => leerTokens() !== null;
 export const emailSesionCurso = (): string | null => leerTokens()?.email ?? null;
 
 export function cerrarSesionCurso() {
+  tokensEnMemoria = null;
   try {
     localStorage.removeItem(SESION_KEY);
   } catch {
@@ -84,7 +90,7 @@ async function authFetch(path: string, body: unknown) {
   } catch {
     /* respuesta sin body */
   }
-  return { ok: res.ok, data };
+  return { ok: res.ok, status: res.status, data };
 }
 
 export async function loginCurso(
@@ -121,21 +127,30 @@ async function accessToken(): Promise<string | null> {
   const t = leerTokens();
   if (!t) return null;
   if (t.expires_at - 60_000 > Date.now()) return t.access_token;
-  const r = await authFetch("/auth/v1/token?grant_type=refresh_token", {
-    refresh_token: t.refresh_token,
-  });
-  if (!r.ok || !r.data?.access_token) {
-    cerrarSesionCurso();
-    return null;
+  // A page can ask for access and report progress at the same time. Rotate
+  // the refresh token once; parallel refreshes can invalidate the session.
+  if (!renovacionEnCurso) {
+    renovacionEnCurso = (async () => {
+      const r = await authFetch("/auth/v1/token?grant_type=refresh_token", {
+        refresh_token: t.refresh_token,
+      });
+      // Do not overwrite a newer login or resurrect a session after logout.
+      if (leerTokens()?.refresh_token !== t.refresh_token) return leerTokens()?.access_token ?? null;
+      if (!r.ok || !r.data?.access_token) {
+        if (r.status === 400 || r.status === 401) cerrarSesionCurso();
+        return null;
+      }
+      guardarTokens(r.data, t.email);
+      return r.data.access_token as string;
+    })().finally(() => { renovacionEnCurso = null; });
   }
-  guardarTokens(r.data, t.email);
-  return r.data.access_token as string;
+  return renovacionEnCurso;
 }
 
 async function llamarCursoAcceso(body: Record<string, unknown>): Promise<any | null> {
-  const token = await accessToken();
-  if (!token) return null;
   try {
+    const token = await accessToken();
+    if (!token) return null;
     const res = await fetch(SUPABASE_URL + "/functions/v1/curso-acceso", {
       method: "POST",
       headers: {
