@@ -3,7 +3,9 @@ import Layout from "../../layouts/Layout.astro";
 import Navbar from "../../components/Navbar.astro";
 import Footer from "../../components/Footer.astro";
 import PlantillaLeadModal from "../../components/PlantillaLeadModal.astro";
+import FinalCTA from "../../components/sections/FinalCTA.astro";
 import { getPosts, getPostBySlug, renderBlocks } from "../../lib/notion";
+import { getBlogOverride } from "../../lib/blogOverrides";
 
 export async function getStaticPaths() {
   const posts = await getPosts();
@@ -16,7 +18,9 @@ const data = await getPostBySlug(slug!);
 if (!data) return Astro.redirect("/blog");
 
 const { meta, blocks } = data;
-const content = renderBlocks(blocks);
+// Este post trae su cuerpo del repo; los demás siguen saliendo de Notion.
+const override = getBlogOverride(slug);
+const content = override?.contenido ?? renderBlocks(blocks);
 // Lead magnet: si el post enlaza la Plantilla de Presupuesto, el link se
 // intercepta con un form (nombre + correo → Brevo) antes de entregarla.
 const tienePlantilla = content.includes("1PvzGpNJavzwq0-mDEzKakf6jmJIiCSX6");
@@ -67,6 +71,7 @@ const fecha = meta.fecha
       </div>
     </article>
   </main>
+  {override?.ctaFinal && <FinalCTA />}
   {tienePlantilla && <PlantillaLeadModal />}
   <Footer />
 </Layout>
