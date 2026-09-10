@@ -28,6 +28,21 @@
 //
 // Si PostHog no carga (bloqueador), se ve el control y la visita no cuenta
 // en el experimento. Si la flag desaparece, la variante cacheada se limpia.
+//
+// ANUNCIOS (Rodrigo 10-sep-2026: "que también sea en base a anuncios"): el
+// visitante llega con utm_* del anuncio (o las trae de su primer toque,
+// `pablo_atrib_v1` de Atribucion.astro). Antes de leer las flags se mandan a
+// PostHog de dos formas:
+//   · `register` → super properties `anuncio_fuente/medio/campana/contenido/
+//     termino` + `anuncio_pauta` en TODOS los eventos (landing y onboarding):
+//     los resultados del experimento se cortan por anuncio (insights del
+//     dashboard "A/B hero por anuncio").
+//   · `setPersonPropertiesForFlags` → las mismas utm_* como propiedades de
+//     persona SOLO para evaluar flags: en la condición de la flag se puede
+//     fijar una variante por anuncio (ej. utm_campaign = "whatsapp-audio" →
+//     variante `whatsapp`) o limitar el experimento a `utm_medium = paid`,
+//     todo desde PostHog, sin tocar código.
+// La URL actual manda; si no trae utm, se usa el primer toque guardado.
 ---
 
 <script is:inline>
@@ -134,11 +149,81 @@
       });
     }
 
+    // Anuncio del visitante: utm_* de la URL actual o del primer toque.
+    var UTMS = ["utm_source", "utm_medium", "utm_campaign", "utm_content", "utm_term"];
+    function anuncio() {
+      var utm = {};
+      try {
+        var q = new URLSearchParams(location.search);
+        UTMS.forEach(function (k) {
+          var v = q.get(k);
+          if (v) utm[k] = v.slice(0, 150);
+        });
+      } catch (e) {
+        /* sin URL legible */
+      }
+      if (!utm.utm_source) {
+        try {
+          var previa = JSON.parse(localStorage.getItem("pablo_atrib_v1") || "null");
+          if (previa) {
+            UTMS.forEach(function (k) {
+              if (previa[k] && !utm[k]) utm[k] = String(previa[k]).slice(0, 150);
+            });
+          }
+        } catch (e) {
+          /* sin atribución previa */
+        }
+      }
+      var pauta = false;
+      try {
+        pauta = utm.utm_medium === "paid" || sessionStorage.getItem("pablo_pauta") === "1";
+      } catch (e) {
+        /* sin storage */
+      }
+      return { utm: utm, pauta: pauta };
+    }
+
+    function contarAnuncio(ph) {
+      var a = anuncio();
+      var sup = {
+        anuncio_fuente: a.utm.utm_source || "organico",
+        anuncio_medio: a.utm.utm_medium || null,
+        anuncio_campana: a.utm.utm_campaign || null,
+        anuncio_contenido: a.utm.utm_content || null,
+        anuncio_termino: a.utm.utm_term || null,
+        anuncio_pauta: a.pauta,
+      };
+      try {
+        if (typeof ph.register === "function") ph.register(sup);
+      } catch (e) {
+        /* noop */
+      }
+      // Solo para evaluar flags (no crea perfil ni pisa person props reales):
+      // permite condicionar la variante por anuncio desde PostHog.
+      var paraFlags = {};
+      UTMS.forEach(function (k) {
+        if (a.utm[k]) paraFlags[k] = a.utm[k];
+      });
+      paraFlags.es_pauta = a.pauta ? "1" : "0";
+      try {
+        if (typeof ph.setPersonPropertiesForFlags === "function") {
+          ph.setPersonPropertiesForFlags(paraFlags);
+        }
+      } catch (e) {
+        /* noop */
+      }
+      return sup;
+    }
+
     var intentos = 0;
     (function esperar() {
       var ph = window.posthog;
       if (ph && typeof ph.onFeatureFlags === "function") {
         try {
+          // El anuncio va ANTES de leer las flags: la evaluación ya lo ve
+          // (setPersonPropertiesForFlags recarga flags y onFeatureFlags
+          // vuelve a disparar con la asignación definitiva).
+          contarAnuncio(ph);
           ph.onFeatureFlags(alCargarFlags);
         } catch (e) {
           /* PostHog roto: nos quedamos con el control/caché */
@@ -152,6 +237,8 @@
       variante: function (flag) {
         return activas[flag] || null;
       },
+      // Anuncio del visitante ({utm:{...}, pauta:bool}), para quien lo necesite.
+      anuncio: anuncio,
       aplicar: aplicar,
       // Para depurar: ?ab=landing-hero-copy:whatsapp fuerza una variante en
       // esta pestaña (no cuenta en PostHog si la flag no la asignó).
