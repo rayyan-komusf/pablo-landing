@@ -1,0 +1,176 @@
+---
+// Runtime de A/B tests de la web (landing + onboarding), encima de los
+// EXPERIMENTOS de PostHog (Rodrigo 10-sep-2026: "necesitamos poder hacer
+// testeo ab"). Cero dependencias, declarativo: la variante se decide en
+// PostHog y el markup dice qué se ve en cada una.
+//
+//   1. Crear el experimento en PostHog (Experiments → New) con una flag
+//      multivariante, ej. `landing-hero-copy` con variantes `control` y
+//      `whatsapp`. Lanzarlo.
+//   2. En el .astro, marcar los elementos:
+//        <span data-ab-hide="landing-hero-copy:whatsapp">texto actual</span>
+//        <span data-ab-show="landing-hero-copy:whatsapp">texto nuevo</span>
+//      `data-ab-show` = visible SOLO en esa variante (oculto de fábrica por CSS;
+//      NO usar el atributo `hidden`, el CSS lo destapa con display:revert);
+//      `data-ab-hide` = se oculta en esa variante. El control no necesita nada.
+//      Para estilos, <html> recibe la clase `ab-<flag>-<variante>`.
+//   3. En JS: `window.pabloAB.variante("landing-hero-copy")` → "whatsapp" | null.
+//
+// Cómo evita el parpadeo: PostHog carga DIFERIDO (tras el load, Sandra
+// 10-ago-2026), así que la primera visita renderiza el control y cambia a la
+// variante cuando llegan las flags (1-3 s). La variante se guarda en
+// localStorage (`pablo_ab_v1`) y en las visitas siguientes se aplica con CSS
+// EN EL <head>, antes del primer pintado: cero flash. La exposición del
+// experimento la cuenta PostHog al leer la flag (`$feature_flag_called`), y
+// todos los eventos posteriores viajan con `$feature/<flag>`, así que las
+// métricas (clic en CTA, onboarding_completed, suscripción) se cortan por
+// variante sin tocar nada más.
+//
+// Si PostHog no carga (bloqueador), se ve el control y la visita no cuenta
+// en el experimento. Si la flag desaparece, la variante cacheada se limpia.
+---
+
+<script is:inline>
+  (function () {
+    var CLAVE = "pablo_ab_v1";
+    var cache = {};
+    try {
+      cache = JSON.parse(localStorage.getItem(CLAVE) || "{}") || {};
+    } catch (e) {
+      cache = {};
+    }
+
+    var estilos = document.createElement("style");
+    estilos.id = "pablo-ab-css";
+    document.head.appendChild(estilos);
+
+    function css(flag, variante) {
+      if (!variante) return "";
+      var sel = JSON.stringify(flag + ":" + variante);
+      return (
+        "[data-ab-show=" + sel + "]{display:revert!important}" +
+        "[data-ab-hide=" + sel + "]{display:none!important}"
+      );
+    }
+
+    var activas = {};
+    var forzadas = {};
+
+    // Todo por CSS (nada de toggles de `hidden`): así la variante cacheada
+    // se aplica desde el <head>, antes de que exista el body.
+    var BASE = "[data-ab-show]{display:none!important}";
+
+    function pintar() {
+      var reglas = BASE;
+      var clases = [];
+      Object.keys(activas).forEach(function (flag) {
+        var v = activas[flag];
+        if (!v) return;
+        reglas += css(flag, v);
+        clases.push("ab-" + flag + "-" + v);
+      });
+      estilos.textContent = reglas;
+      // Clases html: quitar las ab-* viejas y poner las vigentes.
+      var html = document.documentElement;
+      Array.prototype.slice.call(html.classList).forEach(function (c) {
+        if (c.indexOf("ab-") === 0 && clases.indexOf(c) === -1) html.classList.remove(c);
+      });
+      clases.forEach(function (c) {
+        html.classList.add(c);
+      });
+    }
+
+    function aplicar(flag, variante, persistir) {
+      var v = typeof variante === "string" && variante && variante !== "control" ? variante : null;
+      activas[flag] = v;
+      if (persistir !== false) {
+        if (v) cache[flag] = v;
+        else delete cache[flag];
+        try {
+          localStorage.setItem(CLAVE, JSON.stringify(cache));
+        } catch (e) {
+          /* sin storage: la variante solo dura esta página */
+        }
+      }
+      pintar();
+    }
+
+    // 1) Variantes cacheadas → CSS antes del primer pintado.
+    Object.keys(cache).forEach(function (flag) {
+      activas[flag] = cache[flag];
+    });
+    pintar();
+
+    // 2) Flags de PostHog cuando carguen (init diferido: esperar al stub).
+    function flagsEnPagina() {
+      var set = {};
+      var nodos = document.querySelectorAll("[data-ab-show],[data-ab-hide]");
+      Array.prototype.forEach.call(nodos, function (el) {
+        var a = el.getAttribute("data-ab-show") || el.getAttribute("data-ab-hide") || "";
+        var flag = a.split(":")[0];
+        if (flag) set[flag] = true;
+      });
+      Object.keys(cache).forEach(function (flag) {
+        set[flag] = true;
+      });
+      return Object.keys(set);
+    }
+
+    function alCargarFlags() {
+      var ph = window.posthog;
+      if (!ph || typeof ph.getFeatureFlag !== "function") return;
+      flagsEnPagina().forEach(function (flag) {
+        if (forzadas[flag]) return; // ?ab= manda en esta pestaña
+        var v;
+        try {
+          // getFeatureFlag registra la exposición ($feature_flag_called).
+          v = ph.getFeatureFlag(flag);
+        } catch (e) {
+          v = undefined;
+        }
+        if (v === undefined) return; // flag inexistente/sin evaluar: no tocar
+        // false/"control" → control (sin clase ni caché); otra string → variante.
+        aplicar(flag, typeof v === "string" ? v : null);
+      });
+    }
+
+    var intentos = 0;
+    (function esperar() {
+      var ph = window.posthog;
+      if (ph && typeof ph.onFeatureFlags === "function") {
+        try {
+          ph.onFeatureFlags(alCargarFlags);
+        } catch (e) {
+          /* PostHog roto: nos quedamos con el control/caché */
+        }
+        return;
+      }
+      if (++intentos < 80) setTimeout(esperar, 250); // hasta 20 s
+    })();
+
+    window.pabloAB = {
+      variante: function (flag) {
+        return activas[flag] || null;
+      },
+      aplicar: aplicar,
+      // Para depurar: ?ab=landing-hero-copy:whatsapp fuerza una variante en
+      // esta pestaña (no cuenta en PostHog si la flag no la asignó).
+      _forzarDesdeUrl: function () {
+        try {
+          var q = new URLSearchParams(location.search).get("ab");
+          if (!q) return;
+          q.split(",").forEach(function (par) {
+            var p = par.split(":");
+            if (p[0]) {
+              forzadas[p[0]] = true;
+              aplicar(p[0], p[1] || null, false); // solo esta pestaña, sin caché
+            }
+          });
+        } catch (e) {
+          /* noop */
+        }
+      },
+    };
+    window.pabloAB._forzarDesdeUrl();
+  })();
+</script>

@@ -15,9 +15,20 @@ import { CTA, IS_LIVE, APP_URL } from "../../siteConfig";
 
     <!-- ── Derecha: titular + CTAs apilados ── -->
     <div class="hero__content">
+      <!-- A/B test `landing-hero-copy` (PostHog, variante `whatsapp`), ver
+           AbTests.astro: el control es el titular de siempre; la variante
+           cambia titular, agrega subtítulo y renombra el CTA principal. -->
       <h1 class="hero__title">
-        Manejar tu dinero nunca fue <span class="highlight">tan fácil</span>
+        <span data-ab-hide="landing-hero-copy:whatsapp">
+          Manejar tu dinero nunca fue <span class="highlight">tan fácil</span>
+        </span>
+        <span data-ab-show="landing-hero-copy:whatsapp">
+          Tus gastos anotados <span class="highlight">sin salir de WhatsApp</span>
+        </span>
       </h1>
+      <p class="hero__subtitle" data-ab-show="landing-hero-copy:whatsapp">
+        Un mensaje, un audio o una foto: Pablo lo anota y te dice a dónde se va tu dinero.
+      </p>
 
       <div class="hero__ctas">
         {
@@ -26,9 +37,10 @@ import { CTA, IS_LIVE, APP_URL } from "../../siteConfig";
               href={CTA.href!}
               class="btn-primary hero__cta"
               id="hero-cta-btn"
-              onclick="try{window.posthog?.capture('landing_cta_clicked',{cta:'hero_desbloquea',location:'hero'})}catch(e){};if(typeof fbq!=='undefined')fbq('trackCustom','Ver_Planes');if(typeof ttq!=='undefined')ttq.track('ClickButton',{content_name:'Ver_Planes'});"
+              onclick="try{window.posthog?.capture('landing_cta_clicked',{cta:'hero_desbloquea',location:'hero',hero_variant:window.pabloAB?.variante('landing-hero-copy')||'control'})}catch(e){};if(typeof fbq!=='undefined')fbq('trackCustom','Ver_Planes');if(typeof ttq!=='undefined')ttq.track('ClickButton',{content_name:'Ver_Planes'});"
             >
-              {CTA.label}
+              <span data-ab-hide="landing-hero-copy:whatsapp">{CTA.label}</span>
+              <span data-ab-show="landing-hero-copy:whatsapp">Pruébalo gratis</span>
             </a>
           ) : (
             <button
@@ -43,7 +55,7 @@ import { CTA, IS_LIVE, APP_URL } from "../../siteConfig";
         <a
           href={APP_URL}
           class="btn-secondary hero__cta"
-          onclick="try{window.posthog?.capture('landing_cta_clicked',{cta:'ya_tengo_cuenta',location:'hero'})}catch(e){}"
+          onclick="try{window.posthog?.capture('landing_cta_clicked',{cta:'ya_tengo_cuenta',location:'hero',hero_variant:window.pabloAB?.variante('landing-hero-copy')||'control'})}catch(e){}"
         >Ya tengo una cuenta</a>
       </div>
     </div>
@@ -91,6 +103,14 @@ import { CTA, IS_LIVE, APP_URL } from "../../siteConfig";
     font-size: 44px;
     line-height: 1.2;
     color: var(--color-heading);
+  }
+
+  /* Subtítulo: solo existe en la variante `whatsapp` del A/B (AbTests). */
+  .hero__subtitle {
+    font-size: 18px;
+    line-height: 1.5;
+    color: var(--color-body, #56578F);
+    margin-top: -8px;
   }
 
   /* CTAs apilados en columna con ancho fijo, como Duolingo */
@@ -194,6 +214,13 @@ import { CTA, IS_LIVE, APP_URL } from "../../siteConfig";
       max-width: 340px;
     }
 
+    .hero__subtitle {
+      font-size: 14px;
+      line-height: 1.4;
+      max-width: 340px;
+      margin-top: -6px;
+    }
+
     .hero__ctas {
       max-width: 340px;
     }
@@ -223,6 +250,10 @@ import { CTA, IS_LIVE, APP_URL } from "../../siteConfig";
     }
     .hero__title {
       font-size: 20px;
+    }
+    /* En pantallas muy cortas el subtítulo se sacrifica: el teléfono manda. */
+    .hero__subtitle {
+      display: none !important;
     }
   }
 

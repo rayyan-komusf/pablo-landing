@@ -3,6 +3,7 @@
 // Independiente de Layout.astro: el onboarding trae su propio CSS
 // (public/onboarding/styles) y no comparte estilos con la landing.
 import PostHogSnippet from "../components/PostHogSnippet.astro";
+import AbTests from "../components/AbTests.astro";
 import Atribucion from "../components/Atribucion.astro";
 import PabloActor from "../components/onboarding/PabloActor.astro";
 import MetaPixel from "../components/MetaPixel.astro";
@@ -54,6 +55,7 @@ const base = "/onboarding";
 
     <!-- PostHog (pageviews manuales: cada pantalla emite onboarding_screen_viewed) -->
     <PostHogSnippet capturePageview={false} />
+    <AbTests />
   </head>
   <body>
     <div class="app-shell" id="appShell">
