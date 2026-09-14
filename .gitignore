@@ -25,3 +25,7 @@ pnpm-debug.log*
 
 # config local de Claude Code
 .claude/
+
+# browser verification
+test-results/
+playwright-report/

@@ -17,7 +17,7 @@ export default defineConfig({
   integrations: [
     sitemap({
       // Landings escondidas de campaña / previews: fuera del sitemap
-      filter: (page) => !page.includes('/fiestas-patrias') && !page.includes('/webinar-prueba'),
+      filter: (page) => !page.includes('/flow/retorno') && !page.includes('/fiestas-patrias') && !page.includes('/webinar-prueba'),
       changefreq: 'weekly',
       priority: 0.7,
       lastmod: new Date('2026-03-25'),

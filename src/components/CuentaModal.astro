@@ -1,6 +1,7 @@
 ---
+import FlowMedios from "./FlowMedios.astro";
 // Modal reutilizable de "crear cuenta y pagar" (Pricing del home y oferta).
-// TODO ocurre acá, sin salir de la página (pedido de Rodrigo 29-jul):
+// Tarjeta embebida; Yape abre Flow y vuelve a /flow/retorno:
 //   1. cuenta contra Supabase Auth (anon key)
 //   2. PAGO embebido con el widget de Flow (elements), mismo patrón que
 //      StepCuentaPago del onboarding: flow-suscripcion "checkout" da el token
@@ -51,6 +52,7 @@
         <p class="cuenta-exito-texto">¡Pago exitoso!</p>
       </div>
       <p class="cuenta-pago-estado" id="cuenta-pago-estado">Preparando el pago seguro…</p>
+      <FlowMedios id="cuenta-pago-medios" />
       <div id="cuenta-pago-widget"></div>
       <div class="cuenta-cupon">
         <button type="button" class="cuenta-cupon-toggle" id="cuenta-cupon-toggle">
@@ -82,7 +84,7 @@
       Al crear tu cuenta aceptas los
       <a href="/terminos" target="_blank" rel="noopener">Términos</a> y la
       <a href="/privacidad" target="_blank" rel="noopener">Privacidad</a>.
-      Pago 100% seguro; Pablo nunca ve tu tarjeta.
+      Pago 100% seguro; Pablo no recibe tus datos de pago.
     </p>
     <p class="cuenta-legal">
       ¿Ya tienes cuenta?
@@ -317,7 +319,7 @@
       var dias = TRIAL[planActual] || 0;
       pagoResumenEl.textContent =
         cfg.resumen + (dias > 0
-          ? " · " + dias + " días gratis. Registras tu tarjeta y no se cobra hasta el día " +
+          ? " · " + dias + " días gratis. Vinculas tu medio de pago y no se cobra hasta el día " +
             (dias + 1) + ". Cancelas cuando quieras."
           : " · se cobra hoy, cancela cuando quieras") +
         // Descuento confirmado por el backend en el checkout vigente.
@@ -381,7 +383,7 @@
     function mostrarFasePago() {
       var cfg = PLANES[planActual];
       if (tituloEl) tituloEl.textContent = "Activa tu " + cfg.nombre;
-      if (subEl) subEl.textContent = "Último paso: tus datos de pago. Nunca salimos de esta página.";
+      if (subEl) subEl.textContent = "Último paso: elige tarjeta o Yape recurrente para tu suscripción.";
       form.hidden = true;
       if (pagoEl) pagoEl.hidden = false;
       arrancarPago();
@@ -390,6 +392,8 @@
     async function arrancarPago() {
       if (pagoEnCurso) return;
       pagoEnCurso = true;
+      document.getElementById("cuenta-pago-medios").hidden = true;
+      document.getElementById("cuenta-pago-widget").innerHTML = "";
       pagoReintentar(false);
       if (pagoExitoEl) pagoExitoEl.hidden = true;
       pintarResumen();
@@ -433,19 +437,34 @@
         pintarResumen();
         cuponPintar();
 
-        await cargarFlowScript(registro.entorno);
-        if (typeof window.Flow !== "function") throw new Error("El pago seguro no está disponible");
-
-        var contenedor = document.getElementById("cuenta-pago-widget");
-        if (contenedor) contenedor.innerHTML = "";
+        var confirmarRegistro = async function () {
+          pagoEstado("Confirmando tu suscripción…");
+          var res = await flowSuscripcion({ accion: "confirmar", token: registro.token }, sesion.access_token);
+          if (res && res.ok) {
+            if (res.acceso_bloqueado || res.pago_pendiente || res.cobro_pendiente) {
+              pagoEstado("Medio de pago vinculado. Flow todavía está confirmando el cobro.");
+              document.getElementById("cuenta-pago-widget").innerHTML = "";
+              setTimeout(irALaAppLogueado, 1500);
+              return;
+            }
+            try { window.posthog && window.posthog.capture("cuenta_modal_pago_exitoso", { plan: planActual }); } catch (e) {}
+            if (window.fbq) fbq("trackCustom", "PagoFlowExitoso", { plan: planActual });
+            if (contenedor) contenedor.innerHTML = "";
+            pagoEstado("");
+            if (pagoExitoEl) pagoExitoEl.hidden = false;
+            setTimeout(alGracias, 1500);
+          } else {
+            pagoEstado((res && res.error) || "El pago no se completó, intenta de nuevo.", true);
+            pagoReintentar(true);
+            pagoEnCurso = false;
+          }
+        };
+        if (registro.registro_confirmado) {
+          await confirmarRegistro();
+          return;
+        }
         pagoEstado("");
-
-        var flow = window.Flow();
-        var subscribe = flow.elements().create("subscribe", {
-          style: { backgroundColor: "transparent" },
-        });
-        subscribe.mount("#cuenta-pago-widget", registro.token);
-        // InitiateCheckout en el momento exacto en que se abre el widget:
+        // InitiateCheckout al mostrar los medios de pago:
         // sin él, el tramo "vio los planes → registró tarjeta" es caja negra
         // (el que vivía en SubscribeModal nunca disparaba: nadie abre ese
         // modal desde que los botones usan este).
@@ -465,25 +484,24 @@
             });
           }
         } catch (eIC) { /* medir nunca bloquea el pago */ }
+        await window.pabloElegirMedioFlow("cuenta-pago-medios", registro, sesion);
+        await cargarFlowScript(registro.entorno);
+        if (typeof window.Flow !== "function") throw new Error("El pago seguro no está disponible");
+
+        var contenedor = document.getElementById("cuenta-pago-widget");
+        if (contenedor) contenedor.innerHTML = "";
+        pagoEstado("");
+
+        var flow = window.Flow();
+        var subscribe = flow.elements().create("subscribe", {
+          style: { backgroundColor: "transparent" },
+        });
+        subscribe.mount("#cuenta-pago-widget", registro.token);
+
         // El widget devuelve un "thenable" propio, no una Promise real (su
         // .then no encadena .catch): Promise.resolve lo asimila.
         Promise.resolve(flow.handleCardSubscribed(subscribe))
-          .then(async function () {
-            pagoEstado("Confirmando tu suscripción…");
-            var res = await flowSuscripcion({ accion: "confirmar", token: registro.token }, sesion.access_token);
-            if (res && res.ok) {
-              try { window.posthog && window.posthog.capture("cuenta_modal_pago_exitoso", { plan: planActual }); } catch (e) {}
-              if (window.fbq) fbq("trackCustom", "PagoFlowExitoso", { plan: planActual });
-              if (contenedor) contenedor.innerHTML = "";
-              pagoEstado("");
-              if (pagoExitoEl) pagoExitoEl.hidden = false;
-              setTimeout(alGracias, 1500);
-            } else {
-              pagoEstado((res && res.error) || "El pago no se completó, intenta de nuevo.", true);
-              pagoReintentar(true);
-              pagoEnCurso = false;
-            }
-          })
+          .then(confirmarRegistro)
           .catch(function (e) {
             console.error("[Pablo] Widget de Flow:", e);
             pagoEstado("El pago no se completó, intenta de nuevo.", true);

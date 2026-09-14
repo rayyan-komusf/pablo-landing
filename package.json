@@ -10,12 +10,16 @@
     "build": "astro build",
     "test": "node --experimental-strip-types --test tests/*.test.ts",
     "preview": "astro preview",
-    "astro": "astro"
+    "astro": "astro",
+    "test:flow:ui": "playwright test"
   },
   "dependencies": {
     "@astrojs/sitemap": "^3.7.1",
     "@notionhq/client": "^5.22.0",
     "astro": "^6.0.5",
     "notion-to-md": "^3.1.9"
+  },
+  "devDependencies": {
+    "@playwright/test": "^1.57.0"
   }
 }

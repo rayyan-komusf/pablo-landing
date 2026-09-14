@@ -1,0 +1,59 @@
+<!doctype html>
+<html lang="es">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <meta name="robots" content="noindex,nofollow" />
+    <meta name="referrer" content="no-referrer" />
+    <title>Confirmar suscripción · Pablo</title>
+  </head>
+  <body>
+    <main aria-live="polite">
+      <img src="/onboarding/images/pablo/pablo-logo.png" alt="Pablo" width="64" height="64" />
+      <h1 id="flow-titulo">Confirmando con Flow…</h1>
+      <p id="flow-detalle">Espera mientras comprobamos la vinculación de tu medio de pago.</p>
+      <button id="flow-reintentar" hidden>Reintentar confirmación</button>
+      <a id="flow-continuar" href="https://usapablo.app/auth" hidden>Continuar a Pablo</a>
+    </main>
+    <script>
+      import { confirmarRetornoFlow, mensajeConfirmacionFlow, urlAppTrasFlow } from "../../lib/flowRetorno";
+      const token = new URLSearchParams(location.search).get("token") || "";
+      const titulo = document.getElementById("flow-titulo")!;
+      const detalle = document.getElementById("flow-detalle")!;
+      const reintentar = document.getElementById("flow-reintentar") as HTMLButtonElement;
+      const continuar = document.getElementById("flow-continuar") as HTMLAnchorElement;
+      let enCurso = false;
+      async function confirmar() {
+        if (enCurso) return;
+        enCurso = true;
+        reintentar.hidden = true;
+        continuar.hidden = true;
+        titulo.textContent = "Confirmando con Flow…";
+        try {
+          const resultado = await confirmarRetornoFlow(token);
+          const mensaje = mensajeConfirmacionFlow(resultado);
+          titulo.textContent = mensaje.titulo;
+          detalle.textContent = mensaje.detalle;
+        } catch (error) {
+          titulo.textContent = "No pudimos confirmar la vinculación";
+          detalle.textContent = error instanceof Error ? error.message : "Inténtalo de nuevo.";
+          reintentar.hidden = !token;
+        } finally {
+          continuar.href = urlAppTrasFlow();
+          continuar.hidden = false;
+          enCurso = false;
+        }
+      }
+      reintentar.addEventListener("click", confirmar);
+      void confirmar();
+    </script>
+  </body>
+</html>
+<style>
+  :global(body) { margin: 0; background: #eeebfa; color: #2b2c64; font: 16px/1.5 system-ui, sans-serif; min-height: 100dvh; display: grid; place-items: center; }
+  main { box-sizing: border-box; width: min(440px, calc(100% - 32px)); margin: 24px auto; padding: 28px; background: white; border: 2px solid #dedbec; border-radius: 20px; box-shadow: 0 4px 0 #dedbec; text-align: center; }
+  h1 { font-size: 24px; }
+  button, a { box-sizing: border-box; display: block; width: 100%; padding: 12px; margin-top: 16px; border: 0; border-radius: 12px; background: #2b2c64; color: white; font: inherit; font-weight: 700; text-decoration: none; cursor: pointer; }
+  [hidden] { display: none; }
+  button:focus-visible, a:focus-visible { outline: 3px solid #2b2c64; outline-offset: 3px; }
+</style>

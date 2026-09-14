@@ -1,5 +1,8 @@
-<!-- Registro paso a paso (5/5): pago embebido con el widget oficial de Flow
-     (elements), SIN salir del onboarding. Con la sesión ya asegurada por el
+---
+import FlowMedios from "../../FlowMedios.astro";
+---
+<!-- Registro paso a paso (5/5): tarjeta con Flow Elements o Yape recurrente
+     en la página segura de Flow. Con la sesión ya asegurada por el
      step del código: flow-suscripcion "checkout" da el token del registro de
      tarjeta, el widget se monta aquí y "confirmar" crea la suscripción (con
      el trial de la promo si aplica). Al pagar → puente de sesión a la app
@@ -76,11 +79,12 @@
       <div class="pago-cargando" id="pago-cargando" hidden>
         <div class="pago-cargando-sprite" aria-hidden="true"></div>
       </div>
+      <FlowMedios id="pago-medios" />
       <div id="pago-widget"></div>
       <button type="button" class="btn-primary btn-continue" id="pago-reintentar" hidden onclick="pabloPagoReintentar()">
         Reintentar
       </button>
-      <p class="pago-nota">🔒 Pago procesado por Flow. Pablo nunca ve tu tarjeta.</p>
+      <p class="pago-nota">🔒 Pago procesado por Flow. Pablo no recibe tus datos de pago.</p>
     </div>
   </div>
 
@@ -297,10 +301,10 @@
             // trial normal: el próximo cobro cae al terminar el mes gratis.
             (cuponMeses > 0
               ? (cuponMeses === 1
-                  ? " · 1 mes gratis. Registras tu tarjeta y no se cobra hasta dentro de 1 mes. Cancelas cuando quieras."
-                  : " · " + cuponMeses + " meses gratis. Registras tu tarjeta y no se cobra hasta dentro de " + cuponMeses + " meses. Cancelas cuando quieras.")
+                  ? " · 1 mes gratis. Vinculas tu medio de pago y no se cobra hasta dentro de 1 mes. Cancelas cuando quieras."
+                  : " · " + cuponMeses + " meses gratis. Vinculas tu medio de pago y no se cobra hasta dentro de " + cuponMeses + " meses. Cancelas cuando quieras.")
               : p.trial > 0
-                ? " · " + p.trial + " días gratis. Registras tu tarjeta y no se cobra hasta el día " +
+                ? " · " + p.trial + " días gratis. Vinculas tu medio de pago y no se cobra hasta el día " +
                   (p.trial + 1) + ". Cancelas cuando quieras."
                 : " · se cobra hoy, cancela cuando quieras.") +
             // Descuento porcentual confirmado por el backend (los de meses gratis
@@ -370,6 +374,8 @@
       window.pabloPagoArrancar = async function () {
         if (enCurso) return;
         enCurso = true;
+        document.getElementById("pago-medios").hidden = true;
+        document.getElementById("pago-widget").innerHTML = "";
         setReintentar(false);
         var exito = document.getElementById("pago-exito");
         if (exito) exito.hidden = true;
@@ -431,19 +437,36 @@
           pintarResumen();
           cuponPintar();
 
-          await cargarFlowScript(registro.entorno);
-          if (typeof window.Flow !== "function") throw new Error("Widget de Flow no disponible");
-
-          var contenedor = document.getElementById("pago-widget");
-          if (contenedor) contenedor.innerHTML = "";
+          var confirmarRegistro = async function () {
+            setEstado("Confirmando tu suscripción…");
+            var res = await flowSuscripcion({ accion: "confirmar", token: registro.token }, sesion.access_token);
+            if (res && res.ok) {
+              if (res.acceso_bloqueado || res.pago_pendiente || res.cobro_pendiente) {
+                setEstado("Medio de pago vinculado. Flow todavía está confirmando el cobro.");
+                setCargando(false);
+                document.getElementById("pago-widget").innerHTML = "";
+                setTimeout(irALaAppPagado, 1600);
+                return;
+              }
+              window.pabloTrack?.("onboarding_pago_flow_exitoso", { plan: planSlug() });
+              if (window.fbq) window.fbq("trackCustom", "PagoFlowExitoso", { plan: planSlug() });
+              // Check animado un instante antes de entrar a la app.
+              mostrarExito();
+              setTimeout(irALaAppPagado, 1600);
+            } else {
+              setEstado((res && res.error) || "El pago no se completó, intenta de nuevo.", true);
+              setCargando(false);
+              setReintentar(true);
+              enCurso = false;
+            }
+          };
+          if (registro.registro_confirmado) {
+            await confirmarRegistro();
+            return;
+          }
+          setCargando(false);
           setEstado("");
-
-          var flow = window.Flow();
-          var subscribe = flow.elements().create("subscribe", {
-            style: { backgroundColor: "transparent" },
-          });
-          subscribe.mount("#pago-widget", registro.token);
-          // InitiateCheckout en el momento exacto en que se abre el widget:
+          // InitiateCheckout al mostrar los medios de pago:
           // sin él, el tramo "vio los planes → registró tarjeta" es caja negra.
           try {
             var pIC = PLANES[planSlug()] || PLANES.anual;
@@ -462,26 +485,28 @@
               });
             }
           } catch (eIC) { /* medir nunca bloquea el pago */ }
+          var aplicar = document.querySelector("#pago-cupon-form .pago-cupon-aplicar");
+          if (aplicar) { aplicar.disabled = false; aplicar.textContent = "Aplicar"; }
+          await window.pabloElegirMedioFlow("pago-medios", registro, sesion);
+          setCargando(true);
+          await cargarFlowScript(registro.entorno);
+          if (typeof window.Flow !== "function") throw new Error("Widget de Flow no disponible");
+
+          var contenedor = document.getElementById("pago-widget");
+          if (contenedor) contenedor.innerHTML = "";
+          setEstado("");
+
+          var flow = window.Flow();
+          var subscribe = flow.elements().create("subscribe", {
+            style: { backgroundColor: "transparent" },
+          });
+          subscribe.mount("#pago-widget", registro.token);
+
           ocultarCargandoConElWidget(contenedor);
           // El widget de Flow devuelve un "thenable" propio, no una Promise
           // real (su .then no encadena .catch): Promise.resolve lo asimila.
           Promise.resolve(flow.handleCardSubscribed(subscribe))
-            .then(async function () {
-              setEstado("Confirmando tu suscripción…");
-              var res = await flowSuscripcion({ accion: "confirmar", token: registro.token }, sesion.access_token);
-              if (res && res.ok) {
-                window.pabloTrack?.("onboarding_pago_flow_exitoso", { plan: planSlug() });
-                if (window.fbq) window.fbq("trackCustom", "PagoFlowExitoso", { plan: planSlug() });
-                // Check animado un instante antes de entrar a la app.
-                mostrarExito();
-                setTimeout(irALaAppPagado, 1600);
-              } else {
-                setEstado((res && res.error) || "El pago no se completó, intenta de nuevo.", true);
-                setCargando(false);
-                setReintentar(true);
-                enCurso = false;
-              }
-            })
+            .then(confirmarRegistro)
             .catch(function (e) {
               console.error("[Pablo] Widget de Flow:", e);
               setEstado("El pago no se completó, intenta de nuevo.", true);
