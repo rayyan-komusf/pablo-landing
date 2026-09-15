@@ -53,8 +53,8 @@ export const CTA_CONFIG = {
     href: null, // null = abre el modal
   },
   live: {
-    label: 'Desbloquea a Pablo',
-    href: '/planes',
+    label: 'Empieza gratis',
+    href: '/onboarding',
   },
 } as const;
 
@@ -106,7 +106,7 @@ export const CHECKOUT_URLS = {
 
 // URL de la app en el App Store (la pasó Rodrigo el 19-ago).
 export const APP_STORE_URL =
-  'https://apps.apple.com/pe/app/pablo-tu-compa%C3%B1ero-financiero/id6792320815';
+  'https://apps.apple.com/us/app/pablo-tu-compa%C3%B1ero-financiero/id6792320815';
 
 // Android todavía no sale: el badge es una etiqueta de estado, no un botón.
 export const ANDROID_DISPONIBLE = false;

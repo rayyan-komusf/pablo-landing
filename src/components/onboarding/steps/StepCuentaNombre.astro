@@ -52,7 +52,7 @@
       window.pabloTrack?.("onboarding_cuenta_ya_tenia", {});
       var plan = sessionStorage.getItem("pablo_plan_elegido") || "anual";
       window.location.href = window.pabloCuentaConPhDid(
-        window.pabloCuentaAppBase() + "/pricing?plan=" + plan
+        window.pabloCuentaAppBase() + (plan === "free" ? "/auth?gratis=1" : "/pricing?plan=" + plan)
       );
     };
   </script>

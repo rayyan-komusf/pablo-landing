@@ -1,0 +1,43 @@
+---
+import { APP_STORE_URL } from '../siteConfig';
+---
+<dialog id="ios-install-prompt" aria-labelledby="ios-install-title" aria-describedby="ios-install-description">
+  <div class="ios-install-body">
+    <p class="ios-install-kicker">PABLO PARA IPHONE</p>
+    <h2 id="ios-install-title">Tu dinero, contigo.</h2>
+    <p id="ios-install-description">Descarga Pablo para registrar tus gastos y seguir tus metas. Usa la misma cuenta en la app y en la web.</p>
+    <a class="ios-install-download" href={APP_STORE_URL}>Descargar para iOS</a>
+    <button type="button" id="ios-install-close">Seguir en la web</button>
+  </div>
+</dialog>
+<script>
+  const dialog = document.getElementById('ios-install-prompt') as HTMLDialogElement;
+  const key = 'pablo:ios-install:dismissed';
+  const eligible = ['/', '/planes', '/planes/'].includes(location.pathname)
+    && /iPhone/i.test(navigator.userAgent)
+    && !matchMedia('(display-mode: standalone)').matches
+    && !(navigator as Navigator & { standalone?: boolean }).standalone;
+  let dismissed = false;
+  try { dismissed = Date.now() - Number(localStorage.getItem(key) || 0) < 7 * 24 * 60 * 60 * 1000; } catch { /* storage opcional */ }
+  if (eligible && !dismissed) setTimeout(() => {
+    if (!document.querySelector('dialog[open]')) dialog.showModal();
+  }, 1800);
+  function close() {
+    dialog.close();
+    try { localStorage.setItem(key, String(Date.now())); } catch { /* storage opcional */ }
+  }
+  document.getElementById('ios-install-close')?.addEventListener('click', close);
+  dialog.querySelector('a')?.addEventListener('click', close);
+  dialog.addEventListener('cancel', close);
+</script>
+<style>
+  dialog { border:2px solid #e5e5ef; border-radius:28px; padding:0; width:calc(100% - 40px); max-width:380px; margin:auto; color:#2b2c64; background:white; box-shadow:0 20px 70px #18194044; }
+  dialog::backdrop { background:#16163380; backdrop-filter:blur(3px); }
+  .ios-install-body { padding:28px; display:flex; flex-direction:column; gap:18px; }
+  .ios-install-kicker { font-size:12px; font-weight:800; letter-spacing:.1em; color:#8c5a06; }
+  h2 { font-family:var(--font-heading); font-size:30px; line-height:1.1; }
+  #ios-install-description { font-size:15px; line-height:1.5; color:#56578f; }
+  a,button { border-radius:14px; min-height:48px; padding:12px; text-align:center; font-size:15px; font-weight:700; }
+  a { background:#fba920; color:#2b2c64; box-shadow:0 3px 0 #c9820a; }
+  button { background:#f5f3ff; border:0; color:#2b2c64; cursor:pointer; }
+</style>

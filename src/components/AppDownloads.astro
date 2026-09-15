@@ -1,0 +1,13 @@
+---
+import { APP_STORE_URL } from '../siteConfig';
+---
+<div class="app-downloads">
+  <a href={APP_STORE_URL} target="_blank" rel="noopener noreferrer">Descargar para iOS <span aria-hidden="true">↗</span></a>
+  <span class="android-status">Android · Próximamente</span>
+</div>
+<style>
+  .app-downloads { display:flex; flex-wrap:wrap; justify-content:center; align-items:center; gap:12px; width:100%; }
+  a { display:flex; justify-content:center; align-items:center; gap:10px; min-height:48px; padding:12px 18px; border-radius:16px; background:#2b2c64; color:white; font-size:14px; font-weight:700; box-shadow:0 3px 0 #181940; }
+  a:hover { background:#3c3e83; }
+  .android-status { padding:12px 0; color:#56578f; font-size:13px; }
+</style>

@@ -1,5 +1,6 @@
 ---
 import "../styles/global.css";
+import IosInstallPrompt from "../components/IosInstallPrompt.astro";
 import SubscribeModal from "../components/SubscribeModal.astro";
 import CountdownBanner from "../components/CountdownBanner.astro";
 import MonedaPopup from "../components/MonedaPopup.astro";
@@ -22,8 +23,8 @@ interface Props {
 }
 
 const {
-  title = "Pablo — Tu asistente financiero en WhatsApp",
-  description = "Manejar tu dinero nunca fue tan fácil. Conoce a Pablo, tu asistente financiero en WhatsApp que te ayuda a ahorrar y controlar tus gastos con IA y sin estrés.",
+  title = "Pablo — Tu compañero financiero en web y iOS",
+  description = "Manejar tu dinero nunca fue tan fácil. Conoce a Pablo, tu asistente financiero en web y iOS que te ayuda a ahorrar y controlar tus gastos con IA y sin estrés.",
   hideBanner = false,
   hideMoneda = false,
   noindex = false,
@@ -188,6 +189,7 @@ const ogImage = `${siteUrl}/Logo.png`;
   <body>
     {!hideBanner && <CountdownBanner />}
     <slot />
+    <IosInstallPrompt />
     {IS_LIVE && <SubscribeModal />}
     {
       /* Pop-up de la moneda: solo se activa en / y /blog/<post> (se

@@ -1,4 +1,5 @@
 ---
+import FreePlan from "../FreePlan.astro";
 import { IS_LIVE, CHECKOUT_URLS, OFFER_AVAILABLE, FREE_TRIAL, KOMU_PROMO, PROMO_MILLONARIA } from '../../siteConfig';
 import iconPremiumRaw from '../../assets/icon-premium.svg?raw';
 import coronaRaw from '../../assets/corona-premium.svg?raw';
@@ -9,6 +10,7 @@ const annualCheckoutUrl = FREE_TRIAL ? CHECKOUT_URLS.annual_trial : CHECKOUT_URL
 // src/components/sections/Pricing.astro
 ---
 
+<FreePlan />
 <section class="pricing" id="planes">
   <div class="container pricing__inner">
 

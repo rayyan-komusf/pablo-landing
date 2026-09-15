@@ -24,6 +24,7 @@ import FlowMedios from "../../FlowMedios.astro";
   </div>
 
   <div class="fuente-body flex-1 flex flex-col w-full mx-auto px-5 max-md:px-4 overflow-y-auto [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
+    <button type="button" class="btn-secondary" style="min-height:44px;margin:12px 0" onclick="sessionStorage.setItem('pablo_plan_elegido','free');sessionStorage.removeItem('pablo_codigo_descuento');pabloCuentaIrAlPago()">Seguir con Gratis</button>
     <div class="pago-card">
       <p class="pago-resumen" id="pago-resumen">Preparando tu plan…</p>
       <!-- Cupón de descuento (código de la moneda u otros): se manda en el

@@ -2,6 +2,7 @@
 // Hero estilo Duolingo: ocupa exactamente el viewport (menos el navbar),
 // iPhone con demo en loop a la izquierda, titular + CTAs apilados a la
 // derecha. Las demás secciones solo aparecen al scrollear.
+import AppDownloads from "../AppDownloads.astro";
 import HeroPhone from "./HeroPhone.astro";
 import { CTA, IS_LIVE, APP_URL } from "../../siteConfig";
 ---
@@ -23,11 +24,11 @@ import { CTA, IS_LIVE, APP_URL } from "../../siteConfig";
           Manejar tu dinero nunca fue <span class="highlight">tan fácil</span>
         </span>
         <span data-ab-show="landing-hero-copy:whatsapp">
-          Tus gastos anotados <span class="highlight">sin salir de WhatsApp</span>
+          Tus gastos claros <span class="highlight">con Pablo Gratis</span>
         </span>
       </h1>
-      <p class="hero__subtitle" data-ab-show="landing-hero-copy:whatsapp">
-        Un mensaje, un audio o una foto: Pablo lo anota y te dice a dónde se va tu dinero.
+      <p class="hero__subtitle">
+        Empieza gratis en la web o en iOS. 5 mensajes al día, 3 cuentas y tu primera meta. WhatsApp con Premium.
       </p>
 
       <div class="hero__ctas">
@@ -58,6 +59,7 @@ import { CTA, IS_LIVE, APP_URL } from "../../siteConfig";
           onclick="try{window.posthog?.capture('landing_cta_clicked',{cta:'ya_tengo_cuenta',location:'hero',hero_variant:window.pabloAB?.variante('landing-hero-copy')||'control'})}catch(e){}"
         >Ya tengo una cuenta</a>
       </div>
+      <AppDownloads />
     </div>
   </div>
 </section>
@@ -67,7 +69,9 @@ import { CTA, IS_LIVE, APP_URL } from "../../siteConfig";
    * nada de otras secciones a la vista sin scrollear, como Duolingo. */
   .hero {
     background: #ffffff;
-    height: calc(100dvh - 72px);
+    min-height: calc(100dvh - 72px);
+    height: auto;
+    padding-block: 32px;
     min-height: 540px;
     display: flex;
     align-items: center;
@@ -93,7 +97,7 @@ import { CTA, IS_LIVE, APP_URL } from "../../siteConfig";
     display: flex;
     flex-direction: column;
     align-items: flex-start;
-    gap: 28px;
+    gap: 20px;
     max-width: 480px;
   }
 
@@ -176,7 +180,9 @@ import { CTA, IS_LIVE, APP_URL } from "../../siteConfig";
    * quedan anclados en la parte de abajo. ── */
   @media (max-width: 768px) {
     .hero {
-      height: calc(100dvh - 72px);
+      min-height: calc(100dvh - 72px);
+    height: auto;
+    padding-block: 32px;
       min-height: 560px;
       align-items: stretch;
       padding-block: 4px 14px;
@@ -187,7 +193,7 @@ import { CTA, IS_LIVE, APP_URL } from "../../siteConfig";
       flex-direction: column;
       gap: 10px;
       align-items: center;
-      height: 100%;
+      height: auto;
     }
 
     .hero__phone-area {

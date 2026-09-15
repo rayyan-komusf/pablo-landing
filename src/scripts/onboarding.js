@@ -677,7 +677,7 @@ class OnboardingEngine {
     try {
       const params = new URLSearchParams(window.location.search);
       const plan = params.get("plan");
-      if (plan && ["semanal", "mensual", "anual"].includes(plan)) {
+      if (plan && ["free", "semanal", "mensual", "anual"].includes(plan)) {
         sessionStorage.setItem("pablo_plan_elegido", plan);
       }
       if (params.get("oferta") === "millonaria") {
@@ -695,3 +695,10 @@ class OnboardingEngine {
 
 const engine = new OnboardingEngine();
 engine.init();
+
+// Elegir Gratis limpia cualquier intención de pago anterior antes del registro.
+window.pabloSeguirGratis = function () {
+  sessionStorage.setItem("pablo_plan_elegido", "free");
+  sessionStorage.removeItem("pablo_codigo_descuento");
+  window.pabloGoTo?.("step-cuenta-nombre");
+};
