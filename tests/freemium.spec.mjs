@@ -18,12 +18,13 @@ for (const width of [390, 1440]) {
     const state = await offline(page);
     await page.setViewportSize({ width, height: 844 });
     await page.goto('/');
-    await expect(page.getByRole('link', { name: 'Descargar para iOS' })).toHaveAttribute('href', store);
-    await expect(page.getByText('Android · Próximamente', { exact: true })).toBeVisible();
+    await page.addStyleTag({ content: 'astro-dev-toolbar { display: none !important; }' });
+    await expect(page.getByRole('link', { name: 'Descargar para iOS en App Store' })).toHaveAttribute('href', store);
+    await expect(page.getByRole('img', { name: 'Google Play para Android: próximamente' })).toBeVisible();
     await expect(page.getByRole('region', { name: 'Empieza con lo esencial.' })).toHaveCount(0);
     await expect(page.getByRole('link', { name: 'Seguir con Gratis', exact: true })).toHaveCount(0);
     expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true);
-    await page.screenshot({ path: `/tmp/pablo-audit-main-landing-${width}.png`, fullPage: true });
+    await page.screenshot({ path: `/tmp/pablo-audit-main-landing-${width}.png`, fullPage: false });
     expect(state.errors).toEqual([]);
   });
 }
