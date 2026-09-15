@@ -52,8 +52,8 @@ import FlowMedios from "./FlowMedios.astro";
         <p class="cuenta-exito-texto">¡Pago exitoso!</p>
       </div>
       <p class="cuenta-pago-estado" id="cuenta-pago-estado">Preparando el pago seguro…</p>
-      <FlowMedios id="cuenta-pago-medios" />
       <div id="cuenta-pago-widget"></div>
+      <FlowMedios id="cuenta-pago-medios" />
       <div class="cuenta-cupon">
         <button type="button" class="cuenta-cupon-toggle" id="cuenta-cupon-toggle">
           ¿Tienes un código de descuento?
@@ -383,7 +383,7 @@ import FlowMedios from "./FlowMedios.astro";
     function mostrarFasePago() {
       var cfg = PLANES[planActual];
       if (tituloEl) tituloEl.textContent = "Activa tu " + cfg.nombre;
-      if (subEl) subEl.textContent = "Último paso: elige tarjeta o Yape recurrente para tu suscripción.";
+      if (subEl) subEl.textContent = "Completa los datos de tu tarjeta. También puedes pagar con Yape recurrente.";
       form.hidden = true;
       if (pagoEl) pagoEl.hidden = false;
       arrancarPago();
@@ -438,6 +438,7 @@ import FlowMedios from "./FlowMedios.astro";
         cuponPintar();
 
         var confirmarRegistro = async function () {
+            document.getElementById("cuenta-pago-medios").hidden = true;
           pagoEstado("Confirmando tu suscripción…");
           var res = await flowSuscripcion({ accion: "confirmar", token: registro.token }, sesion.access_token);
           if (res && res.ok) {
@@ -484,7 +485,7 @@ import FlowMedios from "./FlowMedios.astro";
             });
           }
         } catch (eIC) { /* medir nunca bloquea el pago */ }
-        await window.pabloElegirMedioFlow("cuenta-pago-medios", registro, sesion);
+        window.pabloPrepararYapeFlow("cuenta-pago-medios", registro, sesion);
         await cargarFlowScript(registro.entorno);
         if (typeof window.Flow !== "function") throw new Error("El pago seguro no está disponible");
 

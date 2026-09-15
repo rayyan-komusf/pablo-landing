@@ -80,8 +80,8 @@ import FlowMedios from "../../FlowMedios.astro";
       <div class="pago-cargando" id="pago-cargando" hidden>
         <div class="pago-cargando-sprite" aria-hidden="true"></div>
       </div>
-      <FlowMedios id="pago-medios" />
       <div id="pago-widget"></div>
+      <FlowMedios id="pago-medios" />
       <button type="button" class="btn-primary btn-continue" id="pago-reintentar" hidden onclick="pabloPagoReintentar()">
         Reintentar
       </button>
@@ -439,6 +439,7 @@ import FlowMedios from "../../FlowMedios.astro";
           cuponPintar();
 
           var confirmarRegistro = async function () {
+            document.getElementById("pago-medios").hidden = true;
             setEstado("Confirmando tu suscripción…");
             var res = await flowSuscripcion({ accion: "confirmar", token: registro.token }, sesion.access_token);
             if (res && res.ok) {
@@ -488,7 +489,7 @@ import FlowMedios from "../../FlowMedios.astro";
           } catch (eIC) { /* medir nunca bloquea el pago */ }
           var aplicar = document.querySelector("#pago-cupon-form .pago-cupon-aplicar");
           if (aplicar) { aplicar.disabled = false; aplicar.textContent = "Aplicar"; }
-          await window.pabloElegirMedioFlow("pago-medios", registro, sesion);
+          window.pabloPrepararYapeFlow("pago-medios", registro, sesion);
           setCargando(true);
           await cargarFlowScript(registro.entorno);
           if (typeof window.Flow !== "function") throw new Error("Widget de Flow no disponible");

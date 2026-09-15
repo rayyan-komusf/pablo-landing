@@ -2,50 +2,45 @@
 const { id } = Astro.props;
 ---
 <div id={id} class="flow-medios" hidden>
-  <p class="flow-medios-titulo">Elige cómo pagar</p>
-  <button type="button" data-flow-tarjeta><strong>Tarjeta</strong><span>Regístrala sin salir de Pablo</span></button>
-  <button type="button" data-flow-yape><strong>Yape recurrente ↗</strong><span>Vincula tu Yape en la página segura de Flow</span></button>
-  <p class="flow-medios-nota">En Flow, elige Yape y autoriza los cobros automáticos de tu plan.</p>
+  <button type="button" data-flow-yape>
+    <img src="/payments/yape.svg" alt="" width="36" height="36" />
+    <span>Pagar con Yape recurrente</span><span aria-hidden="true">↗</span>
+  </button>
+  <p class="flow-medios-error" data-flow-error role="alert" hidden></p>
 </div>
 <style>
-  .flow-medios[hidden] { display: none; }
-  .flow-medios { display: grid; gap: 12px; margin: 16px 0; text-align: left; color: #2b2c64; }
-  .flow-medios-titulo { font-weight: 700; margin: 0; }
-  .flow-medios button { display: grid; gap: 4px; width: 100%; padding: 14px 16px; text-align: left; font: inherit; color: inherit; background: #fff; border: 2px solid #dedbec; border-radius: 16px; box-shadow: 0 3px 0 #dedbec; cursor: pointer; }
+  .flow-medios[hidden], .flow-medios-error[hidden] { display: none; }
+  .flow-medios { margin: 16px 0; color: #2b2c64; }
+  .flow-medios button { display: flex; align-items: center; justify-content: center; gap: 12px; width: 100%; padding: 12px 16px; font: inherit; font-size: 14px; font-weight: 700; color: inherit; background: #fff; border: 2px solid #dedbec; border-radius: 16px; cursor: pointer; }
+  .flow-medios img { object-fit: contain; flex-shrink: 0; }
   .flow-medios button:hover { background: #f4f1fb; border-color: #2b2c64; }
   .flow-medios button:focus-visible { outline: 3px solid #2b2c64; outline-offset: 3px; }
-  .flow-medios button span, .flow-medios-nota { font-size: 13px; line-height: 1.45; }
-  .flow-medios-nota { margin: 0; }
+  .flow-medios-error { font-size: 13px; color: #b42318; }
 </style>
 <script is:inline>
-  // Las dos entradas de la landing comparten la selección y el retorno.
-  window.pabloElegirMedioFlow = function (id, registro, sesion) {
+  // Configura la alternativa sin bloquear el montaje automático de la tarjeta.
+  window.pabloPrepararYapeFlow = function (id, registro, sesion) {
     var el = document.getElementById(id);
+    var error = el.querySelector("[data-flow-error]");
+    error.hidden = true;
     var url;
     try {
       url = new URL(registro.url);
       if (url.protocol !== "https:" || !["www.flow.cl", "sandbox.flow.cl"].includes(url.hostname) ||
           url.searchParams.get("token") !== registro.token) throw new Error("URL de registro inválida");
-    } catch (e) { return Promise.reject(new Error("Flow no devolvió una página de registro válida.")); }
+    } catch (e) { throw new Error("Flow no devolvió una página de registro válida."); }
     el.hidden = false;
-    return new Promise(function (resolve, reject) {
-      el.querySelector("[data-flow-tarjeta]").onclick = function () {
-        el.hidden = true;
-        resolve("tarjeta");
-      };
-      el.querySelector("[data-flow-yape]").onclick = function () {
-        try {
-          // sessionStorage sobrevive al viaje a Flow en esta misma pestaña.
-          // Nunca se envían tokens de sesión a Flow ni en la query de la URL.
-          if (!sesion.access_token || !sesion.refresh_token) throw new Error("Falta la sesión para volver de Flow.");
-          sessionStorage.setItem("pablo_sesion_tokens", JSON.stringify(sesion));
-          if (!sessionStorage.getItem("pablo_sesion_tokens")) throw new Error("No pudimos conservar tu sesión.");
-          window.location.assign(url.href);
-        } catch (e) {
-          el.hidden = true;
-          reject(e);
-        }
-      };
-    });
+    el.querySelector("[data-flow-yape]").onclick = function () {
+      try {
+        // Mismo token de checkout. La sesión nunca se envía a Flow.
+        if (!sesion.access_token || !sesion.refresh_token) throw new Error("Falta la sesión para volver de Flow.");
+        sessionStorage.setItem("pablo_sesion_tokens", JSON.stringify(sesion));
+        if (!sessionStorage.getItem("pablo_sesion_tokens")) throw new Error("No pudimos conservar tu sesión.");
+        window.location.assign(url.href);
+      } catch (e) {
+        error.textContent = e.message || "No pudimos abrir Yape. Inténtalo de nuevo.";
+        error.hidden = false;
+      }
+    };
   };
 </script>
