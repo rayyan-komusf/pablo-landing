@@ -14,13 +14,14 @@ async function offline(page) {
   return { calls, errors };
 }
 for (const width of [390, 1440]) {
-  test(`landing explica Gratis y descargas a ${width}px`, async ({ page }) => {
+  test(`landing muestra descargas sin bloque Gratis a ${width}px`, async ({ page }) => {
     const state = await offline(page);
     await page.setViewportSize({ width, height: 844 });
     await page.goto('/');
     await expect(page.getByRole('link', { name: 'Descargar para iOS' })).toHaveAttribute('href', store);
     await expect(page.getByText('Android · Próximamente', { exact: true })).toBeVisible();
-    await expect(page.getByRole('link', { name: 'Seguir con Gratis', exact: true })).toHaveAttribute('href', '/onboarding?plan=free');
+    await expect(page.getByRole('region', { name: 'Empieza con lo esencial.' })).toHaveCount(0);
+    await expect(page.getByRole('link', { name: 'Seguir con Gratis', exact: true })).toHaveCount(0);
     expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true);
     await page.screenshot({ path: `/tmp/pablo-audit-main-landing-${width}.png`, fullPage: true });
     expect(state.errors).toEqual([]);
