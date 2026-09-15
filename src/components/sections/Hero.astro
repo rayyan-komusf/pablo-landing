@@ -69,10 +69,9 @@ import { CTA, IS_LIVE, APP_URL } from "../../siteConfig";
    * nada de otras secciones a la vista sin scrollear, como Duolingo. */
   .hero {
     background: #ffffff;
-    min-height: calc(100dvh - 72px);
+    min-height: max(540px, calc(100dvh - 72px));
     height: auto;
     padding-block: 32px;
-    min-height: 540px;
     display: flex;
     align-items: center;
     overflow: hidden;
@@ -180,10 +179,8 @@ import { CTA, IS_LIVE, APP_URL } from "../../siteConfig";
    * quedan anclados en la parte de abajo. ── */
   @media (max-width: 768px) {
     .hero {
-      min-height: calc(100dvh - 72px);
-    height: auto;
-    padding-block: 32px;
-      min-height: 560px;
+      min-height: max(560px, calc(100dvh - 72px));
+      height: auto;
       align-items: stretch;
       padding-block: 4px 14px;
     }
