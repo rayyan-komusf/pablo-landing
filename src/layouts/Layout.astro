@@ -80,22 +80,61 @@ const ogImage = `${siteUrl}/Logo.png`;
       };
     </script>
 
-    <!-- Nuevo visitante → los CTAs llevan al primer onboarding.
-         El onboarding marca localStorage.pablo_intro_vista cuando el usuario
-         ya vio el intro (pregunta inicial + saludo + primer gasto); comparte
-         dominio con la landing, así que el flag es visible desde aquí. -->
+    <!-- Destino de pauta + recorrido de nuevos visitantes.
+
+         En anuncios, utm_content separa las dos variables que estamos
+         midiendo sin agregar parámetros fuera del estándar UTM:
+           estatico-titulo1-onboarding | estatico-titulo2-onboarding
+           estatico-titulo1-pago      | estatico-titulo2-pago
+
+         `-pago` lleva el CTA al mensual dentro de la app; `-onboarding`, al
+         onboarding conversacional. Los UTM viajan al siguiente dominio para
+         que el registro y el checkout conserven la atribución.
+
+         Fuera de pauta se conserva el comportamiento anterior: un visitante
+         nuevo entra al onboarding. -->
     <script is:inline>
       (function () {
         try {
+          var params = new URLSearchParams(location.search);
+          var contenido = (params.get("utm_content") || "").toLowerCase();
+          var esPauta =
+            params.get("utm_medium") === "paid" ||
+            sessionStorage.getItem("pablo_pauta") === "1";
           var esNuevo = localStorage.getItem("pablo_intro_vista") !== "1";
-          if (!esNuevo) return;
-          document.addEventListener("DOMContentLoaded", function () {
-            ["hero-cta-btn", "finalcta-btn", "navbar-cta-btn", "navbar-mobile-cta-btn"].forEach(
-              function (id) {
-                var el = document.getElementById(id);
-                if (el && el.tagName === "A") el.setAttribute("href", "/onboarding");
+          var recorridoPauta =
+            esPauta && /(?:^|-)titulo[12]-(?:onboarding|pago)$/.test(contenido);
+          if (!esNuevo && !recorridoPauta) return;
+
+          var base = contenido.endsWith("-pago")
+            ? "https://usapablo.app/pricing?plan=mensual&continuar=1"
+            : "/onboarding";
+
+          function conUtms(destino) {
+            var url = new URL(destino, location.origin);
+            ["utm_source", "utm_medium", "utm_campaign", "utm_content"].forEach(
+              function (key) {
+                var value = params.get(key);
+                if (value) url.searchParams.set(key, value);
               }
             );
+            return url.origin === location.origin
+              ? url.pathname + url.search + url.hash
+              : url.toString();
+          }
+
+          var href = conUtms(base);
+          document.addEventListener("DOMContentLoaded", function () {
+            [
+              document.getElementById("hero-cta-btn"),
+              document.getElementById("finalcta-btn"),
+              document.querySelector("[data-cta-banner]"),
+              document.getElementById("footer-cta-btn"),
+              document.getElementById("navbar-cta-btn"),
+              document.getElementById("navbar-mobile-cta-btn"),
+            ].forEach(function (el) {
+              if (el && el.tagName === "A") el.setAttribute("href", href);
+            });
           });
         } catch (e) {
           // si localStorage falla, los CTAs mantienen su destino normal

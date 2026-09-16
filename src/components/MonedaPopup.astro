@@ -669,6 +669,18 @@
 
   // ── Triggers de apertura ──
   (function programarApertura() {
+    // La pauta debe mantener un solo objetivo y no competir con el CTA del
+    // anuncio. Layout marca la sesión antes de pintar el body; comprobamos
+    // también la URL para que el gate siga siendo seguro si falla storage.
+    try {
+      const esPauta =
+        document.documentElement.classList.contains("pauta") ||
+        new URLSearchParams(location.search).get("utm_medium") === "paid";
+      if (esPauta) return;
+    } catch {
+      /* URL no legible: conservar el comportamiento orgánico */
+    }
+
     const path = location.pathname;
     // Solo home y posts del blog (no el índice /blog/).
     const paginaValida = path === "/" || /^\/blog\/[^/]+\/?$/.test(path);

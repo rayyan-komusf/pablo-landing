@@ -258,6 +258,25 @@
         }
       },
     };
+
+    // Las piezas de pauta necesitan que el mensaje del anuncio y el de la
+    // landing coincidan desde el primer render útil, aun si PostHog tarda o
+    // está bloqueado. `titulo1` fuerza el control; `titulo2`, la variante de
+    // WhatsApp. El sufijo onboarding/pago solo cambia el destino del CTA (ver
+    // Layout.astro), por lo que las dos variables se pueden cruzar en Meta.
+    try {
+      var contenidoPauta = (anuncio().utm.utm_content || "").toLowerCase();
+      if (/(?:^|-)titulo1-(?:onboarding|pago)$/.test(contenidoPauta)) {
+        forzadas["landing-hero-copy"] = true;
+        aplicar("landing-hero-copy", null, false);
+      } else if (/(?:^|-)titulo2-(?:onboarding|pago)$/.test(contenidoPauta)) {
+        forzadas["landing-hero-copy"] = true;
+        aplicar("landing-hero-copy", "whatsapp", false);
+      }
+    } catch (e) {
+      /* UTM inválida: PostHog/control deciden como antes */
+    }
+
     window.pabloAB._forzarDesdeUrl();
   })();
 </script>
