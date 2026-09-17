@@ -707,8 +707,8 @@
       } catch {
         /* PostHog bloqueado: seguimos */
       }
-      // Otro modal abierto (plantilla, suscripción): no encimarse, reintentar.
-      if (document.body.style.overflow === "hidden") {
+      // Otro modal abierto (incluido el aviso de iOS): no encimarse, reintentar.
+      if (document.body.style.overflow === "hidden" || document.querySelector("dialog[open]")) {
         setTimeout(() => intentarAbrir(trigger), 12_000);
         return;
       }
