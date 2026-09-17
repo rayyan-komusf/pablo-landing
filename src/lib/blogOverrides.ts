@@ -28,6 +28,7 @@ export const BLOG_OVERRIDES: Record<string, BlogOverride> = {
     contenido: sinNotas(detoxFinanciero),
     descripcion:
       "No necesitas ganar más. Solo darle un lugar a cada sol. Te enseño un método fácil para empezar, y lo puedes hacer gratis, para siempre.",
+    portada: "/blog/detox-pablo-presupuesto.webp",
     ctaFinal: true,
   },
 };
