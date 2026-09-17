@@ -10,6 +10,10 @@ import detoxFinanciero from "../data/blog-overrides/plantilla-detox-financiero.h
 export type BlogOverride = {
   /** HTML que reemplaza a renderBlocks() para este slug. */
   contenido: string;
+  /** Subtítulo que reemplaza al de Notion (la base del blog no es editable desde acá). */
+  descripcion?: string;
+  /** Portada servida desde public/ en vez de la URL de Notion. */
+  portada?: string;
   /** Cierra el post con la franja de FinalCTA, como la home. */
   ctaFinal?: boolean;
 };
@@ -22,6 +26,8 @@ function sinNotas(html: string): string {
 export const BLOG_OVERRIDES: Record<string, BlogOverride> = {
   "plantilla-detox-financiero": {
     contenido: sinNotas(detoxFinanciero),
+    descripcion:
+      "No necesitas ganar más. Solo darle un lugar a cada sol. Te enseño un método fácil para empezar, y lo puedes hacer gratis, para siempre.",
     ctaFinal: true,
   },
 };

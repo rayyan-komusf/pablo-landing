@@ -2,7 +2,6 @@
 import Layout from "../../layouts/Layout.astro";
 import Navbar from "../../components/Navbar.astro";
 import Footer from "../../components/Footer.astro";
-import PlantillaLeadModal from "../../components/PlantillaLeadModal.astro";
 import FinalCTA from "../../components/sections/FinalCTA.astro";
 import { getPosts, getPostBySlug, renderBlocks } from "../../lib/notion";
 import { getBlogOverride } from "../../lib/blogOverrides";
@@ -21,9 +20,8 @@ const { meta, blocks } = data;
 // Este post trae su cuerpo del repo; los demás siguen saliendo de Notion.
 const override = getBlogOverride(slug);
 const content = override?.contenido ?? renderBlocks(blocks);
-// Lead magnet: si el post enlaza la Plantilla de Presupuesto, el link se
-// intercepta con un form (nombre + correo → Brevo) antes de entregarla.
-const tienePlantilla = content.includes("1PvzGpNJavzwq0-mDEzKakf6jmJIiCSX6");
+const descripcion = override?.descripcion ?? meta.descripcion;
+const portada = override?.portada ?? meta.portada;
 const fecha = meta.fecha
   ? new Date(meta.fecha).toLocaleDateString("es-PE", {
       year: "numeric",
@@ -33,13 +31,13 @@ const fecha = meta.fecha
   : null;
 ---
 
-<Layout title={`${meta.title} — Pablo`} description={meta.descripcion}>
+<Layout title={`${meta.title} — Pablo`} description={descripcion}>
   <Navbar />
   <main class="post-page">
     <article class="container">
       <header class="post-header">
         <h1>{meta.title}</h1>
-        {meta.descripcion && <p class="post-lead">{meta.descripcion}</p>}
+        {descripcion && <p class="post-lead">{descripcion}</p>}
         <div class="post-meta">
           {fecha && <time class="post-date">{fecha}</time>}
           {meta.autor && (
@@ -51,10 +49,10 @@ const fecha = meta.fecha
         </div>
       </header>
 
-      {meta.portada && (
+      {portada && (
         <div class="post-cover">
           <img
-            src={meta.portada}
+            src={portada}
             alt={meta.title}
             width="720"
             height="405"
@@ -72,7 +70,6 @@ const fecha = meta.fecha
     </article>
   </main>
   {override?.ctaFinal && <FinalCTA />}
-  {tienePlantilla && <PlantillaLeadModal />}
   <Footer />
 </Layout>
 

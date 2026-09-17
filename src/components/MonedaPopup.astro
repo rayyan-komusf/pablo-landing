@@ -5,7 +5,7 @@
 // moneda-pablo (50/50 real, determinístico por correo): si gana → código de
 // 50% de descuento en el primer mes, SOLO planes Semanal/Mensual (viaja en
 // usapablo.app/pricing?codigo=… y también llega por correo); si pierde →
-// consuelo: la Plantilla de Presupuesto por correo. Se muestra 1 vez
+// consuelo: Pablo gratis, para siempre (S/0, sin WhatsApp). Se muestra 1 vez
 // (localStorage); kill-switch remoto con el feature flag `popup-moneda`.
 ---
 
@@ -38,8 +38,8 @@
       <h3 class="mp-titulo">¿Tiramos una moneda?</h3>
       <p class="mp-sub">
         Si cae de tu lado, te llevas <strong>50% de descuento en tu PRIMER MES</strong>
-        del plan Semanal o Mensual. Y si no… igual te llevas nuestra Plantilla de
-        Presupuesto. Tú eliges el lado.
+        del plan Semanal o Mensual. Y si no… igual puedes usar Pablo gratis, para
+        siempre. Tú eliges el lado.
       </p>
 
       <form id="mp-form" novalidate>
@@ -126,11 +126,11 @@
       <h3 class="mp-titulo" id="mp-titulo-perdio">Salió sello…</h3>
       <p class="mp-sub mp-sub--ancho">
         Esta vez la moneda no quiso. Pero no te vas con las manos vacías:
-        te mandamos la <strong>Plantilla de Presupuesto</strong> a tu correo
-        para tu detox financiero.
+        Pablo tiene un plan <strong>gratis, para siempre</strong>. Crea tu
+        cuenta y empieza hoy tu detox financiero, sin tarjeta.
       </p>
-      <a class="mp-cta mp-cta--link" id="mp-consuelo-link" href="/onboarding">
-        Conocer a Pablo igual
+      <a class="mp-cta mp-cta--link" id="mp-consuelo-link" href="/onboarding?plan=free&utm_source=moneda&utm_medium=popup&utm_campaign=moneda_perdio">
+        Empezar gratis
       </a>
       <p class="mp-legal" id="mp-correo-perdio"></p>
     </div>
@@ -643,7 +643,7 @@
               tituloPerdio.textContent = `Salió ${data.resultado}…`;
             const correoPerdio = document.getElementById("mp-correo-perdio");
             if (correoPerdio)
-              correoPerdio.textContent = `La plantilla va en camino a ${datos.email}. Revisa Promociones o Spam.`;
+              correoPerdio.textContent = `Te escribimos a ${datos.email} con los siguientes pasos. Revisa Promociones o Spam.`;
             mostrarPaso("perdio");
           }
         }, 2100);
@@ -691,7 +691,7 @@
     const vista = leer(KEY_VISTA);
     if (typeof vista === "number" && Date.now() - vista < REAPARECE_DIAS * 86_400_000) return;
 
-    // Prefill si ya dejó sus datos en el lead magnet de la plantilla.
+    // Prefill si ya dejó sus datos en el lead magnet viejo del blog.
     const lead = leer(KEY_LEAD_PLANTILLA);
     if (lead?.nombre && inputNombre) inputNombre.value = lead.nombre;
     if (lead?.email && inputEmail) inputEmail.value = lead.email;
