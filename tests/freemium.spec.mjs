@@ -14,13 +14,16 @@ async function offline(page) {
   return { calls, errors };
 }
 for (const width of [390, 1440]) {
-  test(`landing muestra descargas sin bloque Gratis a ${width}px`, async ({ page }) => {
+  test(`hero sin badges de tiendas, sin subtítulo y sin bloque Gratis a ${width}px`, async ({ page }) => {
     const state = await offline(page);
     await page.setViewportSize({ width, height: 844 });
     await page.goto('/');
     await page.addStyleTag({ content: 'astro-dev-toolbar { display: none !important; }' });
-    await expect(page.getByRole('link', { name: 'Descargar para iOS en App Store' })).toHaveAttribute('href', store);
-    await expect(page.getByRole('img', { name: 'Google Play para Android: próximamente' })).toBeVisible();
+    // Decisión de Rodrigo (17-sep y 24-sep-2026): bajo los CTAs del hero no van
+    // badges de App Store / Google Play ni subtítulo. Las descargas viven en Funciones.
+    await expect(page.locator('#hero .app-downloads, #hero .store-badge')).toHaveCount(0);
+    await expect(page.locator('#hero .hero__subtitle')).toHaveCount(0);
+    await expect(page.locator('#hero')).not.toContainText('Google Play');
     await expect(page.getByRole('region', { name: 'Empieza con lo esencial.' })).toHaveCount(0);
     await expect(page.getByRole('link', { name: 'Seguir con Gratis', exact: true })).toHaveCount(0);
     expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true);
