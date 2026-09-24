@@ -2,7 +2,6 @@
 // Hero estilo Duolingo: ocupa exactamente el viewport (menos el navbar),
 // iPhone con demo en loop a la izquierda, titular + CTAs apilados a la
 // derecha. Las demás secciones solo aparecen al scrollear.
-import AppDownloads from "../AppDownloads.astro";
 import HeroPhone from "./HeroPhone.astro";
 import { CTA, IS_LIVE, APP_URL } from "../../siteConfig";
 ---
@@ -18,7 +17,7 @@ import { CTA, IS_LIVE, APP_URL } from "../../siteConfig";
     <div class="hero__content">
       <!-- A/B test `landing-hero-copy` (PostHog, variante `whatsapp`), ver
            AbTests.astro: el control es el titular de siempre; la variante
-           cambia titular, agrega subtítulo y renombra el CTA principal. -->
+           cambia titular y renombra el CTA principal. -->
       <h1 class="hero__title">
         <span data-ab-hide="landing-hero-copy:whatsapp">
           Manejar tu dinero nunca fue <span class="highlight">tan fácil</span>
@@ -27,9 +26,6 @@ import { CTA, IS_LIVE, APP_URL } from "../../siteConfig";
           Tus gastos anotados <span class="highlight">sin salir de WhatsApp</span>
         </span>
       </h1>
-      <p class="hero__subtitle">
-        Empieza gratis en la web o en iOS. 5 mensajes al día, 3 cuentas y tu primera meta. WhatsApp con Premium.
-      </p>
 
       <div class="hero__ctas">
         {
@@ -59,7 +55,6 @@ import { CTA, IS_LIVE, APP_URL } from "../../siteConfig";
           onclick="try{window.posthog?.capture('landing_cta_clicked',{cta:'ya_tengo_cuenta',location:'hero',hero_variant:window.pabloAB?.variante('landing-hero-copy')||'control'})}catch(e){}"
         >Ya tengo una cuenta</a>
       </div>
-      <AppDownloads />
     </div>
   </div>
 </section>
@@ -96,7 +91,7 @@ import { CTA, IS_LIVE, APP_URL } from "../../siteConfig";
     display: flex;
     flex-direction: column;
     align-items: flex-start;
-    gap: 20px;
+    gap: 28px;
     max-width: 480px;
   }
 
@@ -106,14 +101,6 @@ import { CTA, IS_LIVE, APP_URL } from "../../siteConfig";
     font-size: 44px;
     line-height: 1.2;
     color: var(--color-heading);
-  }
-
-  /* Subtítulo: solo existe en la variante `whatsapp` del A/B (AbTests). */
-  .hero__subtitle {
-    font-size: 18px;
-    line-height: 1.5;
-    color: var(--color-body, #56578F);
-    margin-top: -8px;
   }
 
   /* CTAs apilados en columna con ancho fijo, como Duolingo */
@@ -217,13 +204,6 @@ import { CTA, IS_LIVE, APP_URL } from "../../siteConfig";
       max-width: 340px;
     }
 
-    .hero__subtitle {
-      font-size: 14px;
-      line-height: 1.4;
-      max-width: 340px;
-      margin-top: -6px;
-    }
-
     .hero__ctas {
       max-width: 360px;
     }
@@ -253,10 +233,6 @@ import { CTA, IS_LIVE, APP_URL } from "../../siteConfig";
     }
     .hero__title {
       font-size: 20px;
-    }
-    /* En pantallas muy cortas el subtítulo se sacrifica: el teléfono manda. */
-    .hero__subtitle {
-      display: none !important;
     }
   }
 
