@@ -5,13 +5,21 @@
 // URLs firmadas de Notion, que caducan— se registra acá y su cuerpo sale del
 // archivo. Los slugs que no estén en este mapa siguen saliendo de Notion tal
 // cual: agregar uno acá no toca a los demás.
+//
+// Si además trae `meta`, el post vive entero en el repo: no necesita fila en
+// Notion para aparecer en /blog (la base de Notion no está compartida con el
+// conector de Claude, así que los posts nuevos se publican por acá).
+import type { PostMeta } from "./notion";
 import detoxFinanciero from "../data/blog-overrides/plantilla-detox-financiero.html?raw";
+import tarjetaClasica2026 from "../data/blog-overrides/querido-pablo-tarjeta-credito-clasica-2026.html?raw";
 
 export type BlogOverride = {
   /** HTML que reemplaza a renderBlocks() para este slug. */
   contenido: string;
   /** Cierra el post con la franja de FinalCTA, como la home. */
   ctaFinal?: boolean;
+  /** Datos de la tarjeta del blog. Con esto el post no depende de Notion. */
+  meta?: Omit<PostMeta, "id" | "slug">;
 };
 
 /** La cabecera del archivo es nota para nosotros; no tiene por qué viajar al HTML público. */
@@ -24,7 +32,26 @@ export const BLOG_OVERRIDES: Record<string, BlogOverride> = {
     contenido: sinNotas(detoxFinanciero),
     ctaFinal: true,
   },
+  "querido-pablo-tarjeta-credito-clasica-2026": {
+    contenido: sinNotas(tarjetaClasica2026),
+    ctaFinal: true,
+    meta: {
+      title: "querido pablo: ¿cuál es la mejor tarjeta de crédito clásica del perú? (edición 2026)",
+      descripcion:
+        "Comparé las 5 tarjetas clásicas de los bancos grandes con sus tarifarios y el comparador de la SBS: cuánto cuestan de verdad, qué te devuelven y cuál te conviene según cómo la usas.",
+      fecha: "2026-09-30T12:00:00-05:00",
+      portada: "/blog/querido-pablo-tarjetas-portada.jpg",
+      autor: "Pablo",
+    },
+  },
 };
+
+/** Posts que viven enteros en el repo, con la misma forma que los de Notion. */
+export function getRepoPosts(): PostMeta[] {
+  return Object.entries(BLOG_OVERRIDES)
+    .filter(([, o]) => o.meta)
+    .map(([slug, o]) => ({ id: `repo:${slug}`, slug, ...o.meta! }));
+}
 
 export function getBlogOverride(slug: string | undefined): BlogOverride | null {
   if (!slug) return null;

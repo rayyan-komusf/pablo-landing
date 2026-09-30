@@ -1,3 +1,5 @@
+import { getRepoPosts } from "./blogOverrides";
+
 // Bypass SSL inspection in corporate/restricted networks (dev only)
 if (typeof process !== "undefined") {
   process.env.NODE_TLS_REJECT_UNAUTHORIZED = "0";
@@ -38,7 +40,18 @@ export type PostMeta = {
   autor: string;
 };
 
+/** Posts de Notion + los que viven enteros en el repo, del más nuevo al más viejo. */
 export async function getPosts(): Promise<PostMeta[]> {
+  const repo = getRepoPosts();
+  const deNotion = (await getNotionPosts()).filter(
+    (p) => !repo.some((r) => r.slug === p.slug)
+  );
+  return [...repo, ...deNotion].sort((a, b) =>
+    (b.fecha ?? "").localeCompare(a.fecha ?? "")
+  );
+}
+
+async function getNotionPosts(): Promise<PostMeta[]> {
   try {
     const res = await fetch(
       `https://api.notion.com/v1/databases/${DATABASE_ID}/query`,
@@ -92,6 +105,8 @@ export async function getPostBySlug(
     const posts = await getPosts();
     const meta = posts.find((p) => p.slug === slug);
     if (!meta) return null;
+    // Post del repo: el cuerpo sale del override, no hay bloques que pedir.
+    if (meta.id.startsWith("repo:")) return { meta, blocks: [] };
 
     const res = await fetch(
       `https://api.notion.com/v1/blocks/${meta.id}/children`,
