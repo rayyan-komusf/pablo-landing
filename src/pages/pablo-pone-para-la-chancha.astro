@@ -33,7 +33,7 @@ const pasos = [
       </div>
 
       <div class="chancha-banner">
-        <img class="chancha-monedas" src="/landing/iconos/monedas.webp" alt="" aria-hidden="true" width="240" height="240" />
+        <img data-icons-test class="chancha-monedas" src="/landing/iconos/monedas.webp" alt="" aria-hidden="true" width="240" height="240" />
         <div class="chancha-amount">S/.1,000</div>
         <div class="chancha-divider"></div>
         <div class="chancha-info">
@@ -49,7 +49,7 @@ const pasos = [
             <li class="step">
               <span class="step-number">{i + 1}</span>
               <span class="step-text" set:html={paso.replace(/(Pablo)/g, '<strong>$1</strong>')} />
-              <img class="step-icono" src={`/onboarding/images/iconos/pablo/${ICONOS_PASOS[i]}.webp`} alt="" aria-hidden="true" width="160" height="160" loading="lazy" />
+              <img data-icons-test class="step-icono" src={`/onboarding/images/iconos/pablo/${ICONOS_PASOS[i]}.webp`} alt="" aria-hidden="true" width="160" height="160" loading="lazy" />
             </li>
           ))}
         </ol>
@@ -608,7 +608,7 @@ const pasos = [
 
     <div class="modal__header">
       <button class="modal__close" id="modal-close" aria-label="Cerrar">&times;</button>
-      <div class="modal__tag"><img class="icono-inline" src="/landing/iconos/alcancia.webp" alt="" aria-hidden="true" width="240" height="240" />Campaña activa</div>
+      <div class="modal__tag"><span data-icons-control aria-hidden="true">🐷 </span><img data-icons-test class="icono-inline" src="/landing/iconos/alcancia.webp" alt="" aria-hidden="true" width="240" height="240" />Campaña activa</div>
       <h2 class="modal__title" id="modal-title">Canjea tu chancha</h2>
       <p class="modal__subtitle">Completa los datos y revisamos tu reseña en 24–48 h.</p>
     </div>
@@ -648,7 +648,7 @@ const pasos = [
       </div>
 
       <div id="modal-success" class="modal-success" style="display:none">
-        <img class="modal-success__icon" src="/landing/iconos/fiesta.webp" alt="" aria-hidden="true" width="240" height="240" />
+        <span data-icons-control class="modal-success__icon" aria-hidden="true">🎉</span><img data-icons-test class="modal-success__icon" src="/landing/iconos/fiesta.webp" alt="" aria-hidden="true" width="240" height="240" />
         <h3>¡Ya recibimos tu canje!</h3>
         <p>Revisaremos tu reseña y nos contactaremos contigo para coordinar tu recompensa. ¡Gracias por participar!</p>
       </div>

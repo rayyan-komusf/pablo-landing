@@ -1,0 +1,44 @@
+/* Control = landing immediately before the icon release (8c356ee).
+ * Only decoration/layout changes here; forms, prices and WHOP are shared. */
+html:not([data-icons-variant="test"]) [data-icons-test],
+html[data-icons-variant="test"] [data-icons-control] { display: none !important; }
+
+html:not([data-icons-variant="test"]) .feat-icon {
+  width: 56px; height: 56px; border-radius: var(--radius-md);
+  margin-bottom: 0; box-shadow: none;
+}
+html:not([data-icons-variant="test"]) .feat-icon::before { display: none; }
+html:not([data-icons-variant="test"]) .feat-icon--green { background: #3fa643; }
+html:not([data-icons-variant="test"]) .feat-icon--amber { background: #fcaa1f; }
+html:not([data-icons-variant="test"]) .feat-icon--navy { background: #2b2c64; }
+html:not([data-icons-variant="test"]) .feat-icon--purple { background: #5a4fcf; }
+html:not([data-icons-variant="test"]) .fcta { background: #2b2c64; }
+html:not([data-icons-variant="test"]) .free-plan__label { display: block; }
+html:not([data-icons-variant="test"]) .free-plan ul { padding-left: 20px; gap: 14px; list-style: disc; }
+html:not([data-icons-variant="test"]) .free-plan li { display: list-item; }
+
+/* Onboarding: keep one set of inputs, IDs and handlers in both variants. */
+html:not([data-icons-variant="test"]) .cuenta-campo { display: contents; }
+html:not([data-icons-variant="test"]) .cuenta-campo .cuenta-input { padding-left: 18px; }
+html:not([data-icons-variant="test"]) .res-eje__nombre { display: inline; }
+html:not([data-icons-variant="test"]) .onb-stat { display: block; }
+html:not([data-icons-variant="test"]) .option-icon img { transition: none; animation: none; }
+html:not([data-icons-variant="test"]) .option-card:hover .option-icon img { transform: none; }
+html:not([data-icons-variant="test"]) .pw-linea__hito {
+  grid-template-columns: 26px 1fr; grid-template-areas: "punto cuando" "linea que"; column-gap: 10px;
+}
+html:not([data-icons-variant="test"]) .pw-linea__hito:not(:last-child)::before { left: 12px; top: 20px; }
+html:not([data-icons-variant="test"]) .pw-linea__punto {
+  display: block; align-self: auto; width: 14px; height: 14px; margin: 3px auto 0;
+  border-radius: 50%; corner-shape: round; background: #fff;
+  border: 3px solid rgba(43,44,100,.22); box-shadow: none;
+}
+html:not([data-icons-variant="test"]) .pw-linea__hito--hoy .pw-linea__punto { background: #f5a623; border-color: #c97f0c; }
+html:not([data-icons-variant="test"]) .modal-success__icon {
+  width: auto; height: auto; font-size: 2.8rem; margin: 0 0 16px; filter: none;
+}
+html:not([data-icons-variant="test"]) .success-icon {
+  width: 64px; height: 64px; border-radius: 50%; background: var(--color-amber);
+  color: var(--color-heading); font-size: 1.8rem; font-weight: 700;
+  display: flex; align-items: center; justify-content: center; margin: 0 auto 24px; filter: none;
+}

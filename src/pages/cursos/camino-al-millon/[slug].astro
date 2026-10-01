@@ -24,7 +24,7 @@ const siguiente = SESIONES[index + 1] ?? null;
   <main class="clase-page">
     <article class="container">
       <header class="clase-header">
-        <a href={`/cursos/${CURSO.slug}`} class="clase-curso-link"><img class="icono-inline" src="/landing/iconos/birrete.webp" alt="" aria-hidden="true" width="240" height="240" />{CURSO.title}</a>
+        <a href={`/cursos/${CURSO.slug}`} class="clase-curso-link"><span data-icons-control aria-hidden="true">🎓 </span><img data-icons-test class="icono-inline" src="/landing/iconos/birrete.webp" alt="" aria-hidden="true" width="240" height="240" />{CURSO.title}</a>
         <h1>{sesion.label}: {sesion.nombre}</h1>
       </header>
 

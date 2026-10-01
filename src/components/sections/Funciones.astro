@@ -89,7 +89,7 @@ const BLOQUES = [
           <div class="fx-escena" data-escena={b.escena} aria-hidden="true" style={`--w:${b.ancho}px;`}>
             {/* Sello 3D de Pablo en la esquina de la escena: resume el
                 beneficio en un objeto (chat, barras, racha, monedas). */}
-            <img class="icono-flota fx-sello" src={`/landing/iconos/${b.icono}.webp`} alt="" width="240" height="240" loading="lazy" decoding="async" style={`--delay:${-i * 1.3}s;`} />
+            <img data-icons-test class="icono-flota fx-sello" src={`/landing/iconos/${b.icono}.webp`} alt="" width="240" height="240" loading="lazy" decoding="async" style={`--delay:${-i * 1.3}s;`} />
             <div
               class="fx-pablo fx-pablo--escena"
               style={`--w:${b.ancho}px; --pt:${((b.dim.h / b.dim.w) * 100).toFixed(2)}%;`}
@@ -125,7 +125,7 @@ const BLOQUES = [
 
     {/* Transición ícono→personaje atada al scroll (sin loop: se scrubbea). */}
     <div class="fx-escena" data-escena="celular" aria-hidden="true" style="--w:340px;">
-      <img class="icono-flota icono-flota--oscuro fx-sello" src="/landing/iconos/celular.webp" alt="" width="240" height="240" loading="lazy" decoding="async" style="--delay:-2s;" />
+      <img data-icons-test class="icono-flota icono-flota--oscuro fx-sello" src="/landing/iconos/celular.webp" alt="" width="240" height="240" loading="lazy" decoding="async" style="--delay:-2s;" />
       <div class="fx-pablo fx-pablo--escena" style="--w:340px; --pt:94.53%;">
         <img src={`${PABLO}/pablo-saludando.webp`} alt="" width="445" height="420" loading="lazy" />
         <video data-src={`${PABLO}/escena-celular.webm`} muted playsinline preload="none" width="512" height="484"></video>
