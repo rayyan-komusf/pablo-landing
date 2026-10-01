@@ -44,7 +44,7 @@ const STEP_ORDER = [
   "step-cuenta-nombre", // Registro (1/4): nombre
   "step-cuenta-correo", // Registro (2/4): correo
   "step-cuenta-password", // Registro (3/4): contraseña → crea la cuenta + envía el código
-  "step-cuenta-pago", // Registro (4/4): pago embebido con el widget de Flow
+  "step-cuenta-pago", // Registro (4/4): continuación al pago WHOP en la app
 ];
 
 /** Configuración de topbar por pantalla. */
@@ -262,7 +262,7 @@ class OnboardingEngine {
         if (this.currentStepId === "step-analizando") this.next();
       }, 2400);
     }
-    // El pago embebido de Flow arranca al ENTRAR al step (también cubre la
+    // El resumen de pago se actualiza al ENTRAR al step (también cubre la
     // recarga de página: antes solo lo disparaba el step del código y al
     // recargar nadie montaba el widget). pabloPagoArrancar deduplica con su
     // guard interno si el step del código ya lo llamó.
@@ -671,7 +671,7 @@ class OnboardingEngine {
    *   oferta=millonaria → "pablo_oferta_millonaria" = "1", que hace que el
    *     paywall final muestre el recap de la Oferta Millonaria completa.
    *   codigo=MONEDA-XXXXXX → "pablo_codigo_descuento" (código de descuento;
-   *     el checkout embebido de StepCuentaPago lo manda a flow-suscripcion).
+   *     la app conserva el código para revisar sus condiciones antes del pago).
    */
   leerParametrosDeOferta() {
     try {
