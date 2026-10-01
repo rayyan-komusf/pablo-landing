@@ -10,19 +10,22 @@
 
   <div class="fuente-body flex-1 flex flex-col w-full mx-auto px-5 max-md:px-4 overflow-y-auto [scrollbar-width:none] [&::-webkit-scrollbar]:hidden vcenter">
     <div class="cuenta-form">
-      <input
-        id="cuenta-correo"
-        class="cuenta-input"
-        type="email"
-        inputmode="email"
-        placeholder="tucorreo@ejemplo.com"
-        autocomplete="email"
-        autocapitalize="off"
-        spellcheck="false"
-        maxlength="120"
-        oninput="pabloCuentaCorreoInput(this)"
-        onkeydown="if(event.key==='Enter')pabloCuentaCorreoNext()"
-      />
+      <div class="cuenta-campo">
+        <img class="cuenta-campo__icono" src="/onboarding/images/iconos/pablo/sobre.webp" alt="" aria-hidden="true" width="26" height="26" />
+        <input
+          id="cuenta-correo"
+          class="cuenta-input"
+          type="email"
+          inputmode="email"
+          placeholder="tucorreo@ejemplo.com"
+          autocomplete="email"
+          autocapitalize="off"
+          spellcheck="false"
+          maxlength="120"
+          oninput="pabloCuentaCorreoInput(this)"
+          onkeydown="if(event.key==='Enter')pabloCuentaCorreoNext()"
+        />
+      </div>
       <p class="cuenta-hint">Con este correo entrarás a Pablo y te llegarán tus recibos.</p>
     </div>
   </div>

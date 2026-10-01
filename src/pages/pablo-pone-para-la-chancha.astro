@@ -3,6 +3,8 @@ import Layout from "../layouts/Layout.astro";
 import Navbar from "../components/Navbar.astro";
 import Footer from "../components/Footer.astro";
 
+// Ícono 3D de Pablo por paso (mismo orden que `pasos`).
+const ICONOS_PASOS = ["lapiz", "camara", "estrella", "chat-whatsapp"];
 const pasos = [
   "La próxima vez que salgas a comer, registra tu gasto con Pablo.",
   "Tómate una foto en el restaurante con tu comida y el gasto registrado con Pablo.",
@@ -31,6 +33,7 @@ const pasos = [
       </div>
 
       <div class="chancha-banner">
+        <img class="chancha-monedas" src="/landing/iconos/monedas.webp" alt="" aria-hidden="true" width="240" height="240" />
         <div class="chancha-amount">S/.1,000</div>
         <div class="chancha-divider"></div>
         <div class="chancha-info">
@@ -46,6 +49,7 @@ const pasos = [
             <li class="step">
               <span class="step-number">{i + 1}</span>
               <span class="step-text" set:html={paso.replace(/(Pablo)/g, '<strong>$1</strong>')} />
+              <img class="step-icono" src={`/onboarding/images/iconos/pablo/${ICONOS_PASOS[i]}.webp`} alt="" aria-hidden="true" width="160" height="160" loading="lazy" />
             </li>
           ))}
         </ol>
@@ -412,9 +416,12 @@ const pasos = [
   }
 
   .modal-success__icon {
-    font-size: 2.8rem;
-    margin-bottom: 16px;
+    width: 76px;
+    height: 76px;
+    object-fit: contain;
+    margin: 0 auto 14px;
     display: block;
+    filter: drop-shadow(0 10px 12px rgba(43, 44, 100, 0.2));
   }
 
   .modal-success h3 {
@@ -439,6 +446,16 @@ const pasos = [
     border-radius: var(--radius-lg);
     padding: 24px 32px;
     margin-bottom: 16px;
+  }
+
+  /* Monedas 3D de Pablo junto al monto: el pozo se ve, no solo se lee. */
+  .chancha-monedas {
+    width: 64px;
+    height: 64px;
+    object-fit: contain;
+    flex-shrink: 0;
+    margin-right: -8px;
+    filter: drop-shadow(0 10px 14px rgba(0, 0, 0, 0.3));
   }
 
   .chancha-amount {
@@ -511,6 +528,16 @@ const pasos = [
     padding: 16px 20px;
   }
 
+  /* Ícono del paso al final de la fila: se escanea qué hacer sin leer. */
+  .step-icono {
+    width: 34px;
+    height: 34px;
+    object-fit: contain;
+    flex-shrink: 0;
+    margin-left: auto;
+    align-self: center;
+  }
+
   .step-number {
     display: flex;
     align-items: center;
@@ -562,6 +589,16 @@ const pasos = [
     .hero-img-single {
       max-height: 260px;
     }
+
+    .chancha-monedas {
+      width: 44px;
+      height: 44px;
+    }
+
+    .step-icono {
+      width: 28px;
+      height: 28px;
+    }
   }
 </style>
 
@@ -571,7 +608,7 @@ const pasos = [
 
     <div class="modal__header">
       <button class="modal__close" id="modal-close" aria-label="Cerrar">&times;</button>
-      <div class="modal__tag">🐷 Campaña activa</div>
+      <div class="modal__tag"><img class="icono-inline" src="/landing/iconos/alcancia.webp" alt="" aria-hidden="true" width="240" height="240" />Campaña activa</div>
       <h2 class="modal__title" id="modal-title">Canjea tu chancha</h2>
       <p class="modal__subtitle">Completa los datos y revisamos tu reseña en 24–48 h.</p>
     </div>
@@ -611,7 +648,7 @@ const pasos = [
       </div>
 
       <div id="modal-success" class="modal-success" style="display:none">
-        <span class="modal-success__icon">🎉</span>
+        <img class="modal-success__icon" src="/landing/iconos/fiesta.webp" alt="" aria-hidden="true" width="240" height="240" />
         <h3>¡Ya recibimos tu canje!</h3>
         <p>Revisaremos tu reseña y nos contactaremos contigo para coordinar tu recompensa. ¡Gracias por participar!</p>
       </div>

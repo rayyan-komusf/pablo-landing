@@ -7,6 +7,9 @@ import TestimonialsCarousel from './TestimonialsCarousel.astro';
 <section class="testimonials">
   <div class="test__inner">
     <div class="container test__header">
+      <span class="icono-ancla test__icono" aria-hidden="true">
+        <img src="/landing/iconos/estrellas.webp" alt="" width="240" height="240" loading="lazy" decoding="async" />
+      </span>
       <h2 class="section-title test__title">
         Gente real,<br /><span class="highlight">resultados reales</span>
       </h2>
@@ -39,6 +42,17 @@ import TestimonialsCarousel from './TestimonialsCarousel.astro';
     flex-direction: column;
     align-items: center;
     gap: 14px;
+  }
+
+  /* Tres estrellas 3D de Pablo: la reseña antes de leerla. */
+  .test__icono {
+    --s: 110px;
+    --halo: rgba(245, 166, 35, 0.4);
+    margin-bottom: -18px;
+  }
+
+  @media (max-width: 768px) {
+    .test__icono { --s: 88px; margin-bottom: -14px; }
   }
 
   .test__title {
