@@ -14,8 +14,8 @@ const endpoint = import.meta.env.PUBLIC_FORM_ENDPOINT ?? "";
   <main class="trabaja-page">
     <div class="container">
       <div class="page-header">
-        <span class="icono-ancla" style="--s:88px; --halo:rgba(58,102,232,.35); margin-bottom:10px;" aria-hidden="true">
-          <img src="/landing/iconos/camara.webp" alt="" width="240" height="240" decoding="async" />
+        <span data-icons-test class="icono-ancla" style="--s:88px; --halo:rgba(58,102,232,.35); margin-bottom:10px;" aria-hidden="true">
+          <img data-icons-test src="/landing/iconos/camara.webp" alt="" width="240" height="240" decoding="async" />
         </span>
         <h1>Crea con Pablo y gana</h1>
         <p>
@@ -207,7 +207,7 @@ const endpoint = import.meta.env.PUBLIC_FORM_ENDPOINT ?? "";
 
       <!-- Estado de éxito -->
       <div id="form-success" class="success-state" hidden>
-        <img class="success-icon" src="/landing/iconos/check.webp" alt="" aria-hidden="true" width="240" height="240" />
+        <span data-icons-control class="success-icon" aria-hidden="true">✓</span><img data-icons-test class="success-icon" src="/landing/iconos/check.webp" alt="" aria-hidden="true" width="240" height="240" />
         <h2>¡Bienvenid@ al radar de Pablo!</h2>
         <p>Ya recibimos tu postulación para El Club Secreto de Pablo. Nuestro equipo revisará tu perfil y, si haces match con Pablito, te contactaremos pronto con más detalles.</p>
         <a href="/" class="btn-back">Volver al inicio</a>

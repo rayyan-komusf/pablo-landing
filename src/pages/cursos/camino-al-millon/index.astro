@@ -19,7 +19,7 @@ import { CURSO, SESIONES } from "../../../lib/cursos";
     <div class="container">
 
       <header class="curso-header">
-        <a href="/cursos" class="curso-badge"><img class="icono-inline" src="/landing/iconos/birrete.webp" alt="" aria-hidden="true" width="240" height="240" />Curso exclusivo para usuarios de Pablo</a>
+        <a href="/cursos" class="curso-badge"><span data-icons-control aria-hidden="true">🎓 </span><img data-icons-test class="icono-inline" src="/landing/iconos/birrete.webp" alt="" aria-hidden="true" width="240" height="240" />Curso exclusivo para usuarios de Pablo</a>
         <h1>{CURSO.title}</h1>
         <p class="curso-subtitle">{CURSO.subtitle}</p>
       </header>
@@ -84,8 +84,8 @@ import { CURSO, SESIONES } from "../../../lib/cursos";
             <div class="sesion-card__body">
               <div class="sesion-card__meta">
                 <span class="sesion-card__label">{sesion.label}</span>
-                <span class="sesion-card__done" data-done={sesion.slug} hidden><img class="icono-inline" src="/onboarding/images/iconos/pablo/check.webp" alt="" aria-hidden="true" width="160" height="160" loading="lazy" />Completada</span>
-                <span class="sesion-card__pend" data-pend={sesion.slug} hidden><img class="icono-inline" src="/onboarding/images/iconos/pablo/candado.webp" alt="" aria-hidden="true" width="160" height="160" loading="lazy" />Completa la anterior</span>
+                <span class="sesion-card__done" data-done={sesion.slug} hidden><span data-icons-control aria-hidden="true">✓ </span><span data-icons-control aria-hidden="true">🎓 </span><img data-icons-test class="icono-inline" src="/onboarding/images/iconos/pablo/check.webp" alt="" aria-hidden="true" width="160" height="160" loading="lazy" />Completada</span>
+                <span class="sesion-card__pend" data-pend={sesion.slug} hidden><span data-icons-control aria-hidden="true">🔒 </span><span data-icons-control aria-hidden="true">🎓 </span><img data-icons-test class="icono-inline" src="/onboarding/images/iconos/pablo/candado.webp" alt="" aria-hidden="true" width="160" height="160" loading="lazy" />Completa la anterior</span>
               </div>
               <h3 class="sesion-card__title">{sesion.nombre}</h3>
             </div>

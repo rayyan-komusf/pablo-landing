@@ -1660,7 +1660,7 @@ body .topbar > div {
   letter-spacing: 0.3em;
 }
 
-/* --- Pago embebido con Flow (step-cuenta-pago) --- */
+/* --- Paso de continuidad al checkout de WHOP (step-cuenta-pago) --- */
 .pago-card {
   display: flex;
   flex-direction: column;

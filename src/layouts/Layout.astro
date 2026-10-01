@@ -5,6 +5,7 @@ import SubscribeModal from "../components/SubscribeModal.astro";
 import CountdownBanner from "../components/CountdownBanner.astro";
 import PostHogSnippet from "../components/PostHogSnippet.astro";
 import AbTests from "../components/AbTests.astro";
+import IconExperiment from "../components/IconExperiment.astro";
 import Atribucion from "../components/Atribucion.astro";
 import MetaPixel from "../components/MetaPixel.astro";
 import TikTokPixel from "../components/TikTokPixel.astro";
@@ -60,7 +61,7 @@ const ogImage = `${siteUrl}/Logo.png`;
     </script>
 
     <!-- Diferir terceros que no escriben la _fbc (Sandra 10-ago-2026): GTM,
-         TikTok y PostHog cargan tras el load + requestIdleCallback. El pixel
+         TikTok carga tras el load + requestIdleCallback. PostHog inicia antes para el A/B. El pixel
          de Meta NO se difiere: escribe la cookie _fbc y de él depende toda la
          atribución. Los stubs quedan en línea, así lo que se dispare antes de
          la carga real se encola y no se pierde. -->
@@ -216,12 +217,13 @@ const ogImage = `${siteUrl}/Logo.png`;
     <!-- TikTok Pixel (TikTok Ads) -->
     <TikTokPixel />
 
-    <!-- PostHog (diferido: init tras el primer render, ver PostHogSnippet) -->
-    <PostHogSnippet defer />
+    <!-- PostHog inicia pronto para resolver el experimento visual antes de interactuar. -->
+    <PostHogSnippet />
 
     <!-- A/B tests (experimentos de PostHog, markup data-ab-*): en el head para
          aplicar la variante cacheada ANTES del primer pintado. -->
     <AbTests />
+    <IconExperiment />
   </head>
   <body>
     {!hideBanner && <CountdownBanner />}

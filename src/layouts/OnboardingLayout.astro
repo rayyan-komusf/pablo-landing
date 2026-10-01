@@ -4,6 +4,7 @@
 // (public/onboarding/styles) y no comparte estilos con la landing.
 import PostHogSnippet from "../components/PostHogSnippet.astro";
 import AbTests from "../components/AbTests.astro";
+import IconExperiment from "../components/IconExperiment.astro";
 import Atribucion from "../components/Atribucion.astro";
 import PabloActor from "../components/onboarding/PabloActor.astro";
 import MetaPixel from "../components/MetaPixel.astro";
@@ -44,18 +45,19 @@ const base = "/onboarding";
          ?v= : cache-busting manual — subirlo al cambiar custom.css para que
          producción no sirva una versión cacheada con markup nuevo. -->
     <link rel="stylesheet" href={`${base}/styles/base.css`} />
-    <link rel="stylesheet" href={`${base}/styles/custom.css?v=45`} />
+    <link rel="stylesheet" href={`${base}/styles/custom.css?v=46`} />
     <!-- Primer toque de marketing → localStorage (viaja en el signup) -->
     <Atribucion />
     <!-- Meta Pixel (Facebook/Instagram Ads) -->
     <MetaPixel />
-    <!-- TikTok Pixel: acá disparan CompleteRegistration y el pago embebido,
+    <!-- TikTok Pixel: acá dispara CompleteRegistration antes de continuar al pago,
          sin él no habría cookie _ttp ni eventos del onboarding -->
     <TikTokPixel />
 
     <!-- PostHog (pageviews manuales: cada pantalla emite onboarding_screen_viewed) -->
     <PostHogSnippet capturePageview={false} />
     <AbTests />
+    <IconExperiment />
   </head>
   <body>
     <div class="app-shell" id="appShell">
