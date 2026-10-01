@@ -3992,3 +3992,106 @@ body .topbar > div {
   overflow-wrap: anywhere;  /* "Noticias/artículos/blog" parte por la barra */
   line-height: 1.25;
 }
+
+/* ============================================================
+ * 14. Íconos 3D de Pablo en pantallas sin opciones (oct-2026)
+ * ============================================================ */
+
+/* Diálogos con Pablo (step-2, 3, 5, nuevo-3B): un objeto que refuerza lo
+ * que dice, asomado arriba a la derecha del anclaje. El actor de Pablo es
+ * fixed y se pega encima del anclaje; el objeto queda fuera de su silueta. */
+.duo-stage__pablo {
+  position: relative;
+}
+
+.duo-prop {
+  position: absolute;
+  top: 6%;
+  right: -22%;
+  width: 72px;
+  height: 72px;
+  object-fit: contain;
+  pointer-events: none;
+  filter: drop-shadow(0 10px 12px rgba(43, 44, 100, 0.2));
+  opacity: 0;
+}
+
+.step.active .duo-prop {
+  animation:
+    propEntra 0.55s var(--ease-clay, cubic-bezier(0.34, 1.56, 0.64, 1)) 0.45s both,
+    propFlota 5.5s ease-in-out 1s infinite;
+}
+
+@keyframes propEntra {
+  from { opacity: 0; transform: scale(0.4) rotate(-20deg); }
+  to { opacity: 1; transform: scale(1) rotate(-6deg); }
+}
+
+@keyframes propFlota {
+  0%, 100% { opacity: 1; transform: translateY(0) rotate(-6deg); }
+  50% { opacity: 1; transform: translateY(-8px) rotate(4deg); }
+}
+
+@media (max-width: 640px) {
+  .duo-prop { width: 56px; height: 56px; right: -16%; }
+}
+
+/* Diagnóstico: cada eje con su ícono (claridad, fin de mes, plan). */
+.res-eje__nombre {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.res-eje__icono {
+  width: 22px;
+  height: 22px;
+  object-fit: contain;
+  flex-shrink: 0;
+}
+
+/* Registro: ícono dentro del campo (avatar, sobre, candado). */
+.cuenta-campo {
+  position: relative;
+}
+
+.cuenta-campo__icono {
+  position: absolute;
+  left: 14px;
+  top: 50%;
+  width: 26px;
+  height: 26px;
+  object-fit: contain;
+  transform: translateY(-50%);
+  pointer-events: none;
+}
+
+.cuenta-campo .cuenta-input {
+  padding-left: 50px;
+}
+
+/* Pago: candado 3D en lugar del emoji. */
+.pago-nota__icono {
+  width: 20px;
+  height: 20px;
+  object-fit: contain;
+  flex-shrink: 0;
+}
+
+/* Testimonios: estrellas junto al dato de usuarios. */
+.onb-stat {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+}
+
+.onb-stat img {
+  width: 44px;
+  height: 44px;
+  object-fit: contain;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .step.active .duo-prop { animation: none; opacity: 1; transform: rotate(-6deg); }
+}

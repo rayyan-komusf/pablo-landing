@@ -3,6 +3,7 @@ import { APP_STORE_URL } from '../siteConfig';
 ---
 <dialog id="ios-install-prompt" aria-labelledby="ios-install-title" aria-describedby="ios-install-description">
   <div class="ios-install-body">
+    <img class="ios-install-icono" src="/landing/iconos/celular.webp" alt="" aria-hidden="true" width="240" height="240" loading="lazy" />
     <p class="ios-install-kicker">PABLO PARA IPHONE</p>
     <h2 id="ios-install-title">Tu dinero, contigo.</h2>
     <p id="ios-install-description">Descarga Pablo para registrar tus gastos y seguir tus metas. Usa la misma cuenta en la app y en la web.</p>
@@ -43,6 +44,7 @@ import { APP_STORE_URL } from '../siteConfig';
   dialog { border:2px solid #e5e5ef; border-radius:28px; padding:0; width:calc(100% - 40px); max-width:380px; margin:auto; color:#2b2c64; background:white; box-shadow:0 20px 70px #18194044; }
   dialog::backdrop { background:#16163380; backdrop-filter:blur(3px); }
   .ios-install-body { padding:28px; display:flex; flex-direction:column; gap:18px; }
+  .ios-install-icono { width:64px; height:64px; object-fit:contain; margin-bottom:-6px; filter:drop-shadow(0 8px 10px rgba(43,44,100,.18)); }
   .ios-install-kicker { font-size:12px; font-weight:800; letter-spacing:.1em; color:#8c5a06; }
   h2 { font-family:var(--font-heading); font-size:30px; line-height:1.1; }
   #ios-install-description { font-size:15px; line-height:1.5; color:#56578f; }
