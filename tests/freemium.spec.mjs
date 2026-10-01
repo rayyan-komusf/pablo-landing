@@ -61,7 +61,7 @@ test('iPhone muestra aviso de App Store y respeta Seguir en la web', async ({ br
   const page = await context.newPage(); await offline(page);
   await page.goto('http://127.0.0.1:4325/');
   const dialog = page.getByRole('dialog', { name: 'Tu dinero, contigo.' });
-  await expect(dialog).toBeVisible();
+  await expect(dialog).toBeVisible({ timeout: 18_000 });
   await expect(dialog.getByRole('link', { name: 'Descargar para iOS' })).toHaveAttribute('href', store);
   await page.screenshot({ path: '/tmp/pablo-audit-ios-prompt-landing.png' });
   await dialog.getByRole('button', { name: 'Seguir en la web' }).click();

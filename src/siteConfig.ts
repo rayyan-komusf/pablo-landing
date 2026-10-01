@@ -13,11 +13,9 @@ export const SITE_MODE: 'waitlist' | 'live' = 'live';
 export const OFFER_AVAILABLE = true;
 
 // ============================================================
-//  FREE TRIAL MODE — controla el plan anual de S/.200
-//  true  → usa el link con 3 días gratis y muestra ese beneficio
-//  false → usa el link sin prueba y oculta el ítem "3 días gratis"
+//  Los planes WHOP empiezan con cobro inmediato al confirmar.
 // ============================================================
-export const FREE_TRIAL = true;
+export const FREE_TRIAL = false;
 
 // ============================================================
 //  OFERTA MILLONARIA (webinar 23-jul-2026) — ventana 23 al 29 de julio,
@@ -87,21 +85,13 @@ export const WEBINAR_MANDAMIENTOS = {
 export const APP_URL = 'https://usapablo.app/';
 
 // ============================================================
-//  CHECKOUT — account-first: el pago ocurre DENTRO de la app.
-//  Estos links llevan a usapablo.app/pricing con el plan preseleccionado;
-//  la app pide registro/login y retoma el checkout (hoy Stripe por API;
-//  cuando Flow vuelva, el mismo /pricing lo usa vía su switch de pasarela).
-//  Los trials los define la PASARELA (semanal y mensual 3 días; anual SIN
-//  prueba desde el 18-ago-2026, pedido de Sandra), no este archivo.
-//  El SEMANAL a 3 días (pedido de Rodrigo, 19-ago) quedó resuelto el 24-ago:
-//  FLOW_PLANES (_shared/flow.ts) manda trial_period_days = 3 en el Plan
-//  Semanal, así que la promesa de "3 días gratis" de la web ya es verdad.
+//  CHECKOUT — WHOP en la app, con sesión y sin prueba gratuita.
 // ============================================================
 export const CHECKOUT_URLS = {
-  weekly: 'https://usapablo.app/pricing?plan=semanal',   // S/.7/semana — 3 días gratis
-  monthly: 'https://usapablo.app/pricing?plan=mensual',  // S/.20/mes — 3 días gratis
-  annual_trial: 'https://usapablo.app/pricing?plan=anual',    // S/.200/año — cobro directo (3→0 el 18-ago-2026, pedido de Sandra)
-  annual_no_trial: 'https://usapablo.app/pricing?plan=anual', // mismo plan; el trial lo define la pasarela
+  weekly: 'https://usapablo.app/pricing?plan=semanal',
+  monthly: 'https://usapablo.app/pricing?plan=mensual',
+  annual_trial: 'https://usapablo.app/pricing?plan=anual', // Alias histórico, sin trial.
+  annual_no_trial: 'https://usapablo.app/pricing?plan=anual',
 };
 
 // URL de la app en el App Store (la pasó Rodrigo el 19-ago).

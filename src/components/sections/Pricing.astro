@@ -248,7 +248,7 @@ const annualCheckoutUrl = FREE_TRIAL ? CHECKOUT_URLS.annual_trial : CHECKOUT_URL
               <ul class="plan-features">
                 <li>
                   <svg class="check check--amber" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#F5A623" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>
-                  <span>3 días gratis de prueba</span>
+                  <span>Cobro al confirmar en WHOP</span>
                 </li>
                 <li>
                   <svg class="check" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#2B2C64" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>
@@ -277,7 +277,7 @@ const annualCheckoutUrl = FREE_TRIAL ? CHECKOUT_URLS.annual_trial : CHECKOUT_URL
                   class="plan-cta plan-cta--monthly"
                   id="pricing-weekly-cta"
                 >
-                  Empieza tus 3 días gratis
+                  Continuar al pago
                 </button>
               ) : (
                 <button class="plan-cta plan-cta--unavailable" disabled id="pricing-weekly-cta">
@@ -304,7 +304,7 @@ const annualCheckoutUrl = FREE_TRIAL ? CHECKOUT_URLS.annual_trial : CHECKOUT_URL
               <ul class="plan-features">
                 <li>
                   <svg class="check" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#2B2C64" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>
-                  <span data-pm-swap="14 días gratis de prueba">3 días gratis de prueba</span>
+                  <span data-pm-swap="Cobro al confirmar en WHOP">Cobro al confirmar en WHOP</span>
                 </li>
                 <li data-promo-millonaria hidden>
                   <svg class="check" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#2B2C64" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>
@@ -345,10 +345,10 @@ const annualCheckoutUrl = FREE_TRIAL ? CHECKOUT_URLS.annual_trial : CHECKOUT_URL
                 </button>
               )}
               <!-- Convierte una sorpresa en una expectativa justo antes del
-                   widget de Flow (Sandra 10-ago): la tarjeta se registra hoy
+                   checkout de WHOP (Sandra 10-ago): la tarjeta se registra hoy
                    pero el cobro llega al día 4. -->
               <p class="plan-cta-nota">
-                3 días gratis. Vinculas tu medio de pago y no se cobra hasta el día 4.
+                El primer cobro se realiza al confirmar en WHOP.
                 Cancelas cuando quieras.
               </p>
               <!-- Modo pauta: los otros dos planes nacen ocultos y este enlace
