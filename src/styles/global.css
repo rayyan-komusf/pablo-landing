@@ -242,3 +242,66 @@ ol {
     --gutter: 16px;
   }
 }
+
+/* ===========================
+   ÍCONOS 3D DE PABLO (flotantes)
+   ===========================
+   Set de íconos de marca de Pablo (Higgsfield, sep-2026), en
+   /landing/iconos. `.icono-flota` es un acento decorativo posicionado en
+   absoluto dentro de un contenedor relativo: sombra propia, flotación lenta
+   y desfasada por --delay para que ninguno se mueva al unísono.
+   Siempre aria-hidden y sin puntero: nunca tapa un clic. */
+.icono-flota {
+  position: absolute;
+  width: var(--s, 72px);
+  height: var(--s, 72px);
+  object-fit: contain;
+  pointer-events: none;
+  user-select: none;
+  z-index: 2;
+  filter: drop-shadow(0 12px 14px rgba(43, 44, 100, 0.2));
+  animation: iconoFlota var(--dur, 6s) ease-in-out var(--delay, 0s) infinite;
+}
+
+.icono-flota--oscuro {
+  filter: drop-shadow(0 14px 18px rgba(0, 0, 0, 0.35));
+}
+
+@keyframes iconoFlota {
+  0%, 100% { transform: translateY(0) rotate(var(--r0, -6deg)); }
+  50% { transform: translateY(-10px) rotate(var(--r1, 5deg)); }
+}
+
+/* Ancla de sección: ícono sobre un título, con halo del color de marca. */
+.icono-ancla {
+  position: relative;
+  display: inline-flex;
+  width: var(--s, 88px);
+  height: var(--s, 88px);
+  isolation: isolate;
+}
+
+.icono-ancla::before {
+  content: "";
+  position: absolute;
+  inset: 16%;
+  border-radius: 50%;
+  background: var(--halo, rgba(245, 166, 35, 0.45));
+  filter: blur(22px);
+  z-index: -1;
+}
+
+.icono-ancla img {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  filter: drop-shadow(0 10px 12px rgba(43, 44, 100, 0.18));
+  animation: iconoFlota var(--dur, 5s) ease-in-out infinite;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .icono-flota,
+  .icono-ancla img {
+    animation: none;
+  }
+}

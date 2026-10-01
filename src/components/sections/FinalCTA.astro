@@ -6,6 +6,10 @@ import { IS_LIVE, CTA } from '../../siteConfig';
 ---
 
 <section class="fcta">
+  <!-- Íconos 3D de Pablo flotando sobre el navy: el cierre se siente vivo. -->
+  <img class="icono-flota icono-flota--oscuro fcta__icono fcta__icono--alcancia" src="/landing/iconos/alcancia.webp" alt="" aria-hidden="true" width="240" height="240" loading="lazy" decoding="async" />
+  <img class="icono-flota icono-flota--oscuro fcta__icono fcta__icono--cohete" src="/landing/iconos/cohete.webp" alt="" aria-hidden="true" width="240" height="240" loading="lazy" decoding="async" />
+  <img class="icono-flota icono-flota--oscuro fcta__icono fcta__icono--estrella" src="/landing/iconos/estrella.webp" alt="" aria-hidden="true" width="240" height="240" loading="lazy" decoding="async" />
   <div class="container fcta__inner">
     <div class="fcta-logo">
       <Image src={logoImg} alt="Pablo" width={56} height={56} class="fcta-logo-img" />
@@ -26,8 +30,24 @@ import { IS_LIVE, CTA } from '../../siteConfig';
   /* Fondo navy de Pablo (Rodrigo, 20-ago) — el CTA final y la descarga son
    * los dos momentos oscuros de la página. */
   .fcta {
-    background: #2b2c64;
+    position: relative;
+    overflow: hidden;
+    background:
+      radial-gradient(60% 80% at 50% 0%, rgba(245, 166, 35, 0.14), transparent 70%),
+      #2b2c64;
     padding: var(--section-py) 0;
+  }
+
+  .fcta__inner { position: relative; z-index: 3; }
+
+  .fcta__icono--alcancia { --s: 120px; --dur: 7s; top: 22%; left: max(2%, calc(50% - 540px)); }
+  .fcta__icono--cohete { --s: 110px; --dur: 6s; --delay: -2.5s; --r0: 10deg; --r1: 18deg; bottom: 14%; right: max(2%, calc(50% - 540px)); }
+  .fcta__icono--estrella { --s: 54px; --dur: 5s; --delay: -1s; top: 14%; right: max(10%, calc(50% - 420px)); }
+
+  @media (max-width: 900px) {
+    .fcta__icono--alcancia { --s: 64px; top: 34px; left: 12px; }
+    .fcta__icono--cohete { --s: 60px; bottom: 18px; right: 12px; }
+    .fcta__icono--estrella { display: none; }
   }
 
   .fcta__inner {

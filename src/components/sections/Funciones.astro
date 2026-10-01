@@ -29,7 +29,7 @@ const BLOQUES = [
     titulo: ["Un amigo que sabe de plata,", "no otra app de banco"],
     texto:
       "Pablo te responde al toque, como un amigo. Sin términos raros, sin sermones y sin culparte por un gasto.",
-    escena: "cama",      // Pablo en su cama con "pops" + mesita y ventana (25-ago, sin sombra)
+    escena: "cama", icono: "chat-whatsapp",      // Pablo en su cama con "pops" + mesita y ventana (25-ago, sin sombra)
     dim: { w: 680, h: 520 },
     ancho: 380,
     respaldo: "saludando",
@@ -40,7 +40,7 @@ const BLOQUES = [
     titulo: ["Tú vive tu vida,", "Pablo lleva las cuentas"],
     texto:
       "Cuéntale un gasto y listo: él lo anota, lo ordena y te dice cómo vas. Sin planillas ni cuentas a fin de mes.",
-    escena: "presupuesto", // presupuesto flotante con barras en vivo
+    escena: "presupuesto", icono: "barras", // presupuesto flotante con barras en vivo
     dim: { w: 512, h: 348 },
     ancho: 290,
     respaldo: "anotando",
@@ -51,7 +51,7 @@ const BLOQUES = [
     titulo: ["Cuidar tu plata", "por fin se siente bien"],
     texto:
       "Cada registro suma racha y cada sol te acerca a tu meta. Avanzas jugando, con Pablo corriendo a tu lado.",
-    escena: "corriendo",   // corriendo hacia la meta que nunca se acerca
+    escena: "corriendo", icono: "fuego",   // corriendo hacia la meta que nunca se acerca
     dim: { w: 512, h: 330 },
     ancho: 250,
     respaldo: "emocionado",
@@ -62,7 +62,7 @@ const BLOQUES = [
     titulo: ["Cada sol", "encuentra su lugar"],
     texto:
       "Pablo caza los gastos hormiga que se te escapan y te muestra a dónde va tu sueldo, en tiempo real.",
-    escena: "soles",       // fila de monedas desfilando hacia Pablo, que las anota (8fps nativo)
+    escena: "soles", icono: "monedas",       // fila de monedas desfilando hacia Pablo, que las anota (8fps nativo)
     dim: { w: 512, h: 270 },
     ancho: 330,
     respaldo: "anotando",
@@ -86,7 +86,10 @@ const BLOQUES = [
 
           {/* Slot de escena: el video de la escena completa; el Pablo solo
               del respaldo queda como imagen estática si no hay alfa. */}
-          <div class="fx-escena" data-escena={b.escena} aria-hidden="true">
+          <div class="fx-escena" data-escena={b.escena} aria-hidden="true" style={`--w:${b.ancho}px;`}>
+            {/* Sello 3D de Pablo en la esquina de la escena: resume el
+                beneficio en un objeto (chat, barras, racha, monedas). */}
+            <img class="icono-flota fx-sello" src={`/landing/iconos/${b.icono}.webp`} alt="" width="240" height="240" loading="lazy" decoding="async" style={`--delay:${-i * 1.3}s;`} />
             <div
               class="fx-pablo fx-pablo--escena"
               style={`--w:${b.ancho}px; --pt:${((b.dim.h / b.dim.w) * 100).toFixed(2)}%;`}
@@ -121,7 +124,8 @@ const BLOQUES = [
     </div>
 
     {/* Transición ícono→personaje atada al scroll (sin loop: se scrubbea). */}
-    <div class="fx-escena" data-escena="celular" aria-hidden="true">
+    <div class="fx-escena" data-escena="celular" aria-hidden="true" style="--w:340px;">
+      <img class="icono-flota icono-flota--oscuro fx-sello" src="/landing/iconos/celular.webp" alt="" width="240" height="240" loading="lazy" decoding="async" style="--delay:-2s;" />
       <div class="fx-pablo fx-pablo--escena" style="--w:340px; --pt:94.53%;">
         <img src={`${PABLO}/pablo-saludando.webp`} alt="" width="445" height="420" loading="lazy" />
         <video data-src={`${PABLO}/escena-celular.webm`} muted playsinline preload="none" width="512" height="484"></video>
@@ -394,6 +398,32 @@ const BLOQUES = [
   .fx-pablo {
     position: relative;
     width: 210px;
+  }
+
+  /* Sello 3D: arriba, pegado al borde de la escena. En los bloques
+     invertidos pasa al otro lado para abrir hacia el texto. */
+  /* En móvil la escena casi toca el borde: el sello se acota para no
+     salirse del bloque (min con 100% - su propio ancho). */
+  .fx-sello {
+    --s: 52px;
+    top: -10px;
+    left: min(calc(50% + min(var(--w) / 2, 40vw) - 34px), calc(100% - var(--s)));
+  }
+  .fx__bloque--invertido .fx-sello {
+    left: auto;
+    right: min(calc(50% + min(var(--w) / 2, 40vw) - 34px), calc(100% - var(--s)));
+  }
+
+  @media (min-width: 1024px) {
+    .fx-sello {
+      --s: 78px;
+      top: -14px;
+      left: calc(50% + min(var(--w) * 0.675, 18vw) - 44px);
+    }
+    .fx__bloque--invertido .fx-sello {
+      left: auto;
+      right: calc(50% + min(var(--w) * 0.675, 18vw) - 44px);
+    }
   }
 
   .fx-pablo img,

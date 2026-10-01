@@ -1,17 +1,17 @@
 <section class="free-plan" aria-labelledby="free-plan-title">
   <div class="free-plan__intro">
-    <p class="free-plan__label">PABLO GRATIS</p>
+    <p class="free-plan__label"><img src="/onboarding/images/iconos/pablo/brote.webp" alt="" width="28" height="28" loading="lazy" />PABLO GRATIS</p>
     <h2 id="free-plan-title">Empieza con lo esencial.<br /><span>S/.0, sin tarjeta.</span></h2>
     <p>Organiza tu dinero en la web y en iOS. Puedes mejorar tu plan cuando quieras.</p>
     <a href="/onboarding?plan=free" class="btn-primary">Seguir con Gratis</a>
   </div>
   <div class="free-plan__details">
     <ul>
-      <li><strong>5 mensajes al día</strong> en el chat, entre todos tus dispositivos.</li>
-      <li><strong>Hasta 3 cuentas</strong>, incluidas las compartidas.</li>
-      <li><strong>Una moneda, una meta y una transacción recurrente.</strong></li>
-      <li><strong>Presupuestos y categorías predeterminados.</strong></li>
-      <li>Registros manuales de ingresos y gastos sin límite.</li>
+      <li><img src="/onboarding/images/iconos/pablo/chat-whatsapp.webp" alt="" width="30" height="30" loading="lazy" /><span><strong>5 mensajes al día</strong> en el chat, entre todos tus dispositivos.</span></li>
+      <li><img src="/onboarding/images/iconos/pablo/tarjeta.webp" alt="" width="30" height="30" loading="lazy" /><span><strong>Hasta 3 cuentas</strong>, incluidas las compartidas.</span></li>
+      <li><img src="/onboarding/images/iconos/pablo/diana.webp" alt="" width="30" height="30" loading="lazy" /><span><strong>Una moneda, una meta y una transacción recurrente.</strong></span></li>
+      <li><img src="/onboarding/images/iconos/pablo/dona.webp" alt="" width="30" height="30" loading="lazy" /><span><strong>Presupuestos y categorías predeterminados.</strong></span></li>
+      <li><img src="/onboarding/images/iconos/pablo/lapiz.webp" alt="" width="30" height="30" loading="lazy" /><span>Registros manuales de ingresos y gastos sin límite.</span></li>
     </ul>
     <p>Con <a href="/planes">Premium</a>: WhatsApp, email, importaciones, exportaciones en todos los formatos y personalización.</p>
   </div>
@@ -23,7 +23,12 @@
   h2 { font-family:var(--font-heading); font-size:32px; line-height:1.2; }
   h2 span { color:#8c5a06; }
   p { line-height:1.5; }
-  ul { padding-left:20px; display:grid; gap:14px; list-style:disc; }
+  .free-plan__label { display:inline-flex; align-items:center; gap:8px; }
+  .free-plan__label img { width:28px; height:28px; object-fit:contain; }
+  /* Cada beneficio con su ícono 3D de Pablo en un tile blanco. */
+  ul { padding:0; display:grid; gap:12px; list-style:none; }
+  li { display:flex; align-items:center; gap:14px; }
+  li img { flex-shrink:0; width:44px; height:44px; padding:7px; object-fit:contain; background:#fff; border:1.5px solid #e8e5f2; border-radius:14px; box-shadow:0 3px 0 0 #e8e5f2; }
   .free-plan__details>p { border-top:1px solid #ddd8ee; padding-top:18px; margin-top:20px; font-size:14px; color:#56578f; }
   .free-plan__details a { text-decoration:underline; font-weight:700; }
   @media(max-width:768px) { .free-plan { grid-template-columns:1fr; margin:28px 20px; padding:24px; gap:28px; } h2 { font-size:28px; } }

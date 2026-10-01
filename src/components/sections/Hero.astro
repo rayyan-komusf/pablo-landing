@@ -12,6 +12,11 @@ import { CTA, IS_LIVE, APP_URL } from "../../siteConfig";
     <!-- ── Izquierda: iPhone con el demo en loop ── -->
     <div class="hero__phone-area">
       <HeroPhone />
+      <!-- Íconos 3D de Pablo orbitando el iPhone (solo desktop: en móvil el
+           teléfono ya llena el alto disponible y no queda margen lateral). -->
+      <img class="icono-flota hero__icono hero__icono--alcancia" src="/landing/iconos/alcancia.webp" alt="" aria-hidden="true" width="240" height="240" loading="eager" decoding="async" />
+      <img class="icono-flota hero__icono hero__icono--diana" src="/landing/iconos/diana-metas.webp" alt="" aria-hidden="true" width="240" height="240" loading="eager" decoding="async" />
+      <img class="icono-flota hero__icono hero__icono--monedas" src="/landing/iconos/monedas.webp" alt="" aria-hidden="true" width="240" height="240" loading="eager" decoding="async" />
     </div>
 
     <!-- ── Derecha: titular + CTAs apilados ── -->
@@ -86,9 +91,23 @@ import { CTA, IS_LIVE, APP_URL } from "../../siteConfig";
   }
 
   .hero__phone-area {
+    position: relative;
     display: flex;
     justify-content: center;
     align-items: center;
+  }
+
+  /* Tres acentos en los márgenes del iPhone, cada uno con su ritmo. */
+  .hero__icono--alcancia { --s: 92px; --delay: 0s; --dur: 6.5s; top: 8%; left: 2%; }
+  .hero__icono--diana { --s: 76px; --delay: -2.2s; --dur: 5.8s; --r0: 6deg; --r1: -4deg; top: 34%; right: -4%; }
+  .hero__icono--monedas { --s: 84px; --delay: -4s; --dur: 7s; bottom: 10%; right: 0; }
+
+  @media (max-width: 1024px) {
+    .hero__icono { --s: 60px; }
+  }
+
+  @media (max-width: 768px) {
+    .hero__icono { display: none; }
   }
 
   /* ── Columna de contenido (como Duolingo: titular + botones apilados) ── */

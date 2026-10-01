@@ -2108,6 +2108,32 @@ body .topbar > div {
   height: 30px;
   object-fit: contain;
   display: block;
+  transition: transform 0.4s var(--ease-clay, cubic-bezier(0.34, 1.56, 0.64, 1));
+}
+
+/* El ícono responde: se asoma al pasar el mouse y salta al elegirlo, para
+ * que la selección se sienta en el ícono y no solo en el borde. */
+@media (hover: hover) {
+  .option-card:hover .option-icon img {
+    transform: translateY(-2px) rotate(-6deg) scale(1.08);
+  }
+}
+
+.option-card.selected .option-icon img {
+  animation: iconoPop 0.5s var(--ease-clay, cubic-bezier(0.34, 1.56, 0.64, 1));
+}
+
+@keyframes iconoPop {
+  0% { transform: scale(1); }
+  40% { transform: scale(1.22) rotate(-8deg); }
+  70% { transform: scale(0.96) rotate(3deg); }
+  to { transform: scale(1); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .option-icon img { transition: none; }
+  .option-card:hover .option-icon img { transform: none; }
+  .option-card.selected .option-icon img { animation: none; }
 }
 
 /* Cerámica por posición (ceramicaPorIndice): en una lista corta ningún
@@ -3512,9 +3538,9 @@ body .topbar > div {
 .pw-linea__hito {
   position: relative;
   display: grid;
-  grid-template-columns: 26px 1fr;
-  grid-template-areas: "punto cuando" "linea que";
-  column-gap: 10px;
+  grid-template-columns: 36px 1fr;
+  grid-template-areas: "punto cuando" "punto que";
+  column-gap: 12px;
   padding-bottom: 14px;
 }
 
@@ -3524,27 +3550,48 @@ body .topbar > div {
 .pw-linea__hito:not(:last-child)::before {
   content: "";
   position: absolute;
-  left: 12px;
-  top: 20px;
+  left: 17px;
+  top: 40px;
   bottom: 2px;
   width: 2px;
   background: rgba(43, 44, 100, 0.14);
 }
 
+/* Cada hito lleva un tile cerámico con el ícono de la librería (regalo →
+ * campana → calendario): se lee qué pasa sin leer el texto. */
 .pw-linea__punto {
   grid-area: punto;
-  width: 14px;
-  height: 14px;
-  margin: 3px auto 0;
-  border-radius: 50%;
-  background: #fff;
-  border: 3px solid rgba(43, 44, 100, 0.22);
+  align-self: start;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 36px;
+  height: 36px;
+  border-radius: 12px;
+  corner-shape: squircle;
+  background: var(--cer-5);
+  border: 1.5px solid var(--cer-5-edge);
+  box-shadow: 0 var(--pab-drop-sm) 0 0 var(--cer-5-edge);
 }
 
-/* Hoy es el único hito lleno: es el que ya está pasando. */
+.pw-linea__punto img {
+  width: 22px;
+  height: 22px;
+  object-fit: contain;
+  display: block;
+}
+
+.pw-linea__hito[data-pw-hito-cobro] .pw-linea__punto {
+  background: var(--cer-3);
+  border-color: var(--cer-3-edge);
+  box-shadow: 0 var(--pab-drop-sm) 0 0 var(--cer-3-edge);
+}
+
+/* Hoy es el único hito encendido: es el que ya está pasando. */
 .pw-linea__hito--hoy .pw-linea__punto {
-  background: #f5a623;
-  border-color: #c97f0c;
+  background: #fff3d6;
+  border-color: #f5a623;
+  box-shadow: 0 var(--pab-drop-sm) 0 0 #c97f0c, 0 0 0 4px rgba(245, 166, 35, 0.18);
 }
 
 .pw-linea__cuando {
