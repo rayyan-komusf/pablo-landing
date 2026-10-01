@@ -31,7 +31,7 @@ const { promo } = Astro.props;
 // onboarding — van DIRECTO al checkout de la app (usapablo.app/pricing con el
 // plan preseleccionado; la app pide registro/login y retoma el pago).
 // OJO: siteConfig dice que los trials reales los define la pasarela (mensual
-// 3 días / anual 7) — la página promete "14 días de prueba gratis" en el
+// 3 días / anual 7) — la página promete "Pago seguro con WHOP" en el
 // mensual por pedido de Rodrigo: confirmar con Rayyan antes del deploy.
 const CHECKOUT_URL = CHECKOUT_URLS.annual_no_trial;
 const CHECKOUT_URL_MENSUAL = CHECKOUT_URLS.monthly;
@@ -926,7 +926,7 @@ const faqs = [
               <div class="om-plan" data-plan="mensual" role="radio" aria-checked="false" tabindex="0">
                 <div class="om-plan__head">
                   <span class="om-plan__radio" aria-hidden="true"></span>
-                  <span class="om-plan__nombre">Pablo <strong>Mensual</strong> <span class="om-plan__nota">14 días de prueba gratis</span></span>
+                  <span class="om-plan__nombre">Pablo <strong>Mensual</strong> <span class="om-plan__nota">Pago seguro con WHOP</span></span>
                   <span class="om-plan__precio">
                     <strong>S/.20</strong><em>/mes</em>
                   </span>
@@ -1012,7 +1012,7 @@ const faqs = [
 
             <div class="om-hero__cierre" data-vista="mensual" hidden>
               <p class="om-hero__deadline">
-                Sin permanencia. 14 días gratis y luego S/.20/mes.
+                S/20 cada 30 días. Primer cobro al confirmar; puedes cancelar la renovación.
               </p>
               <p class="om-hero__garantia-mini">
                 <svg class="om-escudo" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" aria-hidden="true">
@@ -1904,7 +1904,7 @@ const faqs = [
               Pago único. Garantía de 14 días. Reto con reembolso del 100%.
             </p>
             <p class="om-stackf__mensual" id="prueba-gratis">
-              ¿Prefieres ir mes a mes? <a href={CHECKOUT_URL_MENSUAL}>Prueba a Pablo por 14 días gratis</a> — S/.20/mes, sin los bonos de la promo.
+              ¿Prefieres ir mes a mes? <a href={CHECKOUT_URL_MENSUAL}>Elige el Plan Mensual</a> — S/.20/mes, sin los bonos de la promo.
             </p>
           </div>
         </div>
@@ -8776,7 +8776,7 @@ const faqs = [
 
   const CTA_TEXTOS: Record<string, string> = {
     anual: 'Quiero ordenar mi plata y empezar el reto',
-    mensual: 'Prueba a Pablo por 14 días gratis',
+    mensual: 'Elige el Plan Mensual',
   };
 
   function elegirPlan(plan: string) {
@@ -8808,7 +8808,7 @@ const faqs = [
     const stickyMonto = document.querySelector<HTMLElement>('.om-sticky__monto');
     if (stickyCta && ctaHero) {
       stickyCta.href = ctaHero.href;
-      stickyCta.textContent = plan === 'mensual' ? 'Probar 14 días gratis' : 'Reclamar mi promo';
+      stickyCta.textContent = plan === 'mensual' ? 'Elegir Plan Mensual' : 'Reclamar mi promo';
     }
     if (stickyTachado) stickyTachado.style.visibility = plan === 'mensual' ? 'hidden' : '';
     if (stickyMonto) stickyMonto.innerHTML = plan === 'mensual' ? 'S/.20 <span>al mes</span>' : 'S/.200 <span>el año</span>';

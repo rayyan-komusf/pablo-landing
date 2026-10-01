@@ -5,47 +5,20 @@
     <meta name="viewport" content="width=device-width,initial-scale=1" />
     <meta name="robots" content="noindex,nofollow" />
     <meta name="referrer" content="no-referrer" />
-    <title>Confirmar suscripción · Pablo</title>
+    <title>Revisa tu suscripción · Pablo</title>
   </head>
   <body>
     <main aria-live="polite">
       <img src="/onboarding/images/pablo/pablo-logo.png" alt="Pablo" width="64" height="64" />
-      <h1 id="flow-titulo">Confirmando con Flow…</h1>
-      <p id="flow-detalle">Espera mientras comprobamos la vinculación de tu medio de pago.</p>
-      <button id="flow-reintentar" hidden>Reintentar confirmación</button>
-      <a id="flow-continuar" href="https://usapablo.app/auth" hidden>Continuar a Pablo</a>
+      <h1>Revisa tu suscripción en Pablo</h1>
+      <p>Este enlace pertenece al sistema de pagos anterior. Las nuevas suscripciones se gestionan con WHOP desde la app.</p>
+      <a id="flow-continuar" href="https://usapablo.app/auth">Continuar a Pablo</a>
     </main>
     <script>
-      import { confirmarRetornoFlow, mensajeConfirmacionFlow, urlAppTrasFlow } from "../../lib/flowRetorno";
-      const token = new URLSearchParams(location.search).get("token") || "";
-      const titulo = document.getElementById("flow-titulo")!;
-      const detalle = document.getElementById("flow-detalle")!;
-      const reintentar = document.getElementById("flow-reintentar") as HTMLButtonElement;
+      import { urlAppTrasFlow } from "../../lib/flowRetorno";
       const continuar = document.getElementById("flow-continuar") as HTMLAnchorElement;
-      let enCurso = false;
-      async function confirmar() {
-        if (enCurso) return;
-        enCurso = true;
-        reintentar.hidden = true;
-        continuar.hidden = true;
-        titulo.textContent = "Confirmando con Flow…";
-        try {
-          const resultado = await confirmarRetornoFlow(token);
-          const mensaje = mensajeConfirmacionFlow(resultado);
-          titulo.textContent = mensaje.titulo;
-          detalle.textContent = mensaje.detalle;
-        } catch (error) {
-          titulo.textContent = "No pudimos confirmar la vinculación";
-          detalle.textContent = error instanceof Error ? error.message : "Inténtalo de nuevo.";
-          reintentar.hidden = !token;
-        } finally {
-          continuar.href = urlAppTrasFlow();
-          continuar.hidden = false;
-          enCurso = false;
-        }
-      }
-      reintentar.addEventListener("click", confirmar);
-      void confirmar();
+      continuar.href = urlAppTrasFlow();
+      history.replaceState(null, "", location.pathname);
     </script>
   </body>
 </html>

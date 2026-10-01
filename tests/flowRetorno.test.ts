@@ -16,55 +16,17 @@ async function fixture(run: (store: Map<string, string>) => Promise<void>) {
     else Reflect.deleteProperty(globalThis, "sessionStorage");
   }
 }
-const json = (data: unknown, status = 200) => new Response(JSON.stringify(data), { status });
-
-test("confirma únicamente el registro recibido, sin crear checkout", () => fixture(async () => {
-  globalThis.fetch = async (url, options) => {
-    assert.match(String(url), /flow-suscripcion$/);
-    assert.deepEqual(JSON.parse(String(options?.body)), { accion: "confirmar", token: "registration" });
-    return json({ ok: true, en_trial: true });
-  };
-  assert.equal((await confirmarRetornoFlow("registration")).en_trial, true);
+test("retired returns cannot confirm, charge, or contact Flow", () => fixture(async () => {
+  let calls = 0;
+  globalThis.fetch = async () => { calls++; throw new Error("unexpected provider request"); };
+  await assert.rejects(confirmarRetornoFlow("old-token"), /sistema anterior/);
+  await assert.rejects(confirmarRetornoFlow(""), /sistema anterior/);
+  assert.equal(calls, 0);
 }));
-
-test("sesión vencida: renueva y confirma el mismo token una sola vez", () => fixture(async store => {
-  const requests: string[] = [];
-  globalThis.fetch = async (url, options) => {
-    requests.push(String(url));
-    if (requests.length === 1) return json({ error: "expired" }, 401);
-    if (requests.length === 2) {
-      assert.match(String(url), /grant_type=refresh_token/);
-      return json({ access_token: "new-access", refresh_token: "new-refresh" });
-    }
-    assert.deepEqual(JSON.parse(String(options?.body)), { accion: "confirmar", token: "same-token" });
-    assert.equal(new Headers(options?.headers).get("Authorization"), "Bearer new-access");
-    return json({ ok: true });
-  };
-  await confirmarRetornoFlow("same-token");
-  assert.equal(requests.length, 3);
-  assert.equal(JSON.parse(store.get(FLOW_SESION_KEY)!).refresh_token, "new-refresh");
-}));
-
-test("sin sesión ni token nunca hace peticiones", () => fixture(async store => {
-  globalThis.fetch = async () => { throw new Error("no debe llamarse"); };
-  await assert.rejects(confirmarRetornoFlow(""), /código de Flow/);
-  store.clear();
-  await assert.rejects(confirmarRetornoFlow("token"), /sesión/);
-}));
-
-test("rechazo y error HTTP nunca se convierten en éxito", () => fixture(async () => {
-  globalThis.fetch = async () => json({ ok: false, error: "No vinculado" });
-  await assert.rejects(confirmarRetornoFlow("token"), /No vinculado/);
-  globalThis.fetch = async () => json({ ok: true }, 503);
-  await assert.rejects(confirmarRetornoFlow("token"), /No pudimos confirmar/);
-}));
-
-test("pendiente gana sobre trial y período gratis", () => {
-  for (const flag of ["acceso_bloqueado", "pago_pendiente", "cobro_pendiente"]) {
-    const mensaje = mensajeConfirmacionFlow({ ok: true, [flag]: true, en_trial: true, periodo_gratis: true });
-    assert.equal(mensaje.titulo, "Medio de pago vinculado");
-    assert.match(mensaje.detalle, /todavía/);
-  }
+test("historical return flags cannot claim trial or payment success", () => {
+  const message = mensajeConfirmacionFlow({ ok: true, en_trial: true, periodo_gratis: true });
+  assert.equal(message.titulo, "Revisa tu suscripción");
+  assert.doesNotMatch(message.detalle, /gratis|activa|renovará/);
 });
 
 test("el puente no inicia otro checkout y entrega sesión solo en fragmento", () => fixture(async () => {
