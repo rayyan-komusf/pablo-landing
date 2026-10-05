@@ -517,13 +517,14 @@ import iconPremiumRaw from '../assets/icon-premium.svg?raw';
     }
   }
 
-  // On click: fire Meta Pixel InitiateCheckout + ir al checkout de la app
+  // La selección de plan es un paso previo; InitiateCheckout sale del servidor
+  // al preparar el checkout real de Whop, con una identidad estable.
   document.getElementById('smodal-register-btn')?.addEventListener('click', () => {
     if (_checkoutUrl) {
-      // Fire Meta Pixel InitiateCheckout with correct plan value
+      // Keep funnel intent separate from the server conversion.
       const plan = (window as any).planSeleccionado;
       if (typeof (window as any).fbq !== 'undefined' && plan) {
-        (window as any).fbq('track', 'InitiateCheckout', {
+        (window as any).fbq('trackCustom', 'CheckoutPlanSelected', {
           content_name: plan.name,
           value: plan.value,
           currency: 'PEN',
