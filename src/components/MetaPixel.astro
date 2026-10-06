@@ -41,7 +41,7 @@ const pixelId = import.meta.env.PUBLIC_META_PIXEL_ID;
           "https://connect.facebook.net/en_US/fbevents.js",
         );
         fbq("init", pixelId);
-        fbq("track", "PageView");
+        fbq("track", "PageView", { page_location: location.origin + location.pathname, page_path: location.pathname });
       </script>
       <noscript>
         <img
@@ -73,8 +73,30 @@ const pixelId = import.meta.env.PUBLIC_META_PIXEL_ID;
 
           /** Cookies de Meta de ESTE dominio, ya escritas por el pixel. */
           window.pabloFbCookies = function () {
-            return { fbc: leerCookie("_fbc"), fbp: leerCookie("_fbp") };
+            var valida = function (v) { return typeof v === "string" && /^fb\.\d+\.\d{13}\.[A-Za-z0-9._-]{1,450}$/.test(v); };
+            var previo = {};
+            try {
+              var raw = JSON.parse(localStorage.getItem("pablo_fb_atribucion_v1") || "null");
+              if (raw && Number.isFinite(raw.ts) && raw.ts > 0 && raw.ts <= Date.now() && Date.now() - raw.ts < 7 * 86400000) previo = raw;
+            } catch (e) {}
+            var fbc = leerCookie("_fbc"), fbp = leerCookie("_fbp");
+            // Capture even if the third-party pixel is slow or blocked. Preserve
+            // the original click timestamp when navigating before checkout.
+            var fbclid = new URLSearchParams(location.search).get("fbclid");
+            if (fbclid && /^[A-Za-z0-9._-]{1,450}$/.test(fbclid) &&
+                (!valida(fbc) || fbc.split(".").slice(3).join(".") !== fbclid)) {
+              fbc = valida(previo.fbc) && previo.fbc.split(".").slice(3).join(".") === fbclid
+                ? previo.fbc : "fb.1." + Date.now() + "." + fbclid;
+            }
+            var result = { fbc: valida(fbc) ? fbc : (valida(previo.fbc) ? previo.fbc : null),
+              fbp: valida(fbp) ? fbp : (valida(previo.fbp) ? previo.fbp : null) };
+            try {
+              if (result.fbc || result.fbp) localStorage.setItem("pablo_fb_atribucion_v1", JSON.stringify({ ...result, ts: previo.fbc === result.fbc && previo.ts ? previo.ts : Date.now() }));
+            } catch (e) {}
+            return result;
           };
+
+          window.pabloFbCookies();
 
           /**
            * Agrega la huella del clic a una URL de usapablo.app. Se manda el
@@ -89,6 +111,8 @@ const pixelId = import.meta.env.PUBLIC_META_PIXEL_ID;
            */
           window.pabloConFbc = function (url) {
             try {
+              var target = new URL(url, location.href);
+              if (target.protocol !== "https:" || target.hostname !== "usapablo.app" || target.username || target.password || target.port) return url;
               var salida = url;
               var c = window.pabloFbCookies();
               if (c.fbc || c.fbp) {
