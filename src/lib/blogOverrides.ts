@@ -12,6 +12,7 @@
 import type { PostMeta } from "./notion";
 import detoxFinanciero from "../data/blog-overrides/plantilla-detox-financiero.html?raw";
 import tarjetaClasica2026 from "../data/blog-overrides/querido-pablo-tarjeta-credito-clasica-2026.html?raw";
+import tarjetaGold2026 from "../data/blog-overrides/mejor-tarjeta-credito-gold-peru-2026.html?raw";
 
 export type BlogOverride = {
   /** HTML que reemplaza a renderBlocks() para este slug. */
@@ -41,6 +42,20 @@ export const BLOG_OVERRIDES: Record<string, BlogOverride> = {
         "Comparé las 5 tarjetas clásicas de los bancos grandes con sus tarifarios y el comparador de la SBS: cuánto cuestan de verdad, qué te devuelven y cuál te conviene según cómo la usas.",
       fecha: "2026-09-30T12:00:00-05:00",
       portada: "/blog/querido-pablo-tarjetas-portada.jpg",
+      autor: "Pablo",
+    },
+  },
+  "mejor-tarjeta-credito-gold-peru-2026": {
+    contenido: sinNotas(tarjetaGold2026),
+    ctaFinal: true,
+    meta: {
+      title: "¿cuál es la mejor tarjeta de crédito gold del perú? (con tabla comparativa)",
+      descripcion:
+        "Comparé las 12 tarjetas gold que se venden hoy en el Perú con el comparador de la SBS y el tarifario de cada banco: cuánto cobran de verdad, qué te devuelven, sus beneficios y cuál te conviene según cómo la usas.",
+      fecha: "2026-10-07T12:00:00-05:00",
+      // Sin portada a propósito: no hay imagen de Pablo hecha con las láminas
+      // oficiales (05_specs + 01_poses) que encaje con este post.
+      portada: null,
       autor: "Pablo",
     },
   },
