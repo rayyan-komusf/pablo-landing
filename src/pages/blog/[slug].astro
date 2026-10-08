@@ -400,6 +400,48 @@ const fecha = meta.fecha
     color: var(--color-secondary);
   }
 
+  /* Tabla con muchas columnas: se desliza de lado y la columna de la
+     tarjeta se queda fija. Arriba, las bandas de Beneficios y Costos. */
+  .post-content :global(.blog-tabla--ancha table) {
+    min-width: 1500px;
+  }
+
+  .post-content :global(.blog-tabla--ancha td:first-child),
+  .post-content :global(.blog-tabla--ancha th:first-child) {
+    position: sticky;
+    left: 0;
+    z-index: 1;
+    min-width: 170px;
+    background: var(--color-white);
+    box-shadow: 1px 0 0 rgba(43, 44, 100, 0.08);
+  }
+
+  .post-content :global(.blog-tabla--ancha thead th:first-child) {
+    background: var(--color-navy);
+  }
+
+  .post-content :global(.blog-tabla--ancha .blog-tabla__hermana td:first-child) {
+    background: var(--card-bg);
+  }
+
+  .post-content :global(.blog-tabla__grupos th) {
+    padding: 8px 14px;
+  }
+
+  .post-content :global(.blog-tabla__grupo) {
+    text-align: center;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+  }
+
+  .post-content :global(.blog-tabla th.blog-tabla__grupo--beneficios) {
+    background: #2e9e5b;
+  }
+
+  .post-content :global(.blog-tabla th.blog-tabla__grupo--costos) {
+    background: #d64532;
+  }
+
   .post-content :global(.blog-nota) {
     font-size: 0.82rem;
     line-height: 1.6;
@@ -456,6 +498,13 @@ const fecha = meta.fecha
 
     .post-content :global(.blog-tabla td) {
       padding: 8px 0;
+    }
+
+    .post-content :global(.blog-tabla--ancha td:first-child) {
+      position: static;
+      min-width: 0;
+      background: none;
+      box-shadow: none;
     }
 
     .post-content :global(.blog-tabla td::before) {
