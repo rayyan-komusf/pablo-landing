@@ -192,6 +192,21 @@ const fecha = meta.fecha
     margin: 16px 0 24px 24px;
   }
 
+  /* global.css quita los marcadores a toda lista; en el cuerpo del post se
+     devuelven, que para eso está la sangría de arriba. */
+  .post-content :global(ul) {
+    list-style: disc;
+  }
+
+  .post-content :global(ol) {
+    list-style: decimal;
+  }
+
+  .post-content :global(li::marker) {
+    color: var(--color-amber);
+    font-weight: 700;
+  }
+
   .post-content :global(li) {
     margin-bottom: 8px;
   }
@@ -300,6 +315,233 @@ const fecha = meta.fecha
     margin: 24px 0;
     color: var(--color-heading);
     font-weight: 500;
+  }
+
+  /* Puntaje con estrellas: --puntaje (0 a 5) pinta las cinco estrellas de
+     izquierda a derecha, así 4.4 se ve como 4 llenas y la quinta al 40 %. */
+  .post-content :global(.blog-puntaje) {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin: -4px 0 20px;
+    font-family: var(--font-heading);
+    font-weight: 700;
+    color: var(--color-heading);
+  }
+
+  .post-content :global(.blog-estrellas) {
+    display: inline-block;
+    font-size: 1.2rem;
+    line-height: 1;
+    white-space: nowrap;
+    background: linear-gradient(
+      90deg,
+      var(--color-amber) calc(var(--puntaje, 0) * 20%),
+      rgba(43, 44, 100, 0.15) 0
+    );
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+  }
+
+  /* Tabla comparativa: en escritorio sale del ancho del texto (720px) para
+     que quepan sus columnas; en móvil cada fila se vuelve una tarjeta con la
+     etiqueta de cada dato (data-label) arriba del valor. */
+  .post-content :global(.blog-tabla) {
+    width: min(1080px, calc(100vw - 48px));
+    margin: 24px 0 16px calc(50% - min(540px, 50vw - 24px));
+    overflow-x: auto;
+    background: var(--color-white);
+    border-radius: var(--radius-md);
+    box-shadow: var(--card-shadow);
+  }
+
+  .post-content :global(.blog-tabla table) {
+    width: 100%;
+    min-width: 880px;
+    border-collapse: collapse;
+    font-size: 0.84rem;
+    line-height: 1.45;
+  }
+
+  .post-content :global(.blog-tabla th) {
+    padding: 12px 14px;
+    text-align: left;
+    vertical-align: bottom;
+    background: var(--color-navy);
+    color: var(--color-white);
+    font-family: var(--font-heading);
+    font-weight: 600;
+  }
+
+  .post-content :global(.blog-tabla td) {
+    padding: 12px 14px;
+    vertical-align: top;
+    border-top: 1px solid rgba(43, 44, 100, 0.08);
+  }
+
+  .post-content :global(.blog-tabla td:first-child) {
+    font-weight: 700;
+    color: var(--color-heading);
+  }
+
+  .post-content :global(.blog-tabla td .blog-estrellas) {
+    display: block;
+    margin-bottom: 4px;
+    font-size: 0.95rem;
+  }
+
+  .post-content :global(.blog-tabla__hermana td) {
+    background: var(--card-bg);
+  }
+
+  .post-content :global(.blog-tabla__hermana td:first-child::before) {
+    content: "↳ ";
+    color: var(--color-secondary);
+  }
+
+  /* Tabla con muchas columnas: se desliza de lado y la columna de la
+     tarjeta se queda fija. Arriba, las bandas de Beneficios y Costos. */
+  .post-content :global(.blog-tabla--ancha table) {
+    min-width: 1500px;
+  }
+
+  .post-content :global(.blog-tabla--ancha td:first-child),
+  .post-content :global(.blog-tabla--ancha th:first-child) {
+    position: sticky;
+    left: 0;
+    z-index: 1;
+    min-width: 170px;
+    background: var(--color-white);
+    box-shadow: 1px 0 0 rgba(43, 44, 100, 0.08);
+  }
+
+  .post-content :global(.blog-tabla--ancha thead th:first-child) {
+    background: var(--color-navy);
+  }
+
+  .post-content :global(.blog-tabla--ancha .blog-tabla__hermana td:first-child) {
+    background: var(--card-bg);
+  }
+
+  .post-content :global(.blog-tabla__grupos th) {
+    padding: 8px 14px;
+  }
+
+  .post-content :global(.blog-tabla__grupo) {
+    text-align: center;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+  }
+
+  .post-content :global(.blog-tabla th.blog-tabla__grupo--beneficios) {
+    background: #2e9e5b;
+  }
+
+  .post-content :global(.blog-tabla th.blog-tabla__grupo--costos) {
+    background: #d64532;
+  }
+
+  .post-content :global(.blog-nota) {
+    font-size: 0.82rem;
+    line-height: 1.6;
+    color: var(--color-secondary);
+  }
+
+  @media (max-width: 759px) {
+    .post-content :global(.blog-tabla) {
+      width: auto;
+      margin: 24px 0 16px;
+      overflow: visible;
+      background: none;
+      border-radius: 0;
+      box-shadow: none;
+    }
+
+    .post-content :global(.blog-tabla table) {
+      min-width: 0;
+      font-size: 0.92rem;
+    }
+
+    .post-content :global(.blog-tabla thead) {
+      position: absolute;
+      width: 1px;
+      height: 1px;
+      overflow: hidden;
+      clip: rect(0 0 0 0);
+      white-space: nowrap;
+    }
+
+    .post-content :global(.blog-tabla table),
+    .post-content :global(.blog-tabla tbody),
+    .post-content :global(.blog-tabla tr),
+    .post-content :global(.blog-tabla td) {
+      display: block;
+    }
+
+    .post-content :global(.blog-tabla tr) {
+      margin-bottom: 14px;
+      padding: 4px 16px 8px;
+      background: var(--color-white);
+      border-radius: var(--radius-md);
+      box-shadow: var(--card-shadow);
+    }
+
+    .post-content :global(.blog-tabla__hermana) {
+      margin-top: -6px;
+    }
+
+    .post-content :global(.blog-tabla tr.blog-tabla__hermana),
+    .post-content :global(.blog-tabla__hermana td) {
+      background: var(--card-bg);
+    }
+
+    .post-content :global(.blog-tabla td) {
+      padding: 8px 0;
+    }
+
+    .post-content :global(.blog-tabla--ancha td:first-child) {
+      position: static;
+      min-width: 0;
+      background: none;
+      box-shadow: none;
+    }
+
+    .post-content :global(.blog-tabla td::before) {
+      content: attr(data-label);
+      display: block;
+      margin-bottom: 2px;
+      font-size: 0.72rem;
+      font-weight: 600;
+      letter-spacing: 0.04em;
+      text-transform: uppercase;
+      color: var(--color-secondary);
+    }
+
+    .post-content :global(.blog-tabla td:first-child) {
+      padding: 12px 0 6px;
+      border-top: 0;
+      font-family: var(--font-heading);
+      font-size: 1.05rem;
+    }
+
+    .post-content :global(.blog-tabla td:first-child::before) {
+      content: none;
+    }
+
+    .post-content :global(.blog-tabla__hermana td:first-child::before) {
+      content: "↳ ";
+      display: inline;
+      font-size: inherit;
+      letter-spacing: 0;
+      text-transform: none;
+    }
+
+    .post-content :global(.blog-tabla td .blog-estrellas) {
+      display: inline-block;
+      margin: 0 6px 0 0;
+      vertical-align: -1px;
+    }
   }
 
   .post-back {
