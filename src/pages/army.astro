@@ -1,20 +1,112 @@
 ---
 // /army — campaña BTS Lima (9-oct-2026). Es la página del QR del volante que
 // se reparte afuera del Estadio San Marcos. La abren desde el celular, en la
-// cola o a la salida, a veces con mala señal: sin JS propio, CSS en el
-// componente, dos imágenes livianas y el primer botón sin tener que bajar.
+// cola o a la salida, a veces con mala señal.
 //
-// El copy va TAL CUAL de 01_Pablo/04_Contenido/02_Campañas/
-// 06_Volante_BTS_09-10-26/volante_bts.md (sección 2). Las bases del sorteo
-// todavía no existen: su link entra cuando existan.
+// Landing completa con los principios de la home: hero con una sola acción,
+// dolor → solución → prueba social → plan → FAQ → cierre, con el sistema
+// visual de la home (bloques lila/blanco separados por olas, tarjetas con
+// ícono 3D, botón con reborde 3D, carrusel de testimonios, acordeón).
 //
-// Nada de BTS, BIGHIT MUSIC ni HYBE: ni logos, ni fotos de integrantes.
+// De dónde sale cada texto:
+// - Copy del volante (hero, pasos, sorteo, cierre): TAL CUAL de
+//   01_Pablo/04_Contenido/02_Campañas/06_Volante_BTS_09-10-26/volante_bts.md.
+//   Las bases del sorteo todavía no existen: su link entra cuando existan.
+// - Dolor y beneficios: textos nuevos, cortos, en la voz de la campaña. Cada
+//   función sale de la home o de marketing/_context/product-offering.md, y
+//   solo se nombra lo que incluye el plan gratis (FreePlan.astro).
+// - Testimonios: los reales de src/data/testimonios.ts, con el mismo carrusel.
+// - Plan gratis y FAQ: textuales de FreePlan.astro y de sections/FAQ.astro.
+//
+// Liviana: sin JS propio (el acordeón es <details>), CSS en la página e
+// imágenes WebP con lazy salvo la del hero. Nada de BTS, BIGHIT MUSIC ni
+// HYBE: ni logos, ni fotos de integrantes.
 import Layout from "../layouts/Layout.astro";
 import Navbar from "../components/Navbar.astro";
+import TestimonialsCarousel from "../components/sections/TestimonialsCarousel.astro";
 
-// Los tres botones van al onboarding con los UTM del volante, para medir
+// Todos los botones van al onboarding con los UTM del volante, para medir
 // cuántas cuentas salen del QR.
 const CTA = "/onboarding?utm_source=volante&utm_medium=qr&utm_campaign=bts_lima";
+
+// Ola de la home (Funciones.astro) para pasar de un bloque al siguiente.
+const OLA = "M0,46 C240,80 500,16 760,50 C1010,82 1240,26 1440,54 L1440,0 L0,0 Z";
+
+const ICONOS_HOME = "/landing/iconos";
+const ICONOS_PABLO = "/onboarding/images/iconos/pablo";
+
+// Dolor: textos nuevos. Sin burlarse de nadie ni de lo que gasta.
+const DOLORES = [
+  { emoji: "🎟️", titulo: "las entradas volaron", texto: "abrieron la venta y tu ahorro todavía no alcanzaba." },
+  { emoji: "💸", titulo: "la plata se te escapa", texto: "llega fin de mes y no sabes en qué se fue." },
+  { emoji: "🔁", titulo: "otra vez desde cero", texto: "anuncian el próximo concierto y empiezas a juntar de nuevo." },
+];
+
+// Beneficios: textos nuevos, solo con lo que trae el plan gratis.
+// Fuentes: FreePlan.astro (una meta, una recurrente, presupuestos
+// predeterminados, registros sin límite), Funciones.astro (racha, «sin
+// planillas ni cuentas a fin de mes») y product-offering.md (progreso de la
+// meta y celebración, «saber cuánto puedes gastar», pagos recurrentes).
+const BENEFICIOS = [
+  {
+    icono: `${ICONOS_HOME}/diana-metas.webp`,
+    titulo: "tu meta a la vista",
+    texto: "ves cuánto llevas y cuánto falta, y pablo celebra contigo al llegar.",
+  },
+  {
+    icono: `${ICONOS_HOME}/dona.webp`,
+    titulo: "sabes cuánto puedes gastar",
+    texto: "y cuánto separar para la próxima, sin planillas ni cuentas a fin de mes.",
+  },
+  {
+    icono: `${ICONOS_PABLO}/lapiz.webp`,
+    titulo: "anotas en segundos",
+    texto: "registros sin límite, y por fin ves a dónde se va tu plata.",
+  },
+  {
+    icono: `${ICONOS_PABLO}/ciclo.webp`,
+    titulo: "lo fijo, en automático",
+    texto: "configura tu pago fijo una vez y ya no te agarra de sorpresa.",
+  },
+  {
+    icono: `${ICONOS_HOME}/fuego.webp`,
+    titulo: "tu racha, día a día",
+    texto: "cada registro suma racha y cada sol te acerca a tu meta.",
+  },
+];
+
+// Plan gratis: textual de FreePlan.astro (/planes).
+const PLAN_GRATIS = [
+  { icono: `${ICONOS_PABLO}/celular.webp`, html: "<strong>5 mensajes al día</strong> en el chat, entre todos tus dispositivos." },
+  { icono: `${ICONOS_PABLO}/tarjeta.webp`, html: "<strong>Hasta 3 cuentas</strong>, incluidas las compartidas." },
+  { icono: `${ICONOS_PABLO}/diana.webp`, html: "<strong>Una moneda, una meta y una transacción recurrente.</strong>" },
+  { icono: `${ICONOS_PABLO}/dona.webp`, html: "<strong>Presupuestos y categorías predeterminados.</strong>" },
+  { icono: `${ICONOS_PABLO}/lapiz.webp`, html: "Registros manuales de ingresos y gastos sin límite." },
+];
+
+// FAQ: cuatro preguntas de la home (sections/FAQ.astro), respuestas textuales.
+const FAQS = [
+  {
+    pregunta: "¿Pablo es gratis?",
+    respuesta:
+      "Sí. Gratis incluye 5 mensajes al día, hasta 3 cuentas, una moneda, una meta, una transacción recurrente y presupuestos y categorías predeterminados. WhatsApp, email, importaciones, exportaciones y personalización son Premium.",
+  },
+  {
+    pregunta: "¿Necesito instalar algo?",
+    respuesta:
+      "Puedes empezar en la web sin instalar nada o descargar la app para iPhone. Android estará disponible próximamente.",
+  },
+  {
+    pregunta: "¿Cómo empiezo?",
+    respuesta:
+      "Haz clic en Empieza gratis, crea tu cuenta y elige Seguir con Gratis. No necesitas tarjeta de crédito.",
+  },
+  {
+    pregunta: "¿Cómo protege Pablo mis datos?",
+    respuesta:
+      "Tus datos están protegidos con encriptación. No compartimos tu información con terceros.",
+  },
+];
 ---
 
 <Layout
@@ -24,16 +116,15 @@ const CTA = "/onboarding?utm_source=volante&utm_medium=qr&utm_campaign=bts_lima"
 >
   <Navbar />
   <main class="army">
-    <!-- Arriba: lo primero que se ve. El botón tiene que verse sin bajar. -->
+    <!-- 1. Hero: una sola acción. La foto va arriba del botón y el botón se ve
+         sin bajar; en escritorio, dos columnas como la home. -->
     <section class="hero">
       <span class="brillo brillo--1" aria-hidden="true"></span>
       <span class="brillo brillo--2" aria-hidden="true"></span>
-      <span class="brillo brillo--3" aria-hidden="true"></span>
       <span class="corazon corazon--1" aria-hidden="true"></span>
-      <span class="corazon corazon--2" aria-hidden="true"></span>
 
-      <div class="hero__texto">
-        <h1>
+      <div class="hero__inner">
+        <h1 class="hero__titulo">
           <span class="hola">hola ARMY 💜</span>
           <span class="afuera">pablo se quedó afuera 😭</span>
         </h1>
@@ -41,63 +132,182 @@ const CTA = "/onboarding?utm_source=volante&utm_medium=qr&utm_campaign=bts_lima"
           <span>no le alcanzó para la entrada…</span>
           <span>así que ya empezó a ahorrar para la próxima vez</span>
         </p>
-        <a class="boton" href={CTA} id="army-cta-arriba">ahorra con él, gratis</a>
+        <figure class="hero__foto">
+          <img
+            src="/army/pablo-kpop.webp"
+            width="900"
+            height="1117"
+            alt="pablo vestido de kpopper, con chaqueta lila de lentejuelas, su chanchito en una mano y un volante de concierto en la otra, mirando triste"
+            fetchpriority="high"
+            decoding="async"
+          />
+        </figure>
+        <a class="boton hero__boton" href={CTA} id="army-cta-arriba">ahorra con él, gratis</a>
       </div>
+    </section>
 
-      <figure class="polaroid">
+    <div class="ola" style="--arriba:#ffffff;--abajo:#f5f0fc" aria-hidden="true">
+      <svg viewBox="0 0 1440 80" preserveAspectRatio="none"><path d={OLA} /></svg>
+    </div>
+
+    <!-- 2. Dolor -->
+    <section class="bloque bloque--lila" aria-labelledby="army-dolor">
+      <h2 class="titulo" id="army-dolor">¿a ti también te pasó?</h2>
+      <ul class="dolores">
+        {DOLORES.map((d) => (
+          <li class="dolor">
+            <span class="dolor__emoji" aria-hidden="true">{d.emoji}</span>
+            <div>
+              <h3 class="dolor__titulo">{d.titulo}</h3>
+              <p class="dolor__texto">{d.texto}</p>
+            </div>
+          </li>
+        ))}
+      </ul>
+    </section>
+
+    <div class="ola" style="--arriba:#f5f0fc;--abajo:#ffffff" aria-hidden="true">
+      <svg viewBox="0 0 1440 80" preserveAspectRatio="none"><path d={OLA} /></svg>
+    </div>
+
+    <!-- 3. Solución: los beneficios del plan gratis -->
+    <section class="bloque" aria-labelledby="army-beneficios">
+      <h2 class="titulo" id="army-beneficios">pablo te ayuda a llegar</h2>
+      <p class="bajada">empieza gratis en la web o en iOS.</p>
+      <ul class="beneficios">
+        {BENEFICIOS.map((b) => (
+          <li class="beneficio">
+            <span class="tile" aria-hidden="true">
+              <img src={b.icono} alt="" width="240" height="240" loading="lazy" decoding="async" />
+            </span>
+            <div>
+              <h3 class="beneficio__titulo">{b.titulo}</h3>
+              <p class="beneficio__texto">{b.texto}</p>
+            </div>
+          </li>
+        ))}
+      </ul>
+    </section>
+
+    <div class="ola" style="--arriba:#ffffff;--abajo:#f5f0fc" aria-hidden="true">
+      <svg viewBox="0 0 1440 80" preserveAspectRatio="none"><path d={OLA} /></svg>
+    </div>
+
+    <!-- 4. Cómo vas a llegar a la próxima (copy del volante) -->
+    <section class="bloque bloque--lila" aria-labelledby="army-pasos">
+      <div class="tarjeta pasos">
+        <span class="brillo brillo--3" aria-hidden="true"></span>
+        <h2 id="army-pasos">the best is yet to come ✨</h2>
+        <ol class="pasos__lista">
+          <li><strong>crea tu meta:</strong> «próximo concierto», con cuánto quieres juntar y para cuándo</li>
+          <li><strong>arma tu presupuesto:</strong> pablo te dice cuánto separar cada mes</li>
+          <li><strong>anota tus gastos:</strong> en segundos, y ves cuánto te falta</li>
+        </ol>
+        <p class="pasos__cuenta">
+          con <strong>S/ 20 a la semana</strong>, en un año juntas <strong>S/ 1.040</strong> 💜
+        </p>
+        <a class="boton" href={CTA} id="army-cta-pasos">empieza gratis</a>
+      </div>
+    </section>
+
+    <div class="ola" style="--arriba:#f5f0fc;--abajo:#ede6fa" aria-hidden="true">
+      <svg viewBox="0 0 1440 80" preserveAspectRatio="none"><path d={OLA} /></svg>
+    </div>
+
+    <!-- 5. Testimonios reales (mismo carrusel de la home) -->
+    <section class="bloque bloque--lavanda testimonios" aria-labelledby="army-testimonios">
+      <span class="icono-ancla testimonios__icono" aria-hidden="true">
+        <img src={`${ICONOS_HOME}/estrellas.webp`} alt="" width="240" height="240" loading="lazy" decoding="async" />
+      </span>
+      <h2 class="titulo" id="army-testimonios">gente real, resultados reales</h2>
+      <TestimonialsCarousel />
+    </section>
+
+    <div class="ola" style="--arriba:#ede6fa;--abajo:#ffffff" aria-hidden="true">
+      <svg viewBox="0 0 1440 80" preserveAspectRatio="none"><path d={OLA} /></svg>
+    </div>
+
+    <!-- 6. El sorteo (copy del volante) -->
+    <section class="bloque" aria-labelledby="army-sorteo">
+      <div class="tarjeta sorteo">
+        <span class="corazon corazon--2" aria-hidden="true"></span>
         <img
-          src="/army/pablo-afuera.webp"
+          class="sorteo__foto"
+          src="/army/pablo-sorteo.webp"
           width="900"
           height="900"
-          alt="pablo afuera de la reja del estadio, de noche, abrazando su chanchita"
-          fetchpriority="high"
+          alt="pablo feliz, con audífonos blancos, sosteniendo un regalo morado"
+          loading="lazy"
           decoding="async"
         />
-      </figure>
+        <h2 id="army-sorteo">
+          🎧 en noviembre, pablo sortea unos <strong>AirPods 5</strong><br />
+          entre todos sus amigos
+        </h2>
+        <p class="sorteo__como">
+          <span class="sorteo__pregunta">¿cómo entras?</span>
+          crea tu cuenta gratis en usapablo.com y ya eres su amigo
+        </p>
+      </div>
     </section>
 
-    <!-- Sección 2: cómo vas a llegar a la próxima -->
-    <section class="tarjeta pasos" aria-labelledby="army-pasos">
-      <span class="brillo brillo--4" aria-hidden="true"></span>
-      <h2 id="army-pasos">the best is yet to come ✨</h2>
-      <ol class="pasos__lista">
-        <li><strong>crea tu meta:</strong> «próximo concierto», con cuánto quieres juntar y para cuándo</li>
-        <li><strong>arma tu presupuesto:</strong> pablo te dice cuánto separar cada mes</li>
-        <li><strong>anota tus gastos:</strong> en segundos, y ves cuánto te falta</li>
-      </ol>
-      <p class="pasos__cuenta">
-        con <strong>S/ 20 a la semana</strong>, en un año juntas <strong>S/ 1.040</strong> 💜
-      </p>
-      <a class="boton" href={CTA} id="army-cta-pasos">empieza gratis</a>
+    <div class="ola" style="--arriba:#ffffff;--abajo:#f5f0fc" aria-hidden="true">
+      <svg viewBox="0 0 1440 80" preserveAspectRatio="none"><path d={OLA} /></svg>
+    </div>
+
+    <!-- 7. El plan gratis (lista textual de FreePlan.astro) -->
+    <section class="bloque bloque--lila" aria-labelledby="army-plan">
+      <div class="plan">
+        <div class="plan__intro">
+          <p class="plan__etiqueta">pablo gratis</p>
+          <h2 id="army-plan">S/ 0, sin tarjeta, para siempre</h2>
+          <a class="boton plan__boton" href={CTA} id="army-cta-plan">empieza gratis</a>
+        </div>
+        <div class="plan__detalle">
+          <ul class="plan__lista">
+            {PLAN_GRATIS.map((p) => (
+              <li>
+                <img src={p.icono} alt="" width="240" height="240" loading="lazy" decoding="async" />
+                <span set:html={p.html} />
+              </li>
+            ))}
+          </ul>
+          <p class="plan__premium">Con Premium: WhatsApp, email, importaciones, exportaciones en todos los formatos y personalización.</p>
+        </div>
+      </div>
     </section>
 
-    <!-- Sección 3: el sorteo -->
-    <section class="tarjeta sorteo" aria-labelledby="army-sorteo">
-      <span class="corazon corazon--3" aria-hidden="true"></span>
-      <img
-        class="sorteo__foto"
-        src="/army/pablo-sorteo.webp"
-        width="900"
-        height="900"
-        alt="pablo feliz, con audífonos blancos, sosteniendo un regalo morado"
-        loading="lazy"
-        decoding="async"
-      />
-      <h2 id="army-sorteo">
-        🎧 en noviembre, pablo sortea unos <strong>AirPods 5</strong><br />
-        entre todos sus amigos
-      </h2>
-      <p class="sorteo__como">
-        <span class="sorteo__pregunta">¿cómo entras?</span>
-        crea tu cuenta gratis en usapablo.com y ya eres su amigo
-      </p>
+    <div class="ola" style="--arriba:#f5f0fc;--abajo:#ffffff" aria-hidden="true">
+      <svg viewBox="0 0 1440 80" preserveAspectRatio="none"><path d={OLA} /></svg>
+    </div>
+
+    <!-- 8. FAQ corto (textual de la home), sin JS: <details> -->
+    <section class="bloque" aria-labelledby="army-faq">
+      <h2 class="titulo" id="army-faq">¿tienes preguntas? tenemos las respuestas</h2>
+      <div class="faq">
+        {FAQS.map((f) => (
+          <details class="faq__item">
+            <summary>
+              <span>{f.pregunta}</span>
+              <svg class="faq__chevron" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" aria-hidden="true"><polyline points="6 9 12 15 18 9" /></svg>
+            </summary>
+            <p>{f.respuesta}</p>
+          </details>
+        ))}
+      </div>
     </section>
 
-    <!-- Cierre -->
+    <div class="ola" style="--arriba:#ffffff;--abajo:#2b2c64" aria-hidden="true">
+      <svg viewBox="0 0 1440 80" preserveAspectRatio="none"><path d={OLA} /></svg>
+    </div>
+
+    <!-- 9. Cierre (copy del volante): la noche del concierto, en navy -->
     <section class="cierre">
-      <p class="cierre__gratis">S/ 0, sin tarjeta, para siempre</p>
+      <span class="brillo brillo--4" aria-hidden="true"></span>
+      <span class="brillo brillo--5" aria-hidden="true"></span>
+      <span class="corazon corazon--3" aria-hidden="true"></span>
       <p class="cierre__firma">borahae 💜<br />— pablo</p>
-      <a class="boton" href={CTA} id="army-cta-cierre">ahorra con pablo</a>
+      <a class="boton boton--claro" href={CTA} id="army-cta-cierre">ahorra con pablo</a>
       <p class="aviso"><em>pablo no está afiliado a BTS, BIGHIT MUSIC ni HYBE.</em></p>
     </section>
   </main>
@@ -112,11 +322,11 @@ const CTA = "/onboarding?utm_source=volante&utm_medium=qr&utm_campaign=bts_lima"
     --army-lila: #e6dcf7;
     --army-fondo: #f5f0fc;
     --army-navy: #2b2c64;
+    --army-suave: #56578f;
     --army-oro: #f5c04a;
 
-    background: linear-gradient(180deg, var(--bg-page) 0%, var(--army-fondo) 40%);
     color: var(--army-navy);
-    padding: 0 16px 40px;
+    background: #ffffff;
   }
 
   /* ---------- Brillos y corazones (solo CSS) ---------- */
@@ -134,11 +344,6 @@ const CTA = "/onboarding?utm_source=volante&utm_medium=qr&utm_campaign=bts_lima"
     clip-path: polygon(50% 0%, 61% 39%, 100% 50%, 61% 61%, 50% 100%, 39% 61%, 0% 50%, 39% 39%);
     animation: titila 2.6s ease-in-out infinite;
   }
-
-  .brillo--1 { top: 18px; right: 22px; width: 22px; height: 22px; }
-  .brillo--2 { top: 96px; left: 14px; width: 12px; height: 12px; background: var(--army-oro); animation-delay: 0.8s; }
-  .brillo--3 { bottom: 120px; right: 16px; width: 14px; height: 14px; background: #fff; animation-delay: 1.4s; }
-  .brillo--4 { top: 16px; left: 20px; background: var(--army-oro); animation-delay: 0.4s; }
 
   .corazon {
     width: 12px;
@@ -161,9 +366,14 @@ const CTA = "/onboarding?utm_source=volante&utm_medium=qr&utm_campaign=bts_lima"
   .corazon::before { top: -6px; left: 0; }
   .corazon::after { top: 0; left: 6px; }
 
+  .brillo--1 { top: 14px; right: 18px; width: 22px; height: 22px; }
+  .brillo--2 { top: 70px; left: 12px; width: 12px; height: 12px; background: var(--army-oro); animation-delay: 0.8s; }
+  .brillo--3 { top: 16px; left: 20px; background: var(--army-oro); animation-delay: 0.4s; }
+  .brillo--4 { top: 28px; left: 12%; width: 14px; height: 14px; background: var(--army-oro); }
+  .brillo--5 { bottom: 64px; right: 10%; width: 20px; height: 20px; animation-delay: 1.2s; }
   .corazon--1 { top: 22px; left: 18px; opacity: 0.7; }
-  .corazon--2 { bottom: 70px; left: 20px; background: var(--army-morado); opacity: 0.55; animation-delay: 1s; }
-  .corazon--3 { top: 26px; left: 26px; animation-delay: 0.6s; }
+  .corazon--2 { top: 26px; left: 26px; animation-delay: 0.6s; }
+  .corazon--3 { top: 70px; right: 16%; background: var(--army-lavanda); animation-delay: 1s; }
 
   @keyframes titila {
     0%, 100% { transform: scale(1) rotate(0deg); opacity: 1; }
@@ -182,35 +392,35 @@ const CTA = "/onboarding?utm_source=volante&utm_medium=qr&utm_campaign=bts_lima"
     }
   }
 
-  /* ---------- Botón ---------- */
+  /* ---------- Botón (sistema de la home: radio 16 y reborde 3D) ---------- */
   .boton {
     position: relative;
     display: flex;
     align-items: center;
     justify-content: center;
     width: 100%;
-    max-width: 340px;
-    min-height: 58px;
+    max-width: 360px;
+    min-height: 56px;
     margin: 0 auto;
-    padding: 14px 28px;
+    padding: 15px 22px;
     background: var(--army-morado);
-    color: #fff;
+    color: #ffffff;
     font-family: var(--font-heading);
-    font-size: 1.2rem;
+    font-size: 1.15rem;
     font-weight: 700;
     line-height: 1.2;
     text-align: center;
-    border-radius: var(--radius-pill);
-    box-shadow: 0 4px 0 var(--army-morado-oscuro), 0 12px 26px rgba(107, 63, 160, 0.3);
+    border-radius: 16px;
+    box-shadow: 0 4px 0 0 var(--army-morado-oscuro);
     -webkit-tap-highlight-color: transparent;
-    transition: transform 0.15s ease, box-shadow 0.15s ease, background 0.15s ease;
+    transition: transform 0.12s ease, box-shadow 0.12s ease, background 0.15s ease;
   }
 
   /* Brillito en la esquina del botón */
   .boton::after {
     content: "";
     position: absolute;
-    top: -7px;
+    top: -8px;
     right: 18px;
     width: 16px;
     height: 16px;
@@ -220,11 +430,13 @@ const CTA = "/onboarding?utm_source=volante&utm_medium=qr&utm_campaign=bts_lima"
 
   .boton:hover {
     background: #7a4bb3;
+    transform: translateY(-1px);
+    box-shadow: 0 5px 0 0 var(--army-morado-oscuro);
   }
 
   .boton:active {
     transform: translateY(3px);
-    box-shadow: 0 1px 0 var(--army-morado-oscuro), 0 6px 14px rgba(107, 63, 160, 0.25);
+    box-shadow: 0 1px 0 0 var(--army-morado-oscuro);
   }
 
   .boton:focus-visible {
@@ -232,92 +444,271 @@ const CTA = "/onboarding?utm_source=volante&utm_medium=qr&utm_campaign=bts_lima"
     outline-offset: 4px;
   }
 
-  /* ---------- Arriba ---------- */
+  /* Sobre el navy del cierre, el botón va claro. */
+  .boton--claro {
+    background: var(--army-fondo);
+    color: var(--army-morado);
+    box-shadow: 0 4px 0 0 var(--army-lavanda);
+  }
+
+  .boton--claro:hover {
+    background: #ffffff;
+    box-shadow: 0 5px 0 0 var(--army-lavanda);
+  }
+
+  .boton--claro:active {
+    box-shadow: 0 1px 0 0 var(--army-lavanda);
+  }
+
+  /* ---------- 1. Hero ---------- */
   .hero {
     position: relative;
-    max-width: 1040px;
-    margin: 0 auto;
-    padding: 12px 4px 28px;
-    text-align: center;
+    overflow: hidden;
+    padding: 4px 20px 30px;
+    background: #ffffff;
   }
 
-  .hero__texto {
+  /* Móvil: título, bajada, foto y botón, en ese orden. La foto se mide con el
+     alto visible real (svh, con las barras de Safari puestas) para que el
+     botón siempre quede en la primera pantalla. */
+  .hero__inner {
     position: relative;
     z-index: 1;
+    display: grid;
+    grid-template-areas: "titulo" "bajada" "foto" "boton";
+    justify-items: center;
+    text-align: center;
+    max-width: 1080px;
+    margin: 0 auto;
   }
 
-  .hero h1 {
+  .hero__titulo {
+    grid-area: titulo;
     font-family: var(--font-heading);
     font-weight: 700;
-    line-height: 1.12;
-    margin-bottom: 14px;
+    line-height: 1.1;
   }
 
   .hola {
     display: block;
-    font-size: clamp(2.3rem, 10.5vw, 3.6rem);
+    font-size: clamp(2rem, 9vw, 3.6rem);
     color: var(--army-navy);
     letter-spacing: -0.01em;
   }
 
   .afuera {
     display: block;
-    margin-top: 4px;
-    font-size: clamp(1.55rem, 6.6vw, 2.4rem);
+    margin-top: 2px;
+    font-size: clamp(1.4rem, 6vw, 2.4rem);
     color: var(--army-morado);
   }
 
   .hero__bajada {
-    max-width: 26em;
-    margin: 0 auto 24px;
-    font-size: 1.08rem;
-    line-height: 1.5;
+    grid-area: bajada;
+    margin-top: 8px;
+    font-size: 1rem;
+    line-height: 1.45;
     color: var(--army-navy);
   }
 
-  /* Cada línea del copy en su renglón, partida pareja (sin «vez» huérfano). */
+  /* Cada línea del copy en su renglón, partida pareja. */
   .hero__bajada span {
     display: block;
     text-wrap: balance;
   }
 
-  /* Foto tipo polaroid, como pegada por otro fan */
-  .polaroid {
+  .hero__foto {
+    grid-area: foto;
+    --alto: clamp(190px, calc(100svh - 372px), 430px);
     position: relative;
-    z-index: 1;
-    width: min(100%, 300px);
-    margin: 30px auto 0;
-    padding: 10px 10px 16px;
-    background: #fff;
-    border-radius: 20px;
-    box-shadow: 0 14px 34px rgba(75, 42, 117, 0.2);
-    transform: rotate(-2.5deg);
+    margin: 14px 0 18px;
+    padding: 6px;
+    background: #ffffff;
+    border-radius: 26px;
+    box-shadow: 0 14px 34px rgba(75, 42, 117, 0.22);
+    transform: rotate(-1.5deg);
   }
 
-  /* Cinta washi arriba de la polaroid */
-  .polaroid::before {
+  /* Cinta washi arriba de la foto, como pegada por otro fan */
+  .hero__foto::before {
     content: "";
     position: absolute;
-    top: -12px;
+    z-index: 1;
+    top: -10px;
     left: 50%;
-    width: 92px;
-    height: 24px;
-    background: rgba(155, 123, 212, 0.55);
+    width: 84px;
+    height: 22px;
+    background: rgba(155, 123, 212, 0.6);
     border-radius: 4px;
     transform: translateX(-50%) rotate(3deg);
   }
 
-  .polaroid img {
-    width: 100%;
-    height: auto;
-    border-radius: 14px;
+  .hero__foto img {
+    display: block;
+    height: var(--alto);
+    width: auto;
+    max-width: 100%;
+    aspect-ratio: 900 / 1117;
+    object-fit: cover;
+    border-radius: 20px;
   }
 
-  /* ---------- Tarjetas de las secciones ---------- */
+  .hero__boton {
+    grid-area: boton;
+  }
+
+  /* ---------- Olas entre bloques (las de la home) ---------- */
+  .ola {
+    display: block;
+    height: 36px;
+    background: var(--abajo);
+  }
+
+  .ola svg {
+    display: block;
+    width: 100%;
+    height: 100%;
+    fill: var(--arriba);
+  }
+
+  /* ---------- Bloques ---------- */
+  .bloque {
+    position: relative;
+    padding: 44px 20px 56px;
+    background: #ffffff;
+    text-align: center;
+  }
+
+  .bloque--lila { background: var(--army-fondo); }
+  .bloque--lavanda { background: #ede6fa; }
+
+  .titulo {
+    max-width: 640px;
+    margin: 0 auto;
+    font-family: var(--font-heading);
+    font-weight: 700;
+    font-size: clamp(1.65rem, 7vw, 2.5rem);
+    line-height: 1.14;
+    letter-spacing: -0.02em;
+    color: var(--army-morado);
+    text-wrap: balance;
+  }
+
+  .bajada {
+    margin: 10px auto 0;
+    font-size: 1.05rem;
+    line-height: 1.5;
+    color: var(--army-suave);
+  }
+
+  /* ---------- 2. Dolor ---------- */
+  .dolores {
+    display: grid;
+    gap: 12px;
+    max-width: 1040px;
+    margin: 26px auto 0;
+  }
+
+  .dolor {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    padding: 16px 18px;
+    background: #ffffff;
+    border-radius: var(--radius-lg);
+    box-shadow: var(--card-shadow);
+    text-align: left;
+  }
+
+  .dolor__emoji {
+    flex-shrink: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 48px;
+    height: 48px;
+    border-radius: 16px;
+    background: var(--army-lila);
+    font-size: 1.5rem;
+  }
+
+  .dolor__titulo {
+    font-family: var(--font-heading);
+    font-weight: 700;
+    font-size: 1.1rem;
+    line-height: 1.25;
+    color: var(--army-navy);
+  }
+
+  .dolor__texto {
+    margin-top: 2px;
+    font-size: 0.97rem;
+    line-height: 1.45;
+    color: var(--army-suave);
+  }
+
+  /* ---------- 3. Beneficios (tarjetas con ícono 3D, como Features) ---------- */
+  .beneficios {
+    display: grid;
+    gap: 12px;
+    max-width: 1040px;
+    margin: 26px auto 0;
+  }
+
+  .beneficio {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    padding: 16px 18px;
+    background: #ffffff;
+    border-radius: var(--radius-lg);
+    box-shadow: var(--card-shadow);
+    text-align: left;
+  }
+
+  /* Tile de vidrio tintado de morado con el ícono 3D adentro. */
+  .tile {
+    flex-shrink: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 64px;
+    height: 64px;
+    border-radius: 20px;
+    background: radial-gradient(120% 120% at 28% 18%, #ffffff 0%, rgba(107, 63, 160, 0.1) 55%, rgba(107, 63, 160, 0.2) 100%);
+    box-shadow:
+      inset 0 1px 0 rgba(255, 255, 255, 0.9),
+      inset 0 0 0 1px rgba(107, 63, 160, 0.16),
+      0 12px 22px -14px rgba(107, 63, 160, 0.55);
+  }
+
+  .tile img {
+    width: 48px;
+    height: 48px;
+    object-fit: contain;
+    filter: drop-shadow(0 6px 8px rgba(43, 44, 100, 0.18));
+  }
+
+  .beneficio__titulo {
+    font-family: var(--font-heading);
+    font-weight: 700;
+    font-size: 1.1rem;
+    line-height: 1.25;
+    color: var(--army-navy);
+  }
+
+  .beneficio__texto {
+    margin-top: 2px;
+    font-size: 0.97rem;
+    line-height: 1.45;
+    color: var(--army-suave);
+  }
+
+  /* ---------- Tarjetas de pasos y sorteo ---------- */
   .tarjeta {
     position: relative;
     max-width: 640px;
-    margin: 20px auto 0;
+    margin: 0 auto;
     padding: 30px 22px 32px;
     border-radius: 28px;
   }
@@ -329,11 +720,12 @@ const CTA = "/onboarding?utm_source=volante&utm_medium=qr&utm_campaign=bts_lima"
     text-wrap: balance;
   }
 
-  /* Sección 2 */
+  /* 4. Pasos */
   .pasos {
-    background: #fff;
+    background: #ffffff;
     border: 2px solid var(--army-lila);
-    box-shadow: 0 8px 30px rgba(107, 63, 160, 0.08);
+    box-shadow: var(--card-shadow);
+    text-align: left;
   }
 
   .pasos h2 {
@@ -402,11 +794,25 @@ const CTA = "/onboarding?utm_source=volante&utm_medium=qr&utm_campaign=bts_lima"
     white-space: nowrap;
   }
 
-  /* Sección 3 */
-  /* Mismo lavanda del fondo de la ilustración: la foto se funde con la tarjeta. */
+  /* 5. Testimonios */
+  .testimonios {
+    overflow: hidden;
+    padding-inline: 0;
+  }
+
+  .testimonios .titulo {
+    padding-inline: 20px;
+  }
+
+  .testimonios__icono {
+    --s: 84px;
+    --halo: rgba(155, 123, 212, 0.45);
+    margin: 0 auto -10px;
+  }
+
+  /* 6. Sorteo: mismo lavanda del fondo de la ilustración, se funden. */
   .sorteo {
     background: #e5defb;
-    text-align: center;
   }
 
   .sorteo__foto {
@@ -451,73 +857,279 @@ const CTA = "/onboarding?utm_source=volante&utm_medium=qr&utm_campaign=bts_lima"
     color: var(--army-morado);
   }
 
-  /* Cierre */
-  .cierre {
-    max-width: 640px;
-    margin: 32px auto 0;
+  /* 7. Plan gratis (sistema de FreePlan: borde con reborde inferior) */
+  .plan {
+    display: grid;
+    gap: 26px;
+    max-width: 1040px;
+    margin: 0 auto;
+    padding: 26px 22px;
+    background: #ffffff;
+    border: 2px solid var(--army-lila);
+    border-bottom-width: 5px;
+    border-radius: 28px;
+    text-align: left;
+  }
+
+  .plan__intro {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 14px;
     text-align: center;
   }
 
-  .cierre__gratis {
-    display: inline-block;
-    margin-bottom: 22px;
-    padding: 10px 20px;
-    background: #fff;
-    border: 2px solid var(--army-lila);
-    border-radius: var(--radius-pill);
-    font-size: 1.1rem;
-    font-weight: 500;
-    color: var(--army-navy);
-  }
-
-  .cierre__firma {
-    margin-bottom: 26px;
-    font-size: 1.35rem;
-    line-height: 1.4;
+  .plan__etiqueta {
+    font-size: 0.8rem;
+    font-weight: 700;
+    letter-spacing: 0.12em;
     color: var(--army-morado);
   }
 
-  .aviso {
-    margin-top: 34px;
-    font-size: 0.8rem;
-    line-height: 1.5;
-    color: var(--color-body);
+  .plan h2 {
+    font-family: var(--font-heading);
+    font-weight: 700;
+    font-size: clamp(1.6rem, 7vw, 2.2rem);
+    line-height: 1.15;
+    color: var(--army-navy);
+    text-wrap: balance;
   }
 
-  /* ---------- Escritorio ---------- */
-  @media (min-width: 860px) {
-    .army {
-      padding: 0 24px 56px;
+  .plan__boton {
+    margin-top: 4px;
+  }
+
+  .plan__lista {
+    display: grid;
+    gap: 12px;
+  }
+
+  .plan__lista li {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    font-size: 0.98rem;
+    line-height: 1.45;
+    color: var(--army-navy);
+  }
+
+  .plan__lista img {
+    flex-shrink: 0;
+    width: 44px;
+    height: 44px;
+    padding: 7px;
+    object-fit: contain;
+    background: #ffffff;
+    border: 1.5px solid var(--army-lila);
+    border-radius: 14px;
+    box-shadow: 0 3px 0 0 var(--army-lila);
+  }
+
+  .plan__premium {
+    margin-top: 18px;
+    padding-top: 16px;
+    border-top: 1px solid var(--army-lila);
+    font-size: 0.9rem;
+    line-height: 1.5;
+    color: var(--army-suave);
+  }
+
+  /* 8. FAQ (acordeón de la home, con <details>) */
+  .faq {
+    max-width: 780px;
+    margin: 22px auto 0;
+    text-align: left;
+  }
+
+  .faq__item {
+    border-bottom: 1px solid rgba(43, 44, 100, 0.1);
+  }
+
+  .faq__item summary {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 16px;
+    padding: 20px 4px;
+    font-size: 1rem;
+    font-weight: 600;
+    color: var(--army-navy);
+    cursor: pointer;
+    list-style: none;
+  }
+
+  .faq__item summary::-webkit-details-marker {
+    display: none;
+  }
+
+  .faq__chevron {
+    flex-shrink: 0;
+    transition: transform 0.3s ease;
+  }
+
+  .faq__item[open] summary {
+    color: var(--army-morado);
+  }
+
+  .faq__item[open] .faq__chevron {
+    transform: rotate(180deg);
+  }
+
+  .faq__item p {
+    padding: 0 4px 20px;
+    font-size: 0.95rem;
+    line-height: 1.7;
+    color: var(--army-suave);
+  }
+
+  /* 9. Cierre: navy de la home con un brillo morado, como la noche del concierto */
+  .cierre {
+    position: relative;
+    overflow: hidden;
+    padding: 44px 20px 40px;
+    background:
+      radial-gradient(60% 55% at 50% 45%, rgba(155, 123, 212, 0.3), transparent 75%),
+      var(--army-navy);
+    text-align: center;
+  }
+
+  .cierre__firma {
+    position: relative;
+    z-index: 1;
+    margin-bottom: 26px;
+    font-family: var(--font-heading);
+    font-weight: 700;
+    font-size: clamp(1.8rem, 8vw, 2.6rem);
+    line-height: 1.2;
+    color: #ffffff;
+  }
+
+  .aviso {
+    position: relative;
+    z-index: 1;
+    margin-top: 36px;
+    font-size: 0.8rem;
+    line-height: 1.5;
+    color: rgba(255, 255, 255, 0.75);
+  }
+
+  /* ---------- Tablet y escritorio ---------- */
+  @media (min-width: 700px) {
+    .dolores {
+      grid-template-columns: repeat(3, 1fr);
     }
 
+    .dolor {
+      flex-direction: column;
+      text-align: center;
+      padding: 24px 20px;
+    }
+
+    .beneficios {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      gap: 20px;
+    }
+
+    .beneficio {
+      flex: 0 1 calc((100% - 40px) / 3);
+      flex-direction: column;
+      text-align: center;
+      padding: 30px 24px;
+    }
+
+    .tile {
+      width: 92px;
+      height: 92px;
+      border-radius: 28px;
+    }
+
+    .tile img {
+      width: 70px;
+      height: 70px;
+    }
+  }
+
+  @media (min-width: 900px) {
     .hero {
-      display: grid;
-      grid-template-columns: 1.1fr 0.9fr;
+      padding: 32px 24px 56px;
+    }
+
+    /* Dos columnas como la home: foto a la izquierda, texto a la derecha. */
+    .hero__inner {
+      grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+      grid-template-rows: 1fr auto auto auto 1fr;
+      grid-template-areas:
+        "foto ."
+        "foto titulo"
+        "foto bajada"
+        "foto boton"
+        "foto .";
+      column-gap: 56px;
+      justify-items: start;
       align-items: center;
-      gap: 48px;
-      padding: 40px 24px 56px;
       text-align: left;
+      min-height: max(540px, calc(100dvh - 160px));
+    }
+
+    .hero__foto {
+      --alto: clamp(360px, calc(100dvh - 220px), 560px);
+      justify-self: center;
+      margin: 0;
     }
 
     .hero__bajada {
-      margin-left: 0;
+      margin-top: 14px;
+      font-size: 1.15rem;
     }
 
-    .hero .boton {
-      margin-left: 0;
+    .hero__boton {
+      margin: 26px 0 0;
     }
 
-    .polaroid {
-      width: min(100%, 400px);
-      margin: 0 auto;
+    .brillo--1 { right: 6%; top: 40px; }
+    .brillo--2 { left: 6%; top: 120px; }
+    .corazon--1 { left: 48%; top: 60px; }
+
+    .ola {
+      height: 64px;
+    }
+
+    .bloque {
+      padding: 64px 24px 84px;
+    }
+
+    .bajada {
+      font-size: 1.15rem;
     }
 
     .tarjeta {
       padding: 40px 48px 44px;
-      margin-top: 28px;
     }
 
-    .brillo--3 { bottom: 60px; right: 40%; }
-    .corazon--2 { bottom: 40px; left: 46%; }
+    .plan {
+      grid-template-columns: 1fr 1fr;
+      align-items: center;
+      gap: 40px;
+      padding: 40px;
+    }
+
+    .plan__intro {
+      align-items: flex-start;
+      text-align: left;
+    }
+
+    .plan__boton {
+      margin-left: 0;
+    }
+
+    .faq__item summary {
+      font-size: 1.05rem;
+    }
+
+    .cierre {
+      padding: 72px 24px 56px;
+    }
   }
 </style>
