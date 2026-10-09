@@ -1,0 +1,523 @@
+---
+// /army — campaña BTS Lima (9-oct-2026). Es la página del QR del volante que
+// se reparte afuera del Estadio San Marcos. La abren desde el celular, en la
+// cola o a la salida, a veces con mala señal: sin JS propio, CSS en el
+// componente, dos imágenes livianas y el primer botón sin tener que bajar.
+//
+// El copy va TAL CUAL de 01_Pablo/04_Contenido/02_Campañas/
+// 06_Volante_BTS_09-10-26/volante_bts.md (sección 2). Las bases del sorteo
+// todavía no existen: su link entra cuando existan.
+//
+// Nada de BTS, BIGHIT MUSIC ni HYBE: ni logos, ni fotos de integrantes.
+import Layout from "../layouts/Layout.astro";
+import Navbar from "../components/Navbar.astro";
+
+// Los tres botones van al onboarding con los UTM del volante, para medir
+// cuántas cuentas salen del QR.
+const CTA = "/onboarding?utm_source=volante&utm_medium=qr&utm_campaign=bts_lima";
+---
+
+<Layout
+  title="hola ARMY 💜 — Pablo"
+  description="hola ARMY 💜 pablo se quedó afuera 😭 no le alcanzó para la entrada… así que ya empezó a ahorrar para la próxima vez"
+  hideBanner
+>
+  <Navbar />
+  <main class="army">
+    <!-- Arriba: lo primero que se ve. El botón tiene que verse sin bajar. -->
+    <section class="hero">
+      <span class="brillo brillo--1" aria-hidden="true"></span>
+      <span class="brillo brillo--2" aria-hidden="true"></span>
+      <span class="brillo brillo--3" aria-hidden="true"></span>
+      <span class="corazon corazon--1" aria-hidden="true"></span>
+      <span class="corazon corazon--2" aria-hidden="true"></span>
+
+      <div class="hero__texto">
+        <h1>
+          <span class="hola">hola ARMY 💜</span>
+          <span class="afuera">pablo se quedó afuera 😭</span>
+        </h1>
+        <p class="hero__bajada">
+          <span>no le alcanzó para la entrada…</span>
+          <span>así que ya empezó a ahorrar para la próxima vez</span>
+        </p>
+        <a class="boton" href={CTA} id="army-cta-arriba">ahorra con él, gratis</a>
+      </div>
+
+      <figure class="polaroid">
+        <img
+          src="/army/pablo-afuera.webp"
+          width="900"
+          height="900"
+          alt="pablo afuera de la reja del estadio, de noche, abrazando su chanchita"
+          fetchpriority="high"
+          decoding="async"
+        />
+      </figure>
+    </section>
+
+    <!-- Sección 2: cómo vas a llegar a la próxima -->
+    <section class="tarjeta pasos" aria-labelledby="army-pasos">
+      <span class="brillo brillo--4" aria-hidden="true"></span>
+      <h2 id="army-pasos">the best is yet to come ✨</h2>
+      <ol class="pasos__lista">
+        <li><strong>crea tu meta:</strong> «próximo concierto», con cuánto quieres juntar y para cuándo</li>
+        <li><strong>arma tu presupuesto:</strong> pablo te dice cuánto separar cada mes</li>
+        <li><strong>anota tus gastos:</strong> en segundos, y ves cuánto te falta</li>
+      </ol>
+      <p class="pasos__cuenta">
+        con <strong>S/ 20 a la semana</strong>, en un año juntas <strong>S/ 1.040</strong> 💜
+      </p>
+      <a class="boton" href={CTA} id="army-cta-pasos">empieza gratis</a>
+    </section>
+
+    <!-- Sección 3: el sorteo -->
+    <section class="tarjeta sorteo" aria-labelledby="army-sorteo">
+      <span class="corazon corazon--3" aria-hidden="true"></span>
+      <img
+        class="sorteo__foto"
+        src="/army/pablo-sorteo.webp"
+        width="900"
+        height="900"
+        alt="pablo feliz, con audífonos blancos, sosteniendo un regalo morado"
+        loading="lazy"
+        decoding="async"
+      />
+      <h2 id="army-sorteo">
+        🎧 en noviembre, pablo sortea unos <strong>AirPods 5</strong><br />
+        entre todos sus amigos
+      </h2>
+      <p class="sorteo__como">
+        <span class="sorteo__pregunta">¿cómo entras?</span>
+        crea tu cuenta gratis en usapablo.com y ya eres su amigo
+      </p>
+    </section>
+
+    <!-- Cierre -->
+    <section class="cierre">
+      <p class="cierre__gratis">S/ 0, sin tarjeta, para siempre</p>
+      <p class="cierre__firma">borahae 💜<br />— pablo</p>
+      <a class="boton" href={CTA} id="army-cta-cierre">ahorra con pablo</a>
+      <p class="aviso"><em>pablo no está afiliado a BTS, BIGHIT MUSIC ni HYBE.</em></p>
+    </section>
+  </main>
+</Layout>
+
+<style>
+  /* Paleta ARMY: morados y lavanda; navy de la marca para el texto. */
+  .army {
+    --army-morado: #6b3fa0;
+    --army-morado-oscuro: #4b2a75;
+    --army-lavanda: #9b7bd4;
+    --army-lila: #e6dcf7;
+    --army-fondo: #f5f0fc;
+    --army-navy: #2b2c64;
+    --army-oro: #f5c04a;
+
+    background: linear-gradient(180deg, var(--bg-page) 0%, var(--army-fondo) 40%);
+    color: var(--army-navy);
+    padding: 0 16px 40px;
+  }
+
+  /* ---------- Brillos y corazones (solo CSS) ---------- */
+  .brillo,
+  .corazon {
+    position: absolute;
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  .brillo {
+    width: 18px;
+    height: 18px;
+    background: var(--army-lavanda);
+    clip-path: polygon(50% 0%, 61% 39%, 100% 50%, 61% 61%, 50% 100%, 39% 61%, 0% 50%, 39% 39%);
+    animation: titila 2.6s ease-in-out infinite;
+  }
+
+  .brillo--1 { top: 18px; right: 22px; width: 22px; height: 22px; }
+  .brillo--2 { top: 96px; left: 14px; width: 12px; height: 12px; background: var(--army-oro); animation-delay: 0.8s; }
+  .brillo--3 { bottom: 120px; right: 16px; width: 14px; height: 14px; background: #fff; animation-delay: 1.4s; }
+  .brillo--4 { top: 16px; left: 20px; background: var(--army-oro); animation-delay: 0.4s; }
+
+  .corazon {
+    width: 12px;
+    height: 12px;
+    background: var(--army-lavanda);
+    transform: rotate(-45deg);
+    animation: flota 3.2s ease-in-out infinite;
+  }
+
+  .corazon::before,
+  .corazon::after {
+    content: "";
+    position: absolute;
+    width: 12px;
+    height: 12px;
+    border-radius: 50%;
+    background: inherit;
+  }
+
+  .corazon::before { top: -6px; left: 0; }
+  .corazon::after { top: 0; left: 6px; }
+
+  .corazon--1 { top: 22px; left: 18px; opacity: 0.7; }
+  .corazon--2 { bottom: 70px; left: 20px; background: var(--army-morado); opacity: 0.55; animation-delay: 1s; }
+  .corazon--3 { top: 26px; left: 26px; animation-delay: 0.6s; }
+
+  @keyframes titila {
+    0%, 100% { transform: scale(1) rotate(0deg); opacity: 1; }
+    50% { transform: scale(0.6) rotate(20deg); opacity: 0.55; }
+  }
+
+  @keyframes flota {
+    0%, 100% { transform: translateY(0) rotate(-45deg); }
+    50% { transform: translateY(-6px) rotate(-45deg); }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .brillo,
+    .corazon {
+      animation: none;
+    }
+  }
+
+  /* ---------- Botón ---------- */
+  .boton {
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 100%;
+    max-width: 340px;
+    min-height: 58px;
+    margin: 0 auto;
+    padding: 14px 28px;
+    background: var(--army-morado);
+    color: #fff;
+    font-family: var(--font-heading);
+    font-size: 1.2rem;
+    font-weight: 700;
+    line-height: 1.2;
+    text-align: center;
+    border-radius: var(--radius-pill);
+    box-shadow: 0 4px 0 var(--army-morado-oscuro), 0 12px 26px rgba(107, 63, 160, 0.3);
+    -webkit-tap-highlight-color: transparent;
+    transition: transform 0.15s ease, box-shadow 0.15s ease, background 0.15s ease;
+  }
+
+  /* Brillito en la esquina del botón */
+  .boton::after {
+    content: "";
+    position: absolute;
+    top: -7px;
+    right: 18px;
+    width: 16px;
+    height: 16px;
+    background: var(--army-oro);
+    clip-path: polygon(50% 0%, 61% 39%, 100% 50%, 61% 61%, 50% 100%, 39% 61%, 0% 50%, 39% 39%);
+  }
+
+  .boton:hover {
+    background: #7a4bb3;
+  }
+
+  .boton:active {
+    transform: translateY(3px);
+    box-shadow: 0 1px 0 var(--army-morado-oscuro), 0 6px 14px rgba(107, 63, 160, 0.25);
+  }
+
+  .boton:focus-visible {
+    outline: 3px solid var(--army-lavanda);
+    outline-offset: 4px;
+  }
+
+  /* ---------- Arriba ---------- */
+  .hero {
+    position: relative;
+    max-width: 1040px;
+    margin: 0 auto;
+    padding: 12px 4px 28px;
+    text-align: center;
+  }
+
+  .hero__texto {
+    position: relative;
+    z-index: 1;
+  }
+
+  .hero h1 {
+    font-family: var(--font-heading);
+    font-weight: 700;
+    line-height: 1.12;
+    margin-bottom: 14px;
+  }
+
+  .hola {
+    display: block;
+    font-size: clamp(2.3rem, 10.5vw, 3.6rem);
+    color: var(--army-navy);
+    letter-spacing: -0.01em;
+  }
+
+  .afuera {
+    display: block;
+    margin-top: 4px;
+    font-size: clamp(1.55rem, 6.6vw, 2.4rem);
+    color: var(--army-morado);
+  }
+
+  .hero__bajada {
+    max-width: 26em;
+    margin: 0 auto 24px;
+    font-size: 1.08rem;
+    line-height: 1.5;
+    color: var(--army-navy);
+  }
+
+  /* Cada línea del copy en su renglón, partida pareja (sin «vez» huérfano). */
+  .hero__bajada span {
+    display: block;
+    text-wrap: balance;
+  }
+
+  /* Foto tipo polaroid, como pegada por otro fan */
+  .polaroid {
+    position: relative;
+    z-index: 1;
+    width: min(100%, 300px);
+    margin: 30px auto 0;
+    padding: 10px 10px 16px;
+    background: #fff;
+    border-radius: 20px;
+    box-shadow: 0 14px 34px rgba(75, 42, 117, 0.2);
+    transform: rotate(-2.5deg);
+  }
+
+  /* Cinta washi arriba de la polaroid */
+  .polaroid::before {
+    content: "";
+    position: absolute;
+    top: -12px;
+    left: 50%;
+    width: 92px;
+    height: 24px;
+    background: rgba(155, 123, 212, 0.55);
+    border-radius: 4px;
+    transform: translateX(-50%) rotate(3deg);
+  }
+
+  .polaroid img {
+    width: 100%;
+    height: auto;
+    border-radius: 14px;
+  }
+
+  /* ---------- Tarjetas de las secciones ---------- */
+  .tarjeta {
+    position: relative;
+    max-width: 640px;
+    margin: 20px auto 0;
+    padding: 30px 22px 32px;
+    border-radius: 28px;
+  }
+
+  .tarjeta h2 {
+    position: relative;
+    z-index: 1;
+    color: var(--army-navy);
+    text-wrap: balance;
+  }
+
+  /* Sección 2 */
+  .pasos {
+    background: #fff;
+    border: 2px solid var(--army-lila);
+    box-shadow: 0 8px 30px rgba(107, 63, 160, 0.08);
+  }
+
+  .pasos h2 {
+    font-family: var(--font-heading);
+    font-weight: 700;
+    font-size: clamp(1.6rem, 7vw, 2.1rem);
+    line-height: 1.15;
+    text-align: center;
+    margin-bottom: 24px;
+  }
+
+  .pasos__lista {
+    counter-reset: paso;
+    display: flex;
+    flex-direction: column;
+    gap: 18px;
+    margin-bottom: 26px;
+  }
+
+  .pasos__lista li {
+    counter-increment: paso;
+    position: relative;
+    padding-left: 52px;
+    min-height: 38px;
+    font-size: 1.04rem;
+    line-height: 1.5;
+    color: var(--army-navy);
+  }
+
+  .pasos__lista li::before {
+    content: counter(paso);
+    position: absolute;
+    top: -2px;
+    left: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 38px;
+    height: 38px;
+    border-radius: 50%;
+    background: var(--army-lila);
+    color: var(--army-morado);
+    font-family: var(--font-heading);
+    font-weight: 700;
+    font-size: 1.1rem;
+  }
+
+  .pasos__lista strong {
+    color: var(--army-morado);
+  }
+
+  .pasos__cuenta {
+    margin: 0 0 26px;
+    padding: 16px 18px;
+    background: var(--army-fondo);
+    border: 2px dashed var(--army-lavanda);
+    border-radius: 20px;
+    font-size: 1.08rem;
+    line-height: 1.5;
+    text-align: center;
+    color: var(--army-navy);
+  }
+
+  .pasos__cuenta strong {
+    color: var(--army-morado);
+    white-space: nowrap;
+  }
+
+  /* Sección 3 */
+  /* Mismo lavanda del fondo de la ilustración: la foto se funde con la tarjeta. */
+  .sorteo {
+    background: #e5defb;
+    text-align: center;
+  }
+
+  .sorteo__foto {
+    position: relative;
+    z-index: 1;
+    width: min(100%, 240px);
+    height: auto;
+    margin: -6px auto 14px;
+    border-radius: 24px;
+  }
+
+  .sorteo h2 {
+    font-family: var(--font-body);
+    font-weight: 500;
+    font-size: 1.3rem;
+    line-height: 1.45;
+    margin-bottom: 18px;
+  }
+
+  .sorteo h2 strong {
+    font-weight: 700;
+    color: var(--army-morado);
+    white-space: nowrap;
+  }
+
+  .sorteo__como {
+    position: relative;
+    z-index: 1;
+    max-width: 30em;
+    margin: 0 auto;
+    padding: 16px 18px;
+    background: rgba(255, 255, 255, 0.7);
+    border-radius: 20px;
+    font-size: 1.04rem;
+    line-height: 1.5;
+    color: var(--army-navy);
+  }
+
+  .sorteo__pregunta {
+    display: block;
+    margin-bottom: 2px;
+    color: var(--army-morado);
+  }
+
+  /* Cierre */
+  .cierre {
+    max-width: 640px;
+    margin: 32px auto 0;
+    text-align: center;
+  }
+
+  .cierre__gratis {
+    display: inline-block;
+    margin-bottom: 22px;
+    padding: 10px 20px;
+    background: #fff;
+    border: 2px solid var(--army-lila);
+    border-radius: var(--radius-pill);
+    font-size: 1.1rem;
+    font-weight: 500;
+    color: var(--army-navy);
+  }
+
+  .cierre__firma {
+    margin-bottom: 26px;
+    font-size: 1.35rem;
+    line-height: 1.4;
+    color: var(--army-morado);
+  }
+
+  .aviso {
+    margin-top: 34px;
+    font-size: 0.8rem;
+    line-height: 1.5;
+    color: var(--color-body);
+  }
+
+  /* ---------- Escritorio ---------- */
+  @media (min-width: 860px) {
+    .army {
+      padding: 0 24px 56px;
+    }
+
+    .hero {
+      display: grid;
+      grid-template-columns: 1.1fr 0.9fr;
+      align-items: center;
+      gap: 48px;
+      padding: 40px 24px 56px;
+      text-align: left;
+    }
+
+    .hero__bajada {
+      margin-left: 0;
+    }
+
+    .hero .boton {
+      margin-left: 0;
+    }
+
+    .polaroid {
+      width: min(100%, 400px);
+      margin: 0 auto;
+    }
+
+    .tarjeta {
+      padding: 40px 48px 44px;
+      margin-top: 28px;
+    }
+
+    .brillo--3 { bottom: 60px; right: 40%; }
+    .corazon--2 { bottom: 40px; left: 46%; }
+  }
+</style>
