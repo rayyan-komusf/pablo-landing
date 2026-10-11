@@ -1,0 +1,661 @@
+---
+// /estudiante — acceso de estudiante a Pablo (pedido de Rodrigo, 10-oct-2026).
+// El estudiante postula con su correo .edu y la foto de su carné
+// universitario, y el equipo le da acceso en las próximas 48 horas.
+//
+// El formulario manda multipart a la edge function solicitud-estudiante
+// (pablo-finance-pal): la foto queda en un bucket privado, la solicitud en
+// solicitudes_estudiante y al equipo le llega un correo con el link a la foto.
+// Las reglas del correo .edu y de la foto viven en src/lib/estudiante.ts.
+//
+// Mismo sistema visual que /trabaja-con-nosotros (el otro formulario con foto
+// de la landing): tarjeta blanca, campos con borde suave, caja punteada para
+// la foto y botón ámbar.
+import Layout from "../layouts/Layout.astro";
+import Navbar from "../components/Navbar.astro";
+import Footer from "../components/Footer.astro";
+
+const PASOS = [
+  { n: "1", titulo: "usa tu correo .edu", texto: "el de tu universidad. Con otro correo no podemos darte acceso." },
+  { n: "2", titulo: "sube la foto de tu carné", texto: "que se lean bien tu nombre y tu universidad." },
+  { n: "3", titulo: "acceso en 48 horas", texto: "revisamos tu solicitud y te avisamos a tu correo .edu." },
+];
+---
+
+<Layout
+  title="Acceso de estudiante — Pablo"
+  description="Postula con tu correo .edu y la foto de tu carné universitario. Te damos acceso a Pablo en las próximas 48 horas."
+>
+  <Navbar />
+  <main class="estudiante-page">
+    <div class="container">
+      <header class="page-header">
+        <span class="icono-ancla" style="--s:96px; --halo:rgba(245,166,35,.45); margin-bottom:12px;" aria-hidden="true">
+          <img src="/landing/iconos/birrete.webp" alt="" width="240" height="240" decoding="async" />
+        </span>
+        <p class="eyebrow">estudiantes</p>
+        <h1>Acceso de estudiante a Pablo</h1>
+        <p class="bajada">
+          Postula con tu <strong>correo .edu</strong> y una foto de tu <strong>carné universitario</strong>.
+          Te damos acceso en las <strong>próximas 48 horas</strong>.
+        </p>
+      </header>
+
+      <ol class="pasos" aria-label="Cómo funciona">
+        {PASOS.map((p) => (
+          <li class="paso">
+            <span class="paso__n" aria-hidden="true">{p.n}</span>
+            <div>
+              <p class="paso__titulo">{p.titulo}</p>
+              <p class="paso__texto">{p.texto}</p>
+            </div>
+          </li>
+        ))}
+      </ol>
+
+      <div id="form-wrap" class="tarjeta">
+        <form id="estudiante-form" novalidate>
+          <div class="field-group">
+            <label for="nombre">Nombre completo <span class="required">*</span></label>
+            <input type="text" id="nombre" name="nombre" required autocomplete="name" maxlength="80" placeholder="Tu nombre y apellido" />
+            <span class="field-error" data-for="nombre"></span>
+          </div>
+
+          <div class="field-group">
+            <label for="correo">Correo .edu de tu universidad <span class="required">*</span></label>
+            <input type="email" id="correo" name="correo" required autocomplete="email" inputmode="email" maxlength="120" placeholder="a20231234@pucp.edu.pe" />
+            <span class="field-hint">Tiene que ser tu correo .edu. Con un correo personal (Gmail, Hotmail) no podemos darte acceso.</span>
+            <span class="field-error" data-for="correo"></span>
+          </div>
+
+          <div class="field-group">
+            <label for="universidad">Universidad <span class="opcional">(opcional)</span></label>
+            <input type="text" id="universidad" name="universidad" autocomplete="organization" maxlength="120" placeholder="PUCP, UPC, UNMSM…" />
+            <span class="field-error" data-for="universidad"></span>
+          </div>
+
+          <div class="field-group">
+            <label for="carne">Foto de tu carné universitario <span class="required">*</span></label>
+            <div class="file-drop" id="file-drop">
+              <input type="file" id="carne" name="carne" accept="image/*" required />
+              <div class="file-drop__content">
+                <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                  <rect x="3" y="5" width="18" height="14" rx="2" />
+                  <circle cx="8.5" cy="11" r="2" />
+                  <path d="M13 10h5M13 13h4M6 16h6" />
+                </svg>
+                <p id="file-label">Toca para tomar o subir la foto</p>
+                <span>JPG, PNG, WEBP o HEIC · Máx. 8 MB</span>
+              </div>
+              <img id="file-preview" class="file-preview" alt="Vista previa de tu carné" hidden />
+            </div>
+            <span class="field-error" data-for="carne"></span>
+          </div>
+
+          <label class="check">
+            <input type="checkbox" id="acepto" name="acepto_datos" />
+            <span>Acepto que Pablo use estos datos y la foto de mi carné solo para verificar que soy estudiante.</span>
+          </label>
+          <span class="field-error" data-for="acepto"></span>
+
+          <div class="form-footer">
+            <button type="submit" class="btn-submit" id="submit-btn">
+              Enviar solicitud <span class="btn-arrow">→</span>
+            </button>
+          </div>
+
+          <div id="form-error-msg" class="form-error-msg" role="alert" hidden></div>
+        </form>
+      </div>
+
+      <div id="form-success" class="success-state" hidden>
+        <img class="success-icon" src="/landing/iconos/check.webp" alt="" aria-hidden="true" width="240" height="240" />
+        <h2 id="success-titulo">¡Listo!</h2>
+        <p>
+          Recibimos tu solicitud. Revisamos tu carné y te damos acceso en las
+          <strong>próximas 48 horas</strong>. Te avisamos a <strong id="success-correo">tu correo .edu</strong>.
+        </p>
+        <a href="/" class="btn-back">Volver al inicio</a>
+      </div>
+    </div>
+  </main>
+  <Footer />
+</Layout>
+
+<script>
+  import { ENDPOINT_ESTUDIANTE, TIPOS_CARNE, errorCarne, esCorreoEdu } from "../lib/estudiante";
+
+  const form = document.getElementById("estudiante-form") as HTMLFormElement | null;
+  const formWrap = document.getElementById("form-wrap");
+  const successEl = document.getElementById("form-success");
+  const submitBtn = document.getElementById("submit-btn") as HTMLButtonElement | null;
+  const formErrorMsg = document.getElementById("form-error-msg");
+  const fileDrop = document.getElementById("file-drop");
+  const fileInput = document.getElementById("carne") as HTMLInputElement | null;
+  const fileLabel = document.getElementById("file-label");
+  const filePreview = document.getElementById("file-preview") as HTMLImageElement | null;
+
+  function mostrarArchivo(f: File | undefined) {
+    if (!f || !fileLabel) return;
+    fileLabel.textContent = f.name;
+    if (filePreview && f.type !== "image/heic" && f.type !== "image/heif") {
+      filePreview.src = URL.createObjectURL(f);
+      filePreview.hidden = false;
+    }
+  }
+
+  fileInput?.addEventListener("change", () => mostrarArchivo(fileInput.files?.[0]));
+  fileDrop?.addEventListener("dragover", (e) => {
+    e.preventDefault();
+    fileDrop.classList.add("is-over");
+  });
+  fileDrop?.addEventListener("dragleave", () => fileDrop.classList.remove("is-over"));
+  fileDrop?.addEventListener("drop", (e) => {
+    e.preventDefault();
+    fileDrop.classList.remove("is-over");
+    const f = e.dataTransfer?.files?.[0];
+    if (f && fileInput) {
+      const dt = new DataTransfer();
+      dt.items.add(f);
+      fileInput.files = dt.files;
+      mostrarArchivo(f);
+    }
+  });
+
+  function showError(name: string, msg: string) {
+    const el = document.querySelector(`[data-for="${name}"]`);
+    if (el) el.textContent = msg;
+  }
+  function clearErrors() {
+    document.querySelectorAll(".field-error").forEach((el) => (el.textContent = ""));
+  }
+
+  /** Las fotos del celular pesan varios MB: si el navegador puede leerla, se
+   *  achica a 2000 px de lado mayor en JPEG antes de subirla. HEIC u otras que
+   *  el navegador no lea se mandan tal cual (el servidor acepta hasta 8 MB). */
+  async function achicar(f: File): Promise<File> {
+    if (f.size < 1_500_000 || !["image/jpeg", "image/png", "image/webp"].includes(f.type)) return f;
+    try {
+      const bitmap = await createImageBitmap(f);
+      const escala = Math.min(1, 2000 / Math.max(bitmap.width, bitmap.height));
+      const canvas = document.createElement("canvas");
+      canvas.width = Math.round(bitmap.width * escala);
+      canvas.height = Math.round(bitmap.height * escala);
+      canvas.getContext("2d")?.drawImage(bitmap, 0, 0, canvas.width, canvas.height);
+      const blob = await new Promise<Blob | null>((ok) => canvas.toBlob(ok, "image/jpeg", 0.85));
+      if (!blob || blob.size >= f.size) return f;
+      return new File([blob], f.name.replace(/\.\w+$/, "") + ".jpg", { type: "image/jpeg" });
+    } catch {
+      return f;
+    }
+  }
+
+  function origen(): string {
+    const datos: Record<string, unknown> = { pagina: "/estudiante" };
+    try {
+      const params = new URLSearchParams(location.search);
+      for (const k of ["utm_source", "utm_medium", "utm_campaign", "utm_content"]) {
+        const v = params.get(k);
+        if (v) datos[k] = v;
+      }
+      const atrib = localStorage.getItem("pablo_atrib_v1");
+      if (atrib) datos.atribucion = JSON.parse(atrib);
+    } catch {
+      /* sin atribución */
+    }
+    return JSON.stringify(datos).slice(0, 1900);
+  }
+
+  function restaurarBoton() {
+    if (!submitBtn) return;
+    submitBtn.disabled = false;
+    submitBtn.innerHTML = 'Enviar solicitud <span class="btn-arrow">→</span>';
+  }
+
+  form?.addEventListener("submit", async (e) => {
+    e.preventDefault();
+    clearErrors();
+    if (formErrorMsg) formErrorMsg.hidden = true;
+
+    const nombre = String(new FormData(form).get("nombre") ?? "").trim();
+    const correo = String(new FormData(form).get("correo") ?? "").trim().toLowerCase();
+    const universidad = String(new FormData(form).get("universidad") ?? "").trim();
+    const acepto = (document.getElementById("acepto") as HTMLInputElement | null)?.checked === true;
+    const original = fileInput?.files?.[0] ?? null;
+
+    let ok = true;
+    if (nombre.length < 2) {
+      showError("nombre", "Escribe tu nombre completo.");
+      ok = false;
+    }
+    if (!esCorreoEdu(correo)) {
+      showError("correo", "Necesitamos tu correo .edu de la universidad (por ejemplo, a20231234@pucp.edu.pe).");
+      ok = false;
+    }
+    // El peso se revisa después de achicarla: aquí solo que haya foto y sea imagen.
+    const errFoto = !original ? errorCarne(null) : !TIPOS_CARNE.includes(original.type) ? errorCarne(original) : null;
+    if (errFoto) {
+      showError("carne", errFoto);
+      ok = false;
+    }
+    if (!acepto) {
+      showError("acepto", "Marca la casilla para que podamos revisar tu carné.");
+      ok = false;
+    }
+    if (!ok || !original) return;
+
+    if (submitBtn) {
+      submitBtn.disabled = true;
+      submitBtn.textContent = "Enviando…";
+    }
+
+    const carne = await achicar(original);
+    const errPeso = errorCarne(carne);
+    if (errPeso) {
+      showError("carne", errPeso);
+      restaurarBoton();
+      return;
+    }
+
+    const datos = new FormData();
+    datos.append("nombre", nombre);
+    datos.append("correo", correo);
+    datos.append("universidad", universidad);
+    datos.append("acepto_datos", "true");
+    datos.append("origen", origen());
+    datos.append("carne", carne, carne.name);
+
+    try {
+      const res = await fetch(ENDPOINT_ESTUDIANTE, { method: "POST", body: datos });
+      const cuerpo = await res.json().catch(() => ({}));
+      if (!res.ok) {
+        if (formErrorMsg) {
+          formErrorMsg.textContent = cuerpo?.error || "No pudimos enviar tu solicitud. Inténtalo de nuevo.";
+          formErrorMsg.hidden = false;
+        }
+        restaurarBoton();
+        return;
+      }
+      try {
+        (window as any).posthog?.capture?.("estudiante_solicitud_enviada", { universidad: universidad || null });
+      } catch {
+        /* analítica opcional */
+      }
+      const titulo = document.getElementById("success-titulo");
+      const correoEl = document.getElementById("success-correo");
+      if (titulo) titulo.textContent = `¡Listo, ${nombre.split(" ")[0]}!`;
+      if (correoEl) correoEl.textContent = correo;
+      if (formWrap) formWrap.hidden = true;
+      document.querySelector(".pasos")?.setAttribute("hidden", "");
+      if (successEl) successEl.hidden = false;
+      successEl?.scrollIntoView({ behavior: "smooth", block: "center" });
+    } catch {
+      if (formErrorMsg) {
+        formErrorMsg.textContent = "No pudimos conectarnos. Revisa tu internet e inténtalo de nuevo.";
+        formErrorMsg.hidden = false;
+      }
+      restaurarBoton();
+    }
+  });
+</script>
+
+<style>
+  .estudiante-page {
+    min-height: 100vh;
+    padding: 72px 0 120px;
+    background: var(--bg-page);
+  }
+
+  .container {
+    max-width: 640px;
+    margin: 0 auto;
+    padding: 0 var(--gutter);
+  }
+
+  .page-header {
+    text-align: center;
+    margin-bottom: 36px;
+  }
+
+  .eyebrow {
+    font-family: var(--font-heading);
+    font-weight: 700;
+    font-size: 0.82rem;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--color-secondary);
+    margin: 0 0 8px;
+  }
+
+  .page-header h1 {
+    font-family: var(--font-heading);
+    font-size: clamp(2rem, 5.5vw, 2.8rem);
+    line-height: 1.15;
+    color: var(--color-heading);
+    margin: 0 0 16px;
+  }
+
+  .bajada {
+    font-size: 1.08rem;
+    color: var(--color-body);
+    line-height: 1.7;
+    max-width: 500px;
+    margin: 0 auto;
+  }
+
+  .bajada strong {
+    color: var(--color-heading);
+  }
+
+  /* Pasos */
+  .pasos {
+    list-style: none;
+    padding: 0;
+    margin: 0 0 28px;
+    display: grid;
+    gap: 12px;
+  }
+
+  .pasos[hidden] {
+    display: none;
+  }
+
+  .paso {
+    display: flex;
+    align-items: flex-start;
+    gap: 14px;
+    background: white;
+    border-radius: var(--radius-md);
+    padding: 14px 18px;
+    box-shadow: 0 2px 10px rgba(43, 44, 100, 0.06);
+  }
+
+  .paso__n {
+    flex-shrink: 0;
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    display: grid;
+    place-items: center;
+    background: var(--color-amber);
+    color: var(--color-heading);
+    font-family: var(--font-heading);
+    font-weight: 700;
+  }
+
+  .paso__titulo {
+    font-family: var(--font-heading);
+    font-weight: 700;
+    color: var(--color-heading);
+    margin: 2px 0 2px;
+  }
+
+  .paso__texto {
+    font-size: 0.92rem;
+    color: var(--color-body);
+    margin: 0;
+    line-height: 1.5;
+  }
+
+  /* Tarjeta del formulario */
+  .tarjeta {
+    background: white;
+    border-radius: var(--radius-lg);
+    box-shadow: var(--card-shadow);
+    padding: 32px 28px;
+  }
+
+  #estudiante-form {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+  }
+
+  .field-group {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+  }
+
+  .field-group > label {
+    font-weight: 600;
+    font-size: 0.95rem;
+    color: var(--color-heading);
+  }
+
+  .required {
+    color: #e53e3e;
+    margin-left: 2px;
+  }
+
+  .opcional {
+    font-weight: 400;
+    color: var(--color-secondary);
+  }
+
+  input[type="text"],
+  input[type="email"] {
+    width: 100%;
+    padding: 12px 16px;
+    border: 1.5px solid rgba(43, 44, 100, 0.2);
+    border-radius: var(--radius-md);
+    font-size: 1rem;
+    font-family: var(--font-body);
+    color: var(--color-heading);
+    background: white;
+    transition: border-color 0.15s;
+    outline: none;
+    box-sizing: border-box;
+  }
+
+  input[type="text"]:focus,
+  input[type="email"]:focus {
+    border-color: var(--color-purple);
+  }
+
+  input::placeholder {
+    color: rgba(43, 44, 100, 0.35);
+  }
+
+  .field-hint {
+    font-size: 0.8rem;
+    color: var(--color-secondary);
+    line-height: 1.45;
+  }
+
+  /* Foto del carné */
+  .file-drop {
+    position: relative;
+    border: 2px dashed rgba(43, 44, 100, 0.25);
+    border-radius: var(--radius-md);
+    background: rgba(43, 44, 100, 0.02);
+    padding: 28px 20px;
+    text-align: center;
+    cursor: pointer;
+    transition: border-color 0.15s, background 0.15s;
+  }
+
+  .file-drop:hover,
+  .file-drop.is-over {
+    border-color: var(--color-purple);
+    background: rgba(43, 44, 100, 0.04);
+  }
+
+  .file-drop input[type="file"] {
+    position: absolute;
+    inset: 0;
+    opacity: 0;
+    cursor: pointer;
+    width: 100%;
+    height: 100%;
+    z-index: 1;
+  }
+
+  .file-drop__content {
+    pointer-events: none;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 8px;
+    color: var(--color-secondary);
+  }
+
+  .file-drop__content p {
+    font-size: 0.95rem;
+    font-weight: 500;
+    color: var(--color-heading);
+    margin: 0;
+    word-break: break-all;
+  }
+
+  .file-drop__content span {
+    font-size: 0.78rem;
+    opacity: 0.7;
+  }
+
+  .file-preview {
+    display: block;
+    max-width: 100%;
+    max-height: 220px;
+    margin: 16px auto 0;
+    border-radius: 10px;
+    box-shadow: 0 4px 14px rgba(43, 44, 100, 0.15);
+  }
+
+  .file-preview[hidden] {
+    display: none;
+  }
+
+  /* Consentimiento */
+  .check {
+    display: flex;
+    align-items: flex-start;
+    gap: 10px;
+    margin-top: 6px;
+    font-size: 0.88rem;
+    color: var(--color-body);
+    line-height: 1.5;
+    cursor: pointer;
+  }
+
+  .check input {
+    width: 18px;
+    height: 18px;
+    margin-top: 2px;
+    flex-shrink: 0;
+    accent-color: var(--color-purple);
+  }
+
+  .field-error {
+    font-size: 0.8rem;
+    color: #e53e3e;
+    min-height: 16px;
+  }
+
+  .form-footer {
+    display: flex;
+    justify-content: center;
+    padding-top: 8px;
+  }
+
+  .btn-submit {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    background: var(--color-amber);
+    color: var(--color-heading);
+    font-family: var(--font-heading);
+    font-weight: 700;
+    font-size: 1.05rem;
+    padding: 15px 34px;
+    border-radius: var(--radius-pill);
+    border: none;
+    cursor: pointer;
+    box-shadow: 0 4px 0 0 #c9820a;
+    transition: transform 0.2s ease;
+  }
+
+  .btn-submit:hover:not(:disabled) {
+    transform: translateY(-2px);
+  }
+
+  .btn-submit .btn-arrow {
+    display: inline-block;
+    transition: transform 0.2s ease;
+  }
+
+  .btn-submit:hover:not(:disabled) .btn-arrow {
+    transform: translateX(4px);
+  }
+
+  .btn-submit:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+  }
+
+  .form-error-msg {
+    text-align: center;
+    font-size: 0.9rem;
+    color: #e53e3e;
+    background: rgba(229, 62, 62, 0.06);
+    border-radius: var(--radius-md);
+    padding: 12px 20px;
+  }
+
+  /* Éxito */
+  .success-state {
+    text-align: center;
+    padding: 48px 0 24px;
+  }
+
+  .success-icon {
+    width: 88px;
+    height: 88px;
+    object-fit: contain;
+    display: block;
+    margin: 0 auto 20px;
+    filter: drop-shadow(0 10px 14px rgba(43, 44, 100, 0.2));
+  }
+
+  .success-state h2 {
+    font-family: var(--font-heading);
+    font-size: 1.9rem;
+    color: var(--color-heading);
+    margin: 0 0 16px;
+  }
+
+  .success-state p {
+    font-size: 1.02rem;
+    color: var(--color-body);
+    line-height: 1.7;
+    max-width: 440px;
+    margin: 0 auto 32px;
+  }
+
+  .success-state strong {
+    color: var(--color-heading);
+  }
+
+  #success-correo {
+    overflow-wrap: anywhere;
+  }
+
+  .btn-back {
+    display: inline-flex;
+    align-items: center;
+    background: var(--color-heading);
+    color: white;
+    font-family: var(--font-heading);
+    font-weight: 700;
+    font-size: 1rem;
+    padding: 12px 28px;
+    border-radius: var(--radius-pill);
+    text-decoration: none;
+  }
+
+  @media (max-width: 480px) {
+    .tarjeta {
+      padding: 24px 18px;
+    }
+  }
+</style>
