@@ -1,6 +1,6 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
-import { errorCarne, esCorreoEdu, MAX_CARNE_BYTES } from "../src/lib/estudiante.ts";
+import { errorCarne, esCorreo, esCorreoEdu, MAX_CARNE_BYTES } from "../src/lib/estudiante.ts";
 
 test("acepta correos .edu de universidades", () => {
   for (const c of ["a2023@pucp.edu.pe", "U202312@UPC.EDU.PE", " alumno@ulima.edu.pe ", "x@uni.edu", "x@mail.unmsm.edu.pe"]) {
@@ -8,10 +8,16 @@ test("acepta correos .edu de universidades", () => {
   }
 });
 
-test("rechaza correos que no son .edu", () => {
+test("rechaza correos educativos que no son .edu", () => {
   for (const c of ["ana@gmail.com", "ana@educacion.pe", "ana@edu.pe", "ana@", "ana pucp.edu.pe", "ana@upn.pe"]) {
     assert.equal(esCorreoEdu(c), false, c);
   }
+});
+
+test("el correo registrado puede ser cualquier correo válido", () => {
+  assert.equal(esCorreo("ana.torres@gmail.com"), true);
+  assert.equal(esCorreo("a2023@pucp.edu.pe"), true);
+  assert.equal(esCorreo("ana.torres"), false);
 });
 
 test("la foto del carné tiene que ser una imagen de hasta 8 MB", () => {
