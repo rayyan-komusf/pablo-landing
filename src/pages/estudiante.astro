@@ -8,7 +8,7 @@
 // Abajo el paso a paso para redimirlo, con las palabras de Rodrigo:
 //   1. registrarse gratis con el correo .edu (o saltar si ya tiene cuenta),
 //   2. aplicar a la beca komunitaria con el formulario de abajo,
-//   3. en 48 horas tiene Pablo Pro desbloqueado por 30 días.
+//   3. revisión manual; si cumple los requisitos recibe Pro por 30 días.
 //
 // El formulario pide solo lo que dijo Rodrigo: el correo con el que se
 // registró, su correo educativo y la foto de su carné vigente (más la casilla
@@ -25,7 +25,7 @@ const REGISTRO = "/onboarding?utm_source=estudiante&utm_medium=landing&utm_campa
 
 <Layout
   title="Pablo Pro gratis para universitarios — Beca komunitaria"
-  description="Regístrate gratis en Pablo con tu correo .edu, aplica a la beca komunitaria y en las próximas 48 horas tendrás Pablo Pro desbloqueado por 30 días."
+  description="Regístrate gratis en Pablo y solicita 30 días de Pablo Pro con la beca komunitaria. Sujeto a revisión de tu condición de estudiante."
 >
   <Navbar />
   <main class="pro-page">
@@ -75,7 +75,7 @@ const REGISTRO = "/onboarding?utm_source=estudiante&utm_medium=landing&utm_campa
             <span class="paso__n" aria-hidden="true">3</span>
             <div class="paso__cuerpo">
               <p class="paso__label">Paso 3</p>
-              <p class="paso__titulo">Y listo: en las próximas 48 horas tendrás desbloqueado a Pablo Pro por 30 días</p>
+              <p class="paso__titulo">Revisaremos tu solicitud en las próximas 48 horas. Si cumples los requisitos, activaremos Pablo Pro por 30 días</p>
             </div>
           </li>
         </ol>
@@ -88,7 +88,10 @@ const REGISTRO = "/onboarding?utm_source=estudiante&utm_medium=landing&utm_campa
           <h2>Beca komunitaria</h2>
           <p class="tarjeta__bajada">Llénalo cuando ya tengas tu cuenta en Pablo.</p>
 
-          <form id="estudiante-form" novalidate>
+          <p id="beca-disponibilidad" role="status">Comprobando disponibilidad de la beca…</p>
+          <noscript>Activa JavaScript para comprobar si las solicitudes están abiertas.</noscript>
+          <form id="estudiante-form" class="ph-no-capture" data-ph-no-capture novalidate>
+            <fieldset id="beca-campos" disabled style="border:0;padding:0;margin:0;min-width:0">
             <div class="field-group">
               <label for="correo-registrado">Correo con el que te registraste en Pablo <span class="required">*</span></label>
               <input type="email" id="correo-registrado" name="correo_registrado" required autocomplete="email" inputmode="email" maxlength="120" placeholder="tucorreo@gmail.com" />
@@ -105,7 +108,7 @@ const REGISTRO = "/onboarding?utm_source=estudiante&utm_medium=landing&utm_campa
             <div class="field-group">
               <label for="carne">Foto de tu carné universitario vigente <span class="required">*</span></label>
               <div class="file-drop" id="file-drop">
-                <input type="file" id="carne" name="carne" accept="image/*" required />
+                <input type="file" id="carne" name="carne" accept="image/jpeg,image/png,image/webp,image/heic,image/heif" required />
                 <div class="file-drop__content">
                   <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
                     <rect x="3" y="5" width="18" height="14" rx="2" />
@@ -132,6 +135,7 @@ const REGISTRO = "/onboarding?utm_source=estudiante&utm_medium=landing&utm_campa
               </button>
             </div>
 
+            </fieldset>
             <div id="form-error-msg" class="form-error-msg" role="alert" hidden></div>
           </form>
         </div>
@@ -140,7 +144,7 @@ const REGISTRO = "/onboarding?utm_source=estudiante&utm_medium=landing&utm_campa
           <img class="success-icon" src="/landing/iconos/check.webp" alt="" aria-hidden="true" width="240" height="240" />
           <h2>¡Listo!</h2>
           <p>
-            En las <strong>próximas 48 horas</strong> tendrás desbloqueado a <strong>Pablo Pro por 30 días</strong>.
+            Recibimos tu solicitud. La revisaremos en las <strong>próximas 48 horas</strong>. Si cumple los requisitos, activaremos <strong>Pablo Pro por 30 días</strong>.
             Te avisamos a <strong id="success-correo">tu correo</strong>.
           </p>
           <a href="/" class="btn-back">Volver al inicio</a>
@@ -154,6 +158,21 @@ const REGISTRO = "/onboarding?utm_source=estudiante&utm_medium=landing&utm_campa
 <script>
   import { ENDPOINT_ESTUDIANTE, TIPOS_CARNE, errorCarne, esCorreo, esCorreoEdu } from "../lib/estudiante";
 
+  let disponible = false;
+  let enviando = false;
+  const campos = document.getElementById("beca-campos") as HTMLFieldSetElement | null;
+  const disponibilidad = document.getElementById("beca-disponibilidad");
+  async function comprobarDisponibilidad() {
+    try {
+      const res = await fetch(ENDPOINT_ESTUDIANTE, { signal: AbortSignal.timeout(10_000), cache: "no-store" });
+      const body = await res.json();
+      disponible = res.ok && body.disponible === true;
+    } catch { disponible = false; }
+    if (campos) campos.disabled = !disponible;
+    if (disponibilidad) disponibilidad.textContent = disponible ? "Solicitudes abiertas. La aprobación requiere revisión del equipo." : "Las solicitudes estarán disponibles pronto. Vuelve a intentarlo más tarde.";
+  }
+  void comprobarDisponibilidad();
+
   const form = document.getElementById("estudiante-form") as HTMLFormElement | null;
   const formWrap = document.getElementById("form-wrap");
   const successEl = document.getElementById("form-success");
@@ -164,11 +183,16 @@ const REGISTRO = "/onboarding?utm_source=estudiante&utm_medium=landing&utm_campa
   const fileLabel = document.getElementById("file-label");
   const filePreview = document.getElementById("file-preview") as HTMLImageElement | null;
 
+  let previewUrl: string | null = null;
   function mostrarArchivo(f: File | undefined) {
+    if (previewUrl) URL.revokeObjectURL(previewUrl);
+    previewUrl = null;
+    if (filePreview) { filePreview.hidden = true; filePreview.removeAttribute("src"); }
     if (!f || !fileLabel) return;
     fileLabel.textContent = f.name;
     if (filePreview && f.type !== "image/heic" && f.type !== "image/heif") {
-      filePreview.src = URL.createObjectURL(f);
+      previewUrl = URL.createObjectURL(f);
+      filePreview.src = previewUrl;
       filePreview.hidden = false;
     }
   }
@@ -210,7 +234,10 @@ const REGISTRO = "/onboarding?utm_source=estudiante&utm_medium=landing&utm_campa
       const canvas = document.createElement("canvas");
       canvas.width = Math.round(bitmap.width * escala);
       canvas.height = Math.round(bitmap.height * escala);
-      canvas.getContext("2d")?.drawImage(bitmap, 0, 0, canvas.width, canvas.height);
+      const ctx = canvas.getContext("2d");
+      if (!ctx) { bitmap.close(); return f; }
+      ctx.drawImage(bitmap, 0, 0, canvas.width, canvas.height);
+      bitmap.close();
       const blob = await new Promise<Blob | null>((ok) => canvas.toBlob(ok, "image/jpeg", 0.85));
       if (!blob || blob.size >= f.size) return f;
       return new File([blob], f.name.replace(/\.\w+$/, "") + ".jpg", { type: "image/jpeg" });
@@ -227,8 +254,7 @@ const REGISTRO = "/onboarding?utm_source=estudiante&utm_medium=landing&utm_campa
         const v = params.get(k);
         if (v) datos[k] = v;
       }
-      const atrib = localStorage.getItem("pablo_atrib_v1");
-      if (atrib) datos.atribucion = JSON.parse(atrib);
+
     } catch {
       /* sin atribución */
     }
@@ -236,6 +262,7 @@ const REGISTRO = "/onboarding?utm_source=estudiante&utm_medium=landing&utm_campa
   }
 
   function restaurarBoton() {
+    enviando = false;
     if (!submitBtn) return;
     submitBtn.disabled = false;
     submitBtn.innerHTML = 'Enviar solicitud <span class="btn-arrow">→</span>';
@@ -243,6 +270,7 @@ const REGISTRO = "/onboarding?utm_source=estudiante&utm_medium=landing&utm_campa
 
   form?.addEventListener("submit", async (e) => {
     e.preventDefault();
+    if (!disponible || enviando) return;
     clearErrors();
     if (formErrorMsg) formErrorMsg.hidden = true;
 
@@ -273,6 +301,7 @@ const REGISTRO = "/onboarding?utm_source=estudiante&utm_medium=landing&utm_campa
     }
     if (!ok || !original) return;
 
+    enviando = true;
     if (submitBtn) {
       submitBtn.disabled = true;
       submitBtn.textContent = "Enviando…";
@@ -294,9 +323,9 @@ const REGISTRO = "/onboarding?utm_source=estudiante&utm_medium=landing&utm_campa
     datos.append("carne", carne, carne.name);
 
     try {
-      const res = await fetch(ENDPOINT_ESTUDIANTE, { method: "POST", body: datos });
+      const res = await fetch(ENDPOINT_ESTUDIANTE, { method: "POST", body: datos, signal: AbortSignal.timeout(60_000) });
       const cuerpo = await res.json().catch(() => ({}));
-      if (!res.ok) {
+      if (!res.ok || cuerpo.ok !== true) {
         if (formErrorMsg) {
           formErrorMsg.textContent = cuerpo?.error || "No pudimos enviar tu solicitud. Inténtalo de nuevo.";
           formErrorMsg.hidden = false;
@@ -313,7 +342,9 @@ const REGISTRO = "/onboarding?utm_source=estudiante&utm_medium=landing&utm_campa
       if (correoEl) correoEl.textContent = correoRegistrado;
       if (formWrap) formWrap.hidden = true;
       if (successEl) successEl.hidden = false;
-      successEl?.scrollIntoView({ behavior: "smooth", block: "center" });
+      form.reset();
+      mostrarArchivo(undefined);
+      successEl?.scrollIntoView({ behavior: matchMedia("(prefers-reduced-motion: reduce)").matches ? "auto" : "smooth", block: "center" });
     } catch {
       if (formErrorMsg) {
         formErrorMsg.textContent = "No pudimos conectarnos. Revisa tu internet e inténtalo de nuevo.";
@@ -338,6 +369,10 @@ const REGISTRO = "/onboarding?utm_source=estudiante&utm_medium=landing&utm_campa
 
   :global(html) {
     scroll-behavior: smooth;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    :global(html) { scroll-behavior: auto; }
   }
 
   /* Hero */
