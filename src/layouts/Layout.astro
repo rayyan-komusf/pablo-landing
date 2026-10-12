@@ -31,6 +31,9 @@ const {
 
 const siteUrl = "https://www.usapablo.com";
 const ogImage = `${siteUrl}/Logo.png`;
+// URL propia de cada página (sin query). Antes TODAS declaraban la raíz como
+// canonical/og:url: para Google y Meta cada página "era" el home.
+const pageUrl = new URL(Astro.url.pathname, siteUrl).href;
 ---
 
 <!doctype html>
@@ -59,6 +62,13 @@ const ogImage = `${siteUrl}/Logo.png`;
         }
       })();
     </script>
+    <!-- Modo pauta (Sandra 07-oct-2026): al tráfico pagado no se le ofrece el
+         plan Gratis. `.solo-organico` desaparece en pauta y `.solo-pauta`
+         solo existe en pauta. El orgánico no cambia. -->
+    <style is:global>
+      html.pauta .solo-organico { display: none !important; }
+      html:not(.pauta) .solo-pauta { display: none !important; }
+    </style>
 
     <!-- Diferir terceros que no escriben la _fbc (Sandra 10-ago-2026): GTM,
          TikTok carga tras el load + requestIdleCallback. PostHog inicia antes para el A/B. El pixel
@@ -103,11 +113,15 @@ const ogImage = `${siteUrl}/Logo.png`;
           var esNuevo = localStorage.getItem("pablo_intro_vista") !== "1";
           var recorridoPauta =
             esPauta && /(?:^|-)titulo[12]-(?:onboarding|pago)$/.test(contenido);
-          if (!esNuevo && !recorridoPauta) return;
+          if (!esNuevo && !recorridoPauta && !esPauta) return;
 
+          // En pauta, sin recorrido explícito en utm_content, los CTAs van a
+          // /planes (solo el mensual), nunca al plan Gratis del onboarding.
           var base = contenido.endsWith("-pago")
             ? "https://usapablo.app/pricing?plan=mensual&continuar=1"
-            : "/onboarding";
+            : esPauta && !recorridoPauta
+              ? "/planes"
+              : "/onboarding";
 
           function conUtms(destino) {
             var url = new URL(destino, location.origin);
@@ -160,7 +174,7 @@ const ogImage = `${siteUrl}/Logo.png`;
 
     <!-- Open Graph (Facebook, WhatsApp, Telegram, LinkedIn) -->
     <meta property="og:type" content="website" />
-    <meta property="og:url" content={siteUrl} />
+    <meta property="og:url" content={pageUrl} />
     <meta property="og:title" content={title} />
     <meta property="og:description" content={description} />
     <meta property="og:image" content={ogImage} />
@@ -173,13 +187,13 @@ const ogImage = `${siteUrl}/Logo.png`;
 
     <!-- Twitter / X Card -->
     <meta name="twitter:card" content="summary" />
-    <meta name="twitter:url" content={siteUrl} />
+    <meta name="twitter:url" content={pageUrl} />
     <meta name="twitter:title" content={title} />
     <meta name="twitter:description" content={description} />
     <meta name="twitter:image" content={ogImage} />
 
     <!-- SEO -->
-    <link rel="canonical" href={siteUrl} />
+    <link rel="canonical" href={pageUrl} />
 
     <title>{title}</title>
 

@@ -167,7 +167,7 @@
         <p class="pw-nota__p" data-pw-teclea="Gracias por llegar hasta acá y por confiar en lo que estamos construyendo."></p>
         <p class="pw-nota__p" data-pw-teclea="Pablo está para acompañarte todos los días, sin sermones y sin hacerte sentir mal por un gasto."></p>
         <p class="pw-nota__p" data-pw-teclea="Y si sientes que no es para ti, cancelas cuando quieras, sin penalidades, y lo retomas el día que estés listo."></p>
-        <p class="pw-nota__p" data-pw-teclea="Elige Premium o sigue con Pablo Gratis. Tú decides."></p>
+        <p class="pw-nota__p solo-organico" data-pw-teclea="Elige Premium o sigue con Pablo Gratis. Tú decides."></p>
         <p class="pw-nota__firma" data-pw-firma>
           Rodrigo<span class="pw-nota__arroba">@rodrigo.al.millon</span>
         </p>
@@ -189,7 +189,7 @@
 
   </div>
 
-  <div style="padding: 8px 24px 20px; text-align: center;">
+  <div class="solo-organico" style="padding: 8px 24px 20px; text-align: center;">
     <button type="button" class="btn-secondary" style="min-height:44px;width:100%;max-width:360px" onclick="pabloSeguirGratis()">Seguir con Gratis</button>
     <p style="font-size:12px;margin-top:8px">Sin tarjeta · 5 mensajes diarios · 3 cuentas</p>
   </div>
@@ -233,7 +233,11 @@
 
   /* La nota se teclea en vivo al entrar. */
   function tecleaNota() {
-    var lineas = [].slice.call(document.querySelectorAll("[data-pw-teclea]"));
+    var esPauta = document.documentElement.classList.contains("pauta");
+    // En pauta no se teclea la línea que ofrece Gratis (está oculta).
+    var lineas = [].slice.call(document.querySelectorAll("[data-pw-teclea]")).filter(function (el) {
+      return !(esPauta && el.classList.contains("solo-organico"));
+    });
     var firma = document.querySelector("[data-pw-firma]");
     if (!lineas.length) return;
     if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) {

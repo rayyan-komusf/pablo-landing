@@ -10,7 +10,8 @@
       codigo = sessionStorage.getItem("pablo_codigo_descuento") || "";
     } catch { /* La app pedirá iniciar sesión. */ }
     let url = destinoPagoPablo(plan, location.search, codigo, session);
-    if (typeof w.pabloConMeta === "function") url = w.pabloConMeta(url);
+    // Huella del clic (fbc/fbp de Meta + ttclid/ttp de TikTok): la app es otro dominio.
+    if (typeof w.pabloConFbc === "function") url = w.pabloConFbc(url);
     location.assign(url);
   };
 </script>

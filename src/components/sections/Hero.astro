@@ -32,8 +32,11 @@ import { CTA, IS_LIVE, APP_URL } from "../../siteConfig";
           Tus gastos anotados <span class="highlight">sin salir de WhatsApp</span>
         </span>
       </h1>
-      <p class="hero__subtitle">
+      <p class="hero__subtitle solo-organico">
         Empieza gratis en la web o en iOS. 5 mensajes al día, 3 cuentas y tu primera meta. WhatsApp con Premium.
+      </p>
+      <p class="hero__subtitle solo-pauta">
+        Le cuentas tus gastos por WhatsApp y Pablo los ordena por ti. S/20 al mes, cancelas cuando quieras.
       </p>
 
       <div class="hero__ctas">
@@ -45,8 +48,11 @@ import { CTA, IS_LIVE, APP_URL } from "../../siteConfig";
               id="hero-cta-btn"
               onclick="try{window.posthog?.capture('landing_cta_clicked',{cta:'hero_desbloquea',location:'hero',hero_variant:window.pabloAB?.variante('landing-hero-copy')||'control'})}catch(e){};if(typeof fbq!=='undefined')fbq('trackCustom','Ver_Planes');if(typeof ttq!=='undefined')ttq.track('ClickButton',{content_name:'Ver_Planes'});"
             >
-              <span data-ab-hide="landing-hero-copy:whatsapp">{CTA.label}</span>
-              <span data-ab-show="landing-hero-copy:whatsapp">Pruébalo gratis</span>
+              <span class="solo-organico">
+                <span data-ab-hide="landing-hero-copy:whatsapp">{CTA.label}</span>
+                <span data-ab-show="landing-hero-copy:whatsapp">Pruébalo gratis</span>
+              </span>
+              <span class="solo-pauta">Empieza ahora · S/20 al mes</span>
             </a>
           ) : (
             <button

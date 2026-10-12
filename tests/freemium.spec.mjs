@@ -52,7 +52,8 @@ for (const step of ['step-18', 'step-18b']) {
     const next = page.waitForURL(/\/auth\/sesion\?plan=free/);
     await page.locator('#cuenta-crear-btn').click();
     await next;
-    expect(state.calls).toEqual([]);
+    // Solo la medición del registro (CompleteRegistration por CAPI); nada de pagos.
+    await expect.poll(() => state.calls).toEqual(['/functions/v1/meta-registro']);
     expect(state.errors).toEqual([]);
   });
 }

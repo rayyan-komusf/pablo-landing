@@ -4,6 +4,7 @@
 const faqs = [
   {
     question: "¿Pablo es gratis?",
+    soloOrganico: true,
     answer:
       "Sí. Gratis incluye 5 mensajes al día, hasta 3 cuentas, una moneda, una meta, una transacción recurrente y presupuestos y categorías predeterminados. WhatsApp, email, importaciones, exportaciones y personalización son Premium.",
   },
@@ -19,6 +20,7 @@ const faqs = [
   },
   {
     question: "¿Cómo empiezo?",
+    soloOrganico: true,
     answer:
       "Haz clic en Empieza gratis, crea tu cuenta y elige Seguir con Gratis. No necesitas tarjeta de crédito.",
   },
@@ -69,7 +71,7 @@ const faqs = [
     <div class="faq__list" role="list">
       {
         faqs.map((faq, i) => (
-          <div class="faq-item" role="listitem">
+          <div class={faq.soloOrganico ? "faq-item solo-organico" : "faq-item"} role="listitem">
             <button
               class="faq-question"
               aria-expanded="false"

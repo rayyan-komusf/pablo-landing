@@ -16,6 +16,24 @@ const base = "/onboarding";
 <html lang="es">
   <head>
     <meta charset="UTF-8" />
+    <!-- Modo pauta (Sandra 07-oct-2026): mismo criterio que Layout.astro. Al
+         tráfico pagado no se le ofrece el plan Gratis (.solo-organico). -->
+    <script is:inline>
+      (function () {
+        try {
+          var esPauta =
+            new URLSearchParams(location.search).get("utm_medium") === "paid" ||
+            sessionStorage.getItem("pablo_pauta") === "1";
+          if (!esPauta) return;
+          sessionStorage.setItem("pablo_pauta", "1");
+          document.documentElement.classList.add("pauta");
+        } catch (e) {}
+      })();
+    </script>
+    <style is:global>
+      html.pauta .solo-organico { display: none !important; }
+      html:not(.pauta) .solo-pauta { display: none !important; }
+    </style>
     <meta
       name="viewport"
       content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no"
