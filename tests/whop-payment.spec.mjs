@@ -53,7 +53,7 @@ test('onboarding states exact immediate charge and hands payment to app',async({
  await expect(step.getByText('S/20 cada 30 días. El primer cobro se realiza al confirmar.',{exact:true})).toBeVisible();
  await expect(step.getByText(/3 días gratis|No pagas nada|Hoy pagas S\/.0/)).toHaveCount(0);
  await page.evaluate(()=>{sessionStorage.setItem('pablo_plan_elegido','mensual');window.pabloGoTo('step-cuenta-pago')});
- await page.getByRole('button',{name:'Continuar a WHOP',exact:true}).click();
+ await page.getByRole('button',{name:'Continuar al pago',exact:true}).click();
  await expect(page).toHaveURL(/\/auth\/sesion\?plan=mensual/);
  expect(state.bad).toEqual([]);expect(state.errors).toEqual([]);
 });
