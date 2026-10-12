@@ -53,9 +53,7 @@ export const BLOG_OVERRIDES: Record<string, BlogOverride> = {
       descripcion:
         "Comparé las 12 tarjetas gold que se venden hoy en el Perú con el comparador de la SBS y el tarifario de cada banco: cuánto cobran de verdad, qué te devuelven, sus beneficios y cuál te conviene según cómo la usas.",
       fecha: "2026-10-07T12:00:00-05:00",
-      // Sin portada a propósito: no hay imagen de Pablo hecha con las láminas
-      // oficiales (05_specs + 01_poses) que encaje con este post.
-      portada: null,
+      portada: "/blog/gold/pablo-gold-portada.jpg",
       autor: "Pablo",
     },
   },
