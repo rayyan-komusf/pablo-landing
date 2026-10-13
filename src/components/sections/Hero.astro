@@ -2,7 +2,6 @@
 // Hero estilo Duolingo: ocupa exactamente el viewport (menos el navbar),
 // iPhone con demo en loop a la izquierda, titular + CTAs apilados a la
 // derecha. Las demás secciones solo aparecen al scrollear.
-import AppDownloads from "../AppDownloads.astro";
 import HeroPhone from "./HeroPhone.astro";
 import { CTA, IS_LIVE, APP_URL } from "../../siteConfig";
 ---
@@ -33,7 +32,7 @@ import { CTA, IS_LIVE, APP_URL } from "../../siteConfig";
         </span>
       </h1>
       <p class="hero__subtitle solo-organico">
-        Empieza gratis en la web o en iOS. 5 mensajes al día, 3 cuentas y tu primera meta. WhatsApp con Premium.
+        Empieza gratis en la web, iPhone o Android: 5 mensajes al día, 3 cuentas y tu primera meta. Con Premium, Pablo te atiende por WhatsApp.
       </p>
       <p class="hero__subtitle solo-pauta">
         Le cuentas tus gastos por WhatsApp y Pablo los ordena por ti. S/20 al mes, cancelas cuando quieras.
@@ -70,7 +69,6 @@ import { CTA, IS_LIVE, APP_URL } from "../../siteConfig";
           onclick="try{window.posthog?.capture('landing_cta_clicked',{cta:'ya_tengo_cuenta',location:'hero',hero_variant:window.pabloAB?.variante('landing-hero-copy')||'control'})}catch(e){}"
         >Ya tengo una cuenta</a>
       </div>
-      <AppDownloads />
     </div>
   </div>
 </section>

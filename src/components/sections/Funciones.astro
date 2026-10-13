@@ -1,5 +1,5 @@
 ---
-import { APP_STORE_URL } from '../../siteConfig';
+import { APP_STORE_URL, PLAY_STORE_URL } from '../../siteConfig';
 // Recorrido de beneficios.
 //
 // Estructura (Rodrigo, 19-ago): título + descripción CENTRADOS, sin eyebrows;
@@ -118,7 +118,7 @@ const BLOQUES = [
     <div class="fx__texto">
       <h2 class="fx__titulo fx__titulo--una-linea">Pablo va donde tú vas</h2>
       <p class="fx__desc">
-        En WhatsApp, en la web y en tu iPhone. <span class="highlight highlight--navy">Tu plata clara</span> en el
+        En WhatsApp, en la web, en iPhone y en Android. <span class="highlight highlight--navy">Tu plata clara</span> en el
         bolsillo, estés donde estés.
       </p>
     </div>
@@ -149,15 +149,21 @@ const BLOQUES = [
           <strong>App Store</strong>
         </span>
       </a>
-      <span class="fx-badge fx-badge--pronto">
-        <svg viewBox="0 0 24 24" width="21" height="21" fill="currentColor" aria-hidden="true">
-          <path d="M17.6 9.48l1.84-3.18a.4.4 0 0 0-.7-.4L16.87 9.1a11.4 11.4 0 0 0-9.75 0L5.25 5.9a.4.4 0 1 0-.7.4L6.4 9.48A10.8 10.8 0 0 0 1 17.9h22a10.8 10.8 0 0 0-5.4-8.42zM7 14.6a.9.9 0 1 1 0-1.8.9.9 0 0 1 0 1.8zm10 0a.9.9 0 1 1 0-1.8.9.9 0 0 1 0 1.8z"/>
+      <a
+        class="fx-badge"
+        href={PLAY_STORE_URL}
+        target="_blank"
+        rel="noopener"
+        onclick="window.posthog?.capture?.('descarga_googleplay_clicked')"
+      >
+        <svg viewBox="0 0 32 36" width="21" height="24" fill="currentColor" aria-hidden="true">
+          <path d="M2 2.3v31.4L18 18 2 2.3Zm2-1.2 17 10-3 4.7L4 1.1Zm17.5 12L30 18l-8.5 4.9-3.1-4.9 3.1-4.9ZM18 20.2l3 4.7-17 10 14-14.7Z"/>
         </svg>
         <span>
-          <small>Android</small>
-          <strong>Viene pronto</strong>
+          <small>Descárgala en</small>
+          <strong>Google Play</strong>
         </span>
-      </span>
+      </a>
     </div>
   </div>
 
