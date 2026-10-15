@@ -98,5 +98,6 @@ export const CHECKOUT_URLS = {
 export const APP_STORE_URL =
   'https://apps.apple.com/us/app/pablo-tu-compa%C3%B1ero-financiero/id6792320815';
 
-// Android todavía no sale: el badge es una etiqueta de estado, no un botón.
-export const ANDROID_DISPONIBLE = false;
+// URL de la app en Google Play (publicada; ficha verificada el 13-oct-2026).
+export const PLAY_STORE_URL =
+  'https://play.google.com/store/apps/details?id=app.usapablo.android';
