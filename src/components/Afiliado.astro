@@ -1,0 +1,20 @@
+---
+// Link de afiliado de Whop (?a=, ver src/lib/afiliado.ts): se guarda en
+// cualquier página y se agrega a todo enlace a usapablo.app al hacer clic.
+// Las navegaciones por JS lo agregan con window.pabloConAfiliado.
+// Montado en Layout.astro y OnboardingLayout.astro, junto a Atribucion.
+---
+
+<script>
+  import { capturarAfiliado, conAfiliado } from "../lib/afiliado";
+  capturarAfiliado();
+  (window as any).pabloConAfiliado = conAfiliado;
+  document.addEventListener(
+    "click",
+    (e) => {
+      const a = e.target instanceof Element ? e.target.closest<HTMLAnchorElement>('a[href^="https://usapablo.app"]') : null;
+      if (a) a.href = conAfiliado(a.href);
+    },
+    true,
+  );
+</script>

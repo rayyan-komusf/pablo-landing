@@ -70,7 +70,9 @@ import Layout from "../layouts/Layout.astro";
             salida = u.toString();
           }
           // Huella del clic de Meta: usapablo.app no ve nuestras cookies.
-          return window.pabloConFbc ? window.pabloConFbc(salida) : salida;
+          if (window.pabloConFbc) salida = window.pabloConFbc(salida);
+          // Afiliado de Whop (?a=): la app lo manda al checkout.
+          return window.pabloConAfiliado ? window.pabloConAfiliado(salida) : salida;
         } catch (e) {
           return url;
         }

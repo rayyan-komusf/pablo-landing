@@ -7,6 +7,7 @@ import PostHogSnippet from "../components/PostHogSnippet.astro";
 import AbTests from "../components/AbTests.astro";
 import IconExperiment from "../components/IconExperiment.astro";
 import Atribucion from "../components/Atribucion.astro";
+import Afiliado from "../components/Afiliado.astro";
 import MetaPixel from "../components/MetaPixel.astro";
 import TikTokPixel from "../components/TikTokPixel.astro";
 import { IS_LIVE } from "../siteConfig";
@@ -159,6 +160,7 @@ const pageUrl = new URL(Astro.url.pathname, siteUrl).href;
 
     <!-- Primer toque de marketing → localStorage (viaja en el signup) -->
     <Atribucion />
+    <Afiliado />
 
     <!-- Favicon -->
     <link rel="icon" type="image/png" href="/favicon.png" />

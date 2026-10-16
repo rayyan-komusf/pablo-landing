@@ -6,6 +6,7 @@ import PostHogSnippet from "../components/PostHogSnippet.astro";
 import AbTests from "../components/AbTests.astro";
 import IconExperiment from "../components/IconExperiment.astro";
 import Atribucion from "../components/Atribucion.astro";
+import Afiliado from "../components/Afiliado.astro";
 import PabloActor from "../components/onboarding/PabloActor.astro";
 import MetaPixel from "../components/MetaPixel.astro";
 import TikTokPixel from "../components/TikTokPixel.astro";
@@ -66,6 +67,7 @@ const base = "/onboarding";
     <link rel="stylesheet" href={`${base}/styles/custom.css?v=46`} />
     <!-- Primer toque de marketing → localStorage (viaja en el signup) -->
     <Atribucion />
+    <Afiliado />
     <!-- Meta Pixel (Facebook/Instagram Ads) -->
     <MetaPixel />
     <!-- TikTok Pixel: acá dispara CompleteRegistration antes de continuar al pago,

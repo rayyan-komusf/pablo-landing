@@ -1,3 +1,5 @@
+import { afiliadoVigente, codigoAfiliadoValido } from "./afiliado.ts";
+
 type Session = { access_token: string; refresh_token: string };
 /** Prices and entitlement are verified by the authenticated app, never by this URL. */
 export function destinoPagoPablo(plan: string, search = "", codigo = "", session?: Session | null): string {
@@ -11,6 +13,9 @@ export function destinoPagoPablo(plan: string, search = "", codigo = "", session
     const value = source.get(key);
     if (value) url.searchParams.set(key, value);
   }
+  const enUrl = source.get("a");
+  const afiliado = codigoAfiliadoValido(enUrl) ? enUrl : afiliadoVigente();
+  if (afiliado) url.searchParams.set("a", afiliado);
   const coupon = codigo || source.get("codigo");
   if (coupon) url.searchParams.set("codigo", coupon);
   if (validSession) url.hash = new URLSearchParams({ access_token: session!.access_token, refresh_token: session!.refresh_token }).toString();

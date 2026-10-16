@@ -511,7 +511,9 @@ import iconPremiumRaw from '../assets/icon-premium.svg?raw';
         salida = u.toString();
       }
       const conFbc = (window as any).pabloConFbc;
-      return conFbc ? conFbc(salida) : salida;
+      salida = conFbc ? conFbc(salida) : salida;
+      const conAfiliado = (window as any).pabloConAfiliado;
+      return conAfiliado ? conAfiliado(salida) : salida;
     } catch {
       return url;
     }
