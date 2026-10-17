@@ -22,7 +22,7 @@ import { CTA, IS_LIVE, APP_URL } from "../../siteConfig";
     <div class="hero__content">
       <!-- A/B test `landing-hero-copy` (PostHog, variante `whatsapp`), ver
            AbTests.astro: el control es el titular de siempre; la variante
-           cambia titular, agrega subtítulo y renombra el CTA principal. -->
+           cambia titular y renombra el CTA principal. Sin subtítulo (D-001, Rodrigo 17-oct-2026). -->
       <h1 class="hero__title">
         <span data-ab-hide="landing-hero-copy:whatsapp">
           Manejar tu dinero nunca fue <span class="highlight">tan fácil</span>
@@ -31,12 +31,6 @@ import { CTA, IS_LIVE, APP_URL } from "../../siteConfig";
           Tus gastos anotados <span class="highlight">sin salir de WhatsApp</span>
         </span>
       </h1>
-      <p class="hero__subtitle solo-organico">
-        Empieza gratis en la web, iPhone o Android: 5 mensajes al día, 3 cuentas y tu primera meta. Con Premium, Pablo te atiende por WhatsApp.
-      </p>
-      <p class="hero__subtitle solo-pauta">
-        Le cuentas tus gastos por WhatsApp y Pablo los ordena por ti. S/20 al mes, cancelas cuando quieras.
-      </p>
 
       <div class="hero__ctas">
         {
@@ -129,14 +123,6 @@ import { CTA, IS_LIVE, APP_URL } from "../../siteConfig";
     font-size: 44px;
     line-height: 1.2;
     color: var(--color-heading);
-  }
-
-  /* Subtítulo: solo existe en la variante `whatsapp` del A/B (AbTests). */
-  .hero__subtitle {
-    font-size: 18px;
-    line-height: 1.5;
-    color: var(--color-body, #56578F);
-    margin-top: -8px;
   }
 
   /* CTAs apilados en columna con ancho fijo, como Duolingo */
@@ -240,13 +226,6 @@ import { CTA, IS_LIVE, APP_URL } from "../../siteConfig";
       max-width: 340px;
     }
 
-    .hero__subtitle {
-      font-size: 14px;
-      line-height: 1.4;
-      max-width: 340px;
-      margin-top: -6px;
-    }
-
     .hero__ctas {
       max-width: 360px;
     }
@@ -276,10 +255,6 @@ import { CTA, IS_LIVE, APP_URL } from "../../siteConfig";
     }
     .hero__title {
       font-size: 20px;
-    }
-    /* En pantallas muy cortas el subtítulo se sacrifica: el teléfono manda. */
-    .hero__subtitle {
-      display: none !important;
     }
   }
 
