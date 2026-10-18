@@ -508,6 +508,7 @@ class OnboardingEngine {
       // Huella del clic de Meta (_fbc/_fbp): un miembro que vuelve puede
       // terminar comprando otro plan, y sin esto esa venta queda huérfana.
       if (window.pabloConFbc) url = window.pabloConFbc(url);
+      if (window.pabloConAfiliado) url = window.pabloConAfiliado(url);
     } catch {}
     window.location.href = url;
   }

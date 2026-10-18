@@ -12,6 +12,12 @@ import logoImg from '../assets/Logo.png';
       <span class="logo-text">Pablo</span>
     </a>
 
+    <!-- «Te recomendó …»: solo con un link de afiliado vigente (?a=). Lo llena
+         y lo muestra Afiliado.astro con el nombre que da afiliado_publico. -->
+    <p class="navbar__recomendado" data-afiliado-aviso hidden>
+      Te recomendó <strong data-afiliado-nombre></strong>
+    </p>
+
     <!-- Sin navegación arriba (19-ago, patrón Duolingo).
          La primera pantalla tiene UNA sola cosa que hacer. Todos los links de
          sección viven en el footer, y el CTA reaparece en la barra que baja al
@@ -53,6 +59,23 @@ import logoImg from '../assets/Logo.png';
   .navbar__nav {
     margin-left: auto;
   }
+
+  .navbar__recomendado {
+    margin: 0 0 0 auto;
+    max-width: 60%;
+    padding: 6px 14px;
+    border: 2px solid rgba(43, 44, 100, 0.12);
+    border-radius: 999px;
+    background: #fff;
+    font-family: var(--font-body);
+    font-size: 14px;
+    line-height: 1.2;
+    color: var(--color-heading);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+  .navbar__recomendado[hidden] { display: none; }
 
   /* Logo */
   .navbar__logo {

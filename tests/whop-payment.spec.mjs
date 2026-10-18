@@ -64,3 +64,30 @@ test('old landing return cannot confirm or retry a Flow payment', async ({page})
  await expect(page.getByRole('button',{name:/Reintentar/})).toHaveCount(0);
  expect(state.bad).toEqual([]);expect(state.errors).toEqual([]);
 });
+
+test('link de afiliado (?a=) viaja a la app en el checkout, los enlaces y el onboarding', async ({page}) => {
+ const state = await setup(page);
+ await page.goto('/planes?a=juan');
+ await page.goto('/planes?a=maria.p_23');
+ await page.goto('/planes?a=%3Cscript%3E');
+ await page.waitForFunction(() => typeof window.abrirCuentaPablo === 'function' && typeof window.pabloConAfiliado === 'function');
+ expect(await page.evaluate(() => JSON.parse(localStorage.getItem('pablo_afiliado')).codigo)).toBe('maria.p_23');
+ await page.locator('#pricing-monthly-cta').click();
+ await expect(page).toHaveURL(/usapablo.app\/pricing\?plan=mensual/);
+ expect(new URL(page.url()).searchParams.get('a')).toBe('maria.p_23');
+ // Cualquier <a> a usapablo.app se decora al hacer clic.
+ await page.goto('/planes');
+ await page.waitForFunction(() => typeof window.pabloConAfiliado === 'function');
+ await page.evaluate(() => { const a = document.createElement('a'); a.id = 'a-app'; a.href = 'https://usapablo.app/'; a.textContent = 'App'; document.body.prepend(a); });
+ // "Abrir en pestaña nueva" (contextmenu) también lo lleva.
+ await page.locator('#a-app').dispatchEvent('contextmenu');
+ expect(await page.locator('#a-app').getAttribute('href')).toBe('https://usapablo.app/?a=maria.p_23');
+ await page.locator('#a-app').click();
+ await expect(page).toHaveURL(/usapablo.app\/\?a=maria.p_23/);
+ // Onboarding: las salidas por JS pasan por pabloCuentaConPhDid.
+ await page.goto('/onboarding');
+ await page.waitForFunction(() => typeof window.pabloCuentaConPhDid === 'function' && typeof window.pabloConAfiliado === 'function');
+ const salida = await page.evaluate(() => window.pabloCuentaConPhDid('https://usapablo.app/auth/sesion?plan=anual'));
+ expect(new URL(salida).searchParams.get('a')).toBe('maria.p_23');
+ expect(state.bad).toEqual([]); expect(state.errors).toEqual([]);
+});
