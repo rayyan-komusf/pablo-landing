@@ -1,20 +1,27 @@
 ---
 // Link de afiliado de Whop (?a=, ver src/lib/afiliado.ts): se guarda en
-// cualquier página y se agrega a todo enlace a usapablo.app al hacer clic.
-// Las navegaciones por JS lo agregan con window.pabloConAfiliado.
+// cualquier página y se agrega a todo enlace a usapablo.app antes de que el
+// navegador lo siga: clic, clic central/ctrl+clic y "abrir en pestaña nueva"
+// (contextmenu). Las navegaciones por JS lo agregan con window.pabloConAfiliado.
+// El vigente va como super property `afiliado` de PostHog (embudo por afiliado).
 // Montado en Layout.astro y OnboardingLayout.astro, junto a Atribucion.
 ---
 
 <script>
-  import { capturarAfiliado, conAfiliado } from "../lib/afiliado";
+  import { afiliadoVigente, capturarAfiliado, conAfiliado } from "../lib/afiliado";
   capturarAfiliado();
   (window as any).pabloConAfiliado = conAfiliado;
-  document.addEventListener(
-    "click",
-    (e) => {
-      const a = e.target instanceof Element ? e.target.closest<HTMLAnchorElement>('a[href^="https://usapablo.app"]') : null;
-      if (a) a.href = conAfiliado(a.href);
-    },
-    true,
-  );
+  const vigente = afiliadoVigente();
+  if (vigente) {
+    try {
+      (window as any).posthog?.register?.({ afiliado: vigente.toLowerCase() });
+    } catch {
+      // sin métricas no pasa nada
+    }
+  }
+  const decorar = (e: Event) => {
+    const a = e.target instanceof Element ? e.target.closest<HTMLAnchorElement>('a[href^="https://usapablo.app"]') : null;
+    if (a) a.href = conAfiliado(a.href);
+  };
+  for (const evento of ["click", "auxclick", "contextmenu"]) document.addEventListener(evento, decorar, true);
 </script>

@@ -79,6 +79,9 @@ test('link de afiliado (?a=) viaja a la app en el checkout, los enlaces y el onb
  await page.goto('/planes');
  await page.waitForFunction(() => typeof window.pabloConAfiliado === 'function');
  await page.evaluate(() => { const a = document.createElement('a'); a.id = 'a-app'; a.href = 'https://usapablo.app/'; a.textContent = 'App'; document.body.prepend(a); });
+ // "Abrir en pestaña nueva" (contextmenu) también lo lleva.
+ await page.locator('#a-app').dispatchEvent('contextmenu');
+ expect(await page.locator('#a-app').getAttribute('href')).toBe('https://usapablo.app/?a=maria.p_23');
  await page.locator('#a-app').click();
  await expect(page).toHaveURL(/usapablo.app\/\?a=maria.p_23/);
  // Onboarding: las salidas por JS pasan por pabloCuentaConPhDid.
