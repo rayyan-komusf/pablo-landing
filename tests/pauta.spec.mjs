@@ -47,3 +47,30 @@ test('cada página declara su propia URL canónica', async ({ page }) => {
   await page.goto('/planes');
   await expect(page.locator('link[rel="canonical"]')).toHaveAttribute('href', /\/planes\/?$/);
 });
+
+// Link de afiliado (usapablo.com/?a=…): mismo modo sin Gratis que la pauta,
+// con «Te recomendó …» si el afiliado está autorizado (RPC afiliado_publico).
+test('afiliado: sin Gratis, CTAs a /planes y aviso con su nombre', async ({ page }) => {
+  await page.route(/rpc\/afiliado_publico/, route => {
+    const { p_codigo } = route.request().postDataJSON();
+    return route.fulfill({ contentType: 'application/json', body: JSON.stringify(p_codigo === 'maria.p_23' ? 'María' : null) });
+  });
+  await page.goto('/?a=maria.p_23');
+  await expect(page.locator('[data-afiliado-aviso]')).toHaveText(/Te recomendó\s+María/);
+  await expect(page.locator('#hero-cta-btn')).toHaveText(/Empieza ahora · S\/20 al mes/i);
+  await expect(page.locator('#hero-cta-btn')).toHaveAttribute('href', /^\/planes/);
+  expect(await textosGratisVisibles(page)).toEqual([]);
+  // Sigue en las páginas siguientes (guardado 30 días), sin marcar la sesión como pauta.
+  await page.goto('/planes');
+  await expect(page.locator('.free-plan')).toBeHidden();
+  await expect(page.locator('[data-afiliado-aviso]')).toBeVisible();
+  expect(await page.evaluate(() => sessionStorage.getItem('pablo_pauta'))).toBeNull();
+});
+
+test('afiliado no autorizado: sin Gratis pero sin aviso', async ({ page }) => {
+  await page.route(/rpc\/afiliado_publico/, route => route.fulfill({ contentType: 'application/json', body: 'null' }));
+  await page.goto('/?a=intruso');
+  await expect(page.locator('#hero-cta-btn')).toHaveText(/Empieza ahora · S\/20 al mes/i);
+  await page.waitForTimeout(300);
+  await expect(page.locator('[data-afiliado-aviso]')).toBeHidden();
+});

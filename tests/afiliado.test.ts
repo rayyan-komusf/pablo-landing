@@ -1,6 +1,6 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
-import { afiliadoVigente, capturarAfiliado, conAfiliado, CLAVE_AFILIADO } from "../src/lib/afiliado.ts";
+import { afiliadoVigente, capturarAfiliado, conAfiliado, CLAVE_AFILIADO, nombreAfiliado } from "../src/lib/afiliado.ts";
 import { destinoPagoPablo } from "../src/lib/checkoutApp.ts";
 
 function conStorage(run: (store: Map<string, string>) => void) {
@@ -56,4 +56,29 @@ test("destinoPagoPablo lleva a desde la URL actual o desde lo guardado", () => {
     assert.equal(conSesion.pathname, "/auth/sesion");
     assert.equal(conSesion.searchParams.get("a"), "maria");
   });
+});
+
+test("nombreAfiliado: nombre del autorizado, null si no está, y una sola consulta por pestaña", async () => {
+  const session = new Map<string, string>();
+  Object.defineProperty(globalThis, "sessionStorage", { configurable: true, value: {
+    getItem: (k: string) => session.get(k) ?? null,
+    setItem: (k: string, v: string) => session.set(k, v),
+  } });
+  try {
+    const llamadas: string[] = [];
+    const fetcher = (async (_url: string, init: RequestInit) => {
+      const { p_codigo } = JSON.parse(String(init.body));
+      llamadas.push(p_codigo);
+      return Response.json(p_codigo === "maria.p_23" ? "María" : null);
+    }) as unknown as typeof fetch;
+    assert.equal(await nombreAfiliado("maria.p_23", fetcher), "María");
+    assert.equal(await nombreAfiliado("maria.p_23", fetcher), "María");
+    assert.equal(await nombreAfiliado("intruso", fetcher), null);
+    assert.equal(await nombreAfiliado("intruso", fetcher), null);
+    assert.deepEqual(llamadas, ["maria.p_23", "intruso"]);
+    const caido = (async () => new Response("", { status: 500 })) as unknown as typeof fetch;
+    assert.equal(await nombreAfiliado("otro", caido), null);
+  } finally {
+    Reflect.deleteProperty(globalThis, "sessionStorage");
+  }
 });

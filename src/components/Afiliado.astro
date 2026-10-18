@@ -3,12 +3,14 @@
 // cualquier página y se agrega a todo enlace a usapablo.app antes de que el
 // navegador lo siga: clic, clic central/ctrl+clic y "abrir en pestaña nueva"
 // (contextmenu). Las navegaciones por JS lo agregan con window.pabloConAfiliado.
-// El vigente va como super property `afiliado` de PostHog (embudo por afiliado).
+// El vigente va como super property `afiliado` de PostHog (embudo por afiliado)
+// y, si está autorizado, llena el aviso «Te recomendó …» de la Navbar. El modo
+// sin Gratis (html.pauta.afiliado) lo pone el script inline de los layouts.
 // Montado en Layout.astro y OnboardingLayout.astro, junto a Atribucion.
 ---
 
 <script>
-  import { afiliadoVigente, capturarAfiliado, conAfiliado } from "../lib/afiliado";
+  import { afiliadoVigente, capturarAfiliado, conAfiliado, nombreAfiliado } from "../lib/afiliado";
   capturarAfiliado();
   (window as any).pabloConAfiliado = conAfiliado;
   const vigente = afiliadoVigente();
@@ -17,6 +19,15 @@
       (window as any).posthog?.register?.({ afiliado: vigente.toLowerCase() });
     } catch {
       // sin métricas no pasa nada
+    }
+    const aviso = document.querySelector<HTMLElement>("[data-afiliado-aviso]");
+    const destino = aviso?.querySelector<HTMLElement>("[data-afiliado-nombre]");
+    if (aviso && destino) {
+      void nombreAfiliado(vigente).then((nombre) => {
+        if (!nombre) return;
+        destino.textContent = nombre;
+        aviso.hidden = false;
+      });
     }
   }
   const decorar = (e: Event) => {

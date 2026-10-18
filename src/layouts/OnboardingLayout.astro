@@ -22,6 +22,15 @@ const base = "/onboarding";
     <script is:inline>
       (function () {
         try {
+          // Link de afiliado (?a= o guardado vigente, ver lib/afiliado.ts): mismo
+          // modo sin Gratis, pero sin marcar la sesión como tráfico pagado.
+          var formato = /^[A-Za-z0-9_.-]{2,40}$/;
+          var a = new URLSearchParams(location.search).get("a");
+          var guardado = null;
+          try { guardado = JSON.parse(localStorage.getItem("pablo_afiliado") || "null"); } catch (e) {}
+          if ((a && formato.test(a)) || (guardado && formato.test(guardado.codigo) && Date.now() - guardado.ts < 2592000000)) {
+            document.documentElement.classList.add("pauta", "afiliado");
+          }
           var esPauta =
             new URLSearchParams(location.search).get("utm_medium") === "paid" ||
             sessionStorage.getItem("pablo_pauta") === "1";

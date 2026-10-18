@@ -44,3 +44,41 @@ export function conAfiliado(url: string): string {
     return url;
   }
 }
+
+// Misma anon key pública que usan el onboarding y la app en el navegador.
+const SUPABASE_URL = "https://mezpfnagkubumzbromsh.supabase.co";
+const SUPABASE_ANON_KEY =
+  "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im1lenBmbmFna3VidW16YnJvbXNoIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjM0NDM3NDMsImV4cCI6MjA3OTAxOTc0M30.HsTSJqkzslq4HWxLlIvuFwudrFzkemHELgsi54vIJDw";
+
+/**
+ * Nombre del afiliado para el aviso «Te recomendó …» (RPC afiliado_publico).
+ * null si no está autorizado o no hay red: entonces no se muestra nada. Se
+ * guarda por pestaña para no consultar en cada página.
+ */
+export async function nombreAfiliado(codigo: string, fetcher: typeof fetch = fetch): Promise<string | null> {
+  const clave = `pablo_afiliado_nombre_${codigo.toLowerCase()}`;
+  try {
+    const previo = sessionStorage.getItem(clave);
+    if (previo !== null) return previo || null;
+  } catch {
+    // sin sessionStorage: se consulta igual
+  }
+  try {
+    const res = await fetcher(`${SUPABASE_URL}/rest/v1/rpc/afiliado_publico`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json", apikey: SUPABASE_ANON_KEY, Authorization: `Bearer ${SUPABASE_ANON_KEY}` },
+      body: JSON.stringify({ p_codigo: codigo }),
+    });
+    if (!res.ok) return null;
+    const nombre = await res.json();
+    const valido = typeof nombre === "string" && nombre.trim() ? nombre.trim().slice(0, 60) : null;
+    try {
+      sessionStorage.setItem(clave, valido ?? "");
+    } catch {
+      // noop
+    }
+    return valido;
+  } catch {
+    return null;
+  }
+}
