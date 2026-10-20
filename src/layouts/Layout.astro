@@ -21,6 +21,11 @@ interface Props {
   hideMoneda?: boolean;
   /** Marca la página como noindex/nofollow (default false — solo landings escondidas de campaña). */
   noindex?: boolean;
+  /** Imagen para compartir (og:image / twitter:image). Default: el logo de Pablo. */
+  ogImage?: string;
+  /** Tarjeta de X/Twitter: "summary" (default) o "summary_large_image" cuando la
+   *  página trae su propia imagen de 1200x630. */
+  twitterCard?: string;
 }
 
 const {
@@ -28,10 +33,12 @@ const {
   description = "Manejar tu dinero nunca fue tan fácil. Conoce a Pablo, tu asistente financiero en web, iPhone y Android que te ayuda a ahorrar y controlar tus gastos con IA y sin estrés.",
   hideBanner = false,
   noindex = false,
+  ogImage: ogImagePropia,
+  twitterCard = "summary",
 } = Astro.props;
 
 const siteUrl = "https://www.usapablo.com";
-const ogImage = `${siteUrl}/Logo.png`;
+const ogImage = ogImagePropia ?? `${siteUrl}/Logo.png`;
 // URL propia de cada página (sin query). Antes TODAS declaraban la raíz como
 // canonical/og:url: para Google y Meta cada página "era" el home.
 const pageUrl = new URL(Astro.url.pathname, siteUrl).href;
@@ -199,7 +206,7 @@ const pageUrl = new URL(Astro.url.pathname, siteUrl).href;
     <meta property="og:site_name" content="Pablo" />
 
     <!-- Twitter / X Card -->
-    <meta name="twitter:card" content="summary" />
+    <meta name="twitter:card" content={twitterCard} />
     <meta name="twitter:url" content={pageUrl} />
     <meta name="twitter:title" content={title} />
     <meta name="twitter:description" content={description} />
@@ -214,7 +221,7 @@ const pageUrl = new URL(Astro.url.pathname, siteUrl).href;
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link
-      href="https://fonts.googleapis.com/css2?family=Outfit:wght@700&family=DM+Sans:ital,wght@0,400;0,500;0,600;0,700;1,400&display=swap"
+      href="https://fonts.googleapis.com/css2?family=Outfit:wght@700;800&family=DM+Sans:ital,wght@0,400;0,500;0,600;0,700;0,800;1,400&display=swap"
       rel="stylesheet"
     />
 

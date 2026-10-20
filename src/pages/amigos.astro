@@ -1,0 +1,548 @@
+---
+// src/pages/amigos.astro  ->  https://www.usapablo.com/amigos
+//
+// Landing de la campana "Los amigos de Pablo" (testimonios en video).
+// Arranca el martes 20-oct-2026 a la 1:00 p.m. (hora de Lima): a esa hora salen
+// los correos de Brevo, los WhatsApp y las push, y todos enlazan aqui.
+//
+// Sin formularios y sin JS propio: se participa publicando el video en Instagram
+// o TikTok etiquetando a @usapablo.pe. El texto es el del documento de campana
+// aprobado por Rodrigo; no se edita aqui sin pasar por el.
+//
+// El CSS va con ambito de Astro (<style> sin is:inline) y todo cuelga de .amigos.
+// La pagina nacio suelta, con reglas de :root/html/body y clases genericas
+// (.wrap, .section, .btn): montada dentro del Layout pisarian el CSS global,
+// el Navbar y el Footer.
+//
+// Por lo mismo los botones son .amigos-primario / .amigos-secundario y no
+// .btn-primary / .btn-secondary: esos dos nombres ya existen en global.css y su
+// white-space:nowrap se colaba (esta pagina no declara white-space), lo que
+// impedia partir el texto del boton de "Quien participa" y desbordaba 35px a
+// 390px de ancho.
+import Layout from '../layouts/Layout.astro';
+import Navbar from '../components/Navbar.astro';
+import Footer from '../components/Footer.astro';
+
+const titulo = 'Los amigos de Pablo · usapablo.com';
+const bajada =
+  'Cualquier usuario de Pablo, gratis o Premium, que publique un video contando cómo usa Pablo y lo etiquete se lleva 1 mes de Pablo Premium gratis (Pablo por WhatsApp).';
+---
+
+<Layout
+  title={titulo}
+  description={bajada}
+  ogImage="https://www.usapablo.com/amigos/og.png"
+  twitterCard="summary_large_image"
+>
+  <Navbar />
+
+  <main class="amigos">
+
+    <!-- Hero -->
+    <section class="hero" aria-labelledby="titulo">
+      <div class="wrap hero-grid">
+        <div class="hero-text">
+          <p class="eyebrow">Arranca el martes 20 de octubre de 2026.</p>
+          <h1 id="titulo">Los amigos de Pablo</h1>
+          <p class="subtitle">cuenta tu historia y llévate <span class="marker">Premium</span></p>
+          <p class="lead">Cualquier usuario de Pablo, gratis o Premium, que publique un video contando cómo usa Pablo y lo etiquete se lleva 1 mes de Pablo Premium gratis (Pablo por WhatsApp).</p>
+          <div class="hero-actions">
+            <a class="btn amigos-primario" href="#como-participar">quiero participar</a>
+            <p class="tag-chip"><span class="at" aria-hidden="true">@</span><span>etiqueta a <strong>@usapablo.pe</strong></span></p>
+          </div>
+        </div>
+        <div class="hero-art">
+          <img src="https://usapablo.com/onboarding/images/pablo/2d/pablo-saludando.webp" width="445" height="420" alt="Pablo, la mascota de la app, saludando con la mano" fetchpriority="high">
+        </div>
+      </div>
+    </section>
+
+    <!-- Premios -->
+    <section class="section" aria-labelledby="premios">
+      <div class="wrap">
+        <div class="section-head">
+          <h2 id="premios">Los premios</h2>
+        </div>
+        <ul class="list-reset premios" role="list">
+          <li class="premio">
+            <div class="premio-top" aria-hidden="true">
+              <span class="premio-badge">1 mes</span>
+            </div>
+            <p class="premio-si"><span class="mini">Si tu video…</span>se publica, etiqueta a Pablo y cumple las 3 condiciones</p>
+            <h3><span class="mini">Te llevas</span>1 mes de Pablo Premium gratis</h3>
+          </li>
+          <li class="premio">
+            <div class="premio-top" aria-hidden="true">
+              <span class="premio-badge">1 año</span>
+            </div>
+            <p class="premio-si"><span class="mini">Si tu video…</span>pasa 1 millón de vistas</p>
+            <h3><span class="mini">Te llevas</span>1 año de Pablo Premium gratis</h3>
+          </li>
+          <li class="premio premio-vida">
+            <div class="premio-top" aria-hidden="true">
+              <span class="premio-badge">de por vida</span>
+              <span class="premio-red">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="5"/><circle cx="12" cy="12" r="4"/><circle cx="17.5" cy="6.5" r="1.2" fill="currentColor" stroke="none"/></svg>
+                Instagram
+              </span>
+            </div>
+            <p class="premio-si"><span class="mini">Si tu video…</span>es el más visto de Instagram</p>
+            <h3><span class="mini">Te llevas</span>Pablo Premium de por vida</h3>
+          </li>
+          <li class="premio premio-vida">
+            <div class="premio-top" aria-hidden="true">
+              <span class="premio-badge">de por vida</span>
+              <span class="premio-red">
+                <svg viewBox="0 0 24 24" fill="currentColor"><path d="M16.6 2h-3.4v13.2a2.9 2.9 0 1 1-2.9-2.9c.3 0 .6 0 .9.1V8.9a6.4 6.4 0 1 0 5.4 6.3V8.6a8.1 8.1 0 0 0 4.4 1.3V6.5a4.5 4.5 0 0 1-4.4-4.5z"/></svg>
+                TikTok
+              </span>
+            </div>
+            <p class="premio-si"><span class="mini">Si tu video…</span>es el más visto de TikTok</p>
+            <h3><span class="mini">Te llevas</span>Pablo Premium de por vida</h3>
+          </li>
+        </ul>
+      </div>
+    </section>
+
+    <!-- Quién participa -->
+    <section class="section quien-wrap" aria-labelledby="quien">
+      <div class="wrap">
+        <div class="quien">
+          <img src="https://usapablo.com/onboarding/images/pablo/2d/pablo-senalando.webp" width="343" height="420" alt="Pablo señalando hacia ti" loading="lazy" decoding="async">
+          <div>
+            <h2 id="quien">Quién participa</h2>
+            <p class="quien-text">Todos los usuarios de Pablo, sin excepción: los del plan gratis y los que ya pagan.</p>
+            <a class="btn amigos-secundario" href="https://usapablo.com/">¿todavía no usas Pablo? empieza gratis</a>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Las 3 condiciones -->
+    <section class="section section-soft" aria-labelledby="condiciones">
+      <div class="wrap">
+        <div class="section-head">
+          <h2 id="condiciones">Las 3 condiciones del video</h2>
+        </div>
+        <ol class="list-reset condiciones" role="list">
+          <li class="cond">
+            <div class="cond-top">
+              <span class="num" aria-hidden="true">1</span>
+              <img src="https://usapablo.com/onboarding/images/pablo/2d/pablo-anotando.webp" width="445" height="420" alt="Pablo anotando en su libreta" loading="lazy" decoding="async">
+            </div>
+            <h3>Una prueba de cuándo empezaste.</h3>
+            <p>Fotos, capturas o cualquier documento que sirva de referencia del inicio de tu uso de Pablo (por ejemplo, tu primer gasto anotado o tus primeros días en la app).</p>
+          </li>
+          <li class="cond">
+            <div class="cond-top">
+              <span class="num" aria-hidden="true">2</span>
+              <img src="https://usapablo.com/onboarding/images/pablo/2d/pablo-explicando.webp" width="316" height="420" alt="Pablo explicando" loading="lazy" decoding="async">
+            </div>
+            <h3>Tu voz, clara, explicando.</h3>
+            <p>Para qué usas Pablo, cuál es tu rubro (a qué te dedicas) y cuáles son sus fuertes para ti.</p>
+          </li>
+          <li class="cond">
+            <div class="cond-top">
+              <span class="num" aria-hidden="true">3</span>
+              <img src="https://usapablo.com/onboarding/images/pablo/2d/pablo-emocionado.webp" width="444" height="420" alt="Pablo emocionado" loading="lazy" decoding="async">
+            </div>
+            <h3>Hoy y lo que viene.</h3>
+            <p>Fotos de cómo estás hoy y qué proyectas a futuro usando apps de administración con IA.</p>
+          </li>
+        </ol>
+      </div>
+    </section>
+
+    <!-- Cómo participar -->
+    <section class="section" id="como-participar" aria-labelledby="como">
+      <div class="wrap">
+        <div class="section-head">
+          <h2 id="como">Cómo participar <span class="h2-pill">sin formularios</span></h2>
+        </div>
+        <ol class="list-reset pasos" role="list">
+          <li class="paso">
+            <span class="num" aria-hidden="true">1</span>
+            <p><strong>Graba tu video.</strong></p>
+          </li>
+          <li class="paso">
+            <span class="num" aria-hidden="true">2</span>
+            <p>Publícalo en Instagram o en TikTok etiquetando a Pablo (<strong>@usapablo.pe</strong>).</p>
+          </li>
+          <li class="paso">
+            <span class="num" aria-hidden="true">3</span>
+            <p><strong>Listo.</strong> El equipo de Pablo ve tu etiqueta, revisa que cumpla las 3 condiciones y te escribe para activar tu premio.</p>
+          </li>
+        </ol>
+        <div class="etiqueta-panel on-dark">
+          <p class="tag-chip tag-chip-xl"><span class="at" aria-hidden="true">@</span><span>etiqueta a <strong>@usapablo.pe</strong></span></p>
+          <div class="btn-row">
+            <a class="btn amigos-primario" href="https://www.instagram.com/usapablo.pe/" target="_blank" rel="noopener">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><rect x="3" y="3" width="18" height="18" rx="5"/><circle cx="12" cy="12" r="4"/><circle cx="17.5" cy="6.5" r="1.2" fill="currentColor" stroke="none"/></svg>
+              seguir a Pablo en Instagram
+            </a>
+            <a class="btn amigos-primario" href="https://www.tiktok.com/@usapablo.pe" target="_blank" rel="noopener">
+              <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M16.6 2h-3.4v13.2a2.9 2.9 0 1 1-2.9-2.9c.3 0 .6 0 .9.1V8.9a6.4 6.4 0 1 0 5.4 6.3V8.6a8.1 8.1 0 0 0 4.4 1.3V6.5a4.5 4.5 0 0 1-4.4-4.5z"/></svg>
+              seguir a Pablo en TikTok
+            </a>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Fechas -->
+    <section class="section section-soft" aria-labelledby="fechas">
+      <div class="wrap">
+        <div class="section-head">
+          <h2 id="fechas">Fechas</h2>
+        </div>
+        <ol class="list-reset hitos" role="list">
+          <li class="hito">
+            <span class="hito-fecha" aria-hidden="true"><span class="d">20</span><span class="m">oct</span></span>
+            <p class="hito-card"><strong>Arranca:</strong> <time datetime="2026-10-20">martes 20 de octubre</time>.</p>
+          </li>
+          <li class="hito hito-clave">
+            <span class="hito-fecha" aria-hidden="true"><span class="d">8</span><span class="m">nov</span></span>
+            <p class="hito-card"><strong>Publicación de videos:</strong> hasta el <time datetime="2026-11-08">domingo 8 de noviembre</time>. <span class="extra">Mientras antes subas tu video, más vistas suma.</span></p>
+          </li>
+          <li class="hito">
+            <span class="hito-fecha" aria-hidden="true"><span class="d">9</span><span class="m">nov</span></span>
+            <p class="hito-card">Las vistas se cuentan el <strong><time datetime="2026-11-09">lunes 9 de noviembre</time></strong>.</p>
+          </li>
+          <li class="hito">
+            <span class="hito-fecha" aria-hidden="true"><span class="d">10</span><span class="m">nov</span></span>
+            <p class="hito-card">Los ganadores de Pablo de por vida se anuncian el <strong><time datetime="2026-11-10">martes 10 de noviembre</time></strong>.</p>
+          </li>
+        </ol>
+      </div>
+    </section>
+
+    <!-- Banda final -->
+    <div class="final on-dark">
+      <div class="wrap final-in">
+        <p class="final-frase">Mientras antes subas tu video, más vistas suma.</p>
+        <div class="btn-row">
+          <a class="btn amigos-primario" href="https://www.instagram.com/usapablo.pe/" target="_blank" rel="noopener">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><rect x="3" y="3" width="18" height="18" rx="5"/><circle cx="12" cy="12" r="4"/><circle cx="17.5" cy="6.5" r="1.2" fill="currentColor" stroke="none"/></svg>
+            seguir a Pablo en Instagram
+          </a>
+          <a class="btn amigos-primario" href="https://www.tiktok.com/@usapablo.pe" target="_blank" rel="noopener">
+            <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M16.6 2h-3.4v13.2a2.9 2.9 0 1 1-2.9-2.9c.3 0 .6 0 .9.1V8.9a6.4 6.4 0 1 0 5.4 6.3V8.6a8.1 8.1 0 0 0 4.4 1.3V6.5a4.5 4.5 0 0 1-4.4-4.5z"/></svg>
+            seguir a Pablo en TikTok
+          </a>
+          <a class="btn amigos-secundario" href="https://usapablo.com/">¿todavía no usas Pablo? empieza gratis</a>
+        </div>
+      </div>
+    </div>
+
+    <!-- Letra chica -->
+    <section class="letra" aria-labelledby="letra">
+      <div class="wrap">
+        <h2 id="letra">Letra chica</h2>
+        <ul role="list">
+          <li>Un mes gratis por persona, aunque publique más de un video.</li>
+          <li>Si ya pagas Premium, el premio se suma a tu plan.</li>
+          <li>Las vistas cuentan por video y por red: un solo video en una sola red (no se suman Instagram y TikTok).</li>
+          <li>Cualquier video que pase 1 millón de vistas se lleva 1 año de Premium, sin límite de ganadores.</li>
+          <li>Hay dos premios de Pablo de por vida: uno para el video más visto de Instagram y otro para el de TikTok.</li>
+          <li>Al publicar, autorizas a Pablo a compartir tu video en sus redes.</li>
+          <li>Cuenta tu experiencia real. Si muestras capturas, puedes tapar montos o datos que no quieras mostrar.</li>
+        </ul>
+      </div>
+    </section>
+
+  </main>
+
+  <Footer />
+</Layout>
+
+<style>
+    .amigos {
+      --navy: #2B2C64;
+      --navy-soft: #4B4C7F;
+      --amber: #FBA920;
+      --amber-soft: #FFF1D6;
+      --lavender: #F3F0FF;
+      --lavender-line: #DCD4FF;
+      --cream: #F6E3C4;
+      --white: #FFFFFF;
+      --radius-lg: 28px;
+      --radius: 20px;
+      --shadow: 0 1px 2px rgba(43, 44, 100, .06), 0 10px 30px rgba(43, 44, 100, .08);
+      --gutter: 20px;
+      --font-title: "Outfit", "DM Sans", system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+      --font-text: "DM Sans", system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+      color-scheme: light;
+
+      /* Lo que en la pagina suelta vivia en body va aqui, en .amigos, para no
+         pisar el CSS global del sitio ni el del Navbar y el Footer. */
+      font-family: var(--font-text);
+      font-size: 17px;
+      line-height: 1.6;
+      color: var(--navy);
+      background: var(--white);
+      -webkit-font-smoothing: antialiased;
+      -webkit-text-size-adjust: 100%;
+      text-size-adjust: 100%;
+      overflow-x: hidden;
+    }
+
+    *, *::before, *::after { box-sizing: border-box; }
+
+
+
+    img { display: block; max-width: 100%; height: auto; }
+    h1, h2, h3 { font-family: var(--font-title); line-height: 1.08; margin: 0; letter-spacing: -0.015em; }
+    p { margin: 0; }
+    a { color: inherit; }
+    strong { font-weight: 800; }
+
+    .wrap { width: 100%; max-width: 1120px; margin: 0 auto; padding: 0 var(--gutter); }
+
+    :focus-visible { outline: 3px solid var(--navy); outline-offset: 3px; }
+    .on-dark :focus-visible { outline-color: var(--amber); }
+
+    /* ---------- Botones y chips ---------- */
+    .btn {
+      display: inline-flex; align-items: center; justify-content: center; gap: 10px;
+      width: 100%; min-height: 54px; padding: 14px 18px;
+      border-radius: 999px; border: 2px solid transparent;
+      font-family: var(--font-text); font-weight: 800; font-size: 15px; line-height: 1.25;
+      letter-spacing: .03em; text-transform: uppercase; text-align: center; text-decoration: none;
+      transition: transform .15s ease, box-shadow .15s ease, background-color .15s ease;
+    }
+    .btn svg { width: 22px; height: 22px; flex: none; }
+    .amigos-primario { background: var(--amber); color: var(--navy); box-shadow: 0 4px 0 rgba(43, 44, 100, .9); }
+    .amigos-primario:hover { transform: translateY(-1px); box-shadow: 0 5px 0 rgba(43, 44, 100, .9); }
+    .amigos-primario:active { transform: translateY(3px); box-shadow: 0 1px 0 rgba(43, 44, 100, .9); }
+    .amigos-secundario { background: var(--white); color: var(--navy); border-color: var(--navy); }
+    .amigos-secundario:hover { background: var(--lavender); }
+    .on-dark .amigos-primario { box-shadow: 0 4px 0 rgba(0, 0, 0, .35); }
+    .on-dark .amigos-secundario { background: transparent; color: var(--white); border-color: rgba(255, 255, 255, .75); }
+    .on-dark .amigos-secundario:hover { background: rgba(255, 255, 255, .1); }
+
+    .btn-row { display: flex; flex-direction: column; gap: 14px; }
+
+    .tag-chip {
+      display: inline-flex; align-items: center; gap: 8px;
+      padding: 8px 16px 8px 8px; border-radius: 999px;
+      background: var(--white); color: var(--navy);
+      font-weight: 500; font-size: 16px; line-height: 1.2;
+      border: 2px solid var(--lavender-line);
+    }
+    .tag-chip .at {
+      display: inline-grid; place-items: center; flex: none;
+      width: 30px; height: 30px; border-radius: 50%;
+      background: var(--amber); color: var(--navy);
+      font-family: var(--font-title); font-weight: 800; font-size: 17px; line-height: 1;
+    }
+    .tag-chip strong { font-weight: 800; white-space: nowrap; }
+    .tag-chip-xl { font-size: 18px; padding: 8px 18px 8px 8px; border: 0; }
+    .tag-chip-xl .at { width: 38px; height: 38px; font-size: 20px; }
+
+    /* ---------- Hero ---------- */
+    .hero { background: var(--lavender); padding: 22px 0 64px; overflow: hidden; }
+    .hero-grid { display: grid; gap: 36px; align-items: center; }
+    .eyebrow {
+      display: inline-block; padding: 7px 14px; border-radius: 999px;
+      background: var(--white); font-weight: 500; font-size: 15px; line-height: 1.3;
+      box-shadow: 0 1px 2px rgba(43, 44, 100, .06);
+    }
+    .hero h1 { font-size: clamp(2.75rem, 7vw + 1rem, 5rem); font-weight: 800; margin-top: 20px; }
+    .subtitle {
+      font-family: var(--font-title); font-weight: 700;
+      font-size: clamp(1.4rem, 2.2vw + 1rem, 2.1rem); line-height: 1.2; margin-top: 12px;
+    }
+    .marker { background: linear-gradient(transparent 62%, var(--amber) 62%, var(--amber) 92%, transparent 92%); padding: 0 .08em; }
+    .lead { margin-top: 20px; font-size: 18px; color: var(--navy-soft); max-width: 36em; }
+    .hero-actions { display: flex; flex-direction: column; align-items: flex-start; gap: 18px; margin-top: 30px; }
+    .hero-art { position: relative; justify-self: center; width: min(100%, 300px); }
+    .hero-art::before {
+      content: ""; position: absolute; left: 50%; top: 52%; z-index: 0;
+      width: 96%; aspect-ratio: 1; border-radius: 50%;
+      background: var(--white); transform: translate(-50%, -50%);
+    }
+    .hero-art::after {
+      content: ""; position: absolute; left: 4%; bottom: 10%; z-index: 0;
+      width: 13%; aspect-ratio: 1; border-radius: 50%; background: var(--amber);
+    }
+    .hero-art img { position: relative; z-index: 1; width: 100%; }
+
+    /* ---------- Secciones ---------- */
+    .section { padding: 64px 0; }
+    .section-soft { background: var(--lavender); }
+    .section-head { margin-bottom: 30px; }
+    .section h2 { font-size: clamp(2rem, 2.6vw + 1.3rem, 3rem); font-weight: 800; }
+    .h2-pill {
+      display: inline-block; vertical-align: middle; margin: 6px 0 0;
+      padding: 6px 14px; border-radius: 999px; background: var(--amber); color: var(--navy);
+      font-family: var(--font-text); font-size: 14px; font-weight: 800; letter-spacing: .04em;
+      text-transform: uppercase; line-height: 1.2;
+    }
+    .list-reset { list-style: none; margin: 0; padding: 0; }
+
+    /* ---------- Premios ---------- */
+    .premios { display: grid; gap: 16px; grid-template-columns: 1fr; }
+    .premio {
+      display: flex; flex-direction: column; gap: 16px;
+      padding: 24px; border-radius: var(--radius-lg);
+      background: var(--white); border: 2px solid var(--lavender-line); box-shadow: var(--shadow);
+    }
+    .premio-top { display: flex; align-items: center; justify-content: space-between; gap: 10px; flex-wrap: wrap; }
+    .premio-badge {
+      display: inline-block; padding: 6px 16px; border-radius: 999px;
+      background: var(--amber); color: var(--navy);
+      font-family: var(--font-title); font-weight: 800; font-size: 26px; line-height: 1.15;
+    }
+    .premio-red {
+      display: inline-flex; align-items: center; gap: 6px;
+      font-weight: 700; font-size: 14px; letter-spacing: .03em;
+    }
+    .premio-red svg { width: 20px; height: 20px; }
+    .mini {
+      display: block; margin-bottom: 4px;
+      font-family: var(--font-text); font-size: 13px; font-weight: 800;
+      letter-spacing: .06em; text-transform: uppercase; color: var(--navy-soft);
+    }
+    .premio-si { font-size: 17px; line-height: 1.45; }
+    .premio h3 {
+      margin-top: auto; padding-top: 16px; border-top: 2px dashed var(--lavender-line);
+      font-size: 23px; font-weight: 800; line-height: 1.15;
+    }
+    .premio-vida { background: var(--navy); color: var(--white); border-color: var(--navy); }
+    .premio-vida .mini { color: #C9C6F2; }
+    .premio-vida h3 { border-top-color: rgba(255, 255, 255, .25); }
+
+    /* ---------- Quién participa ---------- */
+    .quien-wrap { padding-top: 0; }
+    .quien {
+      display: grid; gap: 22px; align-items: center;
+      padding: 28px 24px; border-radius: var(--radius-lg);
+      background: var(--cream);
+    }
+    .quien img { width: 150px; justify-self: center; }
+    .quien-text { margin-top: 12px; font-size: clamp(1.2rem, 1vw + 1rem, 1.5rem); line-height: 1.4; font-weight: 500; }
+    .quien .btn { margin-top: 22px; }
+
+    /* ---------- Condiciones ---------- */
+    .condiciones { display: grid; gap: 18px; grid-template-columns: 1fr; }
+    .cond {
+      position: relative; display: flex; flex-direction: column; gap: 10px;
+      padding: 24px; border-radius: var(--radius-lg); background: var(--white); box-shadow: var(--shadow);
+    }
+    .cond-top { display: flex; align-items: flex-end; justify-content: space-between; gap: 12px; margin-bottom: 6px; }
+    .num {
+      display: inline-grid; place-items: center; flex: none;
+      width: 52px; height: 52px; border-radius: 50%;
+      background: var(--amber); color: var(--navy);
+      font-family: var(--font-title); font-weight: 800; font-size: 26px; line-height: 1;
+    }
+    .cond img { height: 120px; width: auto; }
+    .cond h3 { font-size: 23px; font-weight: 800; line-height: 1.2; }
+    .cond p { color: var(--navy-soft); }
+
+    /* ---------- Cómo participar ---------- */
+    .pasos { display: grid; gap: 14px; grid-template-columns: 1fr; counter-reset: paso; }
+    .paso {
+      display: flex; gap: 16px; align-items: flex-start;
+      padding: 20px; border-radius: var(--radius); background: var(--lavender);
+    }
+    .paso .num { width: 44px; height: 44px; font-size: 22px; }
+    .paso p { font-size: 18px; line-height: 1.5; padding-top: 7px; }
+    .etiqueta-panel {
+      margin-top: 26px; padding: 28px 16px; border-radius: var(--radius-lg);
+      background: var(--navy); color: var(--white);
+      display: flex; flex-direction: column; align-items: center; gap: 24px; text-align: center;
+    }
+    .etiqueta-panel .btn-row { width: 100%; }
+
+    /* ---------- Fechas ---------- */
+    .hitos { position: relative; display: grid; gap: 14px; }
+    .hitos::before {
+      content: ""; position: absolute; left: 31px; top: 30px; bottom: 30px; width: 2px;
+      background: repeating-linear-gradient(to bottom, var(--navy) 0 6px, transparent 6px 12px);
+      opacity: .35;
+    }
+    .hito { position: relative; display: grid; grid-template-columns: 64px 1fr; gap: 14px; align-items: center; align-content: start; }
+    .hito-fecha {
+      position: relative; z-index: 1;
+      display: flex; flex-direction: column; align-items: center; justify-content: center;
+      width: 64px; height: 64px; border-radius: 20px;
+      background: var(--white); border: 2px solid var(--lavender-line);
+      font-family: var(--font-title); font-weight: 800; line-height: 1;
+    }
+    .hito-fecha .d { font-size: 24px; }
+    .hito-fecha .m { margin-top: 3px; font-size: 12px; letter-spacing: .08em; text-transform: uppercase; }
+    .hito-card { padding: 16px 18px; border-radius: var(--radius); background: var(--white); line-height: 1.45; }
+    .hito-card .extra { display: block; margin-top: 6px; color: var(--navy-soft); font-size: 16px; }
+    .hito-clave .hito-fecha { background: var(--amber); border-color: var(--amber); }
+    .hito-clave .hito-card { box-shadow: inset 0 0 0 2px var(--amber); }
+
+    /* ---------- Banda final ---------- */
+    .final { background: var(--navy); color: var(--white); padding: 56px 0; text-align: center; }
+    .final-in { display: flex; flex-direction: column; align-items: center; gap: 24px; }
+    .final-frase { font-family: var(--font-title); font-weight: 800; font-size: clamp(1.6rem, 2vw + 1.1rem, 2.4rem); line-height: 1.15; max-width: 18em; }
+    .final .btn-row { width: 100%; }
+
+    /* ---------- Letra chica ---------- */
+    .letra { padding: 48px 0 56px; }
+    .letra h2 { font-size: 24px; font-weight: 800; }
+    .letra ul { margin: 18px 0 0; padding: 0; list-style: none; display: grid; gap: 10px; font-size: 15px; line-height: 1.5; color: var(--navy-soft); }
+    .letra li { position: relative; padding-left: 20px; }
+    .letra li::before {
+      content: ""; position: absolute; left: 2px; top: .55em;
+      width: 8px; height: 8px; border-radius: 50%; background: var(--amber);
+    }
+
+    /* ---------- Tablet ---------- */
+    @media (min-width: 640px) {
+      .amigos { --gutter: 32px; }
+      .btn { width: auto; padding: 14px 26px; letter-spacing: .04em; }
+      .hero-actions { flex-direction: row; flex-wrap: wrap; align-items: center; }
+      .tag-chip-xl { font-size: 20px; padding: 10px 22px 10px 10px; }
+      .tag-chip-xl .at { width: 40px; height: 40px; font-size: 22px; }
+      .etiqueta-panel { padding: 36px 32px; }
+      .btn-row { flex-direction: row; flex-wrap: wrap; justify-content: center; }
+      .etiqueta-panel .btn-row, .final .btn-row { width: auto; }
+      .premios { grid-template-columns: repeat(2, 1fr); }
+      .quien { grid-template-columns: 170px 1fr; padding: 32px 36px; gap: 32px; }
+      .quien img { width: 170px; }
+      .hero-art { width: min(100%, 340px); }
+      .letra ul { grid-template-columns: repeat(2, 1fr); column-gap: 40px; }
+      .pie-in { flex-direction: row; align-items: center; justify-content: space-between; flex-wrap: wrap; }
+    }
+
+    /* ---------- Escritorio ---------- */
+    @media (min-width: 960px) {
+      .amigos { font-size: 18px; }
+      .section { padding: 96px 0; }
+      .section-head { margin-bottom: 40px; }
+      .hero { padding: 32px 0 96px; }
+      .hero-grid { grid-template-columns: 1.15fr .85fr; gap: 48px; }
+      .hero-art { width: min(100%, 440px); }
+      .premios { grid-template-columns: repeat(4, 1fr); gap: 20px; }
+      .quien-wrap { padding-top: 0; }
+      .quien { grid-template-columns: 220px 1fr; padding: 40px 56px; gap: 48px; }
+      .quien img { width: 220px; }
+      .condiciones { grid-template-columns: repeat(3, 1fr); gap: 22px; }
+      .cond { padding: 28px; }
+      .pasos { grid-template-columns: repeat(3, 1fr); gap: 20px; }
+      .paso { flex-direction: column; padding: 26px; }
+      .paso p { padding-top: 0; }
+      .etiqueta-panel { padding: 40px; }
+      .hitos { grid-template-columns: repeat(4, 1fr); gap: 20px; }
+      .hitos::before {
+        left: 32px; right: calc((100% - 60px) / 4 - 32px); top: 31px; bottom: auto; width: auto; height: 2px;
+        background: repeating-linear-gradient(to right, var(--navy) 0 6px, transparent 6px 12px);
+      }
+      .hito { grid-template-columns: 1fr; grid-template-rows: auto 1fr; align-items: stretch; gap: 16px; }
+      .hito-card { padding: 20px; }
+      .final { padding: 80px 0; }
+      .letra { padding: 64px 0 72px; }
+      .letra ul { gap: 12px 56px; }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      .btn { transition: none; }
+      .btn:hover, .btn:active { transform: none; }
+    }
+  </style>
