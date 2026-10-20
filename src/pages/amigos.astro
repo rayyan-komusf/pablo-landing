@@ -80,7 +80,7 @@ const bajada =
           </li>
           <li class="premio premio-vida">
             <div class="premio-top" aria-hidden="true">
-              <span class="premio-badge">de por vida</span>
+              <span class="premio-badge">Pablo infinito</span>
               <span class="premio-red">
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="5"/><circle cx="12" cy="12" r="4"/><circle cx="17.5" cy="6.5" r="1.2" fill="currentColor" stroke="none"/></svg>
                 Instagram
@@ -91,7 +91,7 @@ const bajada =
           </li>
           <li class="premio premio-vida">
             <div class="premio-top" aria-hidden="true">
-              <span class="premio-badge">de por vida</span>
+              <span class="premio-badge">Pablo infinito</span>
               <span class="premio-red">
                 <svg viewBox="0 0 24 24" fill="currentColor"><path d="M16.6 2h-3.4v13.2a2.9 2.9 0 1 1-2.9-2.9c.3 0 .6 0 .9.1V8.9a6.4 6.4 0 1 0 5.4 6.3V8.6a8.1 8.1 0 0 0 4.4 1.3V6.5a4.5 4.5 0 0 1-4.4-4.5z"/></svg>
                 TikTok
@@ -147,7 +147,7 @@ const bajada =
               <img src="https://usapablo.com/onboarding/images/pablo/2d/pablo-emocionado.webp" width="444" height="420" alt="Pablo emocionado" loading="lazy" decoding="async">
             </div>
             <h3>Hoy y lo que viene.</h3>
-            <p>Fotos de cómo estás hoy y qué proyectas a futuro usando apps de administración con IA.</p>
+            <p>Fotos de cómo estás hoy y qué proyectas a futuro usando apps de administración con IA. Puedes difuminar tus datos personales: montos, números de cuenta y todo lo que no quieras mostrar.</p>
           </li>
         </ol>
       </div>
@@ -193,9 +193,11 @@ const bajada =
     <section class="section section-soft" aria-labelledby="fechas">
       <div class="wrap">
         <div class="section-head">
-          <h2 id="fechas">Fechas</h2>
+          <h2 id="fechas">El camino al premio</h2>
         </div>
-        <ol class="list-reset hitos" role="list">
+        <div class="hitos-wrap">
+          <span class="pablo-camina" aria-hidden="true"></span>
+          <ol class="list-reset hitos" role="list">
           <li class="hito">
             <span class="hito-fecha" aria-hidden="true"><span class="d">20</span><span class="m">oct</span></span>
             <p class="hito-card"><strong>Arranca:</strong> <time datetime="2026-10-20">martes 20 de octubre</time>.</p>
@@ -212,7 +214,8 @@ const bajada =
             <span class="hito-fecha" aria-hidden="true"><span class="d">10</span><span class="m">nov</span></span>
             <p class="hito-card">Los ganadores de Pablo de por vida se anuncian el <strong><time datetime="2026-11-10">martes 10 de noviembre</time></strong>.</p>
           </li>
-        </ol>
+          </ol>
+        </div>
       </div>
     </section>
 
@@ -237,7 +240,7 @@ const bajada =
     <!-- Letra chica -->
     <section class="letra" aria-labelledby="letra">
       <div class="wrap">
-        <h2 id="letra">Letra chica</h2>
+        <h2 id="letra">Términos y condiciones</h2>
         <ul role="list">
           <li>Un mes gratis por persona, aunque publique más de un video.</li>
           <li>Si ya pagas Premium, el premio se suma a tu plan.</li>
@@ -479,6 +482,17 @@ const bajada =
     .hito-clave .hito-fecha { background: var(--amber); border-color: var(--amber); }
     .hito-clave .hito-card { box-shadow: inset 0 0 0 2px var(--amber); }
 
+    /* Pablo recorre la linea de tiempo. Es el mismo sprite del 404
+       (/404/pablo-caminando.webp): 4 celdas cuadradas animadas con steps(4),
+       sin video y sin JS. En movil la linea es vertical y un Pablo de perfil
+       caminando hacia abajo no tiene sentido, asi que solo aparece de 640px
+       para arriba, en una banda propia sobre las fechas. */
+    .hitos-wrap { position: relative; }
+    .pablo-camina { display: none; }
+    @keyframes pablo-pasos { to { background-position-x: calc(var(--pablo) * var(--frames) * -1); } }
+    @keyframes pablo-recorre { from { left: 4px; } to { left: calc(75% + 11px); } }
+    @media (prefers-reduced-motion: reduce) { .pablo-camina { animation: none; } }
+
     /* ---------- Banda final ---------- */
     .final { background: var(--navy); color: var(--white); padding: 56px 0; text-align: center; }
     .final-in { display: flex; flex-direction: column; align-items: center; gap: 24px; }
@@ -538,6 +552,15 @@ const bajada =
       }
       .hito { grid-template-columns: 1fr; grid-template-rows: auto 1fr; align-items: stretch; gap: 16px; }
       .hito-card { padding: 20px; }
+      .hitos-wrap { padding-top: 84px; }
+      .pablo-camina {
+        --pablo: 72px; --frames: 4;
+        display: block; position: absolute; top: 6px; left: 4px;
+        width: var(--pablo); height: var(--pablo); pointer-events: none;
+        background-image: url('/404/pablo-caminando.webp'); background-repeat: no-repeat;
+        background-size: calc(var(--pablo) * var(--frames)) var(--pablo);
+        animation: pablo-pasos .7s steps(4) infinite, pablo-recorre 16s linear infinite;
+      }
       .final { padding: 80px 0; }
       .letra { padding: 64px 0 72px; }
       .letra ul { gap: 12px 56px; }
