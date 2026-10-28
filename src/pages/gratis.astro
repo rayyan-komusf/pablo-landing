@@ -1,155 +1,88 @@
 ---
 // /gratis — landing de la campaña de registros al plan Gratis (nov-2026).
 //
+// Es la MISMA página que la home: las mismas secciones, en el mismo orden y
+// con el mismo diseño. Lo único que cambia son las palabras que no puede
+// decirle a este tráfico, vía `modo="free"` en tres componentes:
+//
+//   Hero       titular fuera del A/B `landing-hero-copy` + CTA fijo
+//              «Empieza gratis», y el teléfono sin nota de voz ni recibo
+//   Funciones  la bajada deja de listar WhatsApp como canal
+//   FAQ        «cómo empiezo» ya no dice que el primer gasto va por WhatsApp
+//
 // Por qué una página aparte y no un modo de la home: la campaña compra
-// CompleteRegistration, no ventas, y la home de hoy encabeza con «Tus gastos
-// anotados sin salir de WhatsApp» — que es Premium — y además rota entre tres
-// variantes del A/B `landing-hero-copy` (experimento 463183). Una campaña
-// necesita un destino determinista; una URL propia lo es por construcción, sin
-// parámetros que leer ni variantes que esquivar, y deja la home intacta para
-// el orgánico.
+// CompleteRegistration, no ventas, y la home rota entre tres variantes del
+// experimento 463183 — un tercio del presupuesto aterrizaría en la oferta de
+// pago. Una URL propia es un destino determinista por construcción y deja la
+// home intacta para el orgánico.
 //
-// ⚠️ Esta página NO puede nombrar WhatsApp, notas de voz, fotos de recibos ni
-// la lectura del correo: todo eso es Premium (decisión del 28-oct: el costo por
-// conversación de la API de WhatsApp escalaría con cada usuario gratuito). Lo
-// que promete es exactamente lo que el plan Gratis entrega.
-//
-// El teléfono del hero es un mock de la app, no de WhatsApp, y sólo enseña
-// tres mensajes a propósito: el Free da 5 mensajes al día y una conversación
-// larga sugeriría uso ilimitado.
-import Layout from "../layouts/Layout.astro";
-import Navbar from "../components/Navbar.astro";
-import Footer from "../components/Footer.astro";
-
-const REGISTRO = "/onboarding?plan=free";
-
-const INCLUYE = [
-  { que: "Registrar gastos e ingresos", cuanto: "sin límite" },
-  { que: "Hablarle a Pablo en la app", cuanto: "5 mensajes al día" },
-  { que: "Cuentas", cuanto: "hasta 3, incluidas las compartidas" },
-  { que: "Meta de ahorro", cuanto: "1" },
-  { que: "Categorías y presupuestos", cuanto: "predeterminados" },
-];
-
-const PASOS = [
-  { n: "1", t: "Te registras gratis", d: "Con tu correo. No pedimos tarjeta." },
-  { n: "2", t: "Le cuentas un gasto", d: "Como se lo contarías a un amigo: «almuerzo con Vale 32 soles»." },
-  { n: "3", t: "Pablo lo ordena", d: "Lo anota, lo clasifica y te dice en qué se te está yendo la plata." },
-];
+// ⚠️ Esta página no puede prometer WhatsApp, notas de voz, fotos de recibos ni
+// lectura del correo: todo eso es Premium (decisión del 28-oct — el costo por
+// conversación de la API de WhatsApp escalaría con cada usuario gratuito).
+// Features y FinalCTA se quedan como están porque ya lo dicen bien: «WhatsApp
+// con Premium».
+import Layout from '../layouts/Layout.astro';
+import Navbar from '../components/Navbar.astro';
+import Hero from '../components/sections/Hero.astro';
+import Features from '../components/sections/Features.astro';
+import Testimonials from '../components/sections/Testimonials.astro';
+import FAQ from '../components/sections/FAQ.astro';
+import FinalCTA from '../components/sections/FinalCTA.astro';
+import LeadMagnets from '../components/sections/LeadMagnets.astro';
+import Funciones from '../components/sections/Funciones.astro';
+import BannerSticky from '../components/BannerSticky.astro';
+import Footer from '../components/Footer.astro';
+import WaitlistModal from '../components/WaitlistModal.astro';
 ---
 
 <Layout
   title="Pablo gratis — cuéntale tus gastos y él los ordena"
   description="Registra tus gastos hablándole a Pablo en lenguaje normal y él los ordena por ti. Sin planillas y sin límite de registros. Empieza gratis."
+  ctaAlRegistroGratis
 >
   <Navbar />
-
-  <main class="gratis">
-    <!-- Hero -->
-    <section class="g-hero">
-      <div class="g-wrap g-hero-grid">
-        <div class="g-hero-text">
-          <h1>Cuéntale tus gastos.<br />Pablo los ordena.</h1>
-          <p class="g-lead">
-            Le hablas como a un amigo y él los anota, los clasifica y te dice en qué se te
-            está yendo la plata. Sin planillas, sin categorías que configurar y
-            <strong>sin límite de registros</strong>.
-          </p>
-          <div class="g-acciones">
-            <a class="g-btn g-btn-primario" href={REGISTRO} data-cta="hero">Empieza gratis</a>
-            <p class="g-nota">No pedimos tarjeta.</p>
-          </div>
-        </div>
-
-        <!-- Teléfono: la app de Pablo, tres mensajes. -->
-        <div class="g-tel" role="img" aria-label="La app de Pablo registrando un gasto contado en lenguaje normal">
-          <div class="g-tel-marco">
-            <div class="g-tel-isla" aria-hidden="true"></div>
-            <div class="g-tel-pantalla">
-              <div class="g-tel-barra" aria-hidden="true">
-                <span>9:41</span>
-                <span class="g-tel-senal"></span>
-              </div>
-              <div class="g-tel-cabecera">
-                <img src="/onboarding/images/pablo/pablo-logo.png" width="160" height="160" alt="" />
-                <span>
-                  <strong>Pablo</strong>
-                  <small>en línea</small>
-                </span>
-              </div>
-              <div class="g-tel-chat">
-                <p class="g-msj g-msj-yo">almuerzo con Vale 32 soles</p>
-                <p class="g-msj g-msj-pablo">
-                  <span class="g-ok">Gasto registrado</span>
-                  Alimentación · S/ 32.00
-                </p>
-                <p class="g-msj g-msj-pablo">Van S/ 180 en comida este mes.</p>
-              </div>
-              <div class="g-tel-input" aria-hidden="true"><span>Escribe un mensaje…</span></div>
-            </div>
-          </div>
-        </div>
-      </div>
-    </section>
-
-    <!-- Qué incluye -->
-    <section class="g-seccion" aria-labelledby="incluye">
-      <div class="g-wrap">
-        <h2 id="incluye">Qué incluye el plan Gratis</h2>
-        <p class="g-sub">Es permanente. No es una prueba que caduca.</p>
-        <ul class="g-lista list-reset">
-          {INCLUYE.map((f) => (
-            <li>
-              <span class="g-lista-que">{f.que}</span>
-              <span class="g-lista-cuanto">{f.cuanto}</span>
-            </li>
-          ))}
-        </ul>
-      </div>
-    </section>
-
-    <!-- Cómo funciona -->
-    <section class="g-seccion g-seccion-suave" aria-labelledby="como">
-      <div class="g-wrap">
-        <h2 id="como">Cómo funciona</h2>
-        <ol class="g-pasos list-reset">
-          {PASOS.map((p) => (
-            <li>
-              <span class="g-paso-n" aria-hidden="true">{p.n}</span>
-              <h3>{p.t}</h3>
-              <p>{p.d}</p>
-            </li>
-          ))}
-        </ol>
-      </div>
-    </section>
-
-    <!-- Cierre -->
-    <section class="g-cierre">
-      <div class="g-wrap">
-        <p class="g-cierre-frase">Empieza a ordenar tu mes hoy.</p>
-        <a class="g-btn g-btn-primario" href={REGISTRO} data-cta="cierre">Empieza gratis</a>
-        <p class="g-nota g-nota-clara">Gratis para siempre. No pedimos tarjeta.</p>
-      </div>
-    </section>
+  <BannerSticky />
+  <main>
+    <Hero modo="free" />
+    <Features />
+    <Funciones modo="free" />
+    <Testimonials modo="free" />
+    <FinalCTA />
+    <LeadMagnets />
+    <FAQ modo="free" />
   </main>
-
   <Footer />
+  <WaitlistModal />
 </Layout>
 
+{/* El «modo pauta» del Layout se enciende con utm_medium=paid y oculta todo lo
+    marcado .solo-organico — fue hecho para NO ofrecerle el plan Gratis al
+    tráfico pagado. Esta campaña compra justamente registros al plan Gratis y
+    sus UTMs llevan utm_medium=paid, así que ahí juega en contra: sin esto los
+    CTA dirían «Empieza ahora» en una página cuyo único objetivo es «Empieza
+    gratis». Se neutraliza SOLO aquí (estos estilos no se cargan en ninguna
+    otra página) y con un selector más específico que el del Layout, para no
+    depender del orden en que se junten las hojas. */}
+<style is:global>
+  html.pauta body .solo-organico { display: revert !important; }
+  html.pauta body .solo-pauta { display: none !important; }
+</style>
+
 {/* Las UTMs del anuncio tienen que sobrevivir el salto a /onboarding (y de ahí
-    a la app): sin utm_content no se sabe qué reel trajo cada registro. Se
-    reenvía la query entera en vez de fijarla, porque utm_content cambia por
-    creativo. En línea y sin defer: el usuario puede pulsar enseguida. */}
+    a la app y a Whop): sin utm_content no se sabe qué reel trajo cada registro.
+    Se reenvía la query entera en vez de fijarla, porque utm_content cambia por
+    creativo. Alcanza a TODOS los caminos al registro —hero, banner pegajoso,
+    cierre, pie— y no sólo al botón principal. En línea y sin defer: el usuario
+    puede pulsar enseguida. */}
 <script is:inline>
   (function () {
     try {
       var q = window.location.search;
       if (!q || q.length < 2) return;
       var extra = q.slice(1);
-      document.querySelectorAll('a[data-cta]').forEach(function (a) {
+      document.querySelectorAll('a[href^="/onboarding"]').forEach(function (a) {
         var href = a.getAttribute('href');
-        if (!href) return;
+        if (!href || href.indexOf('utm_') !== -1) return;
         a.setAttribute('href', href + (href.indexOf('?') === -1 ? '?' : '&') + extra);
       });
     } catch (e) {
@@ -157,162 +90,3 @@ const PASOS = [
     }
   })();
 </script>
-
-{/* El «modo pauta» del Layout se enciende con utm_medium=paid y oculta todo lo
-    marcado .solo-organico — fue hecho para NO ofrecerle el plan Gratis al
-    tráfico pagado. Esta campaña compra justamente registros al plan Gratis y
-    sus UTMs llevan utm_medium=paid, así que ahí el modo juega en contra: sin
-    esto el CTA del pie dice «Empieza ahora» en una página cuyo único objetivo
-    es «Empieza gratis». Se neutraliza SOLO en esta página (estos estilos no se
-    cargan en ninguna otra) y con un selector más específico que el del Layout,
-    para no depender del orden en que se junten las hojas. */}
-<style is:global>
-  html.pauta body .solo-organico { display: revert !important; }
-  html.pauta body .solo-pauta { display: none !important; }
-</style>
-
-<style>
-  .gratis {
-    --g-navy: #2B2C64;
-    --g-body: #56578F;
-    --g-amber: #F5A623;
-    --g-lavanda: #F3F0FF;
-    --g-linea: #DCD4FF;
-    --g-blanco: #FFFFFF;
-    --g-gutter: 20px;
-
-    font-family: var(--font-body, "DM Sans", system-ui, sans-serif);
-    color: var(--g-navy);
-    font-size: 17px;
-    line-height: 1.6;
-    background: var(--g-blanco);
-    -webkit-font-smoothing: antialiased;
-    overflow-x: hidden;
-  }
-
-  *, *::before, *::after { box-sizing: border-box; }
-  .gratis img { display: block; max-width: 100%; height: auto; }
-  .gratis h1, .gratis h2, .gratis h3 {
-    font-family: var(--font-heading, "Outfit", sans-serif);
-    line-height: 1.1; margin: 0; letter-spacing: -0.015em; font-weight: 800;
-  }
-  .gratis p { margin: 0; }
-  .gratis a { color: inherit; }
-  .gratis .list-reset { list-style: none; margin: 0; padding: 0; }
-  .gratis :focus-visible { outline: 3px solid var(--g-navy); outline-offset: 3px; }
-
-  .g-wrap { width: 100%; max-width: 1080px; margin: 0 auto; padding: 0 var(--g-gutter); }
-
-  /* ---------- Botón ---------- */
-  .g-btn {
-    display: inline-flex; align-items: center; justify-content: center;
-    min-height: 56px; padding: 14px 32px; border-radius: 999px;
-    font-weight: 800; font-size: 16px; letter-spacing: .02em;
-    text-transform: uppercase; text-decoration: none; text-align: center;
-    transition: transform .15s ease, box-shadow .15s ease;
-  }
-  .g-btn-primario {
-    background: var(--g-amber); color: var(--g-navy);
-    box-shadow: 0 4px 0 rgba(43, 44, 100, .9);
-  }
-  .g-btn-primario:hover { transform: translateY(-1px); box-shadow: 0 5px 0 rgba(43, 44, 100, .9); }
-  .g-btn-primario:active { transform: translateY(3px); box-shadow: 0 1px 0 rgba(43, 44, 100, .9); }
-
-  /* ---------- Hero ---------- */
-  .g-hero { background: var(--g-lavanda); padding: 40px 0 56px; }
-  .g-hero-grid { display: grid; gap: 40px; align-items: center; }
-  .g-hero h1 { font-size: clamp(2.3rem, 6vw + 1rem, 3.9rem); }
-  .g-lead { margin-top: 20px; font-size: 18px; color: var(--g-body); max-width: 34em; }
-  .g-lead strong { color: var(--g-navy); font-weight: 800; }
-  .g-acciones { display: flex; flex-direction: column; align-items: flex-start; gap: 12px; margin-top: 28px; }
-  .g-nota { font-size: 15px; color: var(--g-body); }
-
-  /* ---------- Teléfono (la app, no WhatsApp) ---------- */
-  .g-tel { justify-self: center; width: min(100%, 300px); }
-  .g-tel-marco {
-    position: relative; border-radius: 38px; padding: 10px;
-    background: #1B1C3A; box-shadow: 0 18px 40px -18px rgba(43, 44, 100, .55);
-  }
-  .g-tel-isla {
-    position: absolute; left: 50%; top: 18px; transform: translateX(-50%);
-    width: 78px; height: 18px; border-radius: 999px; background: #1B1C3A; z-index: 2;
-  }
-  .g-tel-pantalla {
-    border-radius: 30px; overflow: hidden; background: var(--g-lavanda);
-    display: flex; flex-direction: column; min-height: 420px;
-  }
-  .g-tel-barra {
-    display: flex; justify-content: space-between; align-items: center;
-    padding: 10px 18px 4px; font-size: 12px; font-weight: 700; color: var(--g-navy);
-  }
-  .g-tel-senal { width: 22px; height: 10px; border-radius: 2px; background: var(--g-navy); opacity: .45; }
-  .g-tel-cabecera {
-    display: flex; align-items: center; gap: 10px;
-    padding: 8px 16px 12px; background: var(--g-navy); color: #fff;
-  }
-  .g-tel-cabecera img { width: 32px; height: 32px; border-radius: 50%; }
-  .g-tel-cabecera strong { display: block; font-size: 14px; font-family: var(--font-heading, "Outfit", sans-serif); }
-  .g-tel-cabecera small { display: block; font-size: 11px; opacity: .75; }
-  .g-tel-chat { flex: 1; display: flex; flex-direction: column; gap: 10px; padding: 16px 14px; }
-  .g-msj { max-width: 82%; padding: 10px 13px; border-radius: 16px; font-size: 14px; line-height: 1.4; }
-  .g-msj-yo { align-self: flex-end; background: var(--g-navy); color: #fff; border-bottom-right-radius: 5px; }
-  .g-msj-pablo { align-self: flex-start; background: #fff; border-bottom-left-radius: 5px; box-shadow: 0 1px 2px rgba(43, 44, 100, .1); }
-  .g-ok { display: block; font-weight: 800; font-size: 13px; color: #2E7D32; }
-  .g-tel-input {
-    margin: 0 14px 16px; padding: 10px 14px; border-radius: 999px;
-    background: #fff; font-size: 13px; color: var(--g-body);
-  }
-
-  /* ---------- Secciones ---------- */
-  .g-seccion { padding: 56px 0; }
-  .g-seccion-suave { background: var(--g-lavanda); }
-  .g-seccion h2 { font-size: clamp(1.7rem, 3vw + 1rem, 2.5rem); }
-  .g-sub { margin-top: 10px; color: var(--g-body); }
-
-  .g-lista { margin-top: 28px; display: grid; gap: 2px; }
-  .g-lista li {
-    display: flex; flex-wrap: wrap; justify-content: space-between; gap: 6px 18px;
-    padding: 16px 2px; border-bottom: 2px solid var(--g-linea);
-  }
-  .g-lista li:first-child { border-top: 2px solid var(--g-linea); }
-  .g-lista-que { font-weight: 500; }
-  .g-lista-cuanto { font-weight: 800; color: var(--g-navy); }
-
-  .g-pasos { margin-top: 28px; display: grid; gap: 18px; }
-  .g-pasos li { padding: 24px; border-radius: 20px; background: #fff; }
-  .g-paso-n {
-    display: inline-flex; align-items: center; justify-content: center;
-    width: 38px; height: 38px; border-radius: 50%;
-    background: var(--g-amber); color: var(--g-navy);
-    font-family: var(--font-heading, "Outfit", sans-serif); font-weight: 800; font-size: 18px;
-  }
-  .g-pasos h3 { margin-top: 14px; font-size: 19px; }
-  .g-pasos p { margin-top: 6px; color: var(--g-body); font-size: 16px; }
-
-  /* ---------- Cierre ---------- */
-  .g-cierre { background: var(--g-navy); color: #fff; padding: 56px 0; text-align: center; }
-  .g-cierre-frase {
-    font-family: var(--font-heading, "Outfit", sans-serif);
-    font-weight: 800; font-size: clamp(1.5rem, 3vw + 1rem, 2.2rem); line-height: 1.15;
-    margin-bottom: 26px;
-  }
-  .g-nota-clara { color: rgba(255, 255, 255, .75); margin-top: 14px; }
-
-  /* ---------- Tablet ---------- */
-  @media (min-width: 640px) {
-    .gratis { --g-gutter: 32px; }
-    .g-hero { padding: 56px 0 72px; }
-    .g-lista { gap: 0; }
-    .g-pasos { grid-template-columns: repeat(3, 1fr); }
-    .g-seccion { padding: 72px 0; }
-  }
-
-  /* ---------- Escritorio ---------- */
-  @media (min-width: 960px) {
-    .gratis { font-size: 18px; }
-    .g-hero-grid { grid-template-columns: 1.1fr .9fr; gap: 56px; }
-    .g-hero { padding: 72px 0 88px; }
-    .g-tel { width: min(100%, 330px); }
-    .g-cierre { padding: 80px 0; }
-  }
-</style>

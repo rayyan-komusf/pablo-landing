@@ -1,5 +1,10 @@
 ---
 import { APP_STORE_URL, PLAY_STORE_URL } from '../../siteConfig';
+
+// modo="free" (landing /gratis): la bajada no puede listar WhatsApp como
+// canal — es Premium y la campaña capta registros gratuitos.
+interface Props { modo?: 'default' | 'free'; }
+const { modo = 'default' } = Astro.props;
 // Recorrido de beneficios.
 //
 // Estructura (Rodrigo, 19-ago): título + descripción CENTRADOS, sin eyebrows;
@@ -118,7 +123,7 @@ const BLOQUES = [
     <div class="fx__texto">
       <h2 class="fx__titulo fx__titulo--una-linea">Pablo va donde tú vas</h2>
       <p class="fx__desc">
-        En WhatsApp, en la web, en iPhone y en Android. <span class="highlight highlight--navy">Tu plata clara</span> en el
+        {modo === "free" ? "En la web, en iPhone y en Android." : "En WhatsApp, en la web, en iPhone y en Android."} <span class="highlight highlight--navy">Tu plata clara</span> en el
         bolsillo, estés donde estés.
       </p>
     </div>

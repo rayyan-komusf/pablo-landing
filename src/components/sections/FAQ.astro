@@ -1,6 +1,11 @@
 ---
 // src/components/sections/FAQ.astro
 
+// modo="free" (landing /gratis): la respuesta de «cómo empiezo» no puede
+// decir que el primer gasto se registra por WhatsApp — eso es Premium.
+interface Props { modo?: 'default' | 'free'; }
+const { modo = 'default' } = Astro.props;
+
 const faqs = [
   {
     question: "¿Pablo es gratis?",
@@ -50,7 +55,9 @@ const faqs = [
   {
     question: "Ya pagué, ¿y ahora qué?",
     answer:
-      "Entras directo a tu cuenta y Pablo te guía para registrar tu primer gasto por WhatsApp. En menos de un minuto ya está trabajando contigo.",
+      modo === "free"
+        ? "Entras directo a tu cuenta y Pablo te guía para registrar tu primer gasto en la app. En menos de un minuto ya está trabajando contigo."
+        : "Entras directo a tu cuenta y Pablo te guía para registrar tu primer gasto por WhatsApp. En menos de un minuto ya está trabajando contigo.",
   },
 ];
 ---

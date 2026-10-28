@@ -3,9 +3,16 @@
 // mockeada (gastos por texto, audio, foto de recibo, resúmenes). Sin
 // backend: puro teatro. El chat es scrolleable por el usuario; el
 // auto-scroll solo actúa si está cerca del fondo.
+//
+// modo="free" (landing /gratis): el guion se recorta y se quitan la nota de
+// voz y la foto de recibo — son Premium y no se le pueden enseñar a quien
+// viene a registrarse gratis. Queda corto a propósito: el plan Gratis da 5
+// mensajes al día y una conversación larga sugeriría uso ilimitado.
+interface Props { modo?: 'default' | 'free'; }
+const { modo = 'default' } = Astro.props;
 ---
 
-<div class="hphone" role="img" aria-label="Demostración de Pablo registrando gastos en WhatsApp">
+<div class="hphone" role="img" data-modo={modo} aria-label={modo === "free" ? "Demostración de Pablo registrando un gasto contado en lenguaje normal" : "Demostración de Pablo registrando gastos en WhatsApp"}>
   <div class="hphone__isla" aria-hidden="true"></div>
   <div class="hphone__pantalla">
     <div class="hphone__status" aria-hidden="true">
@@ -359,6 +366,18 @@
       ["in", "🎯 Tu <b>Fondo de Emergencia</b> va al 90%. ¡S/ 100 más y lo logras! 🐷", 2200],
     ];
 
+    // En /gratis sólo se enseña lo que el plan Gratis entrega: texto. Ni nota
+    // de voz ni foto de recibo, que son Premium.
+    const ES_FREE = chat!.closest(".hphone")?.getAttribute("data-modo") === "free";
+    const GUION_FREE: [string, string, number, boolean?][] = [
+      ["in", "¡Hola! 👋 Soy Pablo. Cuéntame tus gastos por aquí y yo me encargo del resto 🔥", 900],
+      ["out", "almuerzo con Vale 32 soles", 1700],
+      ["in", "✅ <b>¡Gasto registrado!</b><br>🍔 Alimentación · <b>S/ 32.00</b><br>📝 Almuerzo con Vale", 1400, true],
+      ["out", "¿cuánto gasté este mes?", 2000],
+      ["in", "Este mes llevas <b>S/ 1,240</b> 💸<br>Top 3: 🍔 S/ 420 · 🚗 S/ 180 · 🎮 S/ 95", 1500, true],
+    ];
+    const PASOS = ES_FREE ? GUION_FREE : GUION;
+
     const MAX_MSGS = 12;
     let typingEl: HTMLElement | null = null;
 
@@ -401,8 +420,8 @@
 
     let i = 0;
     function siguiente() {
-      const [quien, html, delay, conTyping] = GUION[i % GUION.length];
-      const esInicioDeCiclo = i > 0 && i % GUION.length === 0;
+      const [quien, html, delay, conTyping] = PASOS[i % PASOS.length];
+      const esInicioDeCiclo = i > 0 && i % PASOS.length === 0;
       const espera = esInicioDeCiclo ? 3500 : delay;
 
       setTimeout(() => {

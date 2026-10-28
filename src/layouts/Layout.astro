@@ -23,6 +23,10 @@ interface Props {
   noindex?: boolean;
   /** Imagen para compartir (og:image / twitter:image). Default: el logo de Pablo. */
   ogImage?: string;
+  /** Manda los CTA al registro gratuito en vez de a /planes, aunque el
+   *  tráfico sea pagado. Sólo para campañas que compran registros al plan
+   *  Gratis: por defecto el recorrido de pauta sigue yendo a /planes. */
+  ctaAlRegistroGratis?: boolean;
   /** Tarjeta de X/Twitter: "summary" (default) o "summary_large_image" cuando la
    *  página trae su propia imagen de 1200x630. */
   twitterCard?: string;
@@ -35,6 +39,7 @@ const {
   noindex = false,
   ogImage: ogImagePropia,
   twitterCard = "summary",
+  ctaAlRegistroGratis = false,
 } = Astro.props;
 
 const siteUrl = "https://www.usapablo.com";
@@ -45,7 +50,7 @@ const pageUrl = new URL(Astro.url.pathname, siteUrl).href;
 ---
 
 <!doctype html>
-<html lang="es">
+<html lang="es" data-cta-registro={ctaAlRegistroGratis ? "" : undefined}>
   <head>
     <meta charset="UTF-8" />
 
@@ -123,6 +128,13 @@ const pageUrl = new URL(Astro.url.pathname, siteUrl).href;
       (function () {
         try {
           var params = new URLSearchParams(location.search);
+          function conUtmsTemprano(destino) {
+            var url = new URL(destino, location.origin);
+            ["utm_source", "utm_medium", "utm_campaign", "utm_content"].forEach(function (k) {
+              var v = params.get(k); if (v) url.searchParams.set(k, v);
+            });
+            return url.pathname + url.search + url.hash;
+          }
           var contenido = (params.get("utm_content") || "").toLowerCase();
           // Un link de afiliado recorre igual que la pauta: CTAs a /planes.
           var esPauta =
@@ -133,6 +145,22 @@ const pageUrl = new URL(Astro.url.pathname, siteUrl).href;
           var recorridoPauta =
             esPauta && /(?:^|-)titulo[12]-(?:onboarding|pago)$/.test(contenido);
           if (!esNuevo && !recorridoPauta && !esPauta) return;
+          // Campañas que COMPRAN registros al plan Gratis (ver /gratis): ahí el
+          // recorrido de pauta juega en contra, porque mandaría a ver precios a
+          // quien vino a registrarse gratis. La página lo marca y aquí se respeta.
+          if (document.documentElement.hasAttribute("data-cta-registro")) {
+            var hrefLibre = conUtmsTemprano("/onboarding?plan=free");
+            document.addEventListener("DOMContentLoaded", function () {
+              [
+                document.getElementById("hero-cta-btn"),
+                document.getElementById("finalcta-btn"),
+                document.querySelector("[data-cta-banner]"),
+                document.getElementById("footer-cta-btn"),
+                document.getElementById("navbar-cta-btn"),
+              ].forEach(function (el) { if (el) el.setAttribute("href", hrefLibre); });
+            });
+            return;
+          }
 
           // En pauta, sin recorrido explícito en utm_content, los CTAs van a
           // /planes (solo el mensual), nunca al plan Gratis del onboarding.

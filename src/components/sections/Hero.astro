@@ -4,13 +4,21 @@
 // derecha. Las demás secciones solo aparecen al scrollear.
 import HeroPhone from "./HeroPhone.astro";
 import { CTA, IS_LIVE, APP_URL } from "../../siteConfig";
+
+// modo="free" (landing /gratis): titular propio, fuera del A/B
+// `landing-hero-copy`, y CTA fijo en «Empieza gratis». Una campaña necesita
+// un destino determinista: si rota entre variantes, parte del presupuesto
+// aterriza en la oferta de pago. Por defecto no cambia nada.
+interface Props { modo?: 'default' | 'free'; }
+const { modo = 'default' } = Astro.props;
+const esFree = modo === 'free';
 ---
 
 <section class="hero" id="hero">
   <div class="container hero__inner">
     <!-- ── Izquierda: iPhone con el demo en loop ── -->
     <div class="hero__phone-area">
-      <HeroPhone />
+      <HeroPhone modo={modo} />
       <!-- Íconos 3D de Pablo orbitando el iPhone (solo desktop: en móvil el
            teléfono ya llena el alto disponible y no queda margen lateral). -->
       <img data-icons-test class="icono-flota hero__icono hero__icono--alcancia" src="/landing/iconos/alcancia.webp" alt="" aria-hidden="true" width="240" height="240" loading="eager" decoding="async" />
@@ -24,12 +32,18 @@ import { CTA, IS_LIVE, APP_URL } from "../../siteConfig";
            AbTests.astro: el control es el titular de siempre; la variante
            cambia titular y renombra el CTA principal. Sin subtítulo (D-001, Rodrigo 17-oct-2026). -->
       <h1 class="hero__title">
-        <span data-ab-hide="landing-hero-copy:whatsapp">
-          Manejar tu dinero nunca fue <span class="highlight">tan fácil</span>
-        </span>
-        <span data-ab-show="landing-hero-copy:whatsapp">
-          Tus gastos anotados <span class="highlight">sin salir de WhatsApp</span>
-        </span>
+        {esFree ? (
+          <span>Cuéntale tus gastos y Pablo los <span class="highlight">ordena</span></span>
+        ) : (
+          <Fragment>
+            <span data-ab-hide="landing-hero-copy:whatsapp">
+              Manejar tu dinero nunca fue <span class="highlight">tan fácil</span>
+            </span>
+            <span data-ab-show="landing-hero-copy:whatsapp">
+              Tus gastos anotados <span class="highlight">sin salir de WhatsApp</span>
+            </span>
+          </Fragment>
+        )}
       </h1>
 
       <div class="hero__ctas">
@@ -41,11 +55,17 @@ import { CTA, IS_LIVE, APP_URL } from "../../siteConfig";
               id="hero-cta-btn"
               onclick="try{window.posthog?.capture('landing_cta_clicked',{cta:'hero_desbloquea',location:'hero',hero_variant:window.pabloAB?.variante('landing-hero-copy')||'control'})}catch(e){};if(typeof fbq!=='undefined')fbq('trackCustom','Ver_Planes');if(typeof ttq!=='undefined')ttq.track('ClickButton',{content_name:'Ver_Planes'});"
             >
-              <span class="solo-organico">
-                <span data-ab-hide="landing-hero-copy:whatsapp">{CTA.label}</span>
-                <span data-ab-show="landing-hero-copy:whatsapp">Pruébalo gratis</span>
-              </span>
-              <span class="solo-pauta">Empieza ahora · S/20 al mes</span>
+              {esFree ? (
+                <span>Empieza gratis</span>
+              ) : (
+                <Fragment>
+                  <span class="solo-organico">
+                    <span data-ab-hide="landing-hero-copy:whatsapp">{CTA.label}</span>
+                    <span data-ab-show="landing-hero-copy:whatsapp">Pruébalo gratis</span>
+                  </span>
+                  <span class="solo-pauta">Empieza ahora · S/20 al mes</span>
+                </Fragment>
+              )}
             </a>
           ) : (
             <button

@@ -2,6 +2,9 @@
 // src/components/sections/Testimonials.astro
 // Carrusel infinito de testimonios (antes: grid estático de 3 cards).
 import TestimonialsCarousel from './TestimonialsCarousel.astro';
+
+interface Props { modo?: 'default' | 'free'; }
+const { modo = 'default' } = Astro.props;
 ---
 
 <section class="testimonials">
@@ -18,7 +21,7 @@ import TestimonialsCarousel from './TestimonialsCarousel.astro';
       </p>
     </div>
 
-    <TestimonialsCarousel />
+    <TestimonialsCarousel modo={modo} />
   </div>
 </section>
 

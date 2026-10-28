@@ -33,6 +33,9 @@ export const TESTIMONIOS: Testimonio[] = [
   {
     texto:
       'Antes agarraba un papel y lapicero; ahora le tomo la foto por WhatsApp, se sube todo y me da un reporte al instante.',
+    // Menciona foto y WhatsApp: las dos son Premium. Se oculta en las landings
+    // que captan registros al plan Gratis (ver /gratis).
+    premium: true,
     nombre: 'Daniel V.',
     detalle: 'Usuario de Pablo',
   },

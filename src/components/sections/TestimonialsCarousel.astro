@@ -1,4 +1,8 @@
 ---
+// modo="free" (landing /gratis): se ocultan los testimonios que hablan de
+// funciones Premium; prometerían algo que el registro gratuito no entrega.
+interface Props { modo?: 'default' | 'free'; }
+const { modo = 'default' } = Astro.props;
 // Carrusel infinito de testimonios con foco central: avanza POR PASOS y
 // siempre hay una tarjeta clavada en el centro del viewport, agrandada;
 // las demás se ven chicas y desvanecidas (sketch de Rodrigo, jul-2026).
@@ -7,6 +11,8 @@
 // El grupo se renderiza 3 veces para que el salto de reinicio sea invisible
 // incluso en pantallas muy anchas.
 import { TESTIMONIOS } from '../../data/testimonios';
+
+const LISTA = modo === 'free' ? TESTIMONIOS.filter((t) => !(t as { premium?: boolean }).premium) : TESTIMONIOS;
 ---
 
 <div class="carrusel" role="region" aria-label="Testimonios de usuarios de Pablo">
@@ -14,7 +20,7 @@ import { TESTIMONIOS } from '../../data/testimonios';
     {
       [0, 1, 2].map((copia) => (
         <div class="carrusel__grupo" aria-hidden={copia > 0 ? 'true' : undefined}>
-          {TESTIMONIOS.map((t) => (
+          {LISTA.map((t) => (
             <article class="tc-card">
               <svg class="tc-quote" width="20" height="20" viewBox="0 0 24 24" fill="#D4D0F0">
                 <path d="M3 21c3 0 7-1 7-8V5c0-1.25-.756-2.017-2-2H4c-1.25 0-2 .75-2 1.972V11c0 1.25.75 2 2 2 1 0 1 0 1 1v1c0 1-1 2-2 2s-1 .008-1 1.031V20c0 1 0 1 1 1z" />
