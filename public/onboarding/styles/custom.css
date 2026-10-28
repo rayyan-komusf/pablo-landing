@@ -3010,7 +3010,9 @@ body .topbar > div {
   flex-direction: column;
   align-items: center;
   gap: 0;
-  padding: 8px 8px 7px;
+  /* 13px arriba (antes 8): la etiqueta «Ahorra» es absolute y su borde
+   * inferior pisaba el nombre del plan por 3,3px. */
+  padding: 13px 8px 7px;
   border-radius: 16px;
   background: #fff;
   border: 2px solid rgba(43, 44, 100, 0.14);
@@ -3060,7 +3062,7 @@ body .topbar > div {
 
 .pw-plan__ahorro {
   position: absolute;
-  top: -9px;
+  top: -14px;
   left: 50%;
   transform: translateX(-50%);
   white-space: nowrap;
