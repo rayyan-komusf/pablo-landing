@@ -1,4 +1,9 @@
 ---
+// modo="free" (landing /gratis): «Desbloquea a Pablo» suena a pagar, y esta
+// página capta registros gratuitos. Es la barra que acompaña todo el scroll,
+// así que la palabra pesa.
+interface Props { modo?: 'default' | 'free'; }
+const { modo = 'default' } = Astro.props;
 // Banner que baja desde arriba al hacer scroll.
 //
 // Patrón pedido por Rodrigo (19-ago): arriba del todo la página no lleva
@@ -19,7 +24,7 @@
     </a>
 
     <a href="/onboarding" class="banner-sticky__cta" data-cta-banner>
-      Desbloquea a Pablo
+      {modo === "free" ? "Empieza gratis" : "Desbloquea a Pablo"}
     </a>
   </div>
 </div>
