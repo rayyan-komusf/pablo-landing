@@ -41,10 +41,8 @@ const STEP_ORDER = [
   "step-17", // Testimonios
   "step-18", // Paywall 1/2: la nota de Rodrigo (solo el mensaje)
   "step-18b", // Paywall 2/2: calendario del cobro + planes
-  "step-cuenta-nombre", // Registro (1/4): nombre
-  "step-cuenta-correo", // Registro (2/4): correo
-  "step-cuenta-password", // Registro (3/4): contraseña → crea la cuenta + envía el código
-  "step-cuenta-pago", // Registro (4/4): continuación al pago WHOP en la app
+  "step-cuenta-password", // Registro (1/2): nombre + correo + contraseña en una pantalla
+  "step-cuenta-pago", // Registro (2/2): continuación al pago WHOP en la app
 ];
 
 /** Configuración de topbar por pantalla. */
@@ -78,8 +76,6 @@ const STEP_FLAGS = {
   "step-17": { showTopbar: true, showSkip: true },
   "step-18": { showTopbar: true, showSkip: false },
   "step-18b": { showTopbar: true, showSkip: false },
-  "step-cuenta-nombre": { showTopbar: true, showSkip: false },
-  "step-cuenta-correo": { showTopbar: true, showSkip: false },
   "step-cuenta-password": { showTopbar: true, showSkip: false },
   "step-cuenta-pago": { showTopbar: true, showSkip: false },
 };
@@ -701,5 +697,5 @@ engine.init();
 window.pabloSeguirGratis = function () {
   sessionStorage.setItem("pablo_plan_elegido", "free");
   sessionStorage.removeItem("pablo_codigo_descuento");
-  window.pabloGoTo?.("step-cuenta-nombre");
+  window.pabloGoTo?.("step-cuenta-password");
 };
