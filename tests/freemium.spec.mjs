@@ -44,9 +44,7 @@ for (const step of ['step-18', 'step-18b']) {
     expect(await page.evaluate(() => sessionStorage.getItem('pablo_plan_elegido'))).toBe('free');
     expect(await page.evaluate(() => sessionStorage.getItem('pablo_codigo_descuento'))).toBe(null);
     await page.locator('#cuenta-nombre').fill('Prueba Gratis');
-    await page.locator('[data-step="step-cuenta-nombre"]').getByRole('button', { name: /Continuar/ }).click();
     await page.locator('#cuenta-correo').fill('prueba@example.test');
-    await page.locator('[data-step="step-cuenta-correo"]').getByRole('button', { name: /Continuar/ }).click();
     await page.locator('#cuenta-password').fill('test-pass-123');
     await page.evaluate(() => { window.pabloCuentaAsegurarSesion = async () => ({ access_token: 'test-access', refresh_token: 'test-refresh' }); });
     const next = page.waitForURL(/\/auth\/sesion\?plan=free/);

@@ -32,10 +32,9 @@ for(const variant of ['control','test']) {
    await page.addStyleTag({content:'astro-dev-toolbar{display:none!important}'});
    await page.waitForTimeout(1000);
    await page.screenshot({path:`/tmp/pablo-icons-${variant}-onboarding-${width}.png`});
-   await page.evaluate(()=>window.pabloGoTo('step-cuenta-nombre'));
+   await page.evaluate(()=>window.pabloGoTo('step-cuenta-password'));
    await page.locator('#cuenta-nombre').fill('Prueba');
    await expect(page.locator('#cuenta-nombre')).toHaveCount(1);
-   await page.locator('[data-step="step-cuenta-nombre"]').getByRole('button',{name:/Continuar/}).click();
    await expect(page.locator('#cuenta-correo')).toBeVisible();
    expect(state.forbidden).toEqual([]);expect(state.errors).toEqual([]);
   });

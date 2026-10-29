@@ -45,6 +45,12 @@ const STEP_ORDER = [
   "step-cuenta-pago", // Registro (2/2): continuación al pago WHOP en la app
 ];
 
+/** Pasos retirados → el que los reemplaza (sesiones guardadas antes del cambio). */
+const PASOS_RETIRADOS = {
+  "step-cuenta-nombre": "step-cuenta-password",
+  "step-cuenta-correo": "step-cuenta-password",
+};
+
 /** Configuración de topbar por pantalla. */
 const STEP_FLAGS = {
   "step-primer": { showTopbar: false, showSkip: false },
@@ -176,7 +182,13 @@ class OnboardingEngine {
     // ningún atajo aplican — se entra por el principio, con las respuestas
     // anteriores ya cargadas.
     const notaVista = localStorage.getItem(NOTA_VISTA_KEY) === "1";
-    const initial = notaVista ? (savedStep || RETURNING_START_STEP) : STEP_ORDER[0];
+    // Pasos que ya no existen en esta versión (nombre y correo se fusionaron en
+    // step-cuenta-password): con uno guardado, goTo no lo encuentra y la
+    // pantalla queda en blanco. Se traducen al paso que los reemplaza.
+    const vigente = (id) => PASOS_RETIRADOS[id] || (STEP_FLAGS[id] ? id : null);
+    this.history = Array.isArray(this.history) ? this.history.map(vigente).filter(Boolean) : [];
+    const pasoGuardado = savedStep ? vigente(savedStep) : null;
+    const initial = notaVista ? (pasoGuardado || RETURNING_START_STEP) : STEP_ORDER[0];
 
     this.goTo(initial);
     this.bindGlobalHandlers();
