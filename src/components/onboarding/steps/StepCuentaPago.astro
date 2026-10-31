@@ -1,12 +1,12 @@
-<section class="step !pb-0" data-step="step-cuenta-pago" aria-label="Pago seguro con WHOP" aria-hidden="true">
+<section class="step !pb-0" data-step="step-cuenta-pago" aria-label="Pago seguro" aria-hidden="true">
   <div class="pago-header"><img src="/onboarding/images/pablo/pablo-logo.png" alt="" width="64" height="64" /></div>
   <div class="fuente-body flex-1 flex flex-col w-full mx-auto px-5">
     <div class="pago-card">
       <h2>Continúa al pago seguro</h2>
       <p id="pago-resumen">Elige tu plan Premium en Pablo.</p>
-      <p>Pagas con tarjeta sin salir de Pablo. El primer cobro se realiza al confirmar; la suscripción se renueva automáticamente y puedes cancelarla desde Facturación.</p>
+      <p>Pagas con Yape o con tarjeta sin salir de Pablo. El primer cobro se realiza al confirmar; la suscripción se renueva automáticamente y puedes cancelarla desde Facturación.</p>
       <button type="button" class="btn-primary btn-continue" onclick="pabloCuentaIrAlPago()">Continuar al pago</button>
-      <p class="pago-nota">WHOP procesa tu pago con tarjeta. Pablo no recibe los datos de tu tarjeta.</p>
+      <p class="pago-nota">Yape lo procesa Flow y la tarjeta, WHOP. Pablo no recibe tus datos de pago.</p>
     </div>
     <button type="button" class="btn-secondary solo-organico" onclick="sessionStorage.setItem('pablo_plan_elegido','free');sessionStorage.removeItem('pablo_codigo_descuento');pabloCuentaIrAlPago()">Seguir con Gratis</button>
   </div>
