@@ -59,8 +59,8 @@ const pageUrl = new URL(Astro.url.pathname, siteUrl).href;
     <script is:inline>
       (function () {
         try {
-          // Link de afiliado (?a= o guardado vigente, ver lib/afiliado.ts): mismo
-          // modo sin Gratis, pero sin marcar la sesión como tráfico pagado.
+          // Link de afiliado (?a= o guardado vigente, ver lib/afiliado.ts): precios
+          // de pauta y SIN Gratis (.afiliado), sin marcar la sesión como pagada.
           var formato = /^[A-Za-z0-9_.-]{2,40}$/;
           var a = new URLSearchParams(location.search).get("a");
           var guardado = null;
@@ -79,12 +79,19 @@ const pageUrl = new URL(Astro.url.pathname, siteUrl).href;
         }
       })();
     </script>
-    <!-- Modo pauta (Sandra 07-oct-2026): al tráfico pagado no se le ofrece el
-         plan Gratis. `.solo-organico` desaparece en pauta y `.solo-pauta`
-         solo existe en pauta. El orgánico no cambia. -->
+    <!-- Free → Premium (Sandra 30-oct-2026): la pauta compra REGISTROS al plan
+         Gratis, así que Gratis se ve en pauta igual que en orgánico. Solo el
+         link de afiliado (html.afiliado) sigue sin Gratis: `.con-gratis`
+         desaparece ahí y `.sin-gratis` solo existe ahí.
+         Precios: la pauta ve la oferta (mensual con 3 días de prueba, anual
+         S/120) en `.precio-oferta`; el orgánico, la lista en `.precio-lista`.
+         La app cobra la oferta salvo que el enlace lleve precio=lista
+         (src/lib/precioLista.ts). -->
     <style is:global>
-      html.pauta .solo-organico { display: none !important; }
-      html:not(.pauta) .solo-pauta { display: none !important; }
+      html.afiliado .con-gratis { display: none !important; }
+      html:not(.afiliado) .sin-gratis { display: none !important; }
+      html.pauta .precio-lista { display: none !important; }
+      html:not(.pauta) .precio-oferta { display: none !important; }
     </style>
 
     <!-- Diferir terceros que no escriben la _fbc (Sandra 10-ago-2026): GTM,
@@ -124,21 +131,24 @@ const pageUrl = new URL(Astro.url.pathname, siteUrl).href;
         try {
           var params = new URLSearchParams(location.search);
           var contenido = (params.get("utm_content") || "").toLowerCase();
-          // Un link de afiliado recorre igual que la pauta: CTAs a /planes.
+          // Un link de afiliado no ofrece Gratis: sus CTAs van a /planes.
+          var esAfiliado = document.documentElement.classList.contains("afiliado");
           var esPauta =
             params.get("utm_medium") === "paid" ||
             sessionStorage.getItem("pablo_pauta") === "1" ||
-            document.documentElement.classList.contains("afiliado");
+            esAfiliado;
           var esNuevo = localStorage.getItem("pablo_intro_vista") !== "1";
           var recorridoPauta =
             esPauta && /(?:^|-)titulo[12]-(?:onboarding|pago)$/.test(contenido);
           if (!esNuevo && !recorridoPauta && !esPauta) return;
 
-          // En pauta, sin recorrido explícito en utm_content, los CTAs van a
-          // /planes (solo el mensual), nunca al plan Gratis del onboarding.
+          // Free → Premium (Sandra 30-oct-2026): la pauta compra registros al
+          // plan Gratis, así que sin recorrido explícito sus CTAs van al
+          // onboarding (que ofrece Gratis), igual que el orgánico. Solo el
+          // afiliado, que no ofrece Gratis, sigue yendo a /planes.
           var base = contenido.endsWith("-pago")
             ? "https://usapablo.app/pricing?plan=mensual&continuar=1"
-            : esPauta && !recorridoPauta
+            : esAfiliado && !recorridoPauta
               ? "/planes"
               : "/onboarding";
 

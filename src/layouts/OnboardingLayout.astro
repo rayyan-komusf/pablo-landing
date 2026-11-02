@@ -17,13 +17,14 @@ const base = "/onboarding";
 <html lang="es">
   <head>
     <meta charset="UTF-8" />
-    <!-- Modo pauta (Sandra 07-oct-2026): mismo criterio que Layout.astro. Al
-         tráfico pagado no se le ofrece el plan Gratis (.solo-organico). -->
+    <!-- Modo pauta: mismo criterio que Layout.astro. Gratis se ve en pauta;
+         solo el afiliado va sin Gratis (.con-gratis). La pauta ve los precios
+         de oferta (.precio-oferta) y no ve el semanal. -->
     <script is:inline>
       (function () {
         try {
-          // Link de afiliado (?a= o guardado vigente, ver lib/afiliado.ts): mismo
-          // modo sin Gratis, pero sin marcar la sesión como tráfico pagado.
+          // Link de afiliado (?a= o guardado vigente, ver lib/afiliado.ts): precios
+          // de pauta y SIN Gratis (.afiliado), sin marcar la sesión como pagada.
           var formato = /^[A-Za-z0-9_.-]{2,40}$/;
           var a = new URLSearchParams(location.search).get("a");
           var guardado = null;
@@ -41,8 +42,12 @@ const base = "/onboarding";
       })();
     </script>
     <style is:global>
-      html.pauta .solo-organico { display: none !important; }
-      html:not(.pauta) .solo-pauta { display: none !important; }
+      html.afiliado .con-gratis { display: none !important; }
+      html:not(.afiliado) .sin-gratis { display: none !important; }
+      html.pauta .precio-lista { display: none !important; }
+      html:not(.pauta) .precio-oferta { display: none !important; }
+      html.pauta .plan-semanal { display: none !important; }
+      html.pauta #plansModal .grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
     </style>
     <meta
       name="viewport"

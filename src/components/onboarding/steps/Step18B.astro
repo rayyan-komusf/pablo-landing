@@ -59,7 +59,8 @@
           <span class="pw-plan__nombre">1 mes</span>
           <span class="pw-plan__precio">S/.20</span>
           <span class="pw-plan__unidad">S/.5 por semana</span>
-          <span class="pw-plan__gratis">Cobro al confirmar</span>
+          <span class="pw-plan__gratis precio-lista">Cobro al confirmar</span>
+          <span class="pw-plan__gratis precio-oferta">3 días de prueba</span>
         </button>
         <button
           type="button"
@@ -69,10 +70,11 @@
           aria-checked="false"
           onclick="pabloElegirPlanPaywall(this, 'anual')"
         >
-          <span class="pw-plan__ahorro">Ahorra 45%</span>
+          <span class="pw-plan__ahorro precio-lista">Ahorra 45%</span>
+          <span class="pw-plan__ahorro precio-oferta">50% OFF</span>
           <span class="pw-plan__nombre">12 meses</span>
-          <span class="pw-plan__precio">S/.200</span>
-          <span class="pw-plan__unidad">S/.3.84 por semana</span>
+          <span class="pw-plan__precio"><span class="precio-lista">S/.200</span><span class="precio-oferta">S/.120</span></span>
+          <span class="pw-plan__unidad"><span class="precio-lista">S/.3.84 por semana</span><span class="precio-oferta">S/.10 al mes</span></span>
           <!-- El anual perdió su trial el 18-ago-2026 (cobro directo): acá va
                la garantía, que es lo que reemplaza a la prueba. -->
           <span class="pw-plan__gratis">Garantía 14 días</span>
@@ -87,7 +89,9 @@
       <p class="pw-hoy" data-pw-hoy>
         <strong>Primer cobro al confirmar.</strong> Luego S/.20 al mes, y cancelas cuando quieras.
       </p>
-      <button class="pw-planes" onclick="pabloOpenPlans()">Ver todos los planes</button>
+      <!-- En pauta solo mensual y anual (el semanal salió de la pauta): no
+           hay "todos los planes" que ver. -->
+      <button class="pw-planes precio-lista" onclick="pabloOpenPlans()">Ver todos los planes</button>
     </div>
   </div>
 
@@ -119,7 +123,7 @@
         <!-- 1 semana -->
         <button
           type="button"
-          class="plan-card relative flex flex-col items-center rounded-[18px] px-2 pt-5 pb-4 bg-white"
+          class="plan-card plan-semanal relative flex flex-col items-center rounded-[18px] px-2 pt-5 pb-4 bg-white"
           data-plan="semanal"
           onclick="pabloSelectPlan(this, 'semanal')"
           aria-pressed="false"
@@ -143,7 +147,8 @@
           <span class="text-[10px] font-body uppercase tracking-widest text-navy-soft mt-1">mes</span>
           <span class="font-display font-bold text-[18px] text-navy mt-2">S/. 20</span>
           <span class="text-[10px] font-body text-navy-soft leading-tight">S/. 5 /semana</span>
-          <span class="text-[10px] font-body font-bold text-amber mt-1" data-pm-swap="Cobro al confirmar">Cobro al confirmar</span>
+          <span class="text-[10px] font-body font-bold text-amber mt-1 precio-lista" data-pm-swap="Cobro al confirmar">Cobro al confirmar</span>
+          <span class="text-[10px] font-body font-bold text-amber mt-1 precio-oferta">3 días de prueba</span>
         </button>
         <!-- 12 meses -->
         <button
@@ -153,11 +158,11 @@
           onclick="pabloSelectPlan(this, 'anual')"
           aria-pressed="false"
         >
-          <span class="plan-badge absolute -top-[10px] left-1/2 -translate-x-1/2 whitespace-nowrap text-[9px] font-display font-bold tracking-wide text-navy px-2 py-[3px]">AHORRA 45%</span>
+          <span class="plan-badge absolute -top-[10px] left-1/2 -translate-x-1/2 whitespace-nowrap text-[9px] font-display font-bold tracking-wide text-navy px-2 py-[3px]"><span class="precio-lista">AHORRA 45%</span><span class="precio-oferta">50% OFF</span></span>
           <span class="font-display font-bold text-[26px] text-navy leading-none">12</span>
           <span class="text-[10px] font-body uppercase tracking-widest text-navy-soft mt-1">meses</span>
-          <span class="font-display font-bold text-[18px] text-navy mt-2">S/. 200</span>
-          <span class="text-[10px] font-body text-navy-soft leading-tight">S/. 3.84 /sem</span>
+          <span class="font-display font-bold text-[18px] text-navy mt-2"><span class="precio-lista">S/. 200</span><span class="precio-oferta">S/. 120</span></span>
+          <span class="text-[10px] font-body text-navy-soft leading-tight"><span class="precio-lista">S/. 3.84 /sem</span><span class="precio-oferta">S/. 10 /mes</span></span>
           <span class="text-[10px] font-body font-bold text-amber mt-1">Garantía 14 días</span>
         </button>
       </div>
@@ -169,7 +174,7 @@
       <p class="text-[12px] text-center font-body text-navy-soft -mt-2">Cancela en cualquier momento</p>
     </div>
   </div>
-  <div class="solo-organico" style="padding: 8px 24px 20px; text-align: center;">
+  <div class="con-gratis" style="padding: 8px 24px 20px; text-align: center;">
     <button type="button" class="btn-secondary" style="min-height:44px;width:100%;max-width:360px" onclick="pabloSeguirGratis()">Seguir con Gratis</button>
     <p style="font-size:12px;margin-top:8px">Sin tarjeta · 5 mensajes diarios · 3 cuentas</p>
   </div>
@@ -177,11 +182,15 @@
 
 <script is:inline type="module">
   // Elegir plan no redirige: sigue al registro paso a paso (steps cuenta-*).
+  // Pauta (html.pauta) = oferta que cobra la app: mensual con 3 días de
+  // prueba y anual a S/120; sin semanal. Orgánico = lista (precio=lista).
   const planes = {
     semanal: { nombre: "Plan Semanal", precio: "S/7", dias: 7, ctaLabel: "Elegir Plan Semanal" },
     mensual: { nombre: "Plan Mensual", precio: "S/20", dias: 30, ctaLabel: "Elegir Plan Mensual" },
     anual: { nombre: "Plan Anual", precio: "S/200", dias: 365, ctaLabel: "Elegir Plan Anual" },
   };
+  const esPauta = () => document.documentElement.classList.contains("pauta");
+  const precioAnual = () => (esPauta() ? "S/120" : "S/200");
   let planSeleccionado = "mensual";
 
   function abrirPlanes() {
@@ -211,7 +220,7 @@
   }
 
   function iniciarPrueba(plan = planSeleccionado) {
-    if (!planes[plan]) return;
+    if (!planes[plan] || (plan === "semanal" && esPauta())) return;
     sessionStorage.setItem("pablo_plan_elegido", plan);
     window.pabloTrack?.("onboarding_plan_selected_for_signup", { plan });
     cerrarPlanes();
@@ -220,10 +229,17 @@
 
   function pintarLinea(plan) {
     const p = planes[plan] || planes.mensual;
+    const precio = plan === "anual" ? precioAnual() : p.precio;
     document.querySelector("[data-pw-titulo]").textContent = "Empieza con el " + p.nombre;
     document.querySelector("[data-pw-sub]").textContent = "Pago seguro con WHOP. Cancela la renovación desde Facturación.";
-    document.querySelector("[data-pw-hoy-que]").textContent = "Pagas " + p.precio + " al confirmar y accedes a Premium por " + p.dias + " días.";
-    document.querySelector("[data-pw-hoy]").textContent = p.precio + " cada " + p.dias + " días. El primer cobro se realiza al confirmar.";
+    if (esPauta() && plan === "mensual") {
+      // Prueba de 3 días: la tarjeta se registra hoy, el primer cobro es al día 4.
+      document.querySelector("[data-pw-hoy-que]").textContent = "Registras tu tarjeta y pruebas Premium 3 días sin pagar nada.";
+      document.querySelector("[data-pw-hoy]").textContent = "Hoy no pagas nada. Si cancelas antes del día 4, no se te cobra; si sigues, S/20 al mes.";
+    } else {
+      document.querySelector("[data-pw-hoy-que]").textContent = "Pagas " + precio + " al confirmar y accedes a Premium por " + p.dias + " días.";
+      document.querySelector("[data-pw-hoy]").textContent = precio + " cada " + p.dias + " días" + (plan === "anual" && esPauta() ? " (S/10 al mes)" : "") + ". El primer cobro se realiza al confirmar.";
+    }
     document.querySelectorAll("[data-pw-hito-aviso], [data-pw-hito-cobro]").forEach(el => el.hidden = true);
   }
 

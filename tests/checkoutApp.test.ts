@@ -17,3 +17,9 @@ test("untrusted plan and search cannot change payment destination", () => {
   assert.equal(url.origin, "https://usapablo.app"); assert.equal(url.searchParams.get("plan"), "mensual");
   assert.equal(url.searchParams.get("redirect"), null);
 });
+test("fuera de pauta el destino lleva precio=lista; en pauta, no", () => {
+  const organico = new URL(destinoPagoPablo("anual", "", "", { access_token: "a", refresh_token: "b" }, false));
+  assert.equal(organico.searchParams.get("precio"), "lista");
+  assert.equal(new URLSearchParams(organico.hash.slice(1)).get("access_token"), "a");
+  assert.equal(new URL(destinoPagoPablo("anual", "", "", null, true)).searchParams.get("precio"), null);
+});

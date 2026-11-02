@@ -304,7 +304,8 @@ const annualCheckoutUrl = FREE_TRIAL ? CHECKOUT_URLS.annual_trial : CHECKOUT_URL
               <ul class="plan-features">
                 <li>
                   <svg class="check" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#2B2C64" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>
-                  <span data-pm-swap="Paga con Yape o tarjeta · cobro al confirmar">Paga con Yape o tarjeta · cobro al confirmar</span>
+                  <span class="precio-lista" data-pm-swap="Paga con Yape o tarjeta · cobro al confirmar">Paga con Yape o tarjeta · cobro al confirmar</span>
+                  <span class="precio-oferta"><strong>3 días de prueba</strong> · registras tu tarjeta y hoy no se cobra nada</span>
                 </li>
                 <li data-promo-millonaria hidden>
                   <svg class="check" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#2B2C64" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>
@@ -333,7 +334,7 @@ const annualCheckoutUrl = FREE_TRIAL ? CHECKOUT_URLS.annual_trial : CHECKOUT_URL
               </ul>
               {OFFER_AVAILABLE ? (
                 <button
-                  onclick={`window.planSeleccionado={name:'Plan Mensual',value:20};if(typeof fbq!=='undefined')fbq('trackCustom','Abrir_Modal',{plan:'mensual'});if(typeof ttq!=='undefined')ttq.track('ViewContent',{content_name:'Plan Mensual',value:20,currency:'PEN'});window.abrirCuentaPablo&&window.abrirCuentaPablo('mensual')`}
+                  onclick={`window.planSeleccionado={name:'Plan Mensual',value:20};if(typeof fbq!=='undefined')fbq('trackCustom','Abrir_Modal',{plan:'mensual',prueba:document.documentElement.classList.contains('pauta')});if(typeof ttq!=='undefined')ttq.track('ViewContent',{content_name:'Plan Mensual',value:20,currency:'PEN'});window.abrirCuentaPablo&&window.abrirCuentaPablo('mensual')`}
                   class="plan-cta plan-cta--monthly"
                   id="pricing-monthly-cta"
                 >
@@ -345,24 +346,17 @@ const annualCheckoutUrl = FREE_TRIAL ? CHECKOUT_URLS.annual_trial : CHECKOUT_URL
                 </button>
               )}
               <!-- Convierte una sorpresa en una expectativa justo antes del
-                   checkout de WHOP (Sandra 10-ago): la tarjeta se registra hoy
-                   pero el cobro llega al día 4. -->
-              <p class="plan-cta-nota">
+                   checkout de WHOP (Sandra 10-ago). En pauta el mensual trae
+                   3 días de prueba (Sandra 30-oct): la tarjeta se registra hoy
+                   y el primer cobro llega al día 4. -->
+              <p class="plan-cta-nota precio-lista">
                 El primer cobro se realiza al confirmar, con Yape o tarjeta.
                 Cancelas cuando quieras.
               </p>
-              <!-- Modo pauta: los otros dos planes nacen ocultos y este enlace
-                   los revela en la misma página. Es texto, no botón: si parece
-                   un botón junto al CTA se recrea la elección de tres precios
-                   que el modo pauta vino a quitar. -->
-              <button
-                type="button"
-                class="ver-otros-planes"
-                id="ver-otros-planes"
-                onclick="document.documentElement.classList.add('ver-planes');if(typeof fbq!=='undefined')fbq('trackCustom','Ver_Planes');try{window.posthog&&window.posthog.capture('pauta_ver_planes')}catch(e){}"
-              >
-                Ver los otros planes
-              </button>
+              <p class="plan-cta-nota precio-oferta">
+                Hoy no pagas nada. Si cancelas antes del día 4, no se te cobra;
+                si sigues, son S/.20 al mes.
+              </p>
             </div>
 
             <!-- LIVE: Annual Plan -->
@@ -381,12 +375,13 @@ const annualCheckoutUrl = FREE_TRIAL ? CHECKOUT_URLS.annual_trial : CHECKOUT_URL
                 Lleva tus finanzas al siguiente nivel con herramientas avanzadas y una experiencia a tu medida.
               </p>
               <div class="plan-price">
-                <span class="plan-amount">S/.200</span>
+                <span class="plan-amount"><span class="precio-lista">S/.200</span><span class="precio-oferta">S/.120</span></span>
                 <span class="plan-period">/anuales</span>
               </div>
               <div class="plan-original-price">
                 <span class="plan-crossed">S/.240</span>
-                <span class="plan-discount-badge">✨ 16% OFF · Oferta</span>
+                <span class="plan-discount-badge precio-lista">✨ 16% OFF · Oferta</span>
+                <span class="plan-discount-badge precio-oferta">✨ 50% OFF · S/.10 al mes</span>
               </div>
               <ul class="plan-features">
                 <li>
@@ -404,11 +399,13 @@ const annualCheckoutUrl = FREE_TRIAL ? CHECKOUT_URLS.annual_trial : CHECKOUT_URL
                 </li>
                 <li>
                   <svg class="check check--amber" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#F5A623" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>
-                  16% de descuento exclusivo por temporada.
+                  <span class="precio-lista">16% de descuento exclusivo por temporada.</span>
+                  <span class="precio-oferta">50% de descuento: te sale a S/.10 al mes.</span>
                 </li>
                 <li>
                   <svg class="check check--amber" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#F5A623" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>
-                  Ahorras 2 meses de suscripción al instante.
+                  <span class="precio-lista">Ahorras 2 meses de suscripción al instante.</span>
+                  <span class="precio-oferta">Ahorras 6 meses frente al plan mensual.</span>
                 </li>
                 <li>
                   <svg class="check check--amber" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#F5A623" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>
@@ -446,7 +443,7 @@ const annualCheckoutUrl = FREE_TRIAL ? CHECKOUT_URLS.annual_trial : CHECKOUT_URL
               </div>
               {OFFER_AVAILABLE ? (
                 <button
-                  onclick={`window.planSeleccionado={name:'Plan Anual',value:200};if(typeof fbq!=='undefined')fbq('trackCustom','Abrir_Modal',{plan:'anual'});if(typeof ttq!=='undefined')ttq.track('ViewContent',{content_name:'Plan Anual',value:200,currency:'PEN'});window.abrirCuentaPablo&&window.abrirCuentaPablo('anual')`}
+                  onclick={`var v=document.documentElement.classList.contains('pauta')?120:200;window.planSeleccionado={name:'Plan Anual',value:v};if(typeof fbq!=='undefined')fbq('trackCustom','Abrir_Modal',{plan:'anual',value:v});if(typeof ttq!=='undefined')ttq.track('ViewContent',{content_name:'Plan Anual',value:v,currency:'PEN'});window.abrirCuentaPablo&&window.abrirCuentaPablo('anual')`}
                   class="plan-cta plan-cta--premium btn-primary"
                   id="pricing-annual-cta"
                 >
@@ -1006,43 +1003,28 @@ const annualCheckoutUrl = FREE_TRIAL ? CHECKOUT_URLS.annual_trial : CHECKOUT_URL
 </style>
 
 <style is:global>
-  /* ── Modo pauta (Sandra 10-ago-2026) ──────────────────────────────────
+  /* ── Modo pauta (Sandra 30-oct-2026) ──────────────────────────────────
      Con utm_medium=paid el <html> llega con la clase .pauta (script inline
      en el <head> de Layout.astro, ANTES del primer render: sin parpadeo de
-     los S/.200). El mensual de S/.20 —lo que vende el anuncio— queda como
-     único plan visible; "Ver los otros planes" revela semanal y anual en la
-     misma página. Global a propósito: las clases .pauta/.ver-planes viven
-     en <html>, fuera del scope de Astro. */
-  html.pauta .plan-semanal,
-  html.pauta .plan-anual {
+     precios). La pauta compra registros al plan Gratis (visible arriba) y,
+     como planes pagos, ve el mensual con 3 días de prueba y el anual a S/.120.
+     El semanal sale de la pauta: compite de frente con Gratis como oferta de
+     entrada. Precios: .precio-lista / .precio-oferta (reglas en Layout).
+     Global a propósito: la clase .pauta vive en <html>, fuera del scope de
+     Astro. */
+  html.pauta .plan-semanal {
     display: none;
   }
-  html.pauta.ver-planes .plan-semanal,
-  html.pauta.ver-planes .plan-anual {
-    display: flex; /* .plan-card es flex, no block */
+  /* Dos planes visibles → dos columnas */
+  html.pauta .pricing__cards--three {
+    grid-template-columns: 1fr 1fr;
+    max-width: 900px;
   }
-  /* Un solo plan visible → una sola columna centrada */
-  html.pauta:not(.ver-planes) .pricing__cards--three {
-    grid-template-columns: 1fr;
-    max-width: 480px;
-  }
-  /* El enlace solo existe en modo pauta y muere al revelar los planes.
-     Texto subrayado, no botón: no debe competir con el CTA. */
-  .ver-otros-planes {
-    display: none;
-    background: none;
-    border: none;
-    cursor: pointer;
-    font-family: var(--font-body);
-    font-size: 13px;
-    color: var(--color-secondary);
-    text-decoration: underline;
-    text-underline-offset: 3px;
-    margin: 10px auto 0;
-    padding: 4px;
-  }
-  html.pauta:not(.ver-planes) .ver-otros-planes {
-    display: block;
+  @media (max-width: 768px) {
+    html.pauta .pricing__cards--three {
+      grid-template-columns: 1fr;
+      max-width: 480px;
+    }
   }
 </style>
 

@@ -41,11 +41,11 @@ import { CTA, IS_LIVE, APP_URL } from "../../siteConfig";
               id="hero-cta-btn"
               onclick="try{window.posthog?.capture('landing_cta_clicked',{cta:'hero_desbloquea',location:'hero',hero_variant:window.pabloAB?.variante('landing-hero-copy')||'control'})}catch(e){};if(typeof fbq!=='undefined')fbq('trackCustom','Ver_Planes');if(typeof ttq!=='undefined')ttq.track('ClickButton',{content_name:'Ver_Planes'});"
             >
-              <span class="solo-organico">
+              <span class="con-gratis">
                 <span data-ab-hide="landing-hero-copy:whatsapp">{CTA.label}</span>
                 <span data-ab-show="landing-hero-copy:whatsapp">Pruébalo gratis</span>
               </span>
-              <span class="solo-pauta">Empieza ahora · S/20 al mes</span>
+              <span class="sin-gratis">Empieza ahora · S/20 al mes</span>
             </a>
           ) : (
             <button

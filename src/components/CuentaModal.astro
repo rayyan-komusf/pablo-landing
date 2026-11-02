@@ -1,6 +1,7 @@
 <!-- Todos los botones de planes continúan en la app autenticada. -->
 <script>
   import { destinoPagoPablo } from "../lib/checkoutApp";
+  import { esPauta } from "../lib/precioLista";
   const w = window as any;
   w.abrirCuentaPablo = (plan = "mensual") => {
     let session = null;
@@ -9,7 +10,8 @@
       session = JSON.parse(sessionStorage.getItem("pablo_sesion_tokens") || "null");
       codigo = sessionStorage.getItem("pablo_codigo_descuento") || "";
     } catch { /* La app pedirá iniciar sesión. */ }
-    let url = destinoPagoPablo(plan, location.search, codigo, session);
+    // Fuera de pauta el destino lleva precio=lista (la app cobra lista, no la oferta).
+    let url = destinoPagoPablo(plan, location.search, codigo, session, esPauta());
     // Huella del clic (fbc/fbp de Meta + ttclid/ttp de TikTok): la app es otro dominio.
     if (typeof w.pabloConFbc === "function") url = w.pabloConFbc(url);
     location.assign(url);

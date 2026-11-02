@@ -4,16 +4,22 @@
     <div class="pago-card">
       <h2>Continúa al pago seguro</h2>
       <p id="pago-resumen">Elige tu plan Premium en Pablo.</p>
-      <p>Pagas con Yape o con tarjeta sin salir de Pablo. El primer cobro se realiza al confirmar; la suscripción se renueva automáticamente y puedes cancelarla desde Facturación.</p>
+      <p class="precio-lista">Pagas con Yape o con tarjeta sin salir de Pablo. El primer cobro se realiza al confirmar; la suscripción se renueva automáticamente y puedes cancelarla desde Facturación.</p>
+      <p class="precio-oferta">Pagas con tarjeta sin salir de Pablo. La suscripción se renueva automáticamente y puedes cancelarla desde Facturación.</p>
       <button type="button" class="btn-primary btn-continue" onclick="pabloCuentaIrAlPago()">Continuar al pago</button>
-      <p class="pago-nota">Yape lo procesa Flow y la tarjeta, WHOP. Pablo no recibe tus datos de pago.</p>
+      <p class="pago-nota precio-lista">Yape lo procesa Flow y la tarjeta, WHOP. Pablo no recibe tus datos de pago.</p>
+      <p class="pago-nota precio-oferta">La tarjeta la procesa WHOP. Pablo no recibe tus datos de pago.</p>
     </div>
-    <button type="button" class="btn-secondary solo-organico" onclick="sessionStorage.setItem('pablo_plan_elegido','free');sessionStorage.removeItem('pablo_codigo_descuento');pabloCuentaIrAlPago()">Seguir con Gratis</button>
+    <button type="button" class="btn-secondary con-gratis" onclick="sessionStorage.setItem('pablo_plan_elegido','free');sessionStorage.removeItem('pablo_codigo_descuento');pabloCuentaIrAlPago()">Seguir con Gratis</button>
   </div>
 </section>
 <script is:inline>
   window.pabloPagoArrancar = function () {
-    var planes = { semanal: 'S/7 cada 7 días', mensual: 'S/20 cada 30 días', anual: 'S/200 cada 365 días' };
+    // Pauta = oferta de la app (mensual con 3 días de prueba, anual S/120).
+    var pauta = document.documentElement.classList.contains('pauta');
+    var planes = pauta
+      ? { mensual: '3 días de prueba sin pagar nada; luego S/20 cada 30 días', anual: 'S/120 cada 365 días (S/10 al mes)' }
+      : { semanal: 'S/7 cada 7 días', mensual: 'S/20 cada 30 días', anual: 'S/200 cada 365 días' };
     var plan = sessionStorage.getItem('pablo_plan_elegido') || 'mensual';
     document.getElementById('pago-resumen').textContent = planes[plan] || planes.mensual;
   };

@@ -3,6 +3,7 @@
 // cualquier página y se agrega a todo enlace a usapablo.app antes de que el
 // navegador lo siga: clic, clic central/ctrl+clic y "abrir en pestaña nueva"
 // (contextmenu). Las navegaciones por JS lo agregan con window.pabloConAfiliado.
+// Mismo punto agrega `precio=lista` a los enlaces de compra fuera de pauta.
 // El vigente va como super property `afiliado` de PostHog (embudo por afiliado)
 // y, si está autorizado, llena el aviso «Te recomendó …» de la Navbar. El modo
 // sin Gratis (html.pauta.afiliado) lo pone el script inline de los layouts.
@@ -11,8 +12,12 @@
 
 <script>
   import { afiliadoVigente, capturarAfiliado, conAfiliado, nombreAfiliado } from "../lib/afiliado";
+  import { conPrecioLista } from "../lib/precioLista";
   capturarAfiliado();
-  (window as any).pabloConAfiliado = conAfiliado;
+  // Afiliado + precio de lista (fuera de pauta, ver lib/precioLista.ts): todas
+  // las navegaciones por JS a la app ya pasan por aquí.
+  const decorarUrl = (url: string) => conPrecioLista(conAfiliado(url));
+  (window as any).pabloConAfiliado = decorarUrl;
   const vigente = afiliadoVigente();
   if (vigente) {
     try {
@@ -32,7 +37,7 @@
   }
   const decorar = (e: Event) => {
     const a = e.target instanceof Element ? e.target.closest<HTMLAnchorElement>('a[href^="https://usapablo.app"]') : null;
-    if (a) a.href = conAfiliado(a.href);
+    if (a) a.href = decorarUrl(a.href);
   };
   for (const evento of ["click", "auxclick", "contextmenu"]) document.addEventListener(evento, decorar, true);
 </script>
