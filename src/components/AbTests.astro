@@ -48,6 +48,23 @@
 <script is:inline>
   (function () {
     var CLAVE = "pablo_ab_v1";
+    // Variante ASIGNADA por PostHog, también "control" (la caché de arriba solo
+    // guarda variantes que cambian algo). La usa el registro para guardar en la
+    // base qué vio cada persona (`atribucion.ab`, ver abDelRegistro).
+    var CLAVE_ASIGNADAS = "pablo_ab_asignado_v1";
+    var UTMS = ["utm_source", "utm_medium", "utm_campaign", "utm_content", "utm_term"];
+
+    // Experimentos que se leen en TODAS las páginas (no dependen de que la
+    // página tenga elementos data-ab-*) y que dejan FUERA a la pauta y a los
+    // afiliados: a ellos no se les lee la flag (no cuentan como expuestos), no
+    // se les aplica la variante y su registro no lleva `ab`.
+    //   onboarding-gratis (Sandra 9-nov-2026): control | sin_gratis. Con
+    //   sin_gratis se esconde Gratis igual que a los afiliados (.con-gratis /
+    //   .sin-gratis en Layout.astro y OnboardingLayout.astro). La pauta sigue
+    //   viendo Gratis: compra registros a Gratis.
+    var GLOBALES = ["onboarding-gratis"];
+    var SIN_PAUTA = { "onboarding-gratis": true };
+
     var cache = {};
     try {
       cache = JSON.parse(localStorage.getItem(CLAVE) || "{}") || {};
@@ -70,6 +87,31 @@
 
     var activas = {};
     var forzadas = {};
+    var asignadasUrl = {}; // ?ab= de esta pestaña: nunca se guardan
+    var asignadas = {};
+    try {
+      asignadas = JSON.parse(localStorage.getItem(CLAVE_ASIGNADAS) || "{}") || {};
+    } catch (e) {
+      asignadas = {};
+    }
+
+    function fuera(flag) {
+      if (!SIN_PAUTA[flag]) return false;
+      if (document.documentElement.classList.contains("afiliado")) return true;
+      try {
+        return anuncio().pauta;
+      } catch (e) {
+        return false;
+      }
+    }
+
+    function guardarAsignadas() {
+      try {
+        localStorage.setItem(CLAVE_ASIGNADAS, JSON.stringify(asignadas));
+      } catch (e) {
+        /* sin storage: vale solo para esta página */
+      }
+    }
 
     // Todo por CSS (nada de toggles de `hidden`): así la variante cacheada
     // se aplica desde el <head>, antes de que exista el body.
@@ -110,8 +152,14 @@
       pintar();
     }
 
-    // 1) Variantes cacheadas → CSS antes del primer pintado.
+    // 1) Variantes cacheadas → CSS antes del primer pintado. Si la visita
+    //    quedó fuera (llegó por pauta o con link de afiliado), se olvida.
     Object.keys(cache).forEach(function (flag) {
+      if (fuera(flag)) {
+        delete cache[flag];
+        delete asignadas[flag];
+        return;
+      }
       activas[flag] = cache[flag];
     });
     pintar();
@@ -128,7 +176,12 @@
       Object.keys(cache).forEach(function (flag) {
         set[flag] = true;
       });
-      return Object.keys(set);
+      GLOBALES.forEach(function (flag) {
+        set[flag] = true;
+      });
+      return Object.keys(set).filter(function (flag) {
+        return !fuera(flag);
+      });
     }
 
     function alCargarFlags() {
@@ -144,13 +197,17 @@
           v = undefined;
         }
         if (v === undefined) return; // flag inexistente/sin evaluar: no tocar
+        // Solo una string es una asignación del experimento (false = la
+        // persona no entra: no se guarda nada).
+        if (typeof v === "string") asignadas[flag] = v;
+        else delete asignadas[flag];
+        guardarAsignadas();
         // false/"control" → control (sin clase ni caché); otra string → variante.
         aplicar(flag, typeof v === "string" ? v : null);
       });
     }
 
     // Anuncio del visitante: utm_* de la URL actual o del primer toque.
-    var UTMS = ["utm_source", "utm_medium", "utm_campaign", "utm_content", "utm_term"];
     function anuncio() {
       var utm = {};
       try {
@@ -240,6 +297,20 @@
       // Anuncio del visitante ({utm:{...}, pauta:bool}), para quien lo necesite.
       anuncio: anuncio,
       aplicar: aplicar,
+      // ¿Esta visita ve la web sin Gratis? (link de afiliado o experimento).
+      sinGratis: function () {
+        var cl = document.documentElement.classList;
+        return cl.contains("afiliado") || activas["onboarding-gratis"] === "sin_gratis";
+      },
+      // Lo que el registro manda en `atribucion.ab` ("<flag>:<variante>"),
+      // o null si la visita no está en el experimento (pauta, afiliado,
+      // PostHog bloqueado o la flag aún no se evaluó).
+      abDelRegistro: function () {
+        var flag = "onboarding-gratis";
+        if (fuera(flag)) return null;
+        var v = asignadasUrl[flag] || asignadas[flag];
+        return typeof v === "string" && /^[a-z0-9_-]{1,60}$/.test(v) ? flag + ":" + v : null;
+      },
       // Para depurar: ?ab=landing-hero-copy:whatsapp fuerza una variante en
       // esta pestaña (no cuenta en PostHog si la flag no la asignó).
       _forzarDesdeUrl: function () {
@@ -250,6 +321,7 @@
             var p = par.split(":");
             if (p[0]) {
               forzadas[p[0]] = true;
+              asignadasUrl[p[0]] = p[1] || "control";
               aplicar(p[0], p[1] || null, false); // solo esta pestaña, sin caché
             }
           });

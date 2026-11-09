@@ -233,8 +233,10 @@
 
   /* La nota se teclea en vivo al entrar. */
   function tecleaNota() {
-    var sinGratis = document.documentElement.classList.contains("afiliado");
-    // Con link de afiliado no se teclea la línea que ofrece Gratis (está oculta).
+    var sinGratis = window.pabloAB && window.pabloAB.sinGratis
+      ? window.pabloAB.sinGratis()
+      : document.documentElement.classList.contains("afiliado");
+    // Sin Gratis (afiliado o experimento) no se teclea la línea que lo ofrece (está oculta).
     var lineas = [].slice.call(document.querySelectorAll("[data-pw-teclea]")).filter(function (el) {
       return !(sinGratis && el.classList.contains("con-gratis"));
     });

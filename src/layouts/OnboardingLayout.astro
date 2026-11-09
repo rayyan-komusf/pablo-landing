@@ -42,8 +42,12 @@ const base = "/onboarding";
       })();
     </script>
     <style is:global>
-      html.afiliado .con-gratis { display: none !important; }
-      html:not(.afiliado) .sin-gratis { display: none !important; }
+      /* Sin Gratis: link de afiliado, o el experimento A/B `onboarding-gratis`
+         en su variante sin_gratis (la clase la pone AbTests.astro, que deja
+         fuera a la pauta y a los afiliados). */
+      html.afiliado .con-gratis,
+      html.ab-onboarding-gratis-sin_gratis .con-gratis { display: none !important; }
+      html:not(.afiliado):not(.ab-onboarding-gratis-sin_gratis) .sin-gratis { display: none !important; }
       html.pauta .precio-lista { display: none !important; }
       html:not(.pauta) .precio-oferta { display: none !important; }
       html.pauta .plan-semanal { display: none !important; }
