@@ -12,37 +12,16 @@
 
 /** Orden lineal de pantallas; las ramificaciones se resuelven en resolveNextStep. */
 const STEP_ORDER = [
-  "entry", // ¡Hola, soy Pablo! (la presentación va ANTES de la pregunta — Rodrigo, 24-ago)
-  "step-primer", // Pregunta inicial: "Quiero que Pablo me ayude a…"
-  "step-fiesta", // Reacción a la elección ("¡Cazar gastos hormiga!") con confetti
-  "step-fuente", // ¿Cómo supiste de Pablo?
-  "step-porque", // ¿Por qué quieres [objetivo]? (burbuja reactiva)
-  "step-2", // No tienes que ser millonario…
+  "entry", // ¡Hola, soy Pablo!
   "step-3", // Hoy puedes hacerlo desde WhatsApp
   "step-4", // Demo WhatsApp: tu "primer gasto"
-  "step-5", // Ahora, algunas preguntas…
-  "step-6", // Pregunta 1: edad
-  "step-7", // Pregunta 2: experiencia presupuestando
-  "step-8", // Pregunta 3: nivel de estrés (slider)
-  "step-nuevo-1", // Animación "No estás solo" (se salta si estrés <= 2)
-  "step-9", // Pregunta 4: claridad del dinero
-  "step-10", // Animación donut "claridad total"
-  "step-11", // Pregunta 5: cómo registrar transacciones
-  "step-12", // Pregunta 6: ¿endeudado?
-  "step-13", // Pregunta 7: otras deudas (solo si tiene deuda)
-  "step-nuevo-2", // Animación tarjeta de crédito (rama con deuda)
-  "step-nuevo-3B", // Mensaje "¡Eso es genial!" (rama sin deuda)
-  "step-14", // Pregunta 8: cash flow
-  "step-15", // Pregunta 9: meta de ahorro
-  "step-nuevo-4", // Animación meta de ahorro
-  "step-analizando", // Pablo "analizando" ~1.3s antes de mostrar el diagnóstico
-  "step-resumen", // Diagnóstico: lo que Pablo aprendió + la persona lo acepta
-  "step-16", // Funciones para ti (checkboxes automáticos)
-  "step-17", // Testimonios
-  "step-18", // Paywall 1/2: la nota de Rodrigo (solo el mensaje)
-  "step-18b", // Paywall 2/2: calendario del cobro + planes
-  "step-cuenta-password", // Registro (1/2): nombre + correo + contraseña en una pantalla
-  "step-cuenta-pago", // Registro (2/2): continuación al pago WHOP en la app
+  "step-cuenta-password", // Crea tu cuenta (ANTES de las preguntas y los planes)
+  "step-12", // ¿Endeudado?
+  "step-15", // Meta de ahorro
+  "step-analizando", // Pablo "analizando"
+  "step-resumen", // Diagnóstico
+  "step-18b", // Planes
+  "step-cuenta-pago", // Pago
 ];
 
 /** Pasos retirados → el que los reemplaza (sesiones guardadas antes del cambio). */
@@ -99,7 +78,7 @@ function progressFor(stepId) {
  * quien no llegó a la nota siempre arranca desde el inicio (sus respuestas se
  * conservan), y quien sí llegó retoma en la nota o donde se quedó. */
 const NOTA_VISTA_KEY = "pablo_nota_vista";
-const RETURNING_START_STEP = "step-18";
+const RETURNING_START_STEP = "step-18b";
 
 /* ------------------------------------------------------------------ */
 /* Métricas (PostHog)                                                  */
@@ -185,7 +164,7 @@ class OnboardingEngine {
     // Pasos que ya no existen en esta versión (nombre y correo se fusionaron en
     // step-cuenta-password): con uno guardado, goTo no lo encuentra y la
     // pantalla queda en blanco. Se traducen al paso que los reemplaza.
-    const vigente = (id) => PASOS_RETIRADOS[id] || (STEP_FLAGS[id] ? id : null);
+    const vigente = (id) => { const v = PASOS_RETIRADOS[id] || id; return STEP_ORDER.includes(v) ? v : null; };
     this.history = Array.isArray(this.history) ? this.history.map(vigente).filter(Boolean) : [];
     const pasoGuardado = savedStep ? vigente(savedStep) : null;
     const initial = notaVista ? (pasoGuardado || RETURNING_START_STEP) : STEP_ORDER[0];
@@ -295,7 +274,7 @@ class OnboardingEngine {
     }
 
     // La marca de reanudación nace recién al llegar a la nota (step-18).
-    if (stepId === "step-18") {
+    if (stepId === "step-18b") {
       localStorage.setItem(NOTA_VISTA_KEY, "1");
     }
 
@@ -311,7 +290,7 @@ class OnboardingEngine {
       progress_percent: progressFor(stepId),
     });
 
-    if (stepId === "step-18" && !sessionStorage.getItem("pablo_paywall_seen")) {
+    if (stepId === "step-18b" && !sessionStorage.getItem("pablo_paywall_seen")) {
       sessionStorage.setItem("pablo_paywall_seen", "1");
       track("onboarding_completed", {
         steps_navigated: this.history.length + 1,
@@ -455,23 +434,6 @@ class OnboardingEngine {
     const i = STEP_ORDER.indexOf(this.currentStepId);
     if (i === -1 || i >= STEP_ORDER.length - 1) return null;
 
-    // Pregunta 3 (estrés): con poco estrés (<= 2) no se muestra la
-    // animación "No estás solo"; se pasa directo a la pregunta 4.
-    if (this.currentStepId === "step-8" && (this.answers.stressLevel ?? 2) <= 2) {
-      return "step-9";
-    }
-    // Pregunta 4: si tiene todo bajo control, no ve la animación del donut.
-    if (this.currentStepId === "step-9" && this.answers.moneyClarity === "bajo-control") {
-      return "step-11";
-    }
-    // Pregunta 6: rama según tenga deuda o no.
-    if (this.currentStepId === "step-12") {
-      return this.answers.hasDebt === true ? "step-13" : "step-nuevo-3B";
-    }
-    if (this.currentStepId === "step-13") return "step-nuevo-2";
-    if (this.currentStepId === "step-nuevo-2" || this.currentStepId === "step-nuevo-3B") {
-      return "step-14";
-    }
     return STEP_ORDER[i + 1] ?? null;
   }
 
@@ -709,5 +671,5 @@ engine.init();
 window.pabloSeguirGratis = function () {
   sessionStorage.setItem("pablo_plan_elegido", "free");
   sessionStorage.removeItem("pablo_codigo_descuento");
-  window.pabloGoTo?.("step-cuenta-password");
+  window.pabloCuentaIrAlPago?.();
 };
