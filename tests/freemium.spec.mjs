@@ -28,33 +28,50 @@ for (const width of [390, 1440]) {
     expect(state.errors).toEqual([]);
   });
 }
-for (const step of ['step-18', 'step-18b']) {
-  test(`${step}: elegir Gratis crea cuenta y omite el pago`, async ({ page }) => {
-    const state = await offline(page);
-    await page.goto('/onboarding');
-    await page.addStyleTag({ content: 'astro-dev-toolbar { display: none !important; }' });
-    await page.waitForFunction(() => typeof window.pabloSeguirGratis === 'function');
-    await page.evaluate(step => {
-      sessionStorage.setItem('pablo_plan_elegido', 'anual');
-      sessionStorage.setItem('pablo_codigo_descuento', 'PREVIO');
-      window.pabloGoTo(step);
-    }, step);
-    await page.locator(`[data-step="${step}"]`).getByRole('button', { name: 'Seguir con Gratis', exact: true }).click();
-    await expect(page.locator('#cuenta-nombre')).toBeVisible();
-    expect(await page.evaluate(() => sessionStorage.getItem('pablo_plan_elegido'))).toBe('free');
-    expect(await page.evaluate(() => sessionStorage.getItem('pablo_codigo_descuento'))).toBe(null);
-    await page.locator('#cuenta-nombre').fill('Prueba Gratis');
-    await page.locator('#cuenta-correo').fill('prueba@example.test');
-    await page.locator('#cuenta-password').fill('test-pass-123');
-    await page.evaluate(() => { window.pabloCuentaAsegurarSesion = async () => ({ access_token: 'test-access', refresh_token: 'test-refresh' }); });
-    const next = page.waitForURL(/\/auth\/sesion\?plan=free/);
-    await page.locator('#cuenta-crear-btn').click();
-    await next;
-    // Solo la medición del registro (CompleteRegistration por CAPI); nada de pagos.
-    await expect.poll(() => state.calls).toEqual(['/functions/v1/meta-registro']);
-    expect(state.errors).toEqual([]);
+// Cuenta primero (PR #18, 10-nov-2026): la cuenta se crea en la pantalla 4,
+// antes de las preguntas y los planes; «Seguir con Gratis» al final entra
+// directo a la app con la sesión que ya existe.
+test('la cuenta se crea después de la demo y sigue con las preguntas, no con el pago', async ({ page }) => {
+  const state = await offline(page);
+  await page.goto('/onboarding');
+  await page.waitForFunction(() => typeof window.pabloGoTo === 'function');
+  await page.evaluate(() => window.pabloGoTo('step-4'));
+  await expect(page.locator('[data-step="step-4"]')).toHaveClass(/active/);
+  // pabloNext no hace nada mientras dura la transición de pantalla.
+  await expect.poll(async () => {
+    await page.evaluate(() => window.pabloNext());
+    return page.locator('[data-step="step-cuenta-password"]').getAttribute('class');
+  }).toMatch(/active/);
+  await expect(page.locator('#cuenta-nombre')).toBeVisible();
+  await page.locator('#cuenta-nombre').fill('Prueba Gratis');
+  await page.locator('#cuenta-correo').fill('prueba@example.test');
+  await page.locator('#cuenta-password').fill('test-pass-123');
+  await page.evaluate(() => { window.pabloCuentaAsegurarSesion = async () => ({ access_token: 'test-access', refresh_token: 'test-refresh' }); });
+  await page.locator('#cuenta-crear-btn').click();
+  await expect(page.locator('[data-step="step-12"]')).toHaveClass(/active/);
+  expect(page.url()).toContain('/onboarding');
+  // Solo la medición del registro (CompleteRegistration por CAPI); nada de pagos.
+  await expect.poll(() => state.calls).toEqual(['/functions/v1/meta-registro']);
+  expect(state.errors).toEqual([]);
+});
+test('step-18b: Seguir con Gratis entra a la app con la cuenta ya creada', async ({ page }) => {
+  const state = await offline(page);
+  await page.goto('/onboarding');
+  await page.waitForFunction(() => typeof window.pabloSeguirGratis === 'function');
+  await page.evaluate(() => {
+    sessionStorage.setItem('pablo_plan_elegido', 'anual');
+    sessionStorage.setItem('pablo_codigo_descuento', 'PREVIO');
+    sessionStorage.setItem('pablo_sesion_tokens', JSON.stringify({ access_token: 'test-access', refresh_token: 'test-refresh' }));
+    window.pabloGoTo('step-18b');
   });
-}
+  const next = page.waitForURL(/\/auth\/sesion\?plan=free/);
+  await page.locator('[data-step="step-18b"]').getByRole('button', { name: 'Seguir con Gratis', exact: true }).click();
+  await next;
+  expect(page.url()).not.toContain('codigo=');
+  expect(page.url()).toContain('access_token=test-access');
+  expect(state.calls).toEqual([]);
+  expect(state.errors).toEqual([]);
+});
 test('iPhone muestra aviso de App Store y respeta Seguir en la web', async ({ browser }) => {
   const context = await browser.newContext({ viewport: { width: 390, height: 844 }, userAgent: 'Mozilla/5.0 (iPhone; CPU iPhone OS 18_0 like Mac OS X) AppleWebKit/605.1.15 Mobile/15E148 Safari/604.1' });
   const page = await context.newPage(); await offline(page);
