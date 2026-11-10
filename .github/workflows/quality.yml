@@ -7,7 +7,9 @@ permissions:
   contents: read
 jobs:
   check:
-    runs-on: ubuntu-latest
+    # Fijo en 24.04: en ubuntu-latest (26.04 desde nov-2026) `npx playwright
+    # install` falla con «Playwright does not support chromium on ubuntu26.04».
+    runs-on: ubuntu-24.04
     timeout-minutes: 15
     steps:
       - uses: actions/checkout@v4
