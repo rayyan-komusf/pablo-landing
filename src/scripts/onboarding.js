@@ -673,3 +673,12 @@ window.pabloSeguirGratis = function () {
   sessionStorage.removeItem("pablo_codigo_descuento");
   window.pabloCuentaIrAlPago?.();
 };
+
+// Experimento onboarding-gratis, variante sin_gratis (Sandra 11-nov-2026): no
+// se ofrece Gratis, pero quien no paga entra a la app con la cuenta que ya
+// creó en step-cuenta-password, por un enlace discreto que no nombra Gratis.
+// Mismo destino que «Seguir con Gratis»; el evento mide cuántos lo usan.
+window.pabloEntrarSinPagar = function (paso) {
+  track("onboarding_entrar_sin_pagar", { step_id: paso });
+  window.pabloSeguirGratis();
+};

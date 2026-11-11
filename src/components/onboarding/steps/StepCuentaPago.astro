@@ -11,6 +11,11 @@
       <p class="pago-nota precio-oferta">La tarjeta la procesa WHOP. Pablo no recibe tus datos de pago.</p>
     </div>
     <button type="button" class="btn-secondary con-gratis" onclick="sessionStorage.setItem('pablo_plan_elegido','free');sessionStorage.removeItem('pablo_codigo_descuento');pabloCuentaIrAlPago()">Seguir con Gratis</button>
+    <!-- Experimento onboarding-gratis, solo sin_gratis: salida discreta a la
+         app sin nombrar Gratis (ver Step18B y pabloEntrarSinPagar). -->
+    <div data-ab-show="onboarding-gratis:sin_gratis" style="text-align: center;">
+      <button type="button" class="cuenta-link" onclick="pabloEntrarSinPagar('step-cuenta-pago')">Ahora no, entrar a mi cuenta</button>
+    </div>
   </div>
 </section>
 <script is:inline>
