@@ -29,6 +29,9 @@ async function sinRed(page) {
   await page.route('**/*', route => {
     const url = new URL(route.request().url());
     if (url.hostname === '127.0.0.1') return route.continue();
+    if (['usapablo.app', 'localhost'].includes(url.hostname) && url.pathname === '/auth/sesion') {
+      return route.fulfill({ contentType: 'text/html', body: '<p>Puente de sesión de prueba</p>' });
+    }
     if (url.pathname.endsWith('/auth/v1/signup')) {
       signups.push(route.request().postDataJSON());
       return route.fulfill({ json: { access_token: 'test-access', refresh_token: 'test-refresh', user: { id: 'test-user' } } });
@@ -132,6 +135,63 @@ test('sin_gratis: el onboarding no ofrece «Seguir con Gratis»', async ({ page 
     const boton = page.locator(`[data-step="${step}"] button.con-gratis, [data-step="${step}"] .con-gratis button`).filter({ hasText: 'Seguir con Gratis' });
     expect(await boton.count()).toBeGreaterThan(0);
     await expect(boton.first()).toBeHidden();
+  }
+});
+
+// Salida discreta (Sandra 11-nov-2026): en sin_gratis quien no paga entra a la
+// app con la cuenta que ya creó, sin que se le ofrezca Gratis.
+const ENLACE = 'Ahora no, entrar a mi cuenta';
+const enlace = (page, step) => page.locator(`[data-step="${step}"] button`, { hasText: ENLACE });
+
+test('sin_gratis: «Ahora no, entrar a mi cuenta» lleva a la app con la cuenta creada', async ({ page }) => {
+  const { errores } = await sinRed(page);
+  await conPosthog(page, 'sin_gratis');
+  await page.goto('/onboarding');
+  await page.waitForFunction(() => typeof window.pabloEntrarSinPagar === 'function');
+  await expect.poll(() => claseSinGratis(page)).toBe(true);
+  await page.evaluate(() => window.pabloGoTo('step-cuenta-pago'));
+  await expect(enlace(page, 'step-cuenta-pago')).toBeVisible();
+  await page.evaluate(() => {
+    sessionStorage.setItem('pablo_plan_elegido', 'anual');
+    sessionStorage.setItem('pablo_codigo_descuento', 'PREVIO');
+    sessionStorage.setItem('pablo_sesion_tokens', JSON.stringify({ access_token: 'test-access', refresh_token: 'test-refresh' }));
+    window.pabloGoTo('step-18b');
+  });
+  await expect(enlace(page, 'step-18b')).toBeVisible();
+  const destino = page.waitForURL(/\/auth\/sesion\?plan=free/);
+  await enlace(page, 'step-18b').click();
+  await destino;
+  expect(page.url()).not.toContain('codigo=');
+  expect(page.url()).toContain('access_token=test-access');
+  expect(errores).toEqual([]);
+});
+
+test('control: ofrece «Seguir con Gratis» y no la salida discreta', async ({ page }) => {
+  await sinRed(page);
+  await conPosthog(page, 'control');
+  await page.goto('/onboarding');
+  await page.waitForFunction(() => typeof window.pabloGoTo === 'function');
+  await expect.poll(() => page.evaluate(() => window.__flagsLeidas.includes('onboarding-gratis'))).toBe(true);
+  for (const step of ['step-18b', 'step-cuenta-pago']) {
+    await page.evaluate(s => window.pabloGoTo(s), step);
+    await expect(page.locator(`[data-step="${step}"] button`, { hasText: 'Seguir con Gratis' })).toBeVisible();
+    await expect(enlace(page, step)).toHaveCount(1);
+    await expect(enlace(page, step)).toBeHidden();
+  }
+});
+
+test('afiliado: sin Gratis y sin la salida discreta (no entra al experimento)', async ({ page }) => {
+  await sinRed(page);
+  await conPosthog(page, 'sin_gratis');
+  await page.goto('/onboarding?a=maria.p_23');
+  await page.waitForFunction(() => typeof window.pabloGoTo === 'function');
+  await page.waitForTimeout(300);
+  expect(await page.evaluate(() => document.documentElement.classList.contains('afiliado'))).toBe(true);
+  expect(await page.evaluate(() => window.__flagsLeidas)).not.toContain('onboarding-gratis');
+  for (const step of ['step-18b', 'step-cuenta-pago']) {
+    await page.evaluate(s => window.pabloGoTo(s), step);
+    await expect(page.locator(`[data-step="${step}"] button`, { hasText: 'Seguir con Gratis' })).toBeHidden();
+    await expect(enlace(page, step)).toBeHidden();
   }
 });
 

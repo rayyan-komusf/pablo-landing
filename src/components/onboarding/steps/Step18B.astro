@@ -178,6 +178,12 @@
     <button type="button" class="btn-secondary" style="min-height:44px;width:100%;max-width:360px" onclick="pabloSeguirGratis()">Seguir con Gratis</button>
     <p style="font-size:12px;margin-top:8px">Sin tarjeta · 5 mensajes diarios · 3 cuentas</p>
   </div>
+  <!-- Experimento onboarding-gratis, solo sin_gratis (Sandra 11-nov-2026):
+       salida discreta a la app sin nombrar Gratis. Afiliados y pauta no leen
+       la flag, así que no lo ven. Ver pabloEntrarSinPagar en onboarding.js. -->
+  <div data-ab-show="onboarding-gratis:sin_gratis" style="padding: 0 24px 16px; text-align: center;">
+    <button type="button" class="cuenta-link" onclick="pabloEntrarSinPagar('step-18b')">Ahora no, entrar a mi cuenta</button>
+  </div>
 </section>
 
 <script is:inline type="module">
