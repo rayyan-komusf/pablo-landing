@@ -1,5 +1,14 @@
 <section class="step !pb-0" data-step="step-cuenta-pago" aria-label="Pago seguro" aria-hidden="true">
-  <div class="pago-header"><img src="/onboarding/images/pablo/pablo-logo.png" alt="" width="64" height="64" /></div>
+  <!-- Pablo anotando sus gastos (pedido del equipo, 12-nov-2026), igual en
+       todas las variantes. Mismo patrón que las escenas del onboarding: la
+       imagen queda de respaldo y el video carga y se reproduce solo con el
+       paso activo (y nunca con «reducir movimiento»). -->
+  <div class="pago-header">
+    <div class="onb-escena pago-escena" data-onb-escena>
+      <img src="/onboarding/images/pablo/2d/pablo-anotando.webp" alt="" width="512" height="431" loading="lazy" />
+      <video data-src="/onboarding/images/pablo/2d/pablo-anotando.webm" muted loop playsinline preload="none"></video>
+    </div>
+  </div>
   <div class="fuente-body flex-1 flex flex-col w-full mx-auto px-5">
     <div class="pago-card">
       <h2>Continúa al pago seguro</h2>
@@ -29,5 +38,38 @@
     document.getElementById('pago-resumen').textContent = planes[plan] || planes.mensual;
   };
   window.pabloPagoReintentar = window.pabloPagoArrancar;
+
+  // Video de Pablo anotando: igual que StepNuevo2 (HEVC con alfa para Safari,
+  // que pinta negro el alfa del WebM; Chrome cae al WebM).
+  (function () {
+    var paso = document.querySelector('[data-step="step-cuenta-pago"]');
+    var caja = paso && paso.querySelector('[data-onb-escena]');
+    var v = caja && caja.querySelector('video');
+    if (!v || window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+    new MutationObserver(function () {
+      if (!paso.classList.contains('active')) { v.pause(); return; }
+      if (v.childElementCount) { v.play().catch(function () {}); return; }
+      var mov = document.createElement('source');
+      mov.src = v.dataset.src.replace(/\.webm$/, '.mov');
+      mov.type = 'video/quicktime; codecs="hvc1"';
+      var wm = document.createElement('source');
+      wm.src = v.dataset.src;
+      wm.type = 'video/webm';
+      v.appendChild(mov);
+      v.appendChild(wm);
+      v.addEventListener('loadeddata', function () {
+        caja.classList.add('onb-escena--video');
+        v.play().catch(function () {});
+      }, { once: true });
+      v.load();
+    }).observe(paso, { attributes: true, attributeFilter: ['class'] });
+  })();
 </script>
-<style>.pago-header{display:flex;justify-content:center;padding:18px 0}.pago-card{display:grid;gap:16px}</style>
+<style>
+  .pago-header{display:flex;justify-content:center;padding:10px 0 6px}
+  .pago-card{display:grid;gap:16px}
+  /* Más chico que las escenas de las preguntas: acá manda la tarjeta de pago. */
+  .pago-header .pago-escena{width:auto;margin-top:0}
+  .pago-header .pago-escena img,
+  .pago-header .pago-escena video{height:clamp(72px,13vh,140px);width:auto;max-width:none;max-height:none;margin-inline:auto}
+</style>
