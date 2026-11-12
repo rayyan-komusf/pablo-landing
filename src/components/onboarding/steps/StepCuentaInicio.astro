@@ -1,0 +1,44 @@
+<!-- Onboarding v2 · Crea tu cuenta (Figma «Propuesta v2», pantalla 02).
+     La cuenta va PRIMERO y con Google en un toque. «Continuar con correo»
+     lleva al formulario de siempre (step-cuenta-password).
+     Google siempre se ve. Si el proveedor todavía no está activo en Supabase
+     (Auth → Providers → Google), al tocarlo se avisa y se sugiere el correo
+     en vez de mandar a una página de error.
+     La lógica de Google vive en StepCuentaPassword (comparte la sesión y la
+     medición del registro); por eso este componente va DESPUÉS de ese en
+     pages/onboarding/index.astro (su script usa esas funciones). -->
+<section class="step !pb-0" data-step="step-cuenta" aria-label="Crea tu cuenta" aria-hidden="true">
+  <div class="fuente-header">
+    <div class="fuente-header__inner">
+      <div class="fuente-pablo" data-pablo-anclaje data-pose="senalando"></div>
+      <div class="speech-bubble speech-bubble--side">Primero crea tu cuenta.</div>
+    </div>
+  </div>
+
+  <div class="fuente-body flex-1 flex flex-col w-full mx-auto px-5 max-md:px-4 overflow-y-auto [scrollbar-width:none] [&::-webkit-scrollbar]:hidden vcenter">
+    <div class="cuenta-form v2-cuenta-opciones">
+      <button type="button" class="v2-btn-google" id="v2-google-btn" onclick="pabloCuentaGoogle()">
+        <svg width="20" height="20" viewBox="0 0 48 48" aria-hidden="true"><path fill="#FFC107" d="M43.6 20.5H42V20H24v8h11.3C33.7 32.7 29.2 36 24 36c-6.6 0-12-5.4-12-12s5.4-12 12-12c3.1 0 5.8 1.2 7.9 3.1l5.7-5.7C34 6.1 29.3 4 24 4 12.9 4 4 12.9 4 24s8.9 20 20 20 20-8.9 20-20c0-1.3-.1-2.4-.4-3.5z"/><path fill="#FF3D00" d="m6.3 14.7 6.6 4.8C14.7 15.1 19 12 24 12c3.1 0 5.8 1.2 7.9 3.1l5.7-5.7C34 6.1 29.3 4 24 4 16.3 4 9.7 8.3 6.3 14.7z"/><path fill="#4CAF50" d="M24 44c5.2 0 9.9-2 13.4-5.2l-6.2-5.2C29.2 35.1 26.7 36 24 36c-5.2 0-9.6-3.3-11.3-7.9l-6.5 5C9.5 39.6 16.2 44 24 44z"/><path fill="#1976D2" d="M43.6 20.5H42V20H24v8h11.3c-.8 2.2-2.2 4.2-4.1 5.6l6.2 5.2C37 39.2 44 34 44 24c0-1.3-.1-2.4-.4-3.5z"/></svg>
+        <span>Continuar con Google</span>
+      </button>
+      <div class="v2-separador" id="v2-google-sep"><span>o</span></div>
+      <button type="button" class="v2-btn-secundario" onclick="pabloCuentaConCorreo()">
+        <span>Continuar con correo</span>
+      </button>
+      <p class="cuenta-error" id="v2-google-error" role="alert"></p>
+      <p class="cuenta-hint">Al continuar aceptas los Términos y la Política de privacidad.</p>
+      <button type="button" class="cuenta-link" onclick="pabloCuentaYaTengo()">Ya tengo una cuenta</button>
+    </div>
+  </div>
+
+  <script is:inline>
+    (function () {
+            window.pabloCuentaConCorreo = function () {
+        window.pabloTrack?.("onboarding_cuenta_metodo", { metodo: "correo" });
+        window.onboarding?.history.push("step-cuenta");
+        window.pabloGoTo?.("step-cuenta-password");
+      };
+
+    })();
+  </script>
+</section>

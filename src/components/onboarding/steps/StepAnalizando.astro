@@ -5,16 +5,21 @@
 <section
   class="step !pb-0"
   data-step="step-analizando"
-  aria-label="Pablo está analizando tus respuestas"
+  aria-label="Pablo está armando tu plan"
   aria-hidden="true"
-  data-pablo-dice='["Déjame ver…"]'
+  data-pablo-dice='["Armando tu plan…"]'
 >
   <div class="duo-stage flex-1 flex flex-col items-center justify-center relative w-full px-6">
-    <div class="speech-bubble" data-pablo-burbuja aria-live="polite">Déjame ver…</div>
+    <div class="speech-bubble" data-pablo-burbuja aria-live="polite">Armando tu plan…</div>
     <div class="duo-stage__pablo" data-pablo-anclaje data-pose="buscando"></div>
     <p class="anal-texto" role="status">
-      Analizando tus respuestas<span class="anal-puntos" aria-hidden="true"><i>.</i><i>.</i><i>.</i></span>
+      Armando tu plan<span class="anal-puntos" aria-hidden="true"><i>.</i><i>.</i><i>.</i></span>
     </p>
+    <ul class="anal-lista" aria-hidden="true">
+      <li>✅ Ordenando tus categorías</li>
+      <li>✅ Revisando tu fin de mes</li>
+      <li class="anal-lista__espera">⏳ Preparando tu primer reto</li>
+    </ul>
   </div>
 </section>
 
@@ -26,6 +31,25 @@
     font-size: 18px;
     color: #2b2c64;
   }
+
+  .anal-lista {
+    list-style: none;
+    margin: 14px 0 0;
+    padding: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    font-size: 15px;
+    color: #2b2c64;
+  }
+  .anal-lista li {
+    opacity: 0;
+    animation: analItem 0.4s ease forwards;
+  }
+  .anal-lista li:nth-child(2) { animation-delay: 0.6s; }
+  .anal-lista li:nth-child(3) { animation-delay: 1.2s; }
+  .anal-lista__espera { color: #6a6487; }
+  @keyframes analItem { to { opacity: 1; } }
 
   .anal-puntos i {
     font-style: normal;
@@ -40,6 +64,25 @@
   }
 
   @media (prefers-reduced-motion: reduce) {
-    .anal-puntos i { animation: none; }
+    .anal-lista {
+    list-style: none;
+    margin: 14px 0 0;
+    padding: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    font-size: 15px;
+    color: #2b2c64;
+  }
+  .anal-lista li {
+    opacity: 0;
+    animation: analItem 0.4s ease forwards;
+  }
+  .anal-lista li:nth-child(2) { animation-delay: 0.6s; }
+  .anal-lista li:nth-child(3) { animation-delay: 1.2s; }
+  .anal-lista__espera { color: #6a6487; }
+  @keyframes analItem { to { opacity: 1; } }
+
+  .anal-puntos i { animation: none; }
   }
 </style>

@@ -6,14 +6,16 @@
 <section class="step !pb-0" data-step="step-4" aria-label="Demo: registra tu primer gasto" aria-hidden="true">
   <div class="demo-body flex-1 flex flex-col items-center w-full mx-auto px-5 max-md:px-3 overflow-y-auto [scrollbar-width:none] [&::-webkit-scrollbar]:hidden vcenter">
     <h2 class="demo-title font-display font-bold text-navy text-center">
-      Pruébame: <span class="text-amber">regístrame un gasto</span>
+      Ahora tú: <span class="text-amber">anótale un gasto</span>
     </h2>
+    <p class="v2-demo-sub">Toca un ejemplo o escribe el tuyo.</p>
 
-    <!-- Chips: qué maneras puede usar el visitante (guía visual) -->
-    <div class="demo-tips" aria-hidden="true">
-      <span class="demo-tip"><img data-icons-control src="/onboarding/images/iconos/ui07_lapiz.png" alt="" width="20" height="20" loading="lazy" class="pab-icono" /><img data-icons-test src="/onboarding/images/iconos/pablo/lapiz.webp" alt="" width="20" height="20" loading="lazy" class="pab-icono" /> Escribe</span>
-      <span class="demo-tip"><img data-icons-control src="/onboarding/images/iconos/ch03_camara.png" alt="" width="20" height="20" loading="lazy" class="pab-icono" /><img data-icons-test src="/onboarding/images/iconos/pablo/camara.webp" alt="" width="20" height="20" loading="lazy" class="pab-icono" /> Foto</span>
-      <span class="demo-tip"><img data-icons-control src="/onboarding/images/iconos/ch02_mic.png" alt="" width="20" height="20" loading="lazy" class="pab-icono" /><img data-icons-test src="/onboarding/images/iconos/pablo/microfono.webp" alt="" width="20" height="20" loading="lazy" class="pab-icono" /> Audio</span>
+    <!-- Ejemplos para tocar (v2): nadie se queda sin saber qué escribir.
+         Cada chip manda ese gasto al chat como si lo hubiera escrito. -->
+    <div class="v2-ejemplos" role="group" aria-label="Ejemplos de gastos">
+      <button type="button" class="v2-chip" onclick="pabloDemoEnviar('Menú 15 soles')">🍔 Menú 15 soles</button>
+      <button type="button" class="v2-chip" onclick="pabloDemoEnviar('Taxi 12')">🚕 Taxi 12</button>
+      <button type="button" class="v2-chip" onclick="pabloDemoEnviar('Café 8')">☕ Café 8</button>
     </div>
 
     <!-- ══════════ iPhone ══════════ -->
@@ -78,10 +80,13 @@
     </div>
   </div>
 
-  <footer class="duo-footer cta-footer">
-    <button class="btn-primary btn-continue disabled" disabled onclick="pabloNext()" aria-label="Continuar">
+  <!-- v2: Continuar SIEMPRE activo. Antes quedaba bloqueado hasta mandar un
+       gasto y ahí se perdía ~1 de cada 5 personas (PostHog: 301 → 245). -->
+  <footer class="duo-footer cta-footer v2-footer-col">
+    <button class="btn-primary btn-continue" onclick="pabloDemoContinuar()" aria-label="Continuar">
       Continuar
     </button>
+    <button type="button" class="cuenta-link v2-link-bajo" onclick="pabloDemoDespues()">Lo pruebo después</button>
   </footer>
 </section>
 
@@ -190,7 +195,7 @@
       saludado = true;
       setTimeout(() => {
         burbuja(
-          "¡Hola! 👋 Cuéntame tu última compra —por texto, foto o audio— y mira cómo la registro al instante 🔥",
+          "¡Hola! Cuéntame un gasto de hoy 👇",
           "in"
         );
       }, 600);
@@ -298,6 +303,20 @@
     registrarEnvio();
     analizar({ tipo: "texto", texto: texto.trim() });
   }
+
+  // v2: los chips de ejemplo y los dos botones del pie.
+  (window as any).pabloDemoEnviar = (texto: string) => {
+    (window as any).pabloTrack?.("demo_ejemplo_tocado", { texto });
+    enviarTexto(texto);
+  };
+  (window as any).pabloDemoContinuar = () => {
+    (window as any).pabloTrack?.("demo_continuar", { probo: mensajesEnviados > 0 });
+    (window as any).pabloNext?.();
+  };
+  (window as any).pabloDemoDespues = () => {
+    (window as any).pabloTrack?.("demo_lo_pruebo_despues", {});
+    (window as any).pabloNext?.();
+  };
 
   inputTexto.addEventListener("keydown", (e) => {
     if (e.key === "Enter") {

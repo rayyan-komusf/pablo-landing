@@ -1,0 +1,46 @@
+---
+/* Onboarding v2 · ¿Cómo llegas a fin de mes? (Figma «Propuesta v2», pantalla 10).
+ * Una sola respuesta (answers.finDeMes); se elige y avanza solo. Llena la
+ * fila «fin de mes» de «Tu plan con Pablo». */
+const opciones = [
+  { valor: "sobra", label: "Me sobra plata", control: "ui12_bolsa_dinero.png", test: "alcancia.webp", bubble: "¡Bien! Te ayudo a que esa plata trabaje para ti." },
+  { valor: "justo", label: "Llego justo", control: "ui06_doble_check.png", test: "check.webp", bubble: "Te aviso antes de que se te acabe." },
+  { valor: "no-alcanza", label: "No me alcanza", control: "ac03_tarjeta_credito.png", test: "tarjeta.webp", bubble: "Tranqui, vamos a encontrar dónde se va." },
+];
+---
+
+<section class="step !pb-0" data-step="step-finmes" aria-label="¿Cómo llegas a fin de mes?" aria-hidden="true">
+  <div class="fuente-header">
+    <div class="fuente-header__inner">
+      <div class="fuente-pablo" data-pablo-anclaje data-pose="anotando"></div>
+      <div class="speech-bubble speech-bubble--side" data-reactive-bubble>¿Cómo llegas a fin de mes?</div>
+    </div>
+  </div>
+
+  <div class="fuente-body flex-1 flex flex-col w-full mx-auto px-5 max-md:px-4 overflow-y-auto [scrollbar-width:none] [&::-webkit-scrollbar]:hidden vcenter">
+    <div class="fuente-grid v2-lista" role="radiogroup" aria-label="¿Cómo llegas a fin de mes?">
+      {
+        opciones.map((o) => (
+          <button
+            class="option-card option-card--pill"
+            role="radio"
+            aria-checked="false"
+            data-bubble={o.bubble}
+            onclick={`pabloSelect(this, 'finDeMes', '${o.valor}')`}
+          >
+            <span class="option-icon">
+              <img src={`/onboarding/images/iconos/${o.control}`} alt="" width="30" height="30" loading="lazy" />
+            </span>
+            <span class="option-label text-left">{o.label}</span>
+          </button>
+        ))
+      }
+    </div>
+  </div>
+
+  <footer class="duo-footer cta-footer">
+    <button class="btn-primary btn-continue disabled" disabled onclick="pabloNext()" aria-label="Continuar">
+      Continuar
+    </button>
+  </footer>
+</section>

@@ -51,7 +51,7 @@ export const CTA_CONFIG = {
     href: null, // null = abre el modal
   },
   live: {
-    label: 'Empieza gratis',
+    label: 'Empieza ahora',
     href: '/onboarding',
   },
 } as const;
@@ -101,3 +101,9 @@ export const APP_STORE_URL =
 // URL de la app en Google Play (publicada; ficha verificada el 13-oct-2026).
 export const PLAY_STORE_URL =
   'https://play.google.com/store/apps/details?id=app.usapablo.android';
+
+// Onboarding v2 · oferta por tiempo limitado: plan de 6 meses a S/100 con 1 mes
+// gratis. Ese plan todavía NO existe en la pasarela (Whop/Flow): mientras sea
+// false, la tarjeta se ve como «Muy pronto» y no se puede elegir. Encenderlo
+// solo cuando la app acepte plan=semestral en /pricing y /auth/sesion.
+export const PLAN_SEMESTRAL_ACTIVO = true;

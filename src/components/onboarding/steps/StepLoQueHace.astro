@@ -1,0 +1,153 @@
+---
+/* Onboarding v2 · «Lo que hace Pablo» (Figma «Propuesta v2», pantallas 04–06).
+ * Pedido del jefe: el onboarding era corto pero NO mostraba lo que hace Pablo.
+ * Tres pantallas que muestran (no cuentan) las tres cosas que Pablo hace de
+ * verdad según la landing: anota gastos (texto, audio, foto), te dice en qué
+ * se va tu plata (presupuesto) y te lleva a tus metas.
+ * Avanzan solas cada 4 s (AUTO_AVANCE en onboarding.js), con deslizar o con
+ * Continuar. «Saltar» lleva directo al demo (step-4).
+ * Los mensajes de Pablo salen de la landing (HeroPhone/HowItWorks): nada que
+ * Pablo no haga. */
+const pantallas = [
+  {
+    id: "step-hace-1",
+    pose: "anotando",
+    titulo: "Anota tus gastos en segundos",
+    sub: "Escríbele, mándale un audio o la foto de tu boleta.",
+  },
+  {
+    id: "step-hace-2",
+    pose: "explicando",
+    titulo: "Mira en qué se va tu plata",
+    sub: "Pablo ordena todo solo y te lo explica fácil.",
+  },
+  {
+    id: "step-hace-3",
+    pose: "celebrando",
+    titulo: "Cumple tus metas de ahorro",
+    sub: "Pablo te dice cuánto te falta y te da ánimo, sin regaños.",
+  },
+];
+---
+
+{
+  pantallas.map((p, i) => (
+    <section class="step !pb-0 v2-hace" data-step={p.id} aria-label={p.titulo} aria-hidden="true">
+      <div class="fuente-header">
+        <div class="fuente-header__inner">
+          <div class="fuente-pablo" data-pablo-anclaje data-pose={p.pose} />
+          <div class="v2-hace__cab">
+            <h2 class="v2-hace__titulo">{p.titulo}</h2>
+            <p class="v2-hace__sub">{p.sub}</p>
+          </div>
+        </div>
+      </div>
+
+      <div class="fuente-body flex-1 flex flex-col w-full mx-auto px-5 max-md:px-4 overflow-y-auto [scrollbar-width:none] [&::-webkit-scrollbar]:hidden vcenter">
+        <div class="v2-hace__escena">
+          {i === 1 && (
+            <div class="v2-card v2-semana" aria-label="Resumen de la semana">
+              <div class="v2-semana__cab">
+                <span>Esta semana</span>
+                <strong>S/ 465</strong>
+              </div>
+              {[
+                ["🍔 Comida", "S/ 210", 90],
+                ["🚕 Transporte", "S/ 96", 42],
+                ["🎉 Salidas", "S/ 80", 35],
+                ["🧾 Otros", "S/ 79", 34],
+              ].map(([n, m, w], k) => (
+                <div class="v2-semana__fila">
+                  <div class="v2-semana__txt">
+                    <span>{n}</span>
+                    <strong>{m}</strong>
+                  </div>
+                  <span class="v2-barra">
+                    <i class={`v2-barra__fill v2-barra__fill--${k}`} style={`--w:${w}%`} />
+                  </span>
+                </div>
+              ))}
+            </div>
+          )}
+          {i === 2 && (
+            <div class="v2-card v2-meta-card" aria-label="Meta Fondo de emergencia">
+              <img src="/onboarding/images/iconos/t03_metas_bullseye.png" alt="" width="40" height="40" />
+              <div class="v2-meta-card__txt">
+                <strong>Fondo de emergencia</strong>
+                <span>S/ 900 de S/ 1,000</span>
+                <span class="v2-barra v2-barra--verde">
+                  <i class="v2-barra__fill" style="--w:90%" />
+                </span>
+              </div>
+            </div>
+          )}
+
+          <div class="v2-chat" aria-label="Chat de WhatsApp con Pablo">
+            <div class="v2-chat__cab">
+              <img src="/onboarding/images/pablo/pablo-logo.png" alt="" width="30" height="30" />
+              <div>
+                <strong>Pablo</strong>
+                <span>en línea</span>
+              </div>
+            </div>
+            <div class="v2-chat__cuerpo">
+              {i === 0 && (
+                <>
+                  <p class="v2-msg v2-msg--out">almuerzo 15 soles</p>
+                  <p class="v2-msg v2-msg--in">✅ Anotado: <b>Almuerzo · S/ 15</b><br />🍔 Comida</p>
+                  <p class="v2-msg v2-msg--out">🎤 Audio · 0:04</p>
+                  <p class="v2-msg v2-msg--in">✅ <b>Taxi al trabajo · S/ 12</b><br />🚕 Transporte</p>
+                  <p class="v2-msg v2-msg--out">📷 Foto de boleta</p>
+                  <p class="v2-msg v2-msg--in">✅ <b>Supermercado · S/ 86.40</b><br />🛒 Compras</p>
+                </>
+              )}
+              {i === 1 && (
+                <p class="v2-msg v2-msg--in">📊 Vas al <b>68%</b> de tu presupuesto semanal. ¡Vamos bien! 💪</p>
+              )}
+              {i === 2 && (
+                <>
+                  <p class="v2-msg v2-msg--in">🎯 Tu Fondo de emergencia va al <b>90%</b>. ¡S/ 100 más y lo logras! 🐷</p>
+                  <p class="v2-msg v2-msg--out">¿cuánto gasté este mes?</p>
+                  <p class="v2-msg v2-msg--in">Este mes llevas <b>S/ 1,240</b> 💸<br />Top 3: 🍔 S/ 420 · 🚗 S/ 180</p>
+                </>
+              )}
+            </div>
+          </div>
+
+          <div class="v2-dots" aria-hidden="true">
+            {pantallas.map((_, k) => <i class={k === i ? "on" : ""} />)}
+          </div>
+        </div>
+      </div>
+
+      <footer class="duo-footer cta-footer">
+        <button class="btn-primary btn-continue" onclick="pabloNext()" aria-label="Continuar">
+          Continuar
+        </button>
+      </footer>
+    </section>
+  ))
+}
+
+<script is:inline>
+  // Deslizar: izquierda = siguiente, derecha = anterior (como un carrusel).
+  (function () {
+    document.querySelectorAll(".v2-hace").forEach(function (el) {
+      var x0 = null;
+      var y0 = null;
+      el.addEventListener("touchstart", function (e) {
+        x0 = e.touches[0].clientX;
+        y0 = e.touches[0].clientY;
+      }, { passive: true });
+      el.addEventListener("touchend", function (e) {
+        if (x0 === null) return;
+        var dx = e.changedTouches[0].clientX - x0;
+        var dy = e.changedTouches[0].clientY - y0;
+        x0 = null;
+        if (Math.abs(dx) < 50 || Math.abs(dx) < Math.abs(dy)) return;
+        if (dx < 0) window.pabloNext?.();
+        else window.pabloPrev?.();
+      }, { passive: true });
+    });
+  })();
+</script>
