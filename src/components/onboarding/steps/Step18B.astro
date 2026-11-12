@@ -28,6 +28,11 @@
       <p class="pw-legal">
         <a href="/terminos">Términos</a> · <a href="/privacidad">Privacidad</a>
       </p>
+
+      <!-- Pablo celebrando (pedido del equipo, 12-nov-2026): ocupa el espacio
+           libre sobre los planes y se achica en pantallas bajas. Igual en las
+           dos variantes del experimento onboarding-gratis. -->
+      <img class="pw-pablo" src="/onboarding/images/pablo/2d/pablo-celebrando.webp" alt="" loading="lazy" decoding="async" />
     </div>
 
     <!-- Zona de decisión. Revisada 19-ago contra 8 paywalls reales de Mobbin
@@ -174,9 +179,18 @@
       <p class="text-[12px] text-center font-body text-navy-soft -mt-2">Cancela en cualquier momento</p>
     </div>
   </div>
-  <div class="con-gratis" style="padding: 8px 24px 20px; text-align: center;">
-    <button type="button" class="btn-secondary" style="min-height:44px;width:100%;max-width:360px" onclick="pabloSeguirGratis()">Seguir con Gratis</button>
-    <p style="font-size:12px;margin-top:8px">Sin tarjeta · 5 mensajes diarios · 3 cuentas</p>
+  <!-- «Seguir con Gratis» como tarjeta (pedido del equipo, 12-nov-2026): antes
+       era texto suelto (btn-secondary no tiene estilo en el onboarding). Solo
+       con Gratis visible: el control del experimento y la pauta. -->
+  <div class="con-gratis pw-gratis">
+    <button type="button" class="pw-gratis__btn" aria-label="Seguir con Gratis" onclick="pabloSeguirGratis()">
+      <img src="/onboarding/images/pablo/pablo-logo.png" alt="" width="44" height="44" loading="lazy" />
+      <span class="pw-gratis__texto">
+        <span class="pw-gratis__titulo">Seguir con Gratis</span>
+        <span class="pw-gratis__detalle">Sin tarjeta · 5 mensajes diarios · 3 cuentas</span>
+      </span>
+      <span class="pw-gratis__flecha" aria-hidden="true">→</span>
+    </button>
   </div>
   <!-- Experimento onboarding-gratis, solo sin_gratis (Sandra 11-nov-2026):
        salida discreta a la app sin nombrar Gratis. Afiliados y pauta no leen
@@ -283,3 +297,80 @@
   window.pabloSelectPlan = seleccionarPlan;
   window.pabloStartTrial = iniciarPrueba;
 </script>
+
+<style>
+  /* Pablo celebrando sobre los planes: margin-top:auto lo lleva al fondo del
+   * área de scroll (el hueco que dejaba la pantalla) y clamp lo achica en
+   * celulares bajos para no empujar los planes. */
+  .pw-pablo {
+    display: block;
+    flex-shrink: 0;
+    width: auto;
+    height: clamp(72px, 15vh, 140px);
+    margin: auto auto 22px; /* sobre el degradado del borde del scroll */
+  }
+
+  /* «Seguir con Gratis»: tarjeta presionable con la misma pared inferior que
+   * las opciones del onboarding (.option-card). */
+  .pw-gratis {
+    display: flex;
+    justify-content: center;
+    padding: 12px 18px calc(16px + env(safe-area-inset-bottom));
+  }
+  .pw-gratis__btn {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    width: 100%;
+    max-width: 424px;
+    min-height: 68px;
+    padding: 10px 16px 10px 12px;
+    background: var(--pab-card, #fff);
+    border: 2px solid var(--pab-border, #dcdae7);
+    border-radius: var(--pab-r-card, 24px);
+    box-shadow: 0 var(--pab-drop, 4px) 0 0 var(--pab-card-edge, #d9d7e5);
+    color: var(--pab-ink, #2b194d);
+    text-align: left;
+    cursor: pointer;
+    transition: transform 0.12s ease, box-shadow 0.12s ease;
+  }
+  .pw-gratis__btn:active {
+    transform: translateY(3px);
+    box-shadow: 0 1px 0 0 var(--pab-card-edge, #d9d7e5);
+  }
+  .pw-gratis__btn:focus-visible {
+    outline: 3px solid var(--pab-accent, #2b2c64);
+    outline-offset: 3px;
+  }
+  .pw-gratis__btn img {
+    flex: none;
+    width: 44px;
+    height: 44px;
+  }
+  .pw-gratis__texto {
+    flex: 1;
+    display: grid;
+    gap: 2px;
+  }
+  .pw-gratis__titulo {
+    font-family: var(--font-display);
+    font-weight: 700;
+    font-size: 17px;
+    line-height: 1.2;
+    color: var(--pab-accent, #2b2c64);
+  }
+  .pw-gratis__detalle {
+    font-family: var(--font-body);
+    font-size: 12.5px;
+    line-height: 1.35;
+    color: var(--pab-ink-soft, #6a6487);
+  }
+  .pw-gratis__flecha {
+    flex: none;
+    font-size: 20px;
+    color: var(--pab-accent, #2b2c64);
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .pw-gratis__btn { transition: none; }
+  }
+</style>
