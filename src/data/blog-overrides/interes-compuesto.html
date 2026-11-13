@@ -226,7 +226,7 @@
 
       <div style="margin-top:18px">
         <label for="tasa">Tasa anual que supones</label>
-        <div class="box" id="tasaBox" style="max-width:180px"><input id="tasa" inputmode="decimal" autocomplete="off" value="" placeholder="0.00" aria-describedby="tasaHint"><span style="margin:0 0 0 6px">%</span></div>
+        <div class="box" id="tasaBox" style="max-width:180px"><input id="tasa" inputmode="decimal" autocomplete="off" value="" placeholder="tu supuesto" aria-describedby="tasaHint"><span style="margin:0 0 0 6px">%</span></div>
         <p class="hint" id="tasaHint">Es un supuesto tuyo: ninguna inversión garantiza una tasa.</p>
       </div>
 
@@ -280,6 +280,10 @@
         <h2>Tips para tus números</h2>
         <ul class="tips" id="tips"></ul>
       </div>
+    </div>
+
+    <div class="card" id="tasaState" hidden>
+      <div class="empty"><b>Pon la tasa que supones</b><p>Escribe en «Tasa anual que supones» el porcentaje que creas posible y aquí verás cuánto crecería tu plata. Es un supuesto tuyo: ninguna inversión garantiza una tasa.</p></div>
     </div>
 
     <div class="card" id="emptyState" hidden>
@@ -352,13 +356,14 @@ function update(){
   setErr("aporteBox", (!isNaN(aporte)&&left>0&&aporte>left)?"Es más de lo que te queda al mes ("+fmt(left)+")":null);
 
   const noMoney=left<=0 && aporte<=0;
-  $("results").hidden=noMoney; $("emptyState").hidden=!noMoney;
+  const sinTasa=!noMoney && $("tasa").value.trim()==="";
+  $("results").hidden=noMoney||sinTasa; $("emptyState").hidden=!noMoney; $("tasaState").hidden=!sinTasa;
   if(noMoney){
     $("emptyTxt").textContent=left<0?"Hoy gastas "+fmt(-left)+" más de lo que ganas al mes.":"Hoy gastas todo lo que ganas.";
     $("tipsEmpty").innerHTML=["Anota tus gastos de una semana y busca 2 que puedas bajar.","Con liberar "+fmt(100)+" al mes ya puedes ver aquí cuánto crecerían.","Si tienes deudas con intereses altos, pagarlas primero suele rendir más que invertir."].map(t=>"<li>"+t+"</li>").join("");
     return;
   }
-  if(!ok) return;
+  if(!ok||sinTasa) return;
 
   const s=simulate(inicial,aporte,tasa,anios);
   $("finalLbl").textContent="En "+anios+(anios===1?" año":" años")+" tendrías";
