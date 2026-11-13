@@ -31,6 +31,14 @@ import Step18 from "../../components/onboarding/steps/Step18.astro";
 import Step18B from "../../components/onboarding/steps/Step18B.astro";
 import StepCuentaPassword from "../../components/onboarding/steps/StepCuentaPassword.astro";
 import StepCuentaPago from "../../components/onboarding/steps/StepCuentaPago.astro";
+// Onboarding v2 (Figma «Propuesta v2»)
+import StepCuentaInicio from "../../components/onboarding/steps/StepCuentaInicio.astro";
+import StepLoQueHace from "../../components/onboarding/steps/StepLoQueHace.astro";
+import StepLograr from "../../components/onboarding/steps/StepLograr.astro";
+import StepMeta from "../../components/onboarding/steps/StepMeta.astro";
+import StepFinMes from "../../components/onboarding/steps/StepFinMes.astro";
+import StepPlan from "../../components/onboarding/steps/StepPlan.astro";
+import StepPremium from "../../components/onboarding/steps/StepPremium.astro";
 ---
 
 <OnboardingLayout>
@@ -64,5 +72,13 @@ import StepCuentaPago from "../../components/onboarding/steps/StepCuentaPago.ast
   <Step18 />
   <Step18B />
   <StepCuentaPassword />
+  <!-- Después de StepCuentaPassword: su script usa pabloGoogleDisponible. -->
+  <StepCuentaInicio />
+  <StepLoQueHace />
+  <StepLograr />
+  <StepMeta />
+  <StepFinMes />
+  <StepPlan />
+  <StepPremium />
   <StepCuentaPago />
 </OnboardingLayout>

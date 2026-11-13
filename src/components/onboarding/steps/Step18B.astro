@@ -242,6 +242,8 @@
   function iniciarPrueba(plan = planSeleccionado) {
     if (!planes[plan] || (plan === "semanal" && esPauta())) return;
     sessionStorage.setItem("pablo_plan_elegido", plan);
+    // Elegir en Premium usa los precios normales (la oferta solo vale desde step-oferta).
+    sessionStorage.removeItem("pablo_precio_oferta");
     window.pabloTrack?.("onboarding_plan_selected_for_signup", { plan });
     cerrarPlanes();
     window.pabloNext();

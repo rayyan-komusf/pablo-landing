@@ -11,24 +11,50 @@
  */
 
 /** Orden lineal de pantallas; las ramificaciones se resuelven en resolveNextStep. */
+// Onboarding v2 (Figma «Propuesta v2», nov-2026): cuenta primero (Google en un
+// toque), 3 pantallas que MUESTRAN lo que hace Pablo, el demo sin traba, 2
+// preguntas + la primera meta, un plan que repite lo que eligió y el pago al
+// final. Fuente de verdad: el Figma «Propuesta v2» (13 pantallas).
 const STEP_ORDER = [
-  "entry", // ¡Hola, soy Pablo!
-  "step-3", // Hoy puedes hacerlo desde WhatsApp
-  "step-4", // Demo WhatsApp: tu "primer gasto"
-  "step-cuenta-password", // Crea tu cuenta (ANTES de las preguntas y los planes)
-  "step-12", // ¿Endeudado?
-  "step-15", // Meta de ahorro
-  "step-analizando", // Pablo "analizando"
-  "step-resumen", // Diagnóstico
-  "step-18b", // Planes
-  "step-cuenta-pago", // Pago
+  "entry", // ¡Hola! Soy Pablo · Empezar gratis
+  "step-cuenta", // Crea tu cuenta: Google o correo
+  "step-cuenta-password", // Cuenta con correo (solo si elige correo)
+  "step-hace-1", // Lo que hace Pablo 1/3: anota gastos
+  "step-hace-2", // Lo que hace Pablo 2/3: en qué se va tu plata
+  "step-hace-3", // Lo que hace Pablo 3/3: metas
+  "step-4", // Pruébalo tú (Continuar siempre activo)
+  "step-lograr", // ¿Qué quieres lograr? (varias)
+  "step-meta", // Tu primera meta
+  "step-finmes", // ¿Cómo llegas a fin de mes?
+  "step-analizando", // Armando tu plan…
+  "step-plan", // Tu plan con Pablo
+  "step-premium", // Premium: 1 mes, 6 meses, 1 año · «Continuar al pago» abre el pago en la app
 ];
 
 /** Pasos retirados → el que los reemplaza (sesiones guardadas antes del cambio). */
 const PASOS_RETIRADOS = {
   "step-cuenta-nombre": "step-cuenta-password",
   "step-cuenta-correo": "step-cuenta-password",
+  "step-3": "step-hace-1",
+  "step-12": "step-lograr",
+  "step-15": "step-meta",
+  "step-resumen": "step-plan",
+  "step-18b": "step-premium",
+  "step-cuenta-pago": "step-premium",
 };
+
+/** «Saltar» (barra de arriba, como en el Figma): adónde lleva en cada pantalla.
+ * Lo que no está aquí avanza a la siguiente. */
+const SALTAR_A = {
+  "step-cuenta": "step-hace-1",
+  "step-cuenta-password": "step-hace-1",
+  "step-hace-1": "step-4",
+  "step-hace-2": "step-4",
+  "step-hace-3": "step-4",
+};
+
+/** Pantallas que avanzan solas (ms) mientras nadie las toque. */
+const AUTO_AVANCE = { "step-hace-1": 4000, "step-hace-2": 4000 };
 
 /** Configuración de topbar por pantalla. */
 const STEP_FLAGS = {
@@ -63,6 +89,16 @@ const STEP_FLAGS = {
   "step-18b": { showTopbar: true, showSkip: false },
   "step-cuenta-password": { showTopbar: true, showSkip: false },
   "step-cuenta-pago": { showTopbar: true, showSkip: false },
+  // v2 (Figma: «Saltar» arriba en todas menos Bienvenida y Armando tu plan)
+  "step-cuenta": { showTopbar: true, showSkip: true },
+  "step-hace-1": { showTopbar: true, showSkip: true },
+  "step-hace-2": { showTopbar: true, showSkip: true },
+  "step-hace-3": { showTopbar: true, showSkip: true },
+  "step-lograr": { showTopbar: true, showSkip: true },
+  "step-meta": { showTopbar: true, showSkip: true },
+  "step-finmes": { showTopbar: true, showSkip: true },
+  "step-plan": { showTopbar: true, showSkip: true },
+  "step-premium": { showTopbar: true, showSkip: true },
 };
 
 /** Progreso proporcional real: posición en el flujo lineal. */
@@ -78,7 +114,7 @@ function progressFor(stepId) {
  * quien no llegó a la nota siempre arranca desde el inicio (sus respuestas se
  * conservan), y quien sí llegó retoma en la nota o donde se quedó. */
 const NOTA_VISTA_KEY = "pablo_nota_vista";
-const RETURNING_START_STEP = "step-18b";
+const RETURNING_START_STEP = "step-premium";
 
 /* ------------------------------------------------------------------ */
 /* Métricas (PostHog)                                                  */
@@ -167,7 +203,24 @@ class OnboardingEngine {
     const vigente = (id) => { const v = PASOS_RETIRADOS[id] || id; return STEP_ORDER.includes(v) ? v : null; };
     this.history = Array.isArray(this.history) ? this.history.map(vigente).filter(Boolean) : [];
     const pasoGuardado = savedStep ? vigente(savedStep) : null;
-    const initial = notaVista ? (pasoGuardado || RETURNING_START_STEP) : STEP_ORDER[0];
+    let initial = notaVista ? (pasoGuardado || RETURNING_START_STEP) : STEP_ORDER[0];
+    // Vuelta de «Continuar con Google»: el script de step-cuenta-password ya
+    // guardó la sesión; la cuenta existe, así que se sigue con lo que hace Pablo.
+    // Recorrido nuevo desde el inicio: las preguntas de la v2 salen en blanco
+    // (antes se pintaban marcadas con las respuestas de una visita anterior).
+    if (initial === STEP_ORDER[0] && !savedStep) {
+      ["objetivos", "metaNombre", "metaMonto", "metaMensual", "metaGuardada", "finDeMes"].forEach(
+        (k) => delete this.answers[k]
+      );
+      sessionStorage.removeItem("pablo_meta_operacion");
+    }
+    const vueltaGoogle = sessionStorage.getItem("pablo_google_volvio");
+    if (vueltaGoogle) {
+      sessionStorage.removeItem("pablo_google_volvio");
+      this.history = vueltaGoogle === "1" ? ["entry", "step-cuenta"] : ["entry"];
+      // Si Google falló, se vuelve al selector de cuenta con el aviso.
+      initial = vueltaGoogle === "1" ? "step-hace-1" : "step-cuenta";
+    }
 
     this.goTo(initial);
     this.bindGlobalHandlers();
@@ -193,6 +246,18 @@ class OnboardingEngine {
 
   skip() {
     track("onboarding_skipped", { step_id: this.currentStepId });
+    if (this.isTransitioning) return;
+    // En Premium, «Saltar» es seguir con Gratis.
+    if (this.currentStepId === "step-premium") {
+      window.pabloSeguirGratis?.();
+      return;
+    }
+    const destino = SALTAR_A[this.currentStepId];
+    if (destino) {
+      this.history.push(this.currentStepId);
+      this.goTo(destino);
+      return;
+    }
     this.next();
   }
 
@@ -249,6 +314,17 @@ class OnboardingEngine {
         if (this.currentStepId === "step-analizando") this.next();
       }, 2400);
     }
+    // Lo que hace Pablo: avanza solo cada 4 s (y con deslizar). Se cancela si
+    // la persona ya se movió de pantalla.
+    clearTimeout(this._autoAvance);
+    if (AUTO_AVANCE[stepId] && !window.matchMedia("(prefers-reduced-motion: reduce)").matches) {
+      this._autoAvance = setTimeout(() => {
+        if (this.currentStepId === stepId) this.next();
+      }, AUTO_AVANCE[stepId]);
+    }
+    // Pantallas que se arman con las respuestas al entrar.
+    if (stepId === "step-plan") window.pabloPlanPintar?.();
+    if (stepId === "step-meta") window.pabloMetaPintar?.();
     // El resumen de pago se actualiza al ENTRAR al step (también cubre la
     // recarga de página: antes solo lo disparaba el step del código y al
     // recargar nadie montaba el widget). pabloPagoArrancar deduplica con su
@@ -260,8 +336,8 @@ class OnboardingEngine {
     const GATED = {
       "step-fuente": "referralSource",
       "step-porque": "goalReason",
-      "step-4": "demoGastoRegistrado",
       "step-6": "age",
+      "step-finmes": "finDeMes",
       "step-7": "budgetingExp",
       "step-9": "moneyClarity",
       "step-11": "registrationPref",
@@ -272,9 +348,13 @@ class OnboardingEngine {
     if (GATED[stepId]) {
       this.gateCta(stepId, this.answers[GATED[stepId]] !== undefined);
     }
+    // Varias respuestas: Continuar se habilita con al menos una marcada.
+    if (stepId === "step-lograr") {
+      this.gateCta(stepId, (this.answers.objetivos ?? []).length > 0);
+    }
 
     // La marca de reanudación nace recién al llegar a la nota (step-18).
-    if (stepId === "step-18b") {
+    if (stepId === "step-premium") {
       localStorage.setItem(NOTA_VISTA_KEY, "1");
     }
 
@@ -290,7 +370,7 @@ class OnboardingEngine {
       progress_percent: progressFor(stepId),
     });
 
-    if (stepId === "step-18b" && !sessionStorage.getItem("pablo_paywall_seen")) {
+    if (stepId === "step-premium" && !sessionStorage.getItem("pablo_paywall_seen")) {
       sessionStorage.setItem("pablo_paywall_seen", "1");
       track("onboarding_completed", {
         steps_navigated: this.history.length + 1,
@@ -428,6 +508,9 @@ class OnboardingEngine {
       el.setAttribute("aria-checked", "true");
     }
     this.toggleAnswer(key, value);
+    if (this.currentStepId === "step-lograr") {
+      this.gateCta("step-lograr", (this.answers.objetivos ?? []).length > 0);
+    }
   }
 
   resolveNextStep() {
@@ -457,7 +540,7 @@ class OnboardingEngine {
     window.pabloPrev = () => this.prev();
     window.pabloGoTo = (id) => this.goTo(id);
     window.pabloSelect = (el, key, value) => this.selectOption(el, key, value);
-    window.pabloToggle = (el, value) => this.toggleOption(el, value);
+    window.pabloToggle = (el, value, key) => this.toggleOption(el, value, key);
     window.pabloExitDirect = () => this.exitDirect();
     window.pabloTrack = track;
     window.pabloGoApp = (stepId) => this.goToApp(stepId);

@@ -4095,3 +4095,227 @@ body .topbar > div {
 @media (prefers-reduced-motion: reduce) {
   .step.active .duo-prop { animation: none; opacity: 1; transform: rotate(-6deg); }
 }
+
+/* ════════════════════════════════════════════════════════════════════
+ * Onboarding v2 (Figma «Propuesta v2», nov-2026)
+ * Cuenta primero con Google, «Lo que hace Pablo», demo sin traba, meta,
+ * plan que repite lo elegido y oferta por tiempo limitado.
+ * ════════════════════════════════════════════════════════════════════ */
+
+/* Pie con botón + enlace apilados */
+.duo-footer.v2-footer-col {
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+}
+.duo-footer.v2-footer-col .btn-continue { width: 100%; max-width: 360px; }
+.v2-link-bajo { font-size: 15px; font-weight: 700; color: var(--pab-ink-soft); }
+.v2-nota { margin: 0; font-size: 12px; color: var(--pab-ink-soft); text-align: center; }
+
+/* ── Crea tu cuenta ── */
+.v2-cuenta-opciones { gap: 14px; }
+.v2-btn-google,
+.v2-btn-secundario {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  width: 100%;
+  min-height: 56px;
+  border-radius: 16px;
+  font-family: var(--font-display);
+  font-weight: 700;
+  font-size: 16px;
+  cursor: pointer;
+  transition: transform 0.1s ease, box-shadow 0.1s ease;
+}
+.v2-btn-google {
+  background: var(--pab-primary);
+  color: var(--pab-primary-ink);
+  border: 0;
+  box-shadow: 0 var(--pab-drop) 0 0 var(--pab-primary-edge);
+}
+.v2-btn-google svg { background: #fff; border-radius: 50%; padding: 3px; width: 26px; height: 26px; }
+.v2-btn-secundario {
+  background: #fff;
+  color: var(--pab-accent);
+  border: 2px solid var(--pab-border);
+  box-shadow: 0 var(--pab-drop) 0 0 var(--pab-card-edge);
+}
+.v2-btn-google:active,
+.v2-btn-secundario:active { transform: translateY(3px); box-shadow: none; }
+.v2-separador { display: flex; align-items: center; gap: 12px; color: var(--pab-ink-soft); font-size: 13px; }
+.v2-separador::before,
+.v2-separador::after { content: ""; flex: 1; height: 1px; background: var(--pab-border); }
+.v2-separador[hidden],
+.v2-btn-google[hidden] { display: none; }
+
+/* ── Lo que hace Pablo ── */
+.v2-hace__cab { display: flex; flex-direction: column; gap: 4px; }
+.v2-hace__titulo {
+  margin: 0;
+  font-family: var(--font-display);
+  font-weight: 800;
+  font-size: clamp(20px, 5.4vw, 26px);
+  line-height: 1.15;
+  color: var(--pab-accent);
+}
+.v2-hace__sub { margin: 0; font-size: 15px; color: var(--pab-ink-soft); }
+.v2-hace__escena {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  width: 100%;
+  max-width: 380px;
+  margin: 8px auto 0;
+}
+.v2-card {
+  background: #fff;
+  border: 2px solid var(--pab-border);
+  border-radius: 20px;
+  padding: 14px 16px;
+  box-shadow: 0 var(--pab-drop-sm) 0 0 var(--pab-card-edge);
+}
+.v2-semana { display: flex; flex-direction: column; gap: 10px; }
+.v2-semana__cab { display: flex; justify-content: space-between; align-items: baseline; font-weight: 700; color: var(--pab-accent); }
+.v2-semana__cab strong { font-family: var(--font-display); font-size: 22px; }
+.v2-semana__fila { display: flex; flex-direction: column; gap: 5px; }
+.v2-semana__txt { display: flex; justify-content: space-between; font-size: 14px; color: var(--pab-accent); }
+.v2-barra { display: block; height: 8px; border-radius: 99px; background: #efecfa; overflow: hidden; }
+.v2-barra__fill { display: block; height: 100%; width: var(--w); border-radius: 99px; background: var(--pab-primary); transform-origin: left; animation: v2Barra 0.9s ease both; }
+.v2-barra__fill--1 { background: #8e86d6; }
+.v2-barra__fill--2 { background: #3fa643; }
+.v2-barra__fill--3 { background: #a9a5c4; }
+.v2-barra--verde .v2-barra__fill { background: #3fa643; }
+@keyframes v2Barra { from { transform: scaleX(0); } to { transform: scaleX(1); } }
+.v2-meta-card { display: flex; align-items: center; gap: 12px; }
+.v2-meta-card__txt { flex: 1; display: flex; flex-direction: column; gap: 4px; color: var(--pab-accent); font-size: 14px; }
+.v2-meta-card__txt strong { font-family: var(--font-display); font-size: 17px; }
+
+.v2-chat { border-radius: 20px; overflow: hidden; border: 2px solid var(--pab-border); background: #ebe5dd; }
+.v2-chat__cab { display: flex; align-items: center; gap: 10px; padding: 10px 14px; background: #24615a; color: #fff; }
+.v2-chat__cab img { border-radius: 50%; background: #fff; }
+.v2-chat__cab div { display: flex; flex-direction: column; line-height: 1.2; }
+.v2-chat__cab span { font-size: 12px; opacity: 0.8; }
+.v2-chat__cuerpo { display: flex; flex-direction: column; gap: 6px; padding: 12px; }
+.v2-msg {
+  margin: 0;
+  max-width: 82%;
+  padding: 8px 12px;
+  border-radius: 14px;
+  font-size: 14px;
+  line-height: 1.35;
+  color: #1f1f3a;
+  opacity: 0;
+  animation: v2Msg 0.35s ease forwards;
+}
+.v2-msg--in { align-self: flex-start; background: #fff; }
+.v2-msg--out { align-self: flex-end; background: #d9fdd3; }
+.v2-msg:nth-child(2) { animation-delay: 0.4s; }
+.v2-msg:nth-child(3) { animation-delay: 0.8s; }
+.v2-msg:nth-child(4) { animation-delay: 1.2s; }
+.v2-msg:nth-child(5) { animation-delay: 1.6s; }
+.v2-msg:nth-child(6) { animation-delay: 2s; }
+@keyframes v2Msg { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: none; } }
+.v2-dots { display: flex; justify-content: center; gap: 6px; padding-top: 4px; }
+.v2-dots i { width: 8px; height: 8px; border-radius: 99px; background: var(--pab-border); transition: width 0.2s ease; }
+.v2-dots i.on { width: 22px; background: var(--pab-primary); }
+
+/* ── Pruébalo tú ── */
+.v2-demo-sub { margin: -4px 0 8px; font-size: 15px; color: var(--pab-ink-soft); text-align: center; }
+.v2-ejemplos { display: flex; flex-wrap: wrap; justify-content: center; gap: 8px; margin-bottom: 10px; }
+.v2-chip {
+  padding: 9px 16px;
+  border-radius: 999px;
+  border: 2px solid #f5a623;
+  background: #fff;
+  font-family: var(--font-display);
+  font-weight: 700;
+  font-size: 14px;
+  color: var(--pab-accent);
+  cursor: pointer;
+  box-shadow: 0 2px 0 0 #e2c48e;
+}
+.v2-chip:active { transform: translateY(2px); box-shadow: none; }
+.v2-chip.selected { background: #fdf3df; border-width: 3px; }
+
+/* ── Preguntas ── */
+.v2-ayuda { margin: 0 0 4px; text-align: center; font-size: 14px; color: var(--pab-ink-soft); }
+.v2-ayuda--izq { text-align: left; width: 100%; max-width: 420px; margin: 0 auto 8px; }
+.fuente-grid.v2-lista { margin-top: min(24px, 3svh); }
+.v2-lista--col { display: flex; flex-direction: column; gap: 10px; width: 100%; }
+
+/* ── Tu primera meta ── */
+.v2-meta { display: flex; flex-direction: column; gap: 12px; width: 100%; max-width: 420px; margin: 0 auto; }
+.v2-subtitulo { margin: 6px 0 0; font-family: var(--font-display); font-weight: 800; font-size: 18px; color: var(--pab-accent); }
+.v2-montos { display: flex; flex-wrap: wrap; gap: 8px; }
+.v2-chip--monto { flex: 1 1 auto; min-width: 70px; text-align: center; }
+.v2-meta-otro[hidden] { display: none; }
+.v2-calculo { margin: 0; padding: 12px 14px; border-radius: 16px; background: #fff; border: 2px solid var(--pab-border); font-size: 14px; color: var(--pab-ink-soft); }
+.v2-calculo b { color: var(--pab-accent); }
+.v2-calculo[hidden] { display: none; }
+
+/* ── Tu plan con Pablo ── */
+.v2-plan { display: flex; flex-direction: column; gap: 10px; width: 100%; max-width: 420px; margin: 0 auto; }
+.v2-plan__fila {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 14px;
+  background: #fff;
+  border: 2px solid var(--pab-border);
+  border-radius: 20px;
+  box-shadow: 0 var(--pab-drop-sm) 0 0 var(--pab-card-edge);
+  animation: v2Msg 0.35s ease both;
+}
+.v2-plan__fila:nth-child(2) { animation-delay: 0.15s; }
+.v2-plan__fila:nth-child(3) { animation-delay: 0.3s; }
+.v2-plan__fila:nth-child(4) { animation-delay: 0.45s; }
+.v2-plan__icono { flex: none; display: flex; }
+.v2-plan__txt { flex: 1; display: flex; flex-direction: column; gap: 2px; min-width: 0; }
+.v2-plan__txt strong { font-family: var(--font-display); font-size: 16px; color: var(--pab-accent); }
+.v2-plan__txt span { font-size: 13px; color: var(--pab-ink-soft); }
+.v2-plan__estado { flex: none; padding: 4px 10px; border-radius: 999px; background: #e1f5e6; color: var(--pab-success-texto); font-size: 12px; font-weight: 700; }
+
+/* ── Oferta por tiempo limitado ── */
+.v2-oferta { display: flex; flex-direction: column; gap: 12px; width: 100%; max-width: 420px; margin: 0 auto; }
+.v2-oferta__reloj { align-self: flex-start; margin: 0; padding: 8px 14px; border-radius: 999px; background: #ffe9e7; color: #c02f2f; font-weight: 700; font-size: 14px; }
+.v2-oferta__reloj b { font-variant-numeric: tabular-nums; }
+.v2-oferta__plan {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  width: 100%;
+  padding: 14px 16px;
+  text-align: left;
+  background: #fff;
+  border: 2px solid var(--pab-border);
+  border-radius: 20px;
+  box-shadow: 0 var(--pab-drop-sm) 0 0 var(--pab-card-edge);
+  font-family: inherit;
+  color: var(--pab-accent);
+  cursor: pointer;
+}
+.v2-oferta__plan.selected { background: #fdf3df; border: 3px solid #f5a623; }
+.v2-oferta__plan--pronto { opacity: 0.6; cursor: not-allowed; }
+.v2-oferta__etiqueta { align-self: flex-start; padding: 3px 10px; border-radius: 999px; background: #f9b81f; color: var(--pab-primary-ink); font-size: 11px; font-weight: 800; }
+.v2-oferta__etiqueta--verde { background: #3fa643; color: #fff; }
+.v2-oferta__fila { display: flex; justify-content: space-between; align-items: baseline; font-family: var(--font-display); font-size: 20px; }
+.v2-oferta__fila s { font-size: 14px; color: var(--pab-ink-soft); font-weight: 400; }
+.v2-oferta__detalle { font-size: 13px; color: var(--pab-ink-soft); }
+
+@media (prefers-reduced-motion: reduce) {
+  .v2-msg, .v2-plan__fila, .v2-barra__fill { animation: none; opacity: 1; }
+}
+
+/* ── Cuenta con correo (v2): etiqueta arriba de cada campo ── */
+.v2-etiqueta { margin: 6px 0 -4px; font-family: var(--font-display); font-weight: 700; font-size: 14px; color: var(--pab-accent); }
+.cuenta-hint.v2-hint { text-align: left; margin-top: -4px; }
+
+/* ── Premium (v2) ── */
+.v2-premium { display: flex; flex-direction: column; gap: 14px; width: 100%; max-width: 420px; margin: 0 auto; padding-top: 12px; }
+.v2-premium__cab { display: flex; align-items: center; gap: 12px; }
+.v2-premium__cab h2 { margin: 0; font-family: var(--font-display); font-weight: 800; font-size: 24px; color: var(--pab-accent); }
+.v2-premium__planes { display: flex; flex-direction: column; gap: 12px; }
+.v2-premium__verde { font-size: 13px; font-weight: 700; color: var(--pab-success-texto); }
+.v2-premium__todos { align-self: center; background: none; border: 0; padding: 6px; font-family: var(--font-display); font-weight: 700; font-size: 14px; color: var(--pab-ink-soft); cursor: pointer; }

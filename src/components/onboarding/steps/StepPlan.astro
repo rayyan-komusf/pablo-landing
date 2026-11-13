@@ -1,0 +1,94 @@
+<!-- Onboarding v2 · Tu plan con Pablo (Figma «Propuesta v2», pantalla 12).
+     Reemplaza al diagnóstico (step-resumen). Regla: el plan REPITE lo que la
+     persona eligió, con el mismo nombre e ícono que tenía la opción, para
+     que no parezca otra cosa (feedback: «marcaste dos y sale como si fueran
+     diferentes»). Una fila por objetivo marcado + la meta creada + cómo llega
+     a fin de mes. Si no respondió nada, una fila honesta de «empezar». -->
+<section class="step !pb-0" data-step="step-plan" aria-label="Tu plan con Pablo" aria-hidden="true">
+  <div class="fuente-header">
+    <div class="fuente-header__inner">
+      <div class="fuente-pablo" data-pablo-anclaje data-pose="celebrando"></div>
+      <div class="speech-bubble speech-bubble--side">¡Listo! Este es tu plan con Pablo</div>
+    </div>
+  </div>
+
+  <div class="fuente-body flex-1 flex flex-col w-full mx-auto px-5 max-md:px-4 overflow-y-auto [scrollbar-width:none] [&::-webkit-scrollbar]:hidden vcenter">
+    <p class="v2-ayuda v2-ayuda--izq">Armado con lo que elegiste 👇</p>
+    <div class="v2-plan" data-plan-filas></div>
+  </div>
+
+  <footer class="duo-footer cta-footer">
+    <button class="btn-primary btn-continue" onclick="pabloPlanVamos()" aria-label="¡Vamos!">¡Vamos!</button>
+  </footer>
+
+  <script is:inline>
+    (function () {
+      var I = "/onboarding/images/iconos/";
+      function icono(control, test) {
+        // Mismos íconos que el Figma «Propuesta v2» (los lilas de iconos/*.png).
+        return '<img src="' + I + control + '" alt="" width="40" height="40" />';
+      }
+      function esc(t) {
+        var d = document.createElement("div");
+        d.textContent = String(t);
+        return d.innerHTML;
+      }
+      var OBJETIVOS = {
+        "controlar-gastos": { t: "Controlar mis gastos", d: "Anota tus gastos por WhatsApp y mira en qué se va", e: "Tu objetivo", i: ["ui15_barras.png", "barras.webp"] },
+        "salir-deudas": { t: "Salir de mis deudas", d: "La anotas como meta y ves cuánto te falta pagar", e: "Tu objetivo", i: ["ac03_tarjeta_credito.png", "tarjeta.webp"] },
+        "ahorrar-meta": { t: "Ahorrar para una meta", d: "Separas un monto al mes y Pablo te lleva la cuenta", e: "Tu objetivo", i: ["t03_metas_bullseye.png", "diana.webp"] },
+        invertir: { t: "Empezar a invertir", d: "Primero ordenamos tu plata para que te sobre", e: "Tu objetivo", i: ["ac05_inversion_planta.png", "brote.webp"] },
+      };
+      var FIN_MES = {
+        sobra: { t: "Te sobra plata a fin de mes", d: "Te ayudo a que ese extra vaya a tus metas", e: "Bien", i: ["ui12_bolsa_dinero.png", "alcancia.webp"] },
+        justo: { t: "Llegas justo a fin de mes", d: "Te aviso si vas gastando de más", e: "Alerta", i: ["ui06_doble_check.png", "check.webp"] },
+        "no-alcanza": { t: "No te alcanza a fin de mes", d: "Buscamos juntos dónde se te va la plata", e: "Alerta", i: ["ac03_tarjeta_credito.png", "tarjeta.webp"] },
+      };
+      var META_ICONO = {
+        "Fondo de emergencia": ["ui12_bolsa_dinero.png", "alcancia.webp"],
+        "Un viaje": ["ui17_calendario.png", "calendario.webp"],
+        "Algo que quiero comprar": ["gm10_regalo.png", "regalo.webp"],
+      };
+
+      function fila(f) {
+        return (
+          '<div class="v2-plan__fila">' +
+          '<span class="v2-plan__icono">' + icono(f.i[0], f.i[1]) + "</span>" +
+          '<span class="v2-plan__txt"><strong>' + esc(f.t) + "</strong><span>" + esc(f.d) + "</span></span>" +
+          '<span class="v2-plan__estado">' + esc(f.e) + "</span>" +
+          "</div>"
+        );
+      }
+
+      window.pabloPlanPintar = function () {
+        var r = window.onboarding?.getAnswers() || {};
+        var filas = [];
+        (r.objetivos || []).forEach(function (o) {
+          // La meta concreta reemplaza a la fila genérica «Ahorrar para una meta».
+          if (o === "ahorrar-meta" && r.metaNombre) return;
+          if (OBJETIVOS[o]) filas.push(OBJETIVOS[o]);
+        });
+        if (r.metaNombre && r.metaMonto) {
+          filas.push({
+            t: r.metaNombre,
+            d: "Meta: S/ " + Number(r.metaMonto).toLocaleString("en-US") +
+              (r.metaMensual ? " · separas S/ " + Number(r.metaMensual).toLocaleString("en-US") + " al mes" : ""),
+            e: "Tu meta",
+            i: META_ICONO[r.metaNombre] || ["t03_metas_bullseye.png", "diana.webp"],
+          });
+        }
+        if (FIN_MES[r.finDeMes]) filas.push(FIN_MES[r.finDeMes]);
+        if (!filas.length) {
+          filas.push({ t: "Anotar tus gastos", d: "Escríbeme por WhatsApp cada vez que gastes", e: "Semana 1", i: ["ui15_barras.png", "barras.webp"] });
+        }
+        var cont = document.querySelector("[data-plan-filas]");
+        if (cont) cont.innerHTML = filas.map(fila).join("");
+      };
+
+      window.pabloPlanVamos = function () {
+        window.pabloTrack?.("onboarding_plan_aceptado", {});
+        window.pabloNext?.();
+      };
+    })();
+  </script>
+</section>

@@ -1,0 +1,65 @@
+---
+/* Onboarding v2 · ¿Qué quieres lograr? (Figma «Propuesta v2», pantalla 08).
+ * Varias respuestas (answers.objetivos). Cada objetivo marcado vuelve a
+ * aparecer, con el mismo nombre e ícono, en «Tu plan con Pablo» (step-plan):
+ * así el plan se lee como consecuencia de lo que eligió. */
+const opciones = [
+  { valor: "controlar-gastos", label: "Controlar mis gastos", control: "ui15_barras.png", test: "barras.webp" },
+  { valor: "salir-deudas", label: "Salir de mis deudas", control: "ac03_tarjeta_credito.png", test: "tarjeta.webp" },
+  { valor: "ahorrar-meta", label: "Ahorrar para una meta", control: "t03_metas_bullseye.png", test: "diana.webp" },
+  { valor: "invertir", label: "Empezar a invertir", control: "ac05_inversion_planta.png", test: "brote.webp" },
+];
+---
+
+<section class="step !pb-0" data-step="step-lograr" aria-label="¿Qué quieres lograr con Pablo?" aria-hidden="true">
+  <div class="fuente-header">
+    <div class="fuente-header__inner">
+      <div class="fuente-pablo" data-pablo-anclaje data-pose="anotando"></div>
+      <div class="speech-bubble speech-bubble--side">¿Qué quieres lograr con Pablo?</div>
+    </div>
+  </div>
+
+  <div class="fuente-body flex-1 flex flex-col w-full mx-auto px-5 max-md:px-4 overflow-y-auto [scrollbar-width:none] [&::-webkit-scrollbar]:hidden vcenter">
+    <p class="v2-ayuda">Puedes elegir varias.</p>
+    <div class="fuente-grid v2-lista" role="group" aria-label="Objetivos">
+      {
+        opciones.map((o) => (
+          <button
+            class="option-card option-card--pill checkbox"
+            role="checkbox"
+            aria-checked="false"
+            data-objetivo={o.valor}
+            onclick={`pabloToggle(this, '${o.valor}', 'objetivos')`}
+          >
+            <span class="option-icon">
+              <img src={`/onboarding/images/iconos/${o.control}`} alt="" width="30" height="30" loading="lazy" />
+            </span>
+            <span class="option-label text-left">{o.label}</span>
+          </button>
+        ))
+      }
+    </div>
+  </div>
+
+  <footer class="duo-footer cta-footer">
+    <button class="btn-primary btn-continue disabled" disabled onclick="pabloNext()" aria-label="Continuar">
+      Continuar
+    </button>
+  </footer>
+
+  <script is:inline>
+    // Al volver atrás, las opciones ya marcadas se ven marcadas.
+    (function () {
+      var paso = document.querySelector('[data-step="step-lograr"]');
+      new MutationObserver(function () {
+        if (!paso.classList.contains("active")) return;
+        var elegidos = (window.onboarding?.getAnswers().objetivos) || [];
+        paso.querySelectorAll("[data-objetivo]").forEach(function (b) {
+          var on = elegidos.indexOf(b.dataset.objetivo) !== -1;
+          b.classList.toggle("selected", on);
+          b.setAttribute("aria-checked", on ? "true" : "false");
+        });
+      }).observe(paso, { attributes: true, attributeFilter: ["class"] });
+    })();
+  </script>
+</section>

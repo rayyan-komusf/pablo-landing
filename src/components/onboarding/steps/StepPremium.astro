@@ -1,0 +1,104 @@
+---
+import { PLAN_SEMESTRAL_ACTIVO } from "../../../siteConfig";
+/* Onboarding v2 · Premium (Figma «Propuesta v2», pantalla 13).
+ * Tres planes: 1 mes S/ 20 con 3 días de prueba, 6 meses S/ 100 con 1 mes
+ * gratis y 1 año S/ 120 (antes S/ 240). Son los precios de OFERTA que ya
+ * cobra la app, así que este camino NO manda precio=lista
+ * (pablo_precio_oferta, ver pabloCuentaIrAlPago).
+ * «Continuar al pago» entrega la sesión a la app, que abre el pago (WHOP).
+ * «Seguir con Gratis» entra a la app con la cuenta ya creada.
+ * 6 meses: ese plan todavía NO existe en la pasarela. Mientras
+ * PLAN_SEMESTRAL_ACTIVO sea false se ve igual que en el Figma pero no se
+ * puede elegir (muestra «Muy pronto»), para que nadie pague algo que no hay. */
+---
+
+<section class="step !pb-0" data-step="step-premium" aria-label="Elige tu plan Premium" aria-hidden="true">
+  <div class="fuente-body flex-1 flex flex-col w-full mx-auto px-5 max-md:px-4 overflow-y-auto [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
+    <div class="v2-premium">
+      <div class="v2-premium__cab">
+        <img src="/onboarding/images/iconos/gm10_regalo.png" alt="" width="48" height="48" />
+        <h2>Elige tu plan Premium</h2>
+      </div>
+
+      <div class="v2-premium__planes" role="radiogroup" aria-label="Planes Premium">
+        <button type="button" class="v2-oferta__plan selected" data-premium-plan="mensual" role="radio" aria-checked="true" onclick="pabloPremiumElegir('mensual')">
+          <span class="v2-oferta__fila"><strong>1 mes</strong><strong>S/ 20</strong></span>
+          <span class="v2-oferta__detalle">S/ 5 por semana · Cobro al confirmar</span>
+          <span class="v2-premium__verde">3 días de prueba</span>
+        </button>
+
+        <button
+          type="button"
+          class:list={["v2-oferta__plan", { "v2-oferta__plan--pronto": !PLAN_SEMESTRAL_ACTIVO }]}
+          data-premium-plan="semestral"
+          role="radio"
+          aria-checked="false"
+          disabled={!PLAN_SEMESTRAL_ACTIVO}
+          onclick="pabloPremiumElegir('semestral')"
+        >
+          <span class="v2-oferta__etiqueta">{PLAN_SEMESTRAL_ACTIVO ? "🎁 1 MES GRATIS" : "🎁 1 MES GRATIS · MUY PRONTO"}</span>
+          <span class="v2-oferta__fila"><strong>6 meses</strong><strong>S/ 100</strong></span>
+          <span class="v2-oferta__detalle">Pagas 6 meses y usas 7 · sale a S/ 14 al mes</span>
+          <span class="v2-premium__verde">Antes S/ 140 por 7 meses</span>
+        </button>
+
+        <button type="button" class="v2-oferta__plan" data-premium-plan="anual" role="radio" aria-checked="false" onclick="pabloPremiumElegir('anual')">
+          <span class="v2-oferta__etiqueta v2-oferta__etiqueta--verde">⏳ SOLO POR TIEMPO LIMITADO · 50% OFF</span>
+          <span class="v2-oferta__fila"><strong>1 año</strong><span><s>S/ 240</s> <strong>S/120</strong></span></span>
+          <span class="v2-oferta__detalle">S/ 10 al mes · el mejor precio del año</span>
+          <span class="v2-premium__verde">Garantía 14 días</span>
+        </button>
+      </div>
+
+      <button type="button" class="v2-premium__todos" onclick="pabloPremiumTodos()">Ver todos los planes</button>
+    </div>
+  </div>
+
+  <footer class="duo-footer cta-footer v2-footer-col">
+    <button class="btn-primary btn-continue" onclick="pabloPremiumPagar()" aria-label="Continuar al pago">Continuar al pago →</button>
+    <p class="v2-nota" data-premium-nota>Primer cobro al confirmar. Luego S/ 20 al mes, y cancelas cuando quieras.</p>
+    <button type="button" class="cuenta-link v2-link-bajo" onclick="pabloSeguirGratis()">Seguir con Gratis</button>
+  </footer>
+
+  <script is:inline>
+    (function () {
+      var paso = document.querySelector('[data-step="step-premium"]');
+      var elegido = "mensual";
+      var NOTAS = {
+        mensual: "Primer cobro al confirmar. Luego S/ 20 al mes, y cancelas cuando quieras.",
+        semestral: "Pagas S/ 100 una vez y usas Pablo Premium 7 meses.",
+        anual: "Pagas S/ 120 una vez por todo el año. Garantía de 14 días.",
+      };
+
+      window.pabloPremiumElegir = function (plan) {
+        var b = paso.querySelector('[data-premium-plan="' + plan + '"]');
+        if (!b || b.disabled) return;
+        elegido = plan;
+        paso.querySelectorAll("[data-premium-plan]").forEach(function (x) {
+          var on = x.dataset.premiumPlan === plan;
+          x.classList.toggle("selected", on);
+          x.setAttribute("aria-checked", on ? "true" : "false");
+        });
+        var nota = paso.querySelector("[data-premium-nota]");
+        if (nota) nota.textContent = NOTAS[plan];
+        window.pabloTrack?.("onboarding_premium_plan", { plan: plan });
+      };
+
+      window.pabloPremiumPagar = function () {
+        sessionStorage.setItem("pablo_plan_elegido", elegido);
+        sessionStorage.setItem("pablo_precio_oferta", "1");
+        sessionStorage.removeItem("pablo_codigo_descuento");
+        window.pabloTrack?.("onboarding_plan_selected_for_signup", { plan: elegido });
+        window.pabloCuentaIrAlPago?.();
+      };
+
+      // Todos los planes viven en la app (/pricing).
+      window.pabloPremiumTodos = function () {
+        window.pabloTrack?.("onboarding_ver_todos_los_planes", {});
+        window.location.href = window.pabloCuentaConPhDid
+          ? window.pabloCuentaConPhDid(window.pabloCuentaAppBase() + "/pricing")
+          : "https://usapablo.app/pricing";
+      };
+    })();
+  </script>
+</section>

@@ -1,0 +1,234 @@
+---
+/* Onboarding v2 · Tu primera meta (Figma «Propuesta v2», pantalla 09).
+ * Para qué ahorrar + cuánto. Funciona DE VERDAD: en este paso la cuenta ya
+ * existe (se creó al inicio), así que «Crear mi meta» la guarda en Supabase
+ * con la misma RPC que usa la app (crear_meta_segura, idempotente por
+ * p_operacion_id). Pablo Gratis incluye 1 meta.
+ * Si no hay sesión o la RPC falla, la meta queda en las respuestas y el
+ * onboarding sigue: nunca se traba aquí. «Lo hago después» también avanza. */
+const tipos = [
+  { valor: "Fondo de emergencia", control: "ui12_bolsa_dinero.png", test: "alcancia.webp" },
+  { valor: "Un viaje", control: "ui17_calendario.png", test: "calendario.webp" },
+  { valor: "Algo que quiero comprar", control: "gm10_regalo.png", test: "regalo.webp" },
+];
+const montos = [500, 1000, 2000];
+---
+
+<section class="step !pb-0" data-step="step-meta" aria-label="Tu primera meta" aria-hidden="true">
+  <div class="fuente-header">
+    <div class="fuente-header__inner">
+      <div class="fuente-pablo" data-pablo-anclaje data-pose="anotando"></div>
+      <div class="speech-bubble speech-bubble--side">¡Creemos tu primera meta! ¿Para qué quieres ahorrar?</div>
+    </div>
+  </div>
+
+  <div class="fuente-body flex-1 flex flex-col w-full mx-auto px-5 max-md:px-4 overflow-y-auto [scrollbar-width:none] [&::-webkit-scrollbar]:hidden vcenter">
+    <div class="v2-meta">
+      <div class="v2-lista v2-lista--col" role="radiogroup" aria-label="Para qué quieres ahorrar">
+        {
+          tipos.map((t) => (
+            <button
+              class="option-card option-card--pill"
+              role="radio"
+              aria-checked="false"
+              data-meta-tipo={t.valor}
+              onclick={`pabloMetaTipo('${t.valor}')`}
+            >
+              <span class="option-icon">
+                <img src={`/onboarding/images/iconos/${t.control}`} alt="" width="30" height="30" loading="lazy" />
+              </span>
+              <span class="option-label text-left">{t.valor}</span>
+            </button>
+          ))
+        }
+      </div>
+
+      <h3 class="v2-subtitulo">¿Cuánto quieres juntar?</h3>
+      <div class="v2-montos" role="radiogroup" aria-label="Monto de tu meta">
+        {
+          montos.map((m) => (
+            <button type="button" class="v2-chip v2-chip--monto" role="radio" aria-checked="false" data-meta-monto={m} onclick={`pabloMetaMonto(${m})`}>
+              S/ {m.toLocaleString("en-US")}
+            </button>
+          ))
+        }
+        <button type="button" class="v2-chip v2-chip--monto" role="radio" aria-checked="false" data-meta-monto="otro" onclick="pabloMetaMonto('otro')">
+          Otro
+        </button>
+      </div>
+      <input
+        id="v2-meta-otro"
+        class="cuenta-input v2-meta-otro"
+        type="number"
+        inputmode="numeric"
+        min="50"
+        max="1000000"
+        placeholder="Escribe el monto en soles"
+        oninput="pabloMetaOtro(this.value)"
+        hidden
+      />
+
+      <p class="v2-calculo" data-meta-calculo hidden></p>
+      <p class="cuenta-error" id="v2-meta-error" role="alert"></p>
+    </div>
+  </div>
+
+  <footer class="duo-footer cta-footer v2-footer-col">
+    <button id="v2-meta-crear" class="btn-primary btn-continue disabled" disabled onclick="pabloMetaCrear()" aria-label="Crear mi meta">
+      Crear mi meta
+    </button>
+    <button type="button" class="cuenta-link v2-link-bajo" onclick="pabloMetaDespues()">Lo hago después</button>
+  </footer>
+
+  <script is:inline>
+    (function () {
+      var SUPABASE_URL = "https://mezpfnagkubumzbromsh.supabase.co";
+      var ANON =
+        "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im1lenBmbmFna3VidW16YnJvbXNoIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjM0NDM3NDMsImV4cCI6MjA3OTAxOTc0M30.HsTSJqkzslq4HWxLlIvuFwudrFzkemHELgsi54vIJDw";
+      var paso = document.querySelector('[data-step="step-meta"]');
+      var estado = { tipo: null, monto: null, otro: false };
+      var creando = false;
+
+      /* Aporte sugerido: redondo y alcanzable (S/ 1,000 → S/ 100 al mes). */
+      function plan(monto) {
+        var mensual = Math.max(20, Math.round(monto / 10 / 10) * 10);
+        return { mensual: mensual, meses: Math.ceil(monto / mensual) };
+      }
+
+      function pintar() {
+        paso.querySelectorAll("[data-meta-tipo]").forEach(function (b) {
+          var on = b.dataset.metaTipo === estado.tipo;
+          b.classList.toggle("selected", on);
+          b.setAttribute("aria-checked", on ? "true" : "false");
+        });
+        paso.querySelectorAll("[data-meta-monto]").forEach(function (b) {
+          var v = b.dataset.metaMonto;
+          var on = estado.otro ? v === "otro" : Number(v) === estado.monto;
+          b.classList.toggle("selected", on);
+          b.setAttribute("aria-checked", on ? "true" : "false");
+        });
+        var otro = document.getElementById("v2-meta-otro");
+        if (otro) otro.hidden = !estado.otro;
+        var calc = paso.querySelector("[data-meta-calculo]");
+        var listo = Boolean(estado.tipo && estado.monto && estado.monto >= 50);
+        if (calc) {
+          calc.hidden = !listo;
+          if (listo) {
+            var p = plan(estado.monto);
+            calc.innerHTML =
+              "🐷 Separando <b>S/ " + p.mensual.toLocaleString("en-US") + "</b> al mes, la logras en " +
+              p.meses + (p.meses === 1 ? " mes." : " meses.");
+          }
+        }
+        window.onboarding?.gateCta("step-meta", listo);
+        var btn = document.getElementById("v2-meta-crear");
+        if (btn) {
+          btn.classList.toggle("disabled", !listo);
+          if (listo) btn.removeAttribute("disabled");
+          else btn.setAttribute("disabled", "");
+        }
+      }
+
+      window.pabloMetaPintar = function () {
+        var r = window.onboarding?.getAnswers() || {};
+        if (r.metaNombre && !estado.tipo) estado.tipo = r.metaNombre;
+        if (r.metaMonto && !estado.monto) estado.monto = r.metaMonto;
+        pintar();
+      };
+      window.pabloMetaTipo = function (t) {
+        estado.tipo = t;
+        pintar();
+      };
+      window.pabloMetaMonto = function (m) {
+        document.getElementById("v2-meta-error")?.classList.remove("visible");
+        if (m === "otro") {
+          estado.otro = true;
+          var v = Number(document.getElementById("v2-meta-otro")?.value || 0);
+          estado.monto = v || null;
+          pintar();
+          document.getElementById("v2-meta-otro")?.focus();
+          return;
+        }
+        estado.otro = false;
+        estado.monto = m;
+        pintar();
+      };
+      window.pabloMetaOtro = function (v) {
+        var n = Math.round(Number(v) || 0);
+        estado.monto = n > 0 ? Math.min(n, 1000000) : null;
+        pintar();
+      };
+
+      function fechaLimite(meses) {
+        var d = new Date();
+        d.setMonth(d.getMonth() + meses);
+        return d.toISOString().slice(0, 10);
+      }
+
+      function operacionId() {
+        var id = sessionStorage.getItem("pablo_meta_operacion");
+        if (!id) {
+          id = "onboarding-" + (crypto.randomUUID ? crypto.randomUUID() : String(Date.now()) + Math.random().toString(16).slice(2));
+          sessionStorage.setItem("pablo_meta_operacion", id);
+        }
+        return id;
+      }
+
+      async function guardarEnPablo(meta) {
+        var tokens = await window.pabloCuentaAsegurarSesion?.();
+        if (!tokens || !tokens.access_token) return false;
+        var res = await fetch(SUPABASE_URL + "/rest/v1/rpc/crear_meta_segura", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            apikey: ANON,
+            Authorization: "Bearer " + tokens.access_token,
+          },
+          body: JSON.stringify({
+            p_meta: {
+              nombre: meta.nombre,
+              tipo_meta: "ahorro",
+              monto_objetivo: meta.monto,
+              monto_mensual: meta.mensual,
+              plazo_meses: meta.meses,
+              cuota_sugerida: meta.mensual,
+              fecha_limite: fechaLimite(meta.meses),
+              moneda_codigo: "PEN",
+            },
+            p_operacion_id: operacionId(),
+          }),
+        });
+        return res.ok;
+      }
+
+      window.pabloMetaCrear = async function () {
+        if (creando || !estado.tipo || !estado.monto || estado.monto < 50) return;
+        creando = true;
+        var p = plan(estado.monto);
+        var meta = { nombre: estado.tipo, monto: estado.monto, mensual: p.mensual, meses: p.meses };
+        var btn = document.getElementById("v2-meta-crear");
+        if (btn) btn.textContent = "Creando tu meta…";
+        var o = window.onboarding;
+        o?.setAnswer("metaNombre", meta.nombre);
+        o?.setAnswer("metaMonto", meta.monto);
+        o?.setAnswer("metaMensual", meta.mensual);
+        var guardada = false;
+        try {
+          guardada = await guardarEnPablo(meta);
+        } catch (e) {
+          guardada = false;
+        }
+        o?.setAnswer("metaGuardada", guardada);
+        window.pabloTrack?.("onboarding_meta_creada", { tipo: meta.nombre, monto: meta.monto, guardada: guardada });
+        if (btn) btn.textContent = "Crear mi meta";
+        creando = false;
+        window.pabloNext?.();
+      };
+
+      window.pabloMetaDespues = function () {
+        window.pabloTrack?.("onboarding_meta_despues", {});
+        window.pabloNext?.();
+      };
+    })();
+  </script>
+</section>
