@@ -1,0 +1,368 @@
+<!--
+  Cuerpo del post 'interes-compuesto-calculadora', servido desde el repo (ver src/lib/blogOverrides.ts).
+  BORRADOR: el texto entre [PENDIENTE] es relleno hasta que llegue el de pablo-copywriter.
+  La calculadora (bloque #ci-calc) sale de SPEC_CALCULADORA.md y calculadora_mockup.html de La Komu;
+  corre entera en el navegador, no guarda ni envía montos.
+-->
+<p><strong>[PENDIENTE: pablo-copywriter, gancho en la voz de Rodrigo]</strong> Por qué empezar a invertir con poco importa más de lo que parece.</p>
+
+<h3>El interés compuesto, en simple</h3>
+<p>Interés simple: ganas siempre sobre lo mismo que pusiste. Interés compuesto: ganas también sobre lo que ya ganaste. Es la diferencia entre sumar y multiplicar.</p>
+<p>Un ejemplo ilustrativo: S/ 1,000 a 10 % anual durante 30 años. Con interés simple terminarían en S/ 4,000. Con interés compuesto, en S/ 17,449. Es un supuesto de cálculo, no una tasa que te prometa nadie, y no incluye impuestos, comisiones ni inflación.</p>
+
+<h3>[PENDIENTE: pablo-copywriter / Rodrigo] Cómo empecé yo a invertir con poco</h3>
+<p>[PENDIENTE: Rodrigo, su historia: montos, años y plataformas no se inventan.]</p>
+
+<h3>Calcula con tus números</h3>
+<p>Pon lo que ganas, lo que gastas y mira cuánto te queda. Luego elige cuánto invertirías cada mes, qué tasa supones y por cuántos años.</p>
+
+<style>
+#ci-calc{
+  --lila:#EEEAFA; --lila-deep:#D7D0E8; --lila-light:#F7F5FB;
+  --navy:#2B2C64; --navy-soft:#4D4F88;
+  --ambar:#FBA920; --ambar-deep:#F59E0B;
+  --verde-palido:#B8DAC3; --white:#FFFFFF;
+  --text:#1F1F1F; --text-2:#5A5A66;
+  --danger:#B42318;
+  --display:"Outfit",system-ui,sans-serif; --body:"DM Sans",system-ui,sans-serif;
+  --r-sm:14px; --r-md:22px; --r-lg:32px; --pill:9999px;
+  --clay-card:16px 16px 32px rgba(43,44,100,.18),-10px -10px 24px rgba(255,255,255,.85),inset 6px 6px 12px rgba(251,169,32,.05),inset -6px -6px 12px rgba(255,255,255,.95);
+  --clay-soft:6px 6px 14px rgba(43,44,100,.10),-6px -6px 12px rgba(255,255,255,.9);
+  --clay-input:inset 4px 4px 8px rgba(43,44,100,.10),inset -4px -4px 8px rgba(255,255,255,.9);
+  --clay-btn:12px 12px 28px rgba(251,169,32,.35),-8px -8px 16px rgba(255,255,255,.5),inset 4px 4px 8px rgba(255,255,255,.45),inset -4px -4px 8px rgba(43,44,100,.12);
+  --clay-pressed:inset 10px 10px 20px rgba(43,44,100,.18),inset -10px -10px 20px rgba(255,255,255,.95);
+  --ease-clay:cubic-bezier(.34,1.56,.64,1);}
+#ci-calc *{box-sizing:border-box;margin:0;padding:0}
+#ci-calc{background:var(--lila);color:var(--text);font-family:var(--body);font-size:16px;line-height:1.5;border-radius:var(--r-lg);padding:16px;margin:32px 0}
+#ci-calc .wrap{max-width:100%;margin:0;padding:0}
+#ci-calc h1{font-family:var(--display);font-weight:700;color:var(--navy);font-size:26px;line-height:1.15;letter-spacing:-.02em}
+#ci-calc .lead{color:var(--text-2);margin:6px 0 20px;font-size:15px}
+#ci-calc .card{background:var(--white);border-radius:var(--r-lg);box-shadow:var(--clay-card);padding:20px}
+#ci-calc .card+.card{margin-top:20px}
+#ci-calc .step{display:flex;gap:12px;align-items:flex-start}
+#ci-calc .step+.step{margin-top:18px}
+#ci-calc .num{flex:0 0 28px;height:28px;border-radius:50%;background:var(--navy);color:#fff;font-family:var(--display);font-size:14px;display:grid;place-items:center;margin-top:30px}
+#ci-calc .field{flex:1}
+#ci-calc label{display:block;font-weight:700;color:var(--navy);font-size:15px;margin-bottom:6px}
+#ci-calc .hint{font-size:13px;color:var(--text-2);margin-top:4px}
+#ci-calc .box{display:flex;align-items:center;background:var(--lila-light);border-radius:var(--r-sm);box-shadow:var(--clay-input);height:52px;padding:0 14px;border:2px solid transparent;transition:border-color .15s}
+#ci-calc .box:focus-within{border-color:var(--navy-soft)}
+#ci-calc .box.err{border-color:var(--danger)}
+#ci-calc .box span{color:var(--text-2);font-weight:500;margin-right:8px;white-space:nowrap}
+#ci-calc .box input{flex:1;min-width:0;height:100%;border:0;background:transparent;font:500 18px var(--body);color:var(--text);outline:none;font-variant-numeric:tabular-nums}
+#ci-calc .err-msg{color:var(--danger);font-size:13px;margin-top:4px}
+#ci-calc .left{margin:18px 0;padding:14px 16px;border-radius:var(--r-md);background:var(--lila);display:flex;justify-content:space-between;align-items:center;gap:8px}
+#ci-calc .left b{font-family:var(--display);font-size:22px;color:var(--navy);font-variant-numeric:tabular-nums}
+#ci-calc .left.neg b{color:var(--danger)}
+#ci-calc .row2{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:18px}
+#ci-calc .years{margin-top:18px}
+#ci-calc .years-top{display:flex;justify-content:space-between;align-items:baseline}
+#ci-calc .years-top b{font-family:var(--display);color:var(--navy);font-size:20px}
+#ci-calc input[type=range]{width:100%;margin-top:10px;height:44px;accent-color:var(--navy);cursor:pointer}
+#ci-calc .chips{display:flex;gap:8px;flex-wrap:wrap;margin-top:4px}
+#ci-calc .chip{min-height:44px;padding:0 16px;border-radius:var(--pill);background:var(--lila-light);box-shadow:var(--clay-soft);font:700 14px var(--body);color:var(--navy);border:0;cursor:pointer;transition:transform .2s var(--ease-clay)}
+#ci-calc .chip[aria-pressed=true]{background:var(--navy);color:#fff;box-shadow:var(--clay-pressed)}
+#ci-calc .chip:active{transform:translateY(2px)}
+#ci-calc details{margin-top:18px}
+#ci-calc summary{cursor:pointer;font-weight:700;color:var(--navy-soft);min-height:44px;display:flex;align-items:center;list-style:none}
+#ci-calc summary::-webkit-details-marker{display:none}
+#ci-calc summary::before{content:"+";display:inline-grid;place-items:center;width:24px;height:24px;border-radius:50%;background:var(--lila);margin-right:8px}
+#ci-calc details[open] summary::before{content:"−"}
+#ci-calc .link{background:none;border:0;color:var(--navy-soft);font:700 13px var(--body);text-decoration:underline;cursor:pointer;min-height:44px;padding:0 2px}
+#ci-calc :focus-visible{outline:3px solid var(--navy-soft);outline-offset:3px}
+#ci-calc .final{background:var(--verde-palido);border-radius:var(--r-lg);padding:20px;box-shadow:var(--clay-soft)}
+#ci-calc .final small{display:block;color:var(--navy);font-weight:500;font-size:14px}
+#ci-calc .final strong{display:block;font-family:var(--display);font-size:clamp(30px,9vw,40px);color:var(--navy);line-height:1.1;margin-top:4px;font-variant-numeric:tabular-nums;word-break:break-word}
+#ci-calc .final p{font-size:14px;color:var(--navy);margin-top:6px}
+#ci-calc .legend{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:16px}
+#ci-calc .lg{border-radius:var(--r-md);padding:14px;box-shadow:var(--clay-soft)}
+#ci-calc .lg.ap{background:var(--lila);border:1.5px solid var(--lila-deep)}
+#ci-calc .lg.in{background:var(--ambar)}
+#ci-calc .lg small{display:block;font-size:13px;color:var(--navy);font-weight:500}
+#ci-calc .lg b{display:block;font-family:var(--display);font-size:20px;color:var(--navy);font-variant-numeric:tabular-nums;margin-top:2px}
+#ci-calc .lg .pct{font-size:13px;color:var(--navy)}
+#ci-calc .monthly{display:flex;justify-content:space-between;align-items:center;margin-top:16px;padding:12px 16px;border-radius:var(--r-md);background:var(--white);box-shadow:var(--clay-soft)}
+#ci-calc .monthly b{font-family:var(--display);color:var(--navy);font-variant-numeric:tabular-nums}
+#ci-calc h2{font-family:var(--display);color:var(--navy);font-size:18px;margin-bottom:10px}
+#ci-calc .tabs{display:flex;gap:8px;margin-bottom:12px}
+#ci-calc svg text{font-family:var(--body);fill:var(--text-2);font-size:11px}
+#ci-calc .chart-wrap{position:relative}
+#ci-calc .tip-pop{position:absolute;pointer-events:none;background:var(--navy);color:#fff;font-size:13px;border-radius:12px;padding:8px 10px;white-space:nowrap;transform:translate(-50%,-110%);opacity:0;transition:opacity .15s}
+#ci-calc .tip-pop b{font-family:var(--display)}
+#ci-calc .pie-row{display:flex;gap:16px;align-items:center}
+#ci-calc .pie-row svg{flex:0 0 140px}
+#ci-calc .pie-txt{font-size:14px;color:var(--text)}
+#ci-calc .pie-txt b{color:var(--navy)}
+#ci-calc .tips{list-style:none}
+#ci-calc .tips li{display:flex;gap:10px;padding:12px 0;border-top:1px solid var(--lila-deep);font-size:15px}
+#ci-calc .tips li:first-child{border-top:0;padding-top:0}
+#ci-calc .tips li::before{content:"";flex:0 0 10px;height:10px;border-radius:50%;background:var(--ambar);margin-top:7px}
+#ci-calc .notice{font-size:13px;color:var(--text-2);margin-top:16px;text-align:center}
+#ci-calc .empty{text-align:center;padding:12px 0;color:var(--navy)}
+#ci-calc .empty b{display:block;font-family:var(--display);font-size:20px;margin-bottom:6px}
+#ci-calc .cta{display:block;width:100%;margin-top:20px;min-height:56px;border-radius:var(--pill);background:linear-gradient(135deg,var(--ambar),var(--ambar-deep));color:var(--navy);font:700 17px var(--display);box-shadow:var(--clay-btn);border:0;cursor:pointer;transition:transform .2s var(--ease-clay)}
+#ci-calc .cta:active{transform:translateY(2px);box-shadow:var(--clay-pressed)}
+#ci-calc .sr{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0)}
+@media(prefers-reduced-motion:reduce){#ci-calc *{transition:none!important}}
+#ci-calc .cta{display:flex;align-items:center;justify-content:center;text-decoration:none;text-align:center}
+#ci-calc h2,#ci-calc p,#ci-calc ul{margin-left:0;margin-right:0}
+#ci-calc [hidden]{display:none!important}
+</style>
+<div id="ci-calc" class="ci-calc">
+<main class="wrap">
+  <section>
+    
+
+    <div class="card" id="form">
+      <div class="chips" role="group" aria-label="Moneda">
+        <button class="chip" data-cur="PEN" aria-pressed="true">Soles S/</button>
+        <button class="chip" data-cur="USD" aria-pressed="false">Dólares US$</button>
+      </div>
+
+      <div class="step" style="margin-top:18px">
+        <span class="num" aria-hidden="true">1</span>
+        <div class="field">
+          <label for="ingreso">¿Cuánto ganas al mes?</label>
+          <div class="box"><span class="cur">S/</span><input id="ingreso" inputmode="decimal" autocomplete="off" value="2500"></div>
+          <p class="hint">Lo que te llega libre, después de descuentos.</p>
+        </div>
+      </div>
+
+      <div class="step">
+        <span class="num" aria-hidden="true">2</span>
+        <div class="field">
+          <label for="gasto">¿Cuánto gastas al mes?</label>
+          <div class="box"><span class="cur">S/</span><input id="gasto" inputmode="decimal" autocomplete="off" value="2000"></div>
+          <p class="hint">Alquiler, comida, pasajes, deudas, salidas.</p>
+        </div>
+      </div>
+
+      <div class="left" id="leftBox" aria-live="polite">
+        <span>Te queda al mes</span><b id="left">S/ 500.00</b>
+      </div>
+
+      <div class="step">
+        <span class="num" aria-hidden="true">3</span>
+        <div class="field">
+          <label for="aporte">¿Cuánto inviertes cada mes?</label>
+          <div class="box" id="aporteBox"><span class="cur">S/</span><input id="aporte" inputmode="decimal" autocomplete="off" value="500"></div>
+          <p class="hint" id="aporteHint">Empieza con lo que te queda. Puedes poner menos. <button class="link" id="useAll" type="button">Usar todo lo que me queda</button></p>
+        </div>
+      </div>
+
+      <div style="margin-top:18px">
+        <label for="tasa">Tasa anual que supones</label>
+        <div class="box" id="tasaBox" style="max-width:180px"><input id="tasa" inputmode="decimal" autocomplete="off" value="" placeholder="0.00" aria-describedby="tasaHint"><span style="margin:0 0 0 6px">%</span></div>
+        <p class="hint" id="tasaHint">Es un supuesto tuyo: ninguna inversión garantiza una tasa.</p>
+      </div>
+
+      <div class="years">
+        <div class="years-top"><label for="anios" style="margin:0">¿Por cuántos años?</label><b><span id="aniosOut">10</span> años</b></div>
+        <input type="range" id="anios" min="1" max="40" step="1" value="10" aria-valuetext="10 años">
+      </div>
+
+      <details>
+        <summary>Ya tengo algo ahorrado para empezar</summary>
+        <label for="inicial">Inversión inicial (opcional)</label>
+        <div class="box"><span class="cur">S/</span><input id="inicial" inputmode="decimal" autocomplete="off" value="0"></div>
+      </details>
+    </div>
+  </section>
+
+  <section class="res" aria-labelledby="resTitle">
+    <h2 id="resTitle" class="sr">Resultado</h2>
+    <div id="results">
+      <div class="final" aria-live="polite">
+        <small id="finalLbl">En 10 años tendrías</small>
+        <strong id="final">S/ 0.00</strong>
+        <p id="finalSub"></p>
+      </div>
+
+      <div class="legend">
+        <div class="lg ap"><small>Lo que pusiste tú</small><b id="aportado">S/ 0.00</b><span class="pct" id="apPct"></span></div>
+        <div class="lg in"><small>Lo que ganó tu plata</small><b id="interes">S/ 0.00</b><span class="pct" id="inPct"></span></div>
+      </div>
+
+      <div class="monthly"><span>Tu aporte cada mes</span><b id="aporteShow">S/ 500.00</b></div>
+
+      <div class="card" style="margin-top:20px">
+        <h2>Cómo crece año a año</h2>
+        <div class="chart-wrap" id="chartWrap">
+          <svg id="chart" viewBox="0 0 340 210" width="100%" role="img" aria-labelledby="chartDesc"><desc id="chartDesc"></desc></svg>
+          <div class="tip-pop" id="pop"></div>
+        </div>
+        <p class="hint">Toca la curva para ver cada año.</p>
+      </div>
+
+      <div class="card">
+        <h2>¿De dónde sale tu monto final?</h2>
+        <div class="pie-row">
+          <svg id="pie" viewBox="0 0 140 140" width="140" height="140" role="img" aria-labelledby="pieDesc"><desc id="pieDesc"></desc></svg>
+          <p class="pie-txt" id="pieTxt"></p>
+        </div>
+      </div>
+
+      <div class="card">
+        <h2>Tips para tus números</h2>
+        <ul class="tips" id="tips"></ul>
+      </div>
+    </div>
+
+    <div class="card" id="emptyState" hidden>
+      <div class="empty"><b>Primero hay que liberar algo de plata</b><p id="emptyTxt"></p></div>
+      <ul class="tips" id="tipsEmpty" style="margin-top:12px"></ul>
+    </div>
+
+    <a class="cta" id="ci-cta" href="/onboarding?utm_source=blog&utm_medium=calculadora&utm_campaign=interes-compuesto">Crea tu cuenta gratis y habla con Pablo sobre tus números</a>
+    <p class="notice">Cálculo ilustrativo, sin impuestos, comisiones ni inflación.</p>
+  </section>
+</main>
+</div>
+<script>
+(function(){
+"use strict";
+
+const root=document.getElementById("ci-calc");const $=id=>document.getElementById(id);
+let CUR="PEN";
+const SYM={PEN:"S/",USD:"US$"};
+const fmt=v=>SYM[CUR]+" "+new Intl.NumberFormat("es-PE",{minimumFractionDigits:2,maximumFractionDigits:2}).format(v);
+const fmtShort=v=>{const a=Math.abs(v);return SYM[CUR]+" "+(a>=1e6?(v/1e6).toFixed(1)+" M":a>=1e3?Math.round(v/1e3)+" mil":Math.round(v))};
+
+/* Acepta "1,234.56", "1234,56", "1 234.5". Si hay una sola coma con 1-2 decimales detrás, es decimal. */
+function parseNum(s){
+  s=String(s).trim().replace(/\s|S\/|US\$|%/g,"");
+  if(!s) return 0;
+  if(/^\d+,\d{1,2}$/.test(s)) s=s.replace(",",".");
+  else s=s.replace(/,/g,"");
+  const n=Number(s);
+  return isFinite(n)?n:NaN;
+}
+
+/* Fórmula del brief: capitalización mensual, aporte al final de cada mes. */
+function simulate(inicial,aporte,tasaAnual,anios){
+  const r=tasaAnual/100/12; let saldo=inicial; const years=[{y:0,total:inicial,aportado:inicial}];
+  let aportado=inicial;
+  for(let m=1;m<=anios*12;m++){
+    saldo=saldo*(1+r)+aporte; aportado+=aporte;
+    if(m%12===0) years.push({y:m/12,total:saldo,aportado});
+  }
+  return {final:saldo,aportado,interes:saldo-aportado,years};
+}
+
+function setErr(box,msg){
+  const b=$(box); b.classList.toggle("err",!!msg);
+  let e=b.parentElement.querySelector(".err-msg");
+  if(msg){ if(!e){e=document.createElement("p");e.className="err-msg";b.after(e)} e.textContent=msg; b.querySelector("input").setAttribute("aria-invalid","true"); }
+  else { if(e) e.remove(); b.querySelector("input").removeAttribute("aria-invalid"); }
+}
+
+let aporteTouched=false;
+function update(){
+  const ingreso=parseNum($("ingreso").value), gasto=parseNum($("gasto").value);
+  const tasa=parseNum($("tasa").value), inicial=parseNum($("inicial").value)||0;
+  const anios=+$("anios").value;
+  const left=(ingreso||0)-(gasto||0);
+  $("left").textContent=fmt(left);
+  $("leftBox").classList.toggle("neg",left<=0);
+  if(!aporteTouched) $("aporte").value=left>0?left.toFixed(2):"0";
+  const aporte=parseNum($("aporte").value);
+  $("aniosOut").textContent=anios; $("anios").setAttribute("aria-valuetext",anios+" años");
+
+  let ok=true;
+  [["ingreso",ingreso],["gasto",gasto],["aporte",aporte]].forEach(([id,v])=>{
+    const box=id==="aporte"?"aporteBox":$(id).parentElement.id||null;
+    const el=$(id).parentElement;
+    if(isNaN(v)||v<0){ok=false;el.classList.add("err")} else el.classList.remove("err");
+  });
+  if(isNaN(tasa)||tasa<0||tasa>50){ok=false;setErr("tasaBox",isNaN(tasa)||tasa<0?"Escribe un número, por ejemplo 6 o 6.5":"Revisa la tasa: más de 50 % al año no es un supuesto realista")} else setErr("tasaBox",null);
+  setErr("aporteBox", (!isNaN(aporte)&&left>0&&aporte>left)?"Es más de lo que te queda al mes ("+fmt(left)+")":null);
+
+  const noMoney=left<=0 && aporte<=0;
+  $("results").hidden=noMoney; $("emptyState").hidden=!noMoney;
+  if(noMoney){
+    $("emptyTxt").textContent=left<0?"Hoy gastas "+fmt(-left)+" más de lo que ganas al mes.":"Hoy gastas todo lo que ganas.";
+    $("tipsEmpty").innerHTML=["Anota tus gastos de una semana y busca 2 que puedas bajar.","Con liberar "+fmt(100)+" al mes ya puedes ver aquí cuánto crecerían.","Si tienes deudas con intereses altos, pagarlas primero suele rendir más que invertir."].map(t=>"<li>"+t+"</li>").join("");
+    return;
+  }
+  if(!ok) return;
+
+  const s=simulate(inicial,aporte,tasa,anios);
+  $("finalLbl").textContent="En "+anios+(anios===1?" año":" años")+" tendrías";
+  $("final").textContent=fmt(s.final);
+  $("finalSub").textContent=tasa===0?"Con 0 % solo sumas lo que pones. Prueba con la tasa que creas posible.":"Si inviertes "+fmt(aporte)+" cada mes a "+tasa+" % al año.";
+  $("aportado").textContent=fmt(s.aportado); $("interes").textContent=fmt(s.interes);
+  const pI=s.final>0?s.interes/s.final*100:0;
+  $("apPct").textContent=(100-pI).toFixed(1)+" % del total"; $("inPct").textContent=pI.toFixed(1)+" % del total";
+  $("aporteShow").textContent=fmt(aporte);
+  drawChart(s.years); drawPie(s,pI); tips(s,{ingreso,aporte,tasa,anios,inicial,left});
+}
+
+function drawChart(ys){
+  const W=340,H=210,L=58,R=24,T=12,B=26, svg=$("chart");
+  const max=Math.max(...ys.map(d=>d.total),1);
+  const x=i=>L+(W-L-R)*i/(ys.length-1||1), y=v=>T+(H-T-B)*(1-v/max);
+  const area=(k)=>"M"+x(0)+","+y(0)+ys.map((d,i)=>" L"+x(i)+","+y(d[k])).join("")+" L"+x(ys.length-1)+","+y(0)+" Z";
+  const line=(k)=>ys.map((d,i)=>(i?"L":"M")+x(i)+","+y(d[k])).join(" ");
+  let g="";
+  for(let i=0;i<=3;i++){const v=max*i/3;g+=`<line x1="${L}" x2="${W-R}" y1="${y(v)}" y2="${y(v)}" stroke="#D7D0E8" stroke-width="1"/><text x="${L-6}" y="${y(v)+4}" text-anchor="end">${fmtShort(v)}</text>`}
+  const step=Math.max(1,Math.ceil((ys.length-1)/5));
+  ys.forEach((d,i)=>{if(i%step===0||i===ys.length-1)g+=`<text x="${x(i)}" y="${H-8}" text-anchor="middle">${d.y===0?"hoy":"año "+d.y}</text>`});
+  svg.innerHTML=`<desc id="chartDesc">Curva del saldo de hoy al año ${ys.length-1}: termina en ${fmt(ys.at(-1).total)}, de los cuales aportaste ${fmt(ys.at(-1).aportado)}.</desc>`+g+
+   `<path d="${area("total")}" fill="#FBA920" opacity=".9"/>`+
+   `<path d="${area("aportado")}" fill="#EEEAFA" stroke="#4D4F88" stroke-width="1.5"/>`+
+   `<path d="${line("total")}" fill="none" stroke="#2B2C64" stroke-width="2.5" stroke-linejoin="round"/>`+
+   `<line id="cur" y1="${T}" y2="${H-B}" stroke="#2B2C64" stroke-dasharray="3 3" opacity="0"/><circle id="dot" r="6" fill="#2B2C64" stroke="#fff" stroke-width="2" opacity="0"/>`+
+   `<rect x="${L}" y="${T}" width="${W-L-R}" height="${H-T-B}" fill="transparent" id="hit"/>`;
+  const pop=$("pop"),hit=$("hit");
+  const show=e=>{const p=svg.getBoundingClientRect();const cx=(e.touches?e.touches[0].clientX:e.clientX)-p.left;const sx=cx*W/p.width;
+    const i=Math.max(0,Math.min(ys.length-1,Math.round((sx-L)/((W-L-R)/(ys.length-1||1)))));const d=ys[i];
+    $("cur").setAttribute("x1",x(i));$("cur").setAttribute("x2",x(i));$("cur").setAttribute("opacity",1);
+    $("dot").setAttribute("cx",x(i));$("dot").setAttribute("cy",y(d.total));$("dot").setAttribute("opacity",1);
+    pop.innerHTML=`<b>${d.y===0?"Hoy":"Año "+d.y}</b> · ${fmt(d.total)}<br>pusiste ${fmt(d.aportado)}`;
+    pop.style.left=Math.min(Math.max(x(i)*p.width/W,90),p.width-90)+"px";pop.style.top=y(d.total)*p.height/H+"px";pop.style.opacity=1;};
+  ["mousemove","touchstart","touchmove"].forEach(ev=>hit.addEventListener(ev,show,{passive:true}));
+  hit.addEventListener("mouseleave",()=>{pop.style.opacity=0});
+}
+
+function drawPie(s,pI){
+  const c=70,r=54,sw=26,C=2*Math.PI*r,frac=Math.max(0,Math.min(1,pI/100));
+  $("pie").innerHTML=`<desc id="pieDesc">Del monto final, ${(100-pI).toFixed(1)} % lo pusiste tú y ${pI.toFixed(1)} % es interés ganado.</desc>
+   <circle cx="${c}" cy="${c}" r="${r}" fill="none" stroke="#EEEAFA" stroke-width="${sw}"/>
+   <circle cx="${c}" cy="${c}" r="${r+sw/2}" fill="none" stroke="#D7D0E8" stroke-width="1"/><circle cx="${c}" cy="${c}" r="${r-sw/2}" fill="none" stroke="#D7D0E8" stroke-width="1"/>
+   <circle cx="${c}" cy="${c}" r="${r}" fill="none" stroke="#FBA920" stroke-width="${sw}" stroke-dasharray="${C*frac} ${C}" transform="rotate(-90 ${c} ${c})"/>
+   <text x="${c}" y="${c-2}" text-anchor="middle" style="font:700 22px Outfit,sans-serif;fill:#2B2C64">${Math.round(pI)}%</text>
+   <text x="${c}" y="${c+16}" text-anchor="middle" style="font-size:11px;fill:#5A5A66">es interés</text>`;
+  $("pieTxt").innerHTML=pI<1?"Todavía casi todo es lo que pusiste tú. El interés compuesto necesita <b>tiempo o tasa</b> para notarse.":
+   `De cada ${SYM[CUR]} 100 que tendrías, <b>${SYM[CUR]} ${Math.round(100-pI)}</b> los pusiste tú y <b>${SYM[CUR]} ${Math.round(pI)}</b> los ganó tu plata.`;
+}
+
+function tips(s,v){
+  const t=[];
+  const pct=v.ingreso>0?v.aporte/v.ingreso*100:0;
+  if(v.ingreso>0) t.push(pct<10?`Inviertes el ${pct.toFixed(1)} % de lo que ganas. Si subieras a 10 % (${fmt(v.ingreso*.1)} al mes), en ${v.anios} años tendrías ${fmt(simulate(v.inicial,v.ingreso*.1,v.tasa,v.anios).final)}.`:`Inviertes el ${pct.toFixed(1)} % de lo que ganas. Mantenerlo mes a mes pesa más que la tasa.`);
+  if(v.tasa>0){
+    const r=v.tasa/100/12; let saldo=v.inicial,cross=null;
+    for(let m=1;m<=480;m++){ if(saldo*r>=v.aporte&&v.aporte>0){cross=Math.ceil(m/12);break} saldo=saldo*(1+r)+v.aporte; }
+    if(cross&&cross<=40) t.push(cross<=v.anios?`Desde el año ${cross}, tu plata gana al mes más de lo que tú pones. Ahí se ve el interés compuesto.`:`Con estos números, recién en el año ${cross} tu plata ganaría al mes más de lo que tú pones.`);
+  }
+  if(v.anios<20){const n=Math.min(40,v.anios+10);t.push(`El tiempo es la palanca más fuerte: con lo mismo, a ${n} años serían ${fmt(simulate(v.inicial,v.aporte,v.tasa,n).final)}.`)}
+  if(v.aporte<v.left-0.005&&v.left>0) t.push(`Te sobran ${fmt(v.left-v.aporte)} al mes sin invertir. ¿Ya tienes un fondo para emergencias?`);
+  if(v.tasa===0) t.push("Pon la tasa que creas posible para tu inversión. Pregúntale a Pablo qué opciones hay y qué riesgos tienen.");
+  $("tips").innerHTML=t.slice(0,3).map(x=>"<li>"+x+"</li>").join("");
+}
+
+["ingreso","gasto","tasa","inicial","anios"].forEach(id=>$(id).addEventListener("input",update));
+$("aporte").addEventListener("input",()=>{aporteTouched=true;update()});
+$("useAll").addEventListener("click",()=>{aporteTouched=false;update()});
+root.querySelectorAll("[data-cur]").forEach(b=>b.addEventListener("click",()=>{CUR=b.dataset.cur;root.querySelectorAll("[data-cur]").forEach(x=>x.setAttribute("aria-pressed",x===b));root.querySelectorAll(".cur").forEach(s=>s.textContent=SYM[CUR]);update()}));
+update();
+
+})();
+</script>
+
+
+<h3>[PENDIENTE: Rodrigo] La clase de hoy en La Komu</h3>
+<p>[PENDIENTE: texto del CTA de Rodrigo. El link de la clase lo pone La Komu; si no llega, el post no sale.] Para recibir el acceso, crea tu cuenta gratis de Pablo.</p>
+<div class="blog-btn-wrap"><a class="blog-btn" href="/onboarding?utm_source=blog&amp;utm_medium=post&amp;utm_campaign=interes-compuesto"><span>Crea tu cuenta gratis de Pablo</span></a></div>
+
+<p><em>Los números de este artículo y de la calculadora son ilustrativos, sin impuestos, comisiones ni inflación. Ninguna inversión garantiza una tasa. Pablo es un asistente, no un asesor financiero.</em></p>

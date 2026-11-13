@@ -13,6 +13,7 @@ import type { PostMeta } from "./notion";
 import detoxFinanciero from "../data/blog-overrides/plantilla-detox-financiero.html?raw";
 import tarjetaClasica2026 from "../data/blog-overrides/querido-pablo-tarjeta-credito-clasica-2026.html?raw";
 import tarjetaGold2026 from "../data/blog-overrides/mejor-tarjeta-credito-gold-peru-2026.html?raw";
+import interesCompuesto from "../data/blog-overrides/interes-compuesto-calculadora.html?raw";
 
 export type BlogOverride = {
   /** HTML que reemplaza a renderBlocks() para este slug. */
@@ -55,6 +56,19 @@ export const BLOG_OVERRIDES: Record<string, BlogOverride> = {
       fecha: "2026-10-07T12:00:00-05:00",
       portada: "/blog/gold/pablo-gold-portada.jpg",
       autor: "Pablo",
+    },
+  },
+  "interes-compuesto-calculadora": {
+    contenido: sinNotas(interesCompuesto),
+    ctaFinal: true,
+    meta: {
+      // BORRADOR: título, descripción y portada provisionales hasta el texto de pablo-copywriter.
+      title: "[BORRADOR] cuánto crecería tu plata si la inviertes cada mes (con calculadora)",
+      descripcion:
+        "Calcula con tus propios números cuánto crecería tu plata con interés compuesto. Cálculo ilustrativo, sin impuestos, comisiones ni inflación.",
+      fecha: "2026-11-13T12:00:00-05:00",
+      portada: null,
+      autor: "Rodrigo",
     },
   },
 };
