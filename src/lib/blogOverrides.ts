@@ -62,10 +62,10 @@ export const BLOG_OVERRIDES: Record<string, BlogOverride> = {
     contenido: sinNotas(interesCompuesto),
     ctaFinal: true,
     meta: {
-      // BORRADOR: título, descripción y portada provisionales (portada: versión B de Diseño, sin confirmar por Rodrigo) hasta el texto de pablo-copywriter.
-      title: "[BORRADOR] cuánto crecería tu plata si la inviertes cada mes (con calculadora)",
+      // Texto de pablo-copywriter (blog_v4). Portada: versión B de Diseño, provisional: Rodrigo pidió una imagen nueva.
+      title: "cómo empecé a invertir con poco (y por qué esperar te sale más caro de lo que crees)",
       descripcion:
-        "Calcula con tus propios números cuánto crecería tu plata con interés compuesto. Cálculo ilustrativo, sin impuestos, comisiones ni inflación.",
+        "El interés compuesto explicado con números simples, y una calculadora para que pongas los tuyos. Ejemplos ilustrativos, sin impuestos, comisiones ni inflación.",
       fecha: "2026-11-13T12:00:00-05:00",
       portada: "/blog/interes-compuesto-portada.jpg",
       autor: "Rodrigo",
