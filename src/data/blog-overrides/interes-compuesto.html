@@ -84,7 +84,7 @@
 #ci-calc{
   --card:#fff; --card-edge:#d9d7e5; --border:#dcdae7; --ink:#2b194d; --ink-soft:#6a6487;
   --primary:#f9b81f; --primary-edge:#c78d05; --primary-ink:#201339;
-  --accent:#2b2c64; --neutral:#e2e0eb; --danger:#c02f2f; --field:#f7f5fb;
+  --accent:#2b194d; --neutral:#e2e0eb; --danger:#c02f2f; --field:#f7f5fb;
   --esm-claro:#e8f7f0; --esm-cara:#d4f2e4; --esm-canto:#8ae0b8; --esm-fuerte:#67c197; --rosa-claro:#f9e6e9; --rosa-cara:#f8ced5; --rosa-canto:#ef7b8e; --amb-claro:#faf5e6; --amb-canto:#efdca4; --amb-fuerte:#e1be56; --float:0 8px 20px -10px hsl(252 40% 30%/.22),0 3px 7px -4px hsl(252 40% 30%/.13);
   --r-field:14px; --r-tile:16px; --r-card:24px; --drop:4px;
   --display:"Outfit",system-ui,sans-serif; --body:"DM Sans",system-ui,sans-serif;
@@ -117,7 +117,7 @@
 #ci-calc .box.izq input{text-align:left}
 #ci-calc .box input::placeholder{font:500 16px var(--body);color:var(--ink-soft);opacity:.8}
 #ci-calc .err-msg{color:var(--danger);font-size:13px;margin-top:5px}
-#ci-calc .stat{display:flex;align-items:center;gap:10px;border-radius:var(--r-card);padding:14px 16px;box-shadow:0 3px 0 0 var(--esm-canto),var(--float);background:var(--esm-cara);margin-top:18px}
+#ci-calc .stat{display:flex;align-items:center;gap:10px;border-radius:var(--r-card);padding:14px 16px;box-shadow:0 3px 0 0 #9f7eed,var(--float);background:#dbcff7;margin-top:18px}
 #ci-calc .stat.neg{background:var(--rosa-cara);box-shadow:0 3px 0 0 var(--rosa-canto),var(--float)}
 #ci-calc .stat img{width:30px;height:30px;flex:0 0 auto}
 #ci-calc .stat small{display:block;font-size:13px;color:var(--ink);font-weight:500}
@@ -144,10 +144,10 @@
 #ci-calc .final p{font-size:14px;color:var(--ink);margin-top:6px}
 #ci-calc .legend{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:18px}
 #ci-calc .lg{border-radius:var(--r-card);padding:14px;min-width:0}
-#ci-calc .lg.ap{background:var(--esm-claro);box-shadow:0 3px 0 0 var(--esm-canto),var(--float)}
-#ci-calc .lg.in{background:var(--amb-claro);box-shadow:0 3px 0 0 var(--amb-canto),var(--float)}
-#ci-calc .lg small::before{content:"";display:inline-block;width:10px;height:10px;border-radius:50%;margin-right:6px;background:var(--esm-fuerte)}
-#ci-calc .lg.in small::before{background:var(--amb-fuerte)}
+#ci-calc .lg.ap{background:#dbcff7;box-shadow:0 3px 0 0 #9f7eed,var(--float)}
+#ci-calc .lg.in{background:#f9eecd;box-shadow:0 3px 0 0 #f0d37a,var(--float)}
+#ci-calc .lg small::before{content:"";display:inline-block;width:10px;height:10px;border-radius:50%;margin-right:6px;background:#9f7eed}
+#ci-calc .lg.in small::before{background:var(--primary)}
 #ci-calc .lg small{display:block;font-size:13px;color:var(--ink);font-weight:500}
 #ci-calc .lg b{display:block;font:700 19px var(--display);color:var(--ink);font-variant-numeric:tabular-nums;margin-top:2px;word-break:break-word}
 #ci-calc .lg .pct{font-size:13px;color:var(--ink)}
@@ -156,6 +156,7 @@
 #ci-calc h2{font:700 19px var(--display);color:var(--ink);margin-bottom:10px;display:flex;align-items:center;gap:8px}
 #ci-calc h2 img{width:28px;height:28px}
 #ci-calc svg text{font-family:var(--body);fill:var(--ink-soft);font-size:11px}
+#ci-calc #chart text{font-size:var(--fs,11px)}
 #ci-calc .chart-wrap{position:relative}
 #ci-calc .tip-pop{position:absolute;pointer-events:none;background:var(--accent);color:#fff;font-size:13px;border-radius:12px;padding:8px 10px;white-space:nowrap;transform:translate(-50%,-110%);opacity:0;transition:opacity .15s}
 #ci-calc .tip-pop b{font-family:var(--display)}
@@ -377,19 +378,22 @@ function update(){
   drawChart(s.years); drawPie(s,pI); tips(s,{ingreso,aporte,tasa,anios,inicial,left});
 }
 
+let lastYs=null;
+window.addEventListener("resize",function(){if(lastYs&&!root.querySelector("#results").hidden)drawChart(lastYs)});
 function drawChart(ys){
-  const W=340,H=210,L=58,R=24,T=12,B=26, svg=$("chart");
+  const W=340,H=210,L=70,R=36,T=12,B=30, svg=$("chart");
+  lastYs=ys; svg.style.setProperty("--fs",(12*W/Math.max(svg.getBoundingClientRect().width||W,1)).toFixed(2)+"px");
   const max=Math.max(...ys.map(d=>d.total),1);
   const x=i=>L+(W-L-R)*i/(ys.length-1||1), y=v=>T+(H-T-B)*(1-v/max);
   const area=(k)=>"M"+x(0)+","+y(0)+ys.map((d,i)=>" L"+x(i)+","+y(d[k])).join("")+" L"+x(ys.length-1)+","+y(0)+" Z";
   const line=(k)=>ys.map((d,i)=>(i?"L":"M")+x(i)+","+y(d[k])).join(" ");
   let g="";
   for(let i=0;i<=3;i++){const v=max*i/3;g+=`<line x1="${L}" x2="${W-R}" y1="${y(v)}" y2="${y(v)}" stroke="#dcdae7" stroke-width="1"/><text x="${L-6}" y="${y(v)+4}" text-anchor="end">${fmtShort(v)}</text>`}
-  const step=Math.max(1,Math.ceil((ys.length-1)/5));
-  ys.forEach((d,i)=>{if(i%step===0||i===ys.length-1)g+=`<text x="${x(i)}" y="${H-8}" text-anchor="middle">${d.y===0?"hoy":"año "+d.y}</text>`});
+  const step=Math.max(1,Math.ceil((ys.length-1)/4)),last=ys.length-1;
+  ys.forEach((d,i)=>{if(i===last||(i%step===0&&last-i>=step*0.6))g+=`<text x="${x(i)}" y="${H-8}" text-anchor="middle">${d.y===0?"hoy":"año "+d.y}</text>`});
   svg.innerHTML=`<desc id="chartDesc">Curva del saldo de hoy al año ${ys.length-1}: termina en ${fmt(ys.at(-1).total)}, de los cuales aportaste ${fmt(ys.at(-1).aportado)}.</desc>`+g+
-   `<path d="${area("total")}" fill="#e1be56"/>`+
-   `<path d="${area("aportado")}" fill="#67c197" stroke="#2b194d" stroke-width="1.5"/>`+
+   `<path d="${area("total")}" fill="#f9b81f"/>`+
+   `<path d="${area("aportado")}" fill="#ece7f8" stroke="#bca7ec" stroke-width="1.5"/>`+
    `<path d="${line("total")}" fill="none" stroke="#2b194d" stroke-width="2.5" stroke-linejoin="round"/>`+
    `<line id="cur" y1="${T}" y2="${H-B}" stroke="#2b194d" stroke-dasharray="3 3" opacity="0"/><circle id="dot" r="6" fill="#2b194d" stroke="#fff" stroke-width="2" opacity="0"/>`+
    `<rect x="${L}" y="${T}" width="${W-L-R}" height="${H-T-B}" fill="transparent" id="hit"/>`;
@@ -407,9 +411,9 @@ function drawChart(ys){
 function drawPie(s,pI){
   const c=70,r=54,sw=26,C=2*Math.PI*r,frac=Math.max(0,Math.min(1,pI/100));
   $("pie").innerHTML=`<desc id="pieDesc">Del monto final, ${(100-pI).toFixed(1)} % lo pusiste tú y ${pI.toFixed(1)} % es interés ganado.</desc>
-   <circle cx="${c}" cy="${c}" r="${r}" fill="none" stroke="#67c197" stroke-width="${sw}"/>
+   <circle cx="${c}" cy="${c}" r="${r}" fill="none" stroke="#ece7f8" stroke-width="${sw}"/>
    <circle cx="${c}" cy="${c}" r="${r+sw/2}" fill="none" stroke="#dcdae7" stroke-width="1"/><circle cx="${c}" cy="${c}" r="${r-sw/2}" fill="none" stroke="#dcdae7" stroke-width="1"/>
-   <circle cx="${c}" cy="${c}" r="${r}" fill="none" stroke="#e1be56" stroke-width="${sw}" stroke-dasharray="${C*frac} ${C}" transform="rotate(-90 ${c} ${c})"/>
+   <circle cx="${c}" cy="${c}" r="${r}" fill="none" stroke="#f9b81f" stroke-width="${sw}" stroke-dasharray="${C*frac} ${C}" transform="rotate(-90 ${c} ${c})"/>
    <text x="${c}" y="${c-2}" text-anchor="middle" style="font:700 22px Outfit,sans-serif;fill:#2b194d">${Math.round(pI)}%</text>
    <text x="${c}" y="${c+16}" text-anchor="middle" style="font-size:11px;fill:#5A5A66">es interés</text>`;
   $("pieTxt").innerHTML=pI<1?"Todavía casi todo es lo que pusiste tú. El interés compuesto necesita <b>tiempo o tasa</b> para notarse.":
