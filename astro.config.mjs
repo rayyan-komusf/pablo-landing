@@ -13,6 +13,10 @@ export default defineConfig({
     // circulando en correos, anuncios y el bot, así que en vez de un 404
     // manda al home.
     '/fiestas-patrias': '/',
+    // Direcciones cortas para atribuir las cuentas de TikTok UGC (nov-2026):
+    // llevan los utm que Atribucion.astro guarda en el primer toque.
+    '/mariella': '/?utm_source=tiktok&utm_medium=social&utm_campaign=ugc-2611&utm_content=m4',
+    '/nico': '/?utm_source=tiktok&utm_medium=social&utm_campaign=ugc-2611&utm_content=h4',
   },
   integrations: [
     sitemap({
