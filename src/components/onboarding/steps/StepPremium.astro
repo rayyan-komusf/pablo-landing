@@ -57,7 +57,11 @@ import { PLAN_SEMESTRAL_ACTIVO } from "../../../siteConfig";
   <footer class="duo-footer cta-footer v2-footer-col">
     <button class="btn-primary btn-continue" onclick="pabloPremiumPagar()" aria-label="Continuar al pago">Continuar al pago →</button>
     <p class="v2-nota" data-premium-nota>Primer cobro al confirmar. Luego S/ 20 al mes, y cancelas cuando quieras.</p>
-    <button type="button" class="cuenta-link v2-link-bajo" onclick="pabloSeguirGratis()">Seguir con Gratis</button>
+    <button type="button" class="cuenta-link v2-link-bajo con-gratis" onclick="pabloSeguirGratis()">Seguir con Gratis</button>
+    <!-- Experimento onboarding-gratis, variante sin_gratis: no se nombra Gratis,
+         pero quien no paga entra a la app con su cuenta (ver pabloEntrarSinPagar).
+         Afiliado y pauta no leen la flag: no lo ven. -->
+    <button type="button" class="cuenta-link v2-link-bajo" data-ab-show="onboarding-gratis:sin_gratis" onclick="pabloEntrarSinPagar('step-premium')">Ahora no, entrar a mi cuenta</button>
   </footer>
 
   <script is:inline>

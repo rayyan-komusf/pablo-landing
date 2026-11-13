@@ -130,7 +130,7 @@ test('sin_gratis: el onboarding no ofrece «Seguir con Gratis»', async ({ page 
   await page.goto('/onboarding');
   await page.waitForFunction(() => typeof window.pabloGoTo === 'function');
   await expect.poll(() => claseSinGratis(page)).toBe(true);
-  for (const step of ['step-18', 'step-18b', 'step-cuenta-pago']) {
+  for (const step of ['step-18', 'step-18b', 'step-cuenta-pago', 'step-premium']) {
     await page.evaluate(s => window.pabloGoTo(s), step);
     const boton = page.locator(`[data-step="${step}"] button.con-gratis, [data-step="${step}"] .con-gratis button`).filter({ hasText: 'Seguir con Gratis' });
     expect(await boton.count()).toBeGreaterThan(0);
@@ -166,13 +166,42 @@ test('sin_gratis: «Ahora no, entrar a mi cuenta» lleva a la app con la cuenta 
   expect(errores).toEqual([]);
 });
 
+test('sin_gratis: en Premium (onboarding v2) la salida discreta y «Saltar» entran a la app sin Gratis', async ({ page }) => {
+  const { errores } = await sinRed(page);
+  await conPosthog(page, 'sin_gratis');
+  await page.goto('/onboarding');
+  await page.waitForFunction(() => typeof window.pabloEntrarSinPagar === 'function');
+  await expect.poll(() => claseSinGratis(page)).toBe(true);
+  await page.evaluate(() => {
+    sessionStorage.setItem('pablo_sesion_tokens', JSON.stringify({ access_token: 'test-access', refresh_token: 'test-refresh' }));
+    window.pabloGoTo('step-premium');
+  });
+  await expect(enlace(page, 'step-premium')).toBeVisible();
+  const destino = page.waitForURL(/\/auth\/sesion\?plan=free/);
+  await page.waitForTimeout(800); // fin de la transición de pantalla
+  await page.locator('#topbarSkip').click();
+  await destino;
+  expect(page.url()).toContain('access_token=test-access');
+  expect(errores).toEqual([]);
+});
+
+test('afiliado: en Premium no hay «Saltar» (no tiene Gratis)', async ({ page }) => {
+  await sinRed(page);
+  await page.goto('/onboarding?a=maria.p_23');
+  await page.waitForFunction(() => typeof window.pabloGoTo === 'function');
+  await page.evaluate(() => window.pabloGoTo('step-premium'));
+  await page.waitForTimeout(300);
+  await expect(page.locator('#topbarSkip')).toBeHidden();
+  await expect(page.locator('[data-step="step-premium"] button', { hasText: 'Continuar al pago' })).toBeVisible();
+});
+
 test('control: ofrece «Seguir con Gratis» y no la salida discreta', async ({ page }) => {
   await sinRed(page);
   await conPosthog(page, 'control');
   await page.goto('/onboarding');
   await page.waitForFunction(() => typeof window.pabloGoTo === 'function');
   await expect.poll(() => page.evaluate(() => window.__flagsLeidas.includes('onboarding-gratis'))).toBe(true);
-  for (const step of ['step-18b', 'step-cuenta-pago']) {
+  for (const step of ['step-18b', 'step-cuenta-pago', 'step-premium']) {
     await page.evaluate(s => window.pabloGoTo(s), step);
     await expect(page.locator(`[data-step="${step}"] button`, { hasText: 'Seguir con Gratis' })).toBeVisible();
     await expect(enlace(page, step)).toHaveCount(1);
@@ -188,7 +217,7 @@ test('afiliado: sin Gratis y sin la salida discreta (no entra al experimento)', 
   await page.waitForTimeout(300);
   expect(await page.evaluate(() => document.documentElement.classList.contains('afiliado'))).toBe(true);
   expect(await page.evaluate(() => window.__flagsLeidas)).not.toContain('onboarding-gratis');
-  for (const step of ['step-18b', 'step-cuenta-pago']) {
+  for (const step of ['step-18b', 'step-cuenta-pago', 'step-premium']) {
     await page.evaluate(s => window.pabloGoTo(s), step);
     await expect(page.locator(`[data-step="${step}"] button`, { hasText: 'Seguir con Gratis' })).toBeHidden();
     await expect(enlace(page, step)).toBeHidden();

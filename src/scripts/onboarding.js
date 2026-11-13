@@ -247,9 +247,13 @@ class OnboardingEngine {
   skip() {
     track("onboarding_skipped", { step_id: this.currentStepId });
     if (this.isTransitioning) return;
-    // En Premium, «Saltar» es seguir con Gratis.
+    // En Premium, «Saltar» es seguir con Gratis. Sin Gratis (variante
+    // sin_gratis del experimento) entra igual, por pabloEntrarSinPagar; al
+    // afiliado no se le muestra «Saltar» aquí (ver updateTopbar).
     if (this.currentStepId === "step-premium") {
-      window.pabloSeguirGratis?.();
+      if (document.documentElement.classList.contains("afiliado")) return;
+      if (window.pabloAB?.sinGratis?.()) window.pabloEntrarSinPagar?.("step-premium");
+      else window.pabloSeguirGratis?.();
       return;
     }
     const destino = SALTAR_A[this.currentStepId];
@@ -525,7 +529,9 @@ class OnboardingEngine {
     this.topbar.classList.toggle("hidden", !flags.showTopbar);
     if (this.skipBtn) {
       // display (no visibility): oculto no ocupa espacio y la barra llega al borde
-      this.skipBtn.style.display = flags.showSkip ? "" : "none";
+      // El afiliado no tiene Gratis: en Premium, «Saltar» no lleva a ningún lado.
+      const sinSalida = this.currentStepId === "step-premium" && document.documentElement.classList.contains("afiliado");
+      this.skipBtn.style.display = flags.showSkip && !sinSalida ? "" : "none";
     }
   }
 

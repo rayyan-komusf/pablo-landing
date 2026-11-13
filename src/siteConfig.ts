@@ -106,4 +106,4 @@ export const PLAY_STORE_URL =
 // gratis. Ese plan todavía NO existe en la pasarela (Whop/Flow): mientras sea
 // false, la tarjeta se ve como «Muy pronto» y no se puede elegir. Encenderlo
 // solo cuando la app acepte plan=semestral en /pricing y /auth/sesion.
-export const PLAN_SEMESTRAL_ACTIVO = true;
+export const PLAN_SEMESTRAL_ACTIVO = false;

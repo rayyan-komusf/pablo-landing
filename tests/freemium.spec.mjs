@@ -93,7 +93,8 @@ test('Premium: Continuar al pago lleva el plan a la app con el precio de oferta'
     window.pabloGoTo('step-premium');
   });
   const paso = page.locator('[data-step="step-premium"]');
-  await expect(paso.locator('[data-premium-plan="semestral"]')).toBeEnabled();
+  // El plan de 6 meses no existe aún en la app: se ve como «Muy pronto» y no se elige.
+  await expect(paso.locator('[data-premium-plan="semestral"]')).toBeDisabled();
   await paso.locator('[data-premium-plan="anual"]').click();
   const next = page.waitForURL(/\/auth\/sesion\?plan=anual/);
   await paso.getByRole('button', { name: 'Continuar al pago' }).click();
