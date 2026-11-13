@@ -13,6 +13,7 @@ import type { PostMeta } from "./notion";
 import detoxFinanciero from "../data/blog-overrides/plantilla-detox-financiero.html?raw";
 import tarjetaClasica2026 from "../data/blog-overrides/querido-pablo-tarjeta-credito-clasica-2026.html?raw";
 import tarjetaGold2026 from "../data/blog-overrides/mejor-tarjeta-credito-gold-peru-2026.html?raw";
+import interesCompuesto from "../data/blog-overrides/interes-compuesto.html?raw";
 
 export type BlogOverride = {
   /** HTML que reemplaza a renderBlocks() para este slug. */
@@ -55,6 +56,19 @@ export const BLOG_OVERRIDES: Record<string, BlogOverride> = {
       fecha: "2026-10-07T12:00:00-05:00",
       portada: "/blog/gold/pablo-gold-portada.jpg",
       autor: "Pablo",
+    },
+  },
+  "interes-compuesto": {
+    contenido: sinNotas(interesCompuesto),
+    ctaFinal: true,
+    meta: {
+      // Texto de pablo-copywriter (blog_v4). Portada: versión B de Diseño, provisional: Rodrigo pidió una imagen nueva.
+      title: "cómo empecé a invertir con poco (y por qué esperar te sale más caro de lo que crees)",
+      descripcion:
+        "El interés compuesto explicado con números simples, y una calculadora para que pongas los tuyos. Ejemplos ilustrativos, sin impuestos, comisiones ni inflación.",
+      fecha: "2026-11-13T12:00:00-05:00",
+      portada: "/blog/interes-compuesto-portada.jpg",
+      autor: "Rodrigo",
     },
   },
 };
