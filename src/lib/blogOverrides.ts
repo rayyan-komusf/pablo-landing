@@ -62,7 +62,7 @@ export const BLOG_OVERRIDES: Record<string, BlogOverride> = {
     contenido: sinNotas(interesCompuesto),
     ctaFinal: true,
     meta: {
-      // BORRADOR: título, descripción y portada provisionales (portada: S9_estudio_v7, recorte de prueba) hasta el texto de pablo-copywriter.
+      // BORRADOR: título, descripción y portada provisionales (portada: versión B de Diseño, sin confirmar por Rodrigo) hasta el texto de pablo-copywriter.
       title: "[BORRADOR] cuánto crecería tu plata si la inviertes cada mes (con calculadora)",
       descripcion:
         "Calcula con tus propios números cuánto crecería tu plata con interés compuesto. Cálculo ilustrativo, sin impuestos, comisiones ni inflación.",
