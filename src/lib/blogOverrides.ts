@@ -20,6 +20,8 @@ export type BlogOverride = {
   contenido: string;
   /** Cierra el post con la franja de FinalCTA, como la home. */
   ctaFinal?: boolean;
+  /** Imagen para compartir (og:image / twitter:image), ruta del sitio. Default: el logo. */
+  ogImage?: string;
   /** Datos de la tarjeta del blog. Con esto el post no depende de Notion. */
   meta?: Omit<PostMeta, "id" | "slug">;
 };
@@ -61,6 +63,7 @@ export const BLOG_OVERRIDES: Record<string, BlogOverride> = {
   "interes-compuesto": {
     contenido: sinNotas(interesCompuesto),
     ctaFinal: true,
+    ogImage: "/blog/interes-compuesto-portada.jpg",
     meta: {
       // Texto de pablo-copywriter (blog_v4). Portada: versión B de Diseño, provisional: Rodrigo pidió una imagen nueva.
       title: "cómo empecé a invertir con poco (y por qué esperar te sale más caro de lo que crees)",
